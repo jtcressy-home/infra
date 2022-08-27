@@ -1,0 +1,34 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.224.3/containers/ubuntu
+{
+	"name": "Ubuntu",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "devcontainer",
+	"workspaceFolder": "/workspace",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {},
+			"extensions": []
+		}
+	},
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {},
+
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [],
+
+	"postCreateCommand": "sudo tailscale up --reset --accept-routes --hostname ${CODESPACE_NAME} --advertise-tags tag:codespaces --auth-key $TAILSCALE_AUTH_KEY",
+	"remoteUser": "vscode",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-from-docker:1.0.4": {},
+		"ghcr.io/devcontainers/features/github-cli:1.0.2": {},
+		"ghcr.io/devcontainers/features/go:1.0.4": {},
+		"ghcr.io/devcontainers/features/terraform:1.0.3": {},
+		"ghcr.io/devcontainers/features/sshd:1.0.3": {}
+	}
+}

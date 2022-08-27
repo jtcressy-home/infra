@@ -1,0 +1,40 @@
+version: "3.4"
+
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+      args:
+        variant: jammy
+    privileged: true
+    volumes:
+      - /dev:/dev
+      - /var/run/docker.sock:/var/run/docker.sock
+      - tailscale-socket:/var/run/tailscale
+    command: /bin/sh -c "while sleep 1000; do :; done"
+  tailscale:
+    image: ghcr.io/tailscale/tailscale:v1.28.0
+    env_file: /root/.codespaces/shared/.env
+    depends_on:
+      - "devcontainer"
+    network_mode: "service:devcontainer"
+    entrypoint:
+      - /usr/local/bin/tailscaled
+      - --state=/tailscale/tailscaled.state
+    environment:
+      HOSTNAME: codespaces
+    volumes:
+      - /var/lib/docker/codespacemoutn/.persistedshare/tailscale:/tailscale
+      - tailscale-socket:/var/run/tailscale
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - CAP_SYS_RAWIO
+    restart: unless-stopped
+
+volumes:
+  tailscale-socket:
