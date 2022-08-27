@@ -8,19 +8,40 @@
 
 	// Configure tool-specific properties.
 	"customizations": {
+		// Configure properties specific to codespaces
+		"codespaces": {
+			"repositories": {
+				"jtcressy-home/tailnet-config": {
+					"permissions": "write-all"
+				},
+				"jtcressy-home/vault-config": {
+					"permissions": "write-all"
+				},
+				"jtcressy-home/home-udm-config": {
+					"permissions": "write-all"
+				},
+				"jtcressy-home/actions-workflows": {
+					"permissions": "write-all"
+				}
+			}
+		},
 		// Configure properties specific to VS Code.
 		"vscode": {
 			"settings": {},
-			"extensions": []
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"googlecloudtools.cloudcode",
+				"golang.go",
+				"hashicorp.terraform",
+				"ms-kubernetes-tools.vscode-kubernetes-tools",
+				"esbenp.prettier-vscode",
+				"redhat.vscode-yaml",
+				"eamodio.gitlens",
+				"ms-azuretools.vscode-docker",
+				"ms-kubernetes-tools.kind-vscode"
+			]
 		}
 	},
-
-	// Set *default* container specific settings.json values on container create.
-	"settings": {},
-
-
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [],
 
 	"postCreateCommand": "sudo tailscale up --reset --accept-routes --hostname ${CODESPACE_NAME} --advertise-tags tag:codespaces --auth-key $TAILSCALE_AUTH_KEY",
 	"remoteUser": "vscode",
