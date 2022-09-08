@@ -46,3 +46,7 @@ COPY --from=quay.io/derailed/k9s /bin/k9s /usr/local/bin/k9s
 
 # Install Flux CLI
 RUN curl -s https://fluxcd.io/install.sh | bash
+
+RUN curl -sLS https://get.k3sup.dev | sh && \
+    sudo install k3sup /usr/local/bin/ && \
+    k3sup version
