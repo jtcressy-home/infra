@@ -1,28 +1,27 @@
-export K3S_VERSION=v1.24.4+k3s1
-export USER=ubuntu
 
 k3sup install \
-  --host raspberrypi-4a06138 \
-  --user $USER \
+  --host raspberrypi-4a06138.jtcressy-home.org.github.beta.tailscale.net \
+  --user ubuntu \
   --cluster \
-  --k3s-version $K3S_VERSION
-
-export SERVER_IP=192.168.0.100
-export NEXT_SERVER_IP=192.168.0.101
-
-k3sup join \
-  --host raspberrypi-b38e0bf \
-  --user $USER \
-  --server-user $USER \
-  --server-host raspberrypi-4a06138 \
-  --server \
-  --k3s-version $K3S_VERSION
+  --k3s-channel stable \
+  --local-path ~/.kube/config --merge --context=rpik3s \
+  --k3s-extra-args '--flannel-iface tailscale0 --flannel-backend host-gw'
 
 k3sup join \
-  --host raspberrypi-b7162e4 \
-  --user $USER \
-  --server-user $USER \
-  --server-host raspberrypi-4a06138 \
+  --host raspberrypi-b38e0bf.jtcressy-home.org.github.beta.tailscale.net \
+  --user ubuntu \
+  --server-user ubuntu \
+  --server-host raspberrypi-4a06138.jtcressy-home.org.github.beta.tailscale.net \
   --server \
-  --k3s-version $K3S_VERSION
+  --k3s-channel stable \
+  --k3s-extra-args '--flannel-iface tailscale0 --flannel-backend host-gw'
+
+k3sup join \
+  --host raspberrypi-b7162e4.jtcressy-home.org.github.beta.tailscale.net \
+  --user ubuntu \
+  --server-user ubuntu \
+  --server-host raspberrypi-4a06138.jtcressy-home.org.github.beta.tailscale.net \
+  --server \
+  --k3s-channel stable \
+  --k3s-extra-args '--flannel-iface tailscale0 --flannel-backend host-gw'
 

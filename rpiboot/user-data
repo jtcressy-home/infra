@@ -1,0 +1,129 @@
+#cloud-config
+
+# This is the user-data configuration file for cloud-init. By default this sets
+# up an initial user called "ubuntu" with password "ubuntu", which must be
+# changed at first login. However, many additional actions can be initiated on
+# first boot from this file. The cloud-init documentation has more details:
+#
+# https://cloudinit.readthedocs.io/
+#
+# Some additional examples are provided in comments below the default
+# configuration.
+
+
+ntp:
+  enabled: true
+  pools: [0.int.pool.ntp.org, 1.int.pool.ntp.org, ntp.myorg.org]
+  servers:
+    - ntp.ubuntu.com
+
+ssh_pwauth: false
+
+users:
+  - name: ubuntu
+    groups: [sudo]
+    shell: /usr/bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+
+## Update apt database and upgrade packages on first boot
+package_update: false
+package_upgrade: false
+apt:
+  sources:
+    tailscale.list:
+      source: deb https://pkgs.tailscale.com/stable/ubuntu focal main
+      keyid: 2596A99EAAB33821893C0A79458CA832957F5868
+
+write_files:
+- path: /usr/bin/set-rpi-hostname.py
+  permissions: 0644
+  owner: root
+  content: |
+    import os
+    try:
+      f = open('/proc/cpuinfo', 'r')
+      for line in f:
+        if line[0:6]=='Serial':
+          cpuserial = line.split(':')[-1].strip()[-8:-1]
+          break
+      f.close()
+    except:
+      cpuserial = "ERROR000000000"
+      exit(1)
+    os.system(f"sudo hostnamectl set-hostname raspberrypi-{cpuserial}")
+    exit(0)
+- path: /etc/systemd/system/rpi-hostname.service
+  permissions: 0644
+  owner: root
+  content: |
+    [Unit]
+    Description=Set hostname to raspberrypi-{cpuserial}
+    After=systemd-hostnamed.service
+
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/bin/python3 /usr/bin/set-rpi-hostname.py
+- path: /etc/tailscale/up-args.sh
+  permissions: 0755
+  owner: root
+  content: |
+    #!/bin/sh
+    echo "--reset"
+    echo "--ssh"
+    echo "--accept-dns"
+    echo "--accept-routes"
+    if [ -d /sys/devices/virtual/net/cni0 ];
+    then
+      echo "--advertise-routes $(ip route | grep src | grep cni0 | awk '{print $1}')"
+    fi
+    echo "--advertise-tags tag:raspberrypi"
+    if [ -f /boot/firmware/tailscale-authkey ];
+    then
+      echo "--auth-key file:/boot/firmware/tailscale-authkey"
+    else
+      echo "--qr"
+    fi
+- path: /etc/systemd/system/tailscale-up.service
+  permissions: 0644
+  owner: root
+  content: |
+    [Unit]
+    Description=Keeps tailscale alive, logged in and configured
+    After=tailscaled.service
+    Requires=tailscaled.service
+
+    [Service]
+    Type=oneshot
+    ExecStart=/bin/bash -c "tailscale up `/etc/tailscale/up-args.sh`"
+- path: /etc/systemd/system/tailscale-cni0-route.path
+  permissiosn: 0644
+  owner: root
+  content: |
+    [Unit]
+    Description="Re-run tailscale up when cni0 appears/disappears"
+
+    [Path]
+    PathModified=/sys/devices/virtual/net/cni0
+    Unit=tailscale-up.service
+
+    [Install]
+    WantedBy=multi-user.target
+    
+
+runcmd:
+- 'systemctl daemon-reload'
+- 'systemctl enable --now rpi-hostname.service'
+- 'systemctl restart avahi-daemon'
+- [sudo, ntpdate, -u, -s, 0.debian.pool.ntp.org, 1.debian.pool.ntp.org, 3.debian.pool.ntp.org]
+- 'date'
+- 'apt -yq update'
+- 'apt -yq install tailscale'
+- 'systemctl enable --now tailscale-up.service'
+- 'systemctl enable --now tailscale-cni0-route.path'
+- 'sudo ufw default deny incoming'
+- 'sudo ufw default allow outgoing'
+- 'sudo ufw allow in on tailscale0'
+- 'sudo ufw enable'
+
+output: { all: "| tee -a /boot/firmware/cloud-init-output.log" }
