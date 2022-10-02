@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ts-svc-route-setter
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: ts-svc-route-setter
+  template:
+    metadata:
+      labels:
+        name: ts-svc-route-setter
+    spec:
+      containers:
+      - name: ts-route-setter
+        image: golang:1.19
+        command:
+        - sh
+        - -c
+        - |
+          cd /app
+          go mod tidy
+          go build -o /tmp/main main.go
+          /tmp/main
+          while true; do sleep 3600; done
+        volumeMounts:
+        - mountPath: /app
+          name: code
+        - mountPath: /run/tailscale/tailscaled.sock
+          name: tailscaled-sock
+        args:
+        - tailscale
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 256Mi
+      volumes:
+      - name: code
+        configMap:
+          name: ts-route-setter-code
+      - name: tailscaled-sock
+        hostPath:
+          path: /run/tailscale/tailscaled.sock

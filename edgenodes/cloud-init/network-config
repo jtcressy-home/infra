@@ -10,6 +10,7 @@
 version: 2
 renderer: networkd
 ethernets:
-  eth0:
-    dhcp4: true
-    optional: false
+  all:
+    match:
+      name: 'e*'
+    dhcp4: yes

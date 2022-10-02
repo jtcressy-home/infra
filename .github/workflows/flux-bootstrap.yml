@@ -1,0 +1,104 @@
+name: FluxCD Cluster Enrollment
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        description: "Location"
+        type: environment
+        required: true
+      name:
+        description: "Cluster Name"
+        required: true
+        type: string
+      github-pat:
+        description: "GitHub Personal Access token with `admin` permissions to configure deploy keys"
+        required: true
+        type: string
+
+
+jobs:
+  enroll-cluster:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.location }}
+    if: github.ref_type == 'branch'
+    permissions:
+      contents: write
+      id-token: write
+    services:
+      op-connect-api:
+        image: 1password/connect-api:latest
+        ports:
+          - 8080:8080
+        volumes:
+          - op-data:/home/opuser/.op/data
+        env:
+          OP_SESSION: ${{ secrets.OP_CREDENTIALS_B64 }}
+      op-connect-sync:
+        image: 1password/connect-sync:latest
+        ports:
+          - 8081:8080
+        volumes:
+          - op-data:/home/opuser/.op/data
+        env:
+          OP_SESSION: ${{ secrets.OP_CREDENTIALS_B64 }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Mask GitHub Token
+        run: |
+          echo "::add-mask::${{ github.event.inputs.github-pat }}"
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+
+      - name: Configure 1Password Connect
+        uses: 1password/load-secrets-action/configure@v1
+        with:
+          connect-host: http://localhost:8080
+          connect-token: ${{ secrets.OP_CONNECT_TOKEN }}
+      
+      - name: Load Tailscale Secrets
+        if: inputs.tailscale
+        uses: 1password/load-secrets-action@v1.0.1
+        env:
+          TAILSCALE_AUTHKEY: op://jtcressy-net-infra/tailscale-key-ghactions/password
+
+      - name: Tailscale
+        if: inputs.tailscale
+        uses: tailscale/github-action@v1
+        with:
+          authkey: ${{ env.TAILSCALE_AUTHKEY }}
+      
+      - name: Vault Login
+        id: vault
+        uses: hashicorp/vault-action@v2.4.2
+        with:
+          url: https://vault.jtcressy.net
+          method: jwt
+          role: github-action
+          exportEnv: true
+          exportToken: true
+
+      - name: Get Cluster Kubeconfig
+        run: echo "todo"
+      
+      - name: Enroll cluster '${{ github.event.inputs.name }}' located at '${{ github.event.inputs.location }}'
+        env:
+          GITHUB_TOKEN: ${{ github.event.inputs.github-pat }}
+          ENV: ${{ github.event.inputs.location }}
+          REPO: ${{ github.event.repository.name }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          BRANCH: ${{ github.ref_name }}
+          CLUSTER_NAME: ${{ github.event.inputs.name }}
+        run: |
+          flux bootstrap github \
+            --owner=${REPO_OWNER} \
+            --repository=${REPO} \
+            --branch=${BRANCH} \
+            --private=true \
+            --reconcile=true \
+            --path=gitops/clusters/${ENV}/${CLUSTER_NAME}
+
+      - name: Validate FluxCD Install
+        run: |
+          flux check
+

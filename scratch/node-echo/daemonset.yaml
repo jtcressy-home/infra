@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-echo
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      name: node-echo
+  template:
+    metadata:
+      labels:
+        name: node-echo
+    spec:
+      containers:
+      - name: node-echo
+        image: jxlwqq/http-echo
+        args:
+        - --text="$(NODE_NAME)"
+        - --addr=:80
+        ports:
+        - name: http
+          containerPort: 80
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 256Mi
