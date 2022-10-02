@@ -1,5 +1,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- github.com/kubernetes-sigs/node-feature-discovery.git//deployment/overlays/default
+- github.com/kubernetes-sigs/node-feature-discovery
 # - github.com/kubernetes-sigs/node-feature-discovery.git//deployment/overlays/default?ref=v0.11.2
