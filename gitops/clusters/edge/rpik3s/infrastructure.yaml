@@ -10,6 +10,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./environments/edge
+  path: ./gitops/environments/edge
   prune: true
   validation: client
