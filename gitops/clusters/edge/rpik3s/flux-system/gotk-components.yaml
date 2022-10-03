@@ -5748,6 +5748,7 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: temp
+      dnsPolicy: Default
       nodeSelector:
         kubernetes.io/os: linux
       securityContext:

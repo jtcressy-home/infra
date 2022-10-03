@@ -77,11 +77,11 @@ write_files:
       mfg = subprocess.check_output("dmidecode -s system-manufacturer", shell=True)
       return slugify(mfg)
     
-    if os.path.exists(/sys/firmware/dmi):
+    if os.path.exists("/sys/firmware/dmi"):
       mfg = dmimfg()
       serial = dmiserial()
       os.system(f"hostnamectl set-hostname {mfg}-{serial}")
-    elif os.path.exists(/sys/firmware/fdt):
+    elif os.path.exists("/sys/firmware/fdt"):
       mfg = rpimfg()
       serial = rpiserial()
       os.system(f"hostnamectl set-hostname {mfg}-{serial}")
@@ -115,7 +115,7 @@ write_files:
     echo "--accept-routes"
     if [ -d /sys/devices/virtual/net/cni0 ];
     then
-      echo "--advertise-routes $(ip route | grep src | grep cni0 | awk '{print $1}')"
+      echo "--advertise-routes $(ip route | grep src | grep cni0 | awk '{print $1}'),10.43.0.0/16"
     fi
     if [ -f /boot/firmware/tailscale-authkey ];
     then
