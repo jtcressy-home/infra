@@ -5665,7 +5665,7 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: temp
-      dnsPolicy: Default
+      dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/os: linux
       securityContext:
@@ -5749,7 +5749,7 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: temp
-      dnsPolicy: Default
+      dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/os: linux
       securityContext:
@@ -5838,7 +5838,7 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: temp
-      dnsPolicy: Default
+      dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/os: linux
       securityContext:
@@ -5933,7 +5933,7 @@ spec:
           name: data
         - mountPath: /tmp
           name: tmp
-      dnsPolicy: Default
+      dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/os: linux
       securityContext:
