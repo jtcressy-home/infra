@@ -12,6 +12,11 @@ spec:
       labels:
         name: node-echo
     spec:
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       containers:
       - name: node-echo
         image: jxlwqq/http-echo
@@ -27,6 +32,16 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+      - name: netshoot
+        image: nicolaka/netshoot
+        command:
+        - sh
+        - -c
+        - sleep 86400
         resources:
           limits:
             cpu: 1000m
