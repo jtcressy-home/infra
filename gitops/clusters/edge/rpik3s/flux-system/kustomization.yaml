@@ -3,16 +3,3 @@ kind: Kustomization
 resources:
 - gotk-components.yaml
 - gotk-sync.yaml
-
-# Necessary to fix dns resolution 
-# until k3s can be configured to reduce ndots by default
-patches:
-- target:
-    kind: Deployment
-  patch: |-
-    - op: replace
-      path: /spec/template/spec/dnsConfig
-      value:
-        options:
-          - name: ndots
-            value: "1"
