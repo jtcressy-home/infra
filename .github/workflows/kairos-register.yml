@@ -1,0 +1,32 @@
+name: Kairos Register
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Base64-encoded PNG picture or screenshot containing a Kairos Registration QR Code'
+        required: true
+        type: string
+      device:
+        description: 'Linux storage device to install Kairos OS to (e.g. /dev/sda)'
+        required: true
+        type: string
+      debug:
+        type: boolean
+        default: false
+        description: 'Enable extra debug jobs'
+        required: false
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Kairos CLI
+      run: |
+        curl -L https://github.com/kairos-io/provider-kairos/releases/download/v1.2.0/kairos-cli-v1.2.0-Linux-x86_64.tar.gz -o - | tar -xvzf - -C .
+    - name: Decode Image to File
+      run: |
+        echo "${{ github.event.inputs.image }}" | base64 -d > image.png
+    - name: Register edge node
+      run: |
+        kairos register --reboot --device ${{ github.event.inputs.device }} --config edgenodes/kairos/config.yaml image.png
