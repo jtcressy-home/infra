@@ -4,7 +4,7 @@
 	"name": "Ubuntu",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "devcontainer",
-	"workspaceFolder": "/workspace",
+	"workspaceFolder": "/workspaces",
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -43,13 +43,20 @@
 		}
 	},
 
-	"postCreateCommand": "sudo tailscale up --reset --accept-routes --hostname ${CODESPACE_NAME} --advertise-tags tag:codespaces --auth-key $TAILSCALE_AUTH_KEY",
+	"postCreateCommand": "sudo tailscale up --reset --ssh --accept-routes --hostname codespace-$(echo $GITHUB_REPOSITORY | tr '/' '-')-$HOSTNAME --auth-key $TAILSCALE_AUTH_KEY",
 	"remoteUser": "vscode",
 	"features": {
-		"ghcr.io/devcontainers/features/docker-from-docker:1.0.4": {},
-		"ghcr.io/devcontainers/features/github-cli:1.0.3": {},
-		"ghcr.io/devcontainers/features/go:1.0.4": {},
-		"ghcr.io/devcontainers/features/terraform:1.0.3": {},
-		"ghcr.io/devcontainers/features/sshd:1.0.3": {}
+		"ghcr.io/devcontainers/features/docker-from-docker:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/sshd:1": {
+			"version": "latest"
+		},
 	}
 }
