@@ -40,12 +40,12 @@ jobs:
     - name: Inject network_token into config.yml
       run: yq -i '.kairos.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'edgenodes/kairos/config.yml'
     - name: Set options for node role "master"
-      if: github.event.inputs.role == "master"
+      if: github.event.inputs.role == 'master'
       run: |
         yq -i '.kairos.role = "master"' edgenodes/kairos/config.yml
         yq -i '.k3s.enabled = "true"' edgenodes/kairos/config.yml
     - name: Set options for node role "worker"
-      if: github.event.inputs.role == "worker"
+      if: github.event.inputs.role == 'worker'
       run: |
         yq -i '.kairos.role = "worker"' edgenodes/kairos/config.yml
         yq -i '.k3s-agent.enabled = "true"' edgenodes/kairos/config.yml
