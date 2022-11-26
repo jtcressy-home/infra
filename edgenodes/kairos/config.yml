@@ -15,6 +15,13 @@ stages:
   initramfs:
     - name: "Setup hostname"
       hostname: "node-{{ trunc 4 .MachineID }}"
+    - name: "Set user and password"
+      users:
+      kairos:
+        groups:
+        - "admin"
+        shell: /bin/bash
+        homedir: "/home/kairos"
   network:
     - name: "Set user ssh keys"
       authorized_keys:
