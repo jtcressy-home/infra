@@ -28,7 +28,7 @@ jobs:
     - name: Inject network_token into config.yml
       uses: mikefarah/yq@master
       with:
-        cmd: yq -i '.kairos.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'config.yml'
+        cmd: yq -i '.kairos.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'edgenodes/kairos/config.yml'
     - name: Register edge node
       env:
         TOKEN: ${{ github.event.inputs.token }}
