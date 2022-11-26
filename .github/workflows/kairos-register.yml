@@ -22,7 +22,7 @@ jobs:
         mv ./kairos-cli /usr/local/bin/kairos
     - name: Install qrencode
       run: |
-        apt-get update && apt-get install -y qrencode
+        sudo apt-get update -yqq && sudo apt-get install -yqq qrencode
     - name: Re-encode token to QR image
       env:
         TOKEN: ${{ github.event.inputs.token }}
