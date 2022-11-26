@@ -19,6 +19,7 @@ jobs:
     - name: Install Kairos CLI
       run: |
         curl -L https://github.com/kairos-io/provider-kairos/releases/download/v1.2.0/kairos-cli-v1.2.0-Linux-x86_64.tar.gz -o - | tar -xvzf - -C .
+        mv ./kairos-cli /usr/local/bin/kairos
     - name: Decode Image to File
       run: |
         echo "${{ github.event.inputs.image }}" | base64 -d > image.png
