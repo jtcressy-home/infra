@@ -48,6 +48,9 @@ COPY --from=tailscale /usr/local/bin/tailscaled /usr/local/bin/tailscaled
 
 COPY --from=k9s /bin/k9s /usr/local/bin/k9s
 
+ENV KAIROS_VERSION 1.2.0
+RUN curl -L https://github.com/kairos-io/provider-kairos/releases/download/v${KAIROS_VERSION}/kairos-cli-v${KAIROS_VERSION}-Linux-x86_64.tar.gz -o - | tar -xvzf - -C . && \
+    mv ./kairos-cli /usr/local/bin/kairos
 
 RUN curl -sLS https://get.k3sup.dev | sh && \
     k3sup version
