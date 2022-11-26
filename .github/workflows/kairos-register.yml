@@ -1,15 +1,15 @@
 name: Kairos Register
 on:
   workflow_dispatch:
-    inputs:
-      image:
-        description: 'Base64-encoded PNG picture or screenshot containing a Kairos Registration QR Code'
-        required: true
-        type: string
-      device:
-        description: 'Linux storage device to install Kairos OS to (e.g. /dev/sda)'
-        required: true
-        type: string
+    # inputs:
+    #   image:
+    #     description: 'Base64-encoded PNG picture or screenshot containing a Kairos Registration QR Code'
+    #     required: true
+    #     type: string
+    #   device:
+    #     description: 'Linux storage device to install Kairos OS to (e.g. /dev/sda)'
+    #     required: true
+    #     type: string
 
 jobs:
   register:
