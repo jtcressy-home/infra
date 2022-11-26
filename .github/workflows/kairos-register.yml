@@ -2,8 +2,8 @@ name: Kairos Register
 on:
   workflow_dispatch:
     inputs:
-      image:
-        description: 'Base64-encoded PNG picture or screenshot containing a Kairos Registration QR Code'
+      token:
+        description: 'Registration token decoded from a Kairos Registration QR Code'
         required: true
         type: string
       device:
@@ -20,11 +20,14 @@ jobs:
       run: |
         curl -L https://github.com/kairos-io/provider-kairos/releases/download/v1.2.0/kairos-cli-v1.2.0-Linux-x86_64.tar.gz -o - | tar -xvzf - -C .
         mv ./kairos-cli /usr/local/bin/kairos
-    - name: Decode Image to File
-      env:
-        IMAGE_B64: ${{ github.event.inputs.image }}
+    - name: Install qrencode
       run: |
-        echo $IMAGE_B64 | tr -d '\n\r' | base64 -d > image.png
+        apt-get update && apt-get install -y qrencode
+    - name: Re-encode token to QR image
+      env:
+        TOKEN: ${{ github.event.inputs.token }}
+      run: |
+        echo $TOKEN | qrencode -t PNG -o image.png
     - name: Register edge node
       run: |
         kairos register --reboot --device ${{ github.event.inputs.device }} --config edgenodes/kairos/config.yaml image.png
