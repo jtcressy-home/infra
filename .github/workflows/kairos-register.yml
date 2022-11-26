@@ -21,8 +21,10 @@ jobs:
         curl -L https://github.com/kairos-io/provider-kairos/releases/download/v1.2.0/kairos-cli-v1.2.0-Linux-x86_64.tar.gz -o - | tar -xvzf - -C .
         mv ./kairos-cli /usr/local/bin/kairos
     - name: Decode Image to File
+      env:
+        IMAGE_B64: ${{ github.event.inputs.image }}
       run: |
-        echo "${{ github.event.inputs.image }}" | base64 -d > image.png
+        echo $IMAGE_B64 | tr -d '\n\r' | base64 -d > image.png
     - name: Register edge node
       run: |
         kairos register --reboot --device ${{ github.event.inputs.device }} --config edgenodes/kairos/config.yaml image.png
