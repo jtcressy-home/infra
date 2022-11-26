@@ -10,11 +10,6 @@ on:
         description: 'Linux storage device to install Kairos OS to (e.g. /dev/sda)'
         required: true
         type: string
-      debug:
-        type: boolean
-        default: false
-        description: 'Enable extra debug jobs'
-        required: false
 
 jobs:
   register:
