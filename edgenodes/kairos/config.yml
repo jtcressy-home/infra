@@ -1,29 +1,29 @@
 #cloud-config
-
 kairos:
   # This is a network token used to establish the p2p full meshed network.
   # Don't specify one to disable full-mesh functionalities.
   network_token: "...."
   # Manually set node role. Available: master, worker. Defaults auto (none). This is available
-  # role: "master"
+  role: "worker"
   # User defined network-id. Can be used to have multiple clusters in the same network
   # network_id: "dev"
   # Enable embedded DNS See also: https://mudler.github.io/edgevpn/docs/concepts/overview/dns/
   dns: true
-
 vpn:
   DHCP: "true"
-
 stages:
   initramfs:
     - name: "Setup hostname"
       hostname: "node-{{ trunc 4 .MachineID }}"
-    - name: "Set user and password"
-      users:
+  network:
+    - name: "Set user ssh keys"
+      authorized_keys:
         kairos:
-          groups:
-          - "admin"
-          shell: /bin/bash
-          homedir: "/home/kairos"
-          ssh_authorized_keys:
           - github:jtcressy
+users:
+- name: "kairos"
+  passwd: "kairos"
+  lock_passwd: true
+  groups: "admin"
+  ssh_authorized_keys:
+  - github:jtcressy

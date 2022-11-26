@@ -6,10 +6,18 @@ on:
         description: 'Registration token decoded from a Kairos Registration QR Code'
         required: true
         type: string
+      role:
+        description: 'Node role to apply during registration. Options are "master" or "worker"'
+        type: choice
+        options:
+        - master
+        - worker
+        default: worker
       device:
         description: 'Linux storage device to install Kairos OS to (e.g. /dev/sda)'
         required: true
         type: string
+        default: /dev/sda
 
 jobs:
   register:
@@ -20,15 +28,27 @@ jobs:
       run: |
         curl -L https://github.com/kairos-io/provider-kairos/releases/download/v1.2.0/kairos-cli-v1.2.0-Linux-x86_64.tar.gz -o - | tar -xvzf - -C .
         mv ./kairos-cli /usr/local/bin/kairos
-    - name: add mask for token input
+    - name: Install yq
+      run: |
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod a+x /usr/local/bin/yq
+    - name: add mask for registration token input
       env:
         TOKEN: ${{ github.event.inputs.token }}
       run: |
         echo "::add-mask::$TOKEN"
     - name: Inject network_token into config.yml
-      uses: mikefarah/yq@master
-      with:
-        cmd: yq -i '.kairos.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'edgenodes/kairos/config.yml'
+      run: yq -i '.kairos.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'edgenodes/kairos/config.yml'
+    - name: Set options for node role "master"
+      if: github.event.inputs.role == "master"
+      run: |
+        yq -i '.kairos.role = "master"' edgenodes/kairos/config.yml
+        yq -i '.k3s.enabled = "true"' edgenodes/kairos/config.yml
+    - name: Set options for node role "worker"
+      if: github.event.inputs.role == "worker"
+      run: |
+        yq -i '.kairos.role = "worker"' edgenodes/kairos/config.yml
+        yq -i '.k3s-agent.enabled = "true"' edgenodes/kairos/config.yml
     - name: Register edge node
       env:
         TOKEN: ${{ github.event.inputs.token }}
