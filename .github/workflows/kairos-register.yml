@@ -20,14 +20,17 @@ jobs:
       run: |
         curl -L https://github.com/kairos-io/provider-kairos/releases/download/v1.2.0/kairos-cli-v1.2.0-Linux-x86_64.tar.gz -o - | tar -xvzf - -C .
         mv ./kairos-cli /usr/local/bin/kairos
-    - name: Install qrencode
-      run: |
-        sudo apt-get update -yqq && sudo apt-get install -yqq qrencode
-    - name: Re-encode token to QR image
+    - name: add mask for token input
       env:
         TOKEN: ${{ github.event.inputs.token }}
       run: |
-        echo $TOKEN | qrencode -t PNG -o image.png
+        echo "::add-mask::$TOKEN"
+    - name: Inject network_token into config.yml
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq -i '.kairos.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'config.yml'
     - name: Register edge node
+      env:
+        TOKEN: ${{ github.event.inputs.token }}
       run: |
-        kairos register --reboot --device ${{ github.event.inputs.device }} --config edgenodes/kairos/config.yaml image.png
+        kairos register --reboot --device ${{ github.event.inputs.device }} --config edgenodes/kairos/config.yml $TOKEN
