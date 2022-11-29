@@ -49,16 +49,28 @@ jobs:
       run: yq -i '.kairos.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'edgenodes/kairos/config.yml'
     - name: Inject cluster_token into config.yml
       run: yq -i '.cluster.cluster_token = "${{ secrets.KAIROS_CLUSTER_TOKEN }}"' 'edgenodes/kairos/config.yml'
-    - name: Set options for node role "master"
-      if: github.event.inputs.role == 'master'
+    
+    - name: Set options for node vpn role "master"
+      if: github.event.inputs.vpn_role == 'master'
       run: |
         yq -i '.kairos.role = "master"' edgenodes/kairos/config.yml
-        yq -i '.k3s.enabled = true' edgenodes/kairos/config.yml
-    - name: Set options for node role "worker"
-      if: github.event.inputs.role == 'worker'
+    - name: Set options for node vpn role "worker"
+      if: github.event.inputs.vpn_role == 'worker'
       run: |
         yq -i '.kairos.role = "worker"' edgenodes/kairos/config.yml
+        
+    - name: Set options for cluster node role "worker"
+      if: github.event.inputs.k8s_role == 'worker'
+      run: |
+        yq -i '.cluster.role = "worker"'
         yq -i '.k3s-agent.enabled = true' edgenodes/kairos/config.yml
+
+    - name: Set options for cluster node role "controlplane" or "init"
+      if: github.event.inputs.k8s_role == 'controlplane' || github.event.inputs.k8s_role == 'init'
+      run: |
+        yq -i '.k3s.enabled = true' edgenodes/kairos/config.yml
+        yq -i '.cluster.role = "${{ github.event.inputs.k8s_role }}"' edgenodes/kairos/config.yml
+        
     - name: Register edge node
       env:
         TOKEN: ${{ github.event.inputs.token }}
