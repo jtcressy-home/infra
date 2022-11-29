@@ -9,6 +9,11 @@ kairos:
   # network_id: "dev"
   # Enable embedded DNS See also: https://mudler.github.io/edgevpn/docs/concepts/overview/dns/
   dns: true
+cluster:
+  cluster_token: "...."
+  control_plane_host: cluster.kairos.local
+  role: worker
+  config: ""
 vpn:
   DHCP: "true"
 stages:
