@@ -1,0 +1,59 @@
+---
+
+name: Kairos Extensions Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - kairos-extensions/**
+      - .github/workflows/kairos-extensions.yml
+
+
+jobs:
+  # matrix:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     matrix: ${{ steps.matrix.outputs.matrix }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Enumerate extensions & load version matrix
+  #       id: matrix
+  #       run: |
+  #         MATRIX=$(find kairos-extensions/ -iname 'Dockerfile' | jq --slurp --raw-input 'split("\n")[:-1]' | jq '
+  #           {
+  #             "include": (
+  #               map(
+  #                 {
+  #                   "extension": (split("/")[1]),
+                    
+  #                 }
+  #               )
+  #             )
+  #           }
+  #         ')
+  #         echo ::set-output name=matrix::${MATRIX}
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        extension:
+          - tailscale
+        kairos-version:
+          - v1.3.2
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          git fetch --prune --unshallow
+      - name: setup-docker
+        uses: docker-practice/actions-setup-docker@master
+      - uses: earthly/actions-setup@v1
+        with:
+          version: "latest"
+      - run: echo $REGISTRY_PASSWORD | docker login -u $REGISTRY_USER --password-stdin $REGISTRY
+      - run: earthly --ci --push +kairos-extension --extension=${{ matrix.extension }} --kairos-version=${{ matrix.kairos-version }}
