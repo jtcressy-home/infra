@@ -1,37 +1,55 @@
-#cloud-config
-kairos:
-  # This is a network token used to establish the p2p full meshed network.
-  # Don't specify one to disable full-mesh functionalities.
-  network_token: "...."
-  # Manually set node role. Available: master, worker. Defaults auto (none). This is available
-  role: "worker"
-  # User defined network-id. Can be used to have multiple clusters in the same network
-  # network_id: "dev"
-  # Enable embedded DNS See also: https://mudler.github.io/edgevpn/docs/concepts/overview/dns/
-  dns: true
-cluster:
-  cluster_token: "...."
-  control_plane_host: cluster.kairos.local
-  role: worker
-  config: ""
-vpn:
-  DHCP: "true"
-stages:
-  initramfs:
-    - name: "Setup hostname"
-      hostname: "node-{{ trunc 4 .MachineID }}"
-    - name: "Set user and password"
-      users:
-      kairos:
-        groups:
-        - "admin"
-        shell: /bin/bash
-        homedir: "/home/kairos"
-  network:
-    - name: "Set user ssh keys"
-      authorized_keys:
-        kairos:
-          - github:jtcressy
+## Sets the Elastic IP used in KubeVIP
+kubevip:
+  eip: "192.168.1.110"
+  # Specify a manifest URL for KubeVIP. Empty uses default
+  manifest_url: ""
+  # Enables KubeVIP
+  enable: true
+  # Specifies a KubeVIP Interface
+  interface: "ens18"
+
+p2p:
+  # role: "" # Set an hardcoded role, optional
+  # Disabling DHT makes co-ordination to discover nodes only in the local network
+  disable_dht: false #Enabled by default
+  # Configures a VPN for the cluster nodes
+  vpn:
+    create: true # defaults to true
+    use: true # defaults to true
+    # env:
+    #   .....
+  # Automatic cluster deployment configuration
+  auto:
+    # Enables Automatic node configuration (self-coordination)
+    # for role assignment
+    enable: true
+    # HA enables automatic HA roles assignment.
+    # A master cluster init is always required,
+    # Any additional master_node is configured as part of the 
+    # HA control plane.
+    # If auto is disabled, HA has no effect.
+    ha:
+      # Enables HA control-plane
+      enable: true
+      # Number of HA additional master nodes.
+      # A master node is always required for creating the cluster and is implied.
+      # The setting below adds 2 additional master nodes, for a total of 3.
+      master_nodes: 2
+      # Use an External database for the HA control plane
+      # external_db: "external-db-string"
+  # network_token is the shared secret used by the nodes to co-ordinate with p2p
+  network_token: "YOUR_TOKEN_GOES_HERE"
+
+install:
+  auto: true
+  reboot: true
+  device: auto
+  # bundles:
+  # - rootfs_path: /usr/local/lib/extensions/tailscale
+  #   targets:
+  #   - container://ghcr.io/jtcressy-home/infra/kairos-extension-tailscale:1.3.2
+
+hostname: "kairos-{{ trunc 4 .MachineID }}"
 users:
 - name: "kairos"
   passwd: "kairos"
