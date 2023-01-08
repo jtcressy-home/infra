@@ -1,5 +1,9 @@
 VERSION 0.6
 
+kairos-extension-all-platforms:
+  BUILD --platform linux/amd64 +kairos-extension
+  BUILD --platform linux/arm64 +kairos-extension
+
 kairos-extension:
   ARG extension
   ARG kairos-version

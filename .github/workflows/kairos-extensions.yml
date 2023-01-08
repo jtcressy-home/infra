@@ -55,5 +55,5 @@ jobs:
       - uses: earthly/actions-setup@v1
         with:
           version: "latest"
-      - run: echo $REGISTRY_PASSWORD | docker login -u $REGISTRY_USER --password-stdin $REGISTRY
-      - run: earthly --ci --push +kairos-extension --extension=${{ matrix.extension }} --kairos-version=${{ matrix.kairos-version }}
+      - run: docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $REGISTRY
+      - run: earthly --ci --push +kairos-extension-all-platforms --extension=${{ matrix.extension }} --kairos-version=${{ matrix.kairos-version }}
