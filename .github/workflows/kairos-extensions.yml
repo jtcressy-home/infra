@@ -56,5 +56,10 @@ jobs:
       - uses: earthly/actions-setup@v1
         with:
           version: "latest"
-      - run: docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD ghcr.io
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - run: earthly --ci --push +kairos-extension-all-platforms --extension=${{ matrix.extension }} --kairos-version=${{ matrix.kairos-version }}
