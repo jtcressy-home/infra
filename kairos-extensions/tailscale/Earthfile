@@ -40,8 +40,8 @@ version:
 build:
   FROM alpine
   
-  ARG VERSION
-  ENV VERSION=$VERSION
+  ARG KAIROS_VERSION
+  ENV KAIROS_VERSION=$KAIROS_VERSION
   COPY +tailscale-latest-version/tailscale.version /tailscale.version
   ARG TAILSCALE_VERSION=$(cat /tailscale.version)
 
@@ -64,7 +64,7 @@ build:
       sed -i 's/--port.*//g' /tailscale/usr/lib/systemd/system/tailscaled.service
 
   RUN echo ID=kairos > /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
-      echo VERSION_ID=$VERSION >> /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
+      echo VERSION_ID=$KAIROS_VERSION >> /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
       echo EXT_VERSION=$(cat /tailscale.version)
 
   SAVE ARTIFACT /tailscale/usr/bin/tailscale /usr/bin/tailscale
@@ -73,5 +73,6 @@ build:
   SAVE ARTIFACT /tailscale/usr/lib/systemd/system/tailscaled.service /usr/lib/systemd/system/tailscaled.service
 
 extension:
+  ARG KAIROS_VERSION
   FROM scratch
-  COPY +build/* /
+  COPY (+build/* --KAIROS_VERSION=$KAIROS_VERSION) /

@@ -20,5 +20,5 @@ kairos-extension:
   COPY (+version/extension.version --EXTENSION=$EXTENSION) /extension.version
   ARG EXT_VERSION=$(cat /extension.version)
   ARG KAIROS_VERSION
-  FROM DOCKERFILE -f kairos-extensions/${EXTENSION}/Dockerfile --build-arg VERSION=${KAIROS_VERSION} .
+  FROM ./kairos-extensions/${EXTENSION}+extension --KAIROS_VERSION=$KAIROS_VERSION
   SAVE IMAGE --push ghcr.io/jtcressy-home/infra/kairos-extension-${EXTENSION}:${EXT_VERSION}-kairos${KAIROS_VERSION}
