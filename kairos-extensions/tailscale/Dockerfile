@@ -2,7 +2,7 @@ FROM alpine as build
 ARG VERSION
 ENV VERSION=$VERSION
 
-RUN apk add curl
+RUN apk add curl jq
 
 RUN tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.amd64)" && \
     version="$(echo ${tarball} | cut -d_ -f2)" && \
