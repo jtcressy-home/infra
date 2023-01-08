@@ -2,12 +2,16 @@ FROM alpine as build
 ARG VERSION
 ENV VERSION=$VERSION
 
-RUN apk add curl jq
+RUN apk add curl jq tree
 
 RUN tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.amd64)" && \
     version="$(echo ${tarball} | cut -d_ -f2)" && \
     curl "https://pkgs.tailscale.com/stable/${tarball}" -o tailscale.tgz && \
-    mkdir -p /tailscale/usr/{bin,sbin,lib/{systemd/system,extension-release.d}} && \
+    mkdir -p \
+        /tailscale/usr/bin \
+        /tailscale/usr/sbin \
+        /tailscale/usr/lib/systemd/system \
+        /tailscale/usr/lib/extension-release.d && \
     tar xzf tailscale.tgz && \
     cp -vrf "tailscale_${version}_amd64"/tailscale /tailscale/usr/bin/tailscale && \
     cp -vrf "tailscale_${version}_amd64"/tailscaled /tailscale/usr/sbin/tailscaled && \
