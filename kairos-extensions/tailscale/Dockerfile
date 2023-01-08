@@ -12,6 +12,7 @@ RUN tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarb
         /tailscale/usr/sbin \
         /tailscale/usr/lib/systemd/system \
         /tailscale/usr/lib/extension-release.d && \
+    tree /tailscale && \
     tar xzf tailscale.tgz && \
     cp -vrf "tailscale_${version}_amd64"/tailscale /tailscale/usr/bin/tailscale && \
     cp -vrf "tailscale_${version}_amd64"/tailscaled /tailscale/usr/sbin/tailscaled && \
