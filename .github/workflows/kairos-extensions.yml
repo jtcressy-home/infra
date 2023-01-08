@@ -62,4 +62,4 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: earthly --ci --push +kairos-extension-all-platforms --extension=${{ matrix.extension }} --kairos-version=${{ matrix.kairos-version }}
+      - run: earthly --ci --push +kairos-extension-all-platforms --EXTENSION=${{ matrix.extension }} --KAIROS_VERSION=${{ matrix.kairos-version }}

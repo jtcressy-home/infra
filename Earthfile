@@ -5,8 +5,8 @@ kairos-extension-all-platforms:
   BUILD --platform linux/arm64 +kairos-extension
 
 kairos-extension:
-  ARG extension
-  ARG kairos-version
-  FROM DOCKERFILE -f kairos-extensions/${extension}/Dockerfile --build-arg VERSION=${kairos-version} .
+  ARG EXTENSION
+  ARG KAIROS_VERSION
+  FROM DOCKERFILE -f kairos-extensions/${EXTENSION}/Dockerfile --build-arg VERSION=${KAIROS_VERSION} .
 
-  SAVE IMAGE --push ghcr.io/jtcressy-home/infra/kairos-extension-${extension}:${kairos-version}
+  SAVE IMAGE --push ghcr.io/jtcressy-home/infra/kairos-extension-${EXTENSION}:${KAIROS_VERSION}
