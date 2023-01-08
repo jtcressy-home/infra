@@ -1,0 +1,77 @@
+VERSION 0.6
+
+tailscale-latest-version:
+  FROM alpine
+  RUN apk add curl jq
+  RUN tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.amd64)" && \
+      version="$(echo ${tarball} | cut -d_ -f2)" && \
+      echo $version > /tailscale.version
+  SAVE ARTIFACT /tailscale.version
+
+tailscale-download:
+  FROM alpine
+  RUN apk add curl jq tree
+
+  RUN tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.amd64)" && \
+      version="$(echo ${tarball} | cut -d_ -f2)" && \
+      curl "https://pkgs.tailscale.com/stable/${tarball}" -o tailscale.tgz && \
+      mkdir -p \
+          /tailscale/usr/bin \
+          /tailscale/usr/sbin \
+          /tailscale/usr/lib/systemd/system \
+          /tailscale/usr/lib/extension-release.d && \
+      tree /tailscale && \
+      tar xzf tailscale.tgz && \
+      echo ${version} > /tailscale/version && \
+      cp -vrf "tailscale_${version}_amd64"/tailscale /tailscale/usr/bin/tailscale && \
+      cp -vrf "tailscale_${version}_amd64"/tailscaled /tailscale/usr/sbin/tailscaled && \
+      cp -vrf "tailscale_${version}_amd64"/systemd/tailscaled.service /tailscale/usr/lib/systemd/system/tailscaled.service && \
+      sed -i 's/--port.*//g' /tailscale/usr/lib/systemd/system/tailscaled.service
+  SAVE ARTIFACT /tailscale/*
+
+version:
+  FROM alpine
+  COPY +tailscale-latest-version/tailscale.version /extension.version
+  ARG VERSION=$(cat /extension.version)
+  ENV VERSION=$VERSION
+  RUN echo $VERSION
+  SAVE ARTIFACT /extension.version
+
+build:
+  FROM alpine
+  
+  ARG VERSION
+  ENV VERSION=$VERSION
+  COPY +tailscale-latest-version/tailscale.version /tailscale.version
+  ARG TAILSCALE_VERSION=$(cat /tailscale.version)
+
+  RUN apk add curl jq tree
+
+  RUN tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.amd64)" && \
+      version="$(echo ${tarball} | cut -d_ -f2)" && \
+      curl "https://pkgs.tailscale.com/stable/${tarball}" -o tailscale.tgz && \
+      mkdir -p \
+          /tailscale/usr/bin \
+          /tailscale/usr/sbin \
+          /tailscale/usr/lib/systemd/system \
+          /tailscale/usr/lib/extension-release.d && \
+      tree /tailscale && \
+      tar xzf tailscale.tgz && \
+      echo ${version} > /tailscale/version && \
+      cp -vrf "tailscale_${version}_amd64"/tailscale /tailscale/usr/bin/tailscale && \
+      cp -vrf "tailscale_${version}_amd64"/tailscaled /tailscale/usr/sbin/tailscaled && \
+      cp -vrf "tailscale_${version}_amd64"/systemd/tailscaled.service /tailscale/usr/lib/systemd/system/tailscaled.service && \
+      sed -i 's/--port.*//g' /tailscale/usr/lib/systemd/system/tailscaled.service
+
+  RUN echo ID=kairos > /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
+      echo VERSION_ID=$VERSION >> /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
+      echo EXT_VERSION=$(cat /tailscale.version)
+
+  SAVE ARTIFACT /tailscale/usr/bin/tailscale /usr/bin/tailscale
+  SAVE ARTIFACT /tailscale/usr/sbin/tailscaled /usr/sbin/tailscaled
+  SAVE ARTIFACT /tailscale/usr/lib/extension-release.d /usr/lib/extension-release.d
+  SAVE ARTIFACT /tailscale/usr/lib/systemd/system/tailscaled.service /usr/lib/systemd/system/tailscaled.service
+
+extension:
+  FROM scratch
+  COPY +build/* /
