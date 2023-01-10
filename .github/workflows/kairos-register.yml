@@ -30,8 +30,8 @@ jobs:
       run: |
         echo "::add-mask::$TOKEN"
 
-    - name: Inject network_token into config.yml
-      run: yq -i '.p2p.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'edgenodes/kairos/config.yml'
+    # - name: Inject network_token into config.yml
+    #   run: yq -i '.p2p.network_token = "${{ secrets.KAIROS_NETWORK_TOKEN }}"' 'edgenodes/kairos/config.yml'
 
     - name: Register edge node
       env:
