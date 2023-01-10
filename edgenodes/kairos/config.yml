@@ -49,10 +49,10 @@ install:
     targets:
     - container://ghcr.io/jtcressy-home/infra/kairos-extension-tailscale:1.34.2-kairos.v1.4.0
 
-k3s:
-  enabled: false
-k3s-agent:
-  enabled: false
+# k3s:
+#   enabled: false
+# k3s-agent:
+#   enabled: false
 
 stages:
   boot:
