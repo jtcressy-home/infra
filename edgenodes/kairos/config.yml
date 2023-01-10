@@ -55,61 +55,56 @@ install:
 #   enabled: false
 
 stages:
-  boot:
-    - files:
-      - path: /etc/tailscale/up-args.sh
-        permissions: 0755
-        owner: root
-        content: |
-          #!/bin/sh
-          echo "--reset"
-          echo "--ssh"
-          echo "--accept-dns"
-          echo "--accept-routes"
-          if [ -d /sys/devices/virtual/net/cni0 ];
-          then
-            echo "--advertise-routes $(ip route | grep src | grep cni0 | awk '{print $1}'),10.43.0.0/16"
-          fi
-          if [ -f /boot/firmware/tailscale-authkey ];
-          then
-            echo "--auth-key file:/boot/firmware/tailscale-authkey"
-          else
-            echo "--qr"
-          fi
-      - path: /etc/systemd/system/tailscale-up.service
-        permissions: 0644
-        owner: root
-        content: |
-          [Unit]
-          Description=Keeps tailscale alive, logged in and configured
-          After=tailscaled.service
-          Requires=tailscaled.service
+  # boot:
+  #   - files:
+  #     - path: /etc/tailscale/up-args.sh
+  #       permissions: 0755
+  #       owner: root
+  #       content: |
+  #         #!/bin/sh
+  #         echo "--reset"
+  #         echo "--ssh"
+  #         echo "--accept-dns"
+  #         echo "--accept-routes"
+  #         if [ -d /sys/devices/virtual/net/cni0 ];
+  #         then
+  #           echo "--advertise-routes $(ip route | grep src | grep cni0 | awk '{print $1}'),10.43.0.0/16"
+  #         fi
+  #         if [ -f /boot/firmware/tailscale-authkey ];
+  #         then
+  #           echo "--auth-key file:/boot/firmware/tailscale-authkey"
+  #         else
+  #           echo "--qr"
+  #         fi
+  #     - path: /etc/systemd/system/tailscale-up.service
+  #       permissions: 0644
+  #       owner: root
+  #       content: |
+  #         [Unit]
+  #         Description=Keeps tailscale alive, logged in and configured
+  #         After=tailscaled.service
+  #         Requires=tailscaled.service
 
-          [Service]
-          ExecStart=/bin/bash -c "while true; do tailscale up `/etc/tailscale/up-args.sh`; sleep 5; done"
-          Restart=always
-          RestartSec=15s
-          User=root
-          KillMode=process
-          IgnoreSIGPIPE=no
-          SendSIGHUP=yes
+  #         [Service]
+  #         ExecStart=/bin/bash -c "while true; do tailscale up `/etc/tailscale/up-args.sh`; sleep 5; done"
+  #         Restart=always
+  #         RestartSec=15s
+  #         User=root
+  #         KillMode=process
+  #         IgnoreSIGPIPE=no
+  #         SendSIGHUP=yes
 
-          [Install]
-          WantedBy=multi-user.target
-      - path: /etc/systemd/system/getty@tty1.service.d/override.conf
-        permissions: 0644
-        owner: root
-        content: |
-          [Service]
-          ExecStart=
-          ExecStart=-/bin/bash -c "while true; do clear; tailscale status; (tailscale status --json | jq -r '.AuthURL' | qrencode -t ANSI); sleep 5; done;"
-          StandardInput=tty
-          StandardOutput=tty
-    - name: enable services
-      commands:
-        - 'systemctl daemon-reload'
-        - 'systemctl enable --now tailscale-up.service'
-        - 'systemctl restart getty@tty1.service'
+  #         [Install]
+  #         WantedBy=multi-user.target
+  #     - path: /etc/systemd/system/getty@tty1.service.d/override.conf
+  #       permissions: 0644
+  #       owner: root
+  #       content: |
+  #         [Service]
+  #         ExecStart=
+  #         ExecStart=-/bin/bash -c "while true; do clear; tailscale status; (tailscale status --json | jq -r '.AuthURL' | qrencode -t ANSI); sleep 5; done;"
+  #         StandardInput=tty
+  #         StandardOutput=tty
   initramfs:
     - name: "Setup hostname"
       hostname: "node-{{ trunc 4 .MachineID }}"
@@ -122,6 +117,11 @@ stages:
           shell: /bin/bash
           homedir: "/home/kairos"
   network:
+    # - name: enable services
+    #   commands:
+    #     - 'systemctl daemon-reload'
+    #     - 'systemctl enable --now tailscale-up.service'
+    #     - 'systemctl restart getty@tty1.service'
     - name: "Set user ssh keys"
       authorized_keys:
         kairos:
