@@ -38,39 +38,29 @@ version:
   SAVE ARTIFACT /extension.version
 
 build:
-  FROM alpine
+  FROM ubuntu:jammy
   
   ARG KAIROS_VERSION
   ENV KAIROS_VERSION=$KAIROS_VERSION
   COPY +tailscale-latest-version/tailscale.version /tailscale.version
   ARG TAILSCALE_VERSION=$(cat /tailscale.version)
+  RUN apt update -yqq && apt install -yqq curl tree
+  RUN mkdir -p --mode=0755 /usr/share/keyrings && \
+      curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null && \
+      curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list && \
+      apt-get update -yqq && apt-get install -yqq tailscale
+  RUN uname -m
+  RUN sed -i 's/--port.*//g' /usr/lib/systemd/system/tailscaled.service
 
-  RUN apk add curl jq tree
+  RUN mkdir -p /usr/lib/extension-release.d && \
+      echo ID=kairos > /usr/lib/extension-release.d/extension-release.tailscale && \
+      echo VERSION_ID=$KAIROS_VERSION >> /usr/lib/extension-release.d/extension-release.tailscale && \
+      echo EXT_VERSION=$(cat /tailscale.version) >> /usr/lib/extension-release.d/extension-release.tailscale
 
-  RUN tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.amd64)" && \
-      version="$(echo ${tarball} | cut -d_ -f2)" && \
-      curl "https://pkgs.tailscale.com/stable/${tarball}" -o tailscale.tgz && \
-      mkdir -p \
-          /tailscale/usr/bin \
-          /tailscale/usr/sbin \
-          /tailscale/usr/lib/systemd/system \
-          /tailscale/usr/lib/extension-release.d && \
-      tree /tailscale && \
-      tar xzf tailscale.tgz && \
-      echo ${version} > /tailscale/version && \
-      cp -vrf "tailscale_${version}_amd64"/tailscale /tailscale/usr/bin/tailscale && \
-      cp -vrf "tailscale_${version}_amd64"/tailscaled /tailscale/usr/sbin/tailscaled && \
-      cp -vrf "tailscale_${version}_amd64"/systemd/tailscaled.service /tailscale/usr/lib/systemd/system/tailscaled.service && \
-      sed -i 's/--port.*//g' /tailscale/usr/lib/systemd/system/tailscaled.service
-
-  RUN echo ID=kairos > /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
-      echo VERSION_ID=$KAIROS_VERSION >> /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
-      echo EXT_VERSION=$(cat /tailscale.version)
-
-  SAVE ARTIFACT /tailscale/usr/bin/tailscale /usr/bin/tailscale
-  SAVE ARTIFACT /tailscale/usr/sbin/tailscaled /usr/sbin/tailscaled
-  SAVE ARTIFACT /tailscale/usr/lib/extension-release.d /usr/lib/extension-release.d
-  SAVE ARTIFACT /tailscale/usr/lib/systemd/system/tailscaled.service /usr/lib/systemd/system/tailscaled.service
+  SAVE ARTIFACT /usr/bin/tailscale
+  SAVE ARTIFACT /sbin/tailscaled
+  SAVE ARTIFACT /usr/lib/extension-release.d/extension-release.tailscale
+  SAVE ARTIFACT /usr/lib/systemd/system/tailscaled.service
 
 extension:
   ARG KAIROS_VERSION
