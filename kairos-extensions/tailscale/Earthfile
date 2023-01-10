@@ -37,7 +37,7 @@ version:
   RUN echo $VERSION
   SAVE ARTIFACT /extension.version
 
-build:
+extension:
   FROM ubuntu:jammy
   
   ARG KAIROS_VERSION
@@ -56,16 +56,21 @@ build:
       echo ID=kairos > /usr/lib/extension-release.d/extension-release.tailscale && \
       echo VERSION_ID=$KAIROS_VERSION >> /usr/lib/extension-release.d/extension-release.tailscale && \
       echo EXT_VERSION=$(cat /tailscale.version) >> /usr/lib/extension-release.d/extension-release.tailscale
+  
+  RUN mkdir -p /tailscale/usr/lib/systemd/system \
+        /tailscale/usr/lib/extension-release.d \
+        /tailscale/usr/sbin \
+        /tailscale/usr/bin && \
+      cp /usr/bin/tailscale /tailscale/usr/bin/tailscale && \
+      cp /usr/sbin/tailscaled /tailscale/usr/sbin/tailscaled && \
+      cp /usr/lib/extension-release.d/extension-release.tailscale /tailscale/usr/lib/extension-release.d/extension-release.tailscale && \
+      cp /usr/lib/systemd/system/tailscaled.service /tailscale/usr/lib/systemd/system/tailscaled.service
 
-  SAVE ARTIFACT /usr/bin/tailscale
-  SAVE ARTIFACT /usr/sbin/tailscaled
-  SAVE ARTIFACT /usr/lib/extension-release.d/extension-release.tailscale
-  SAVE ARTIFACT /usr/lib/systemd/system/tailscaled.service
+  SAVE ARTIFACT /tailscale/ extension
 
-extension:
-  ARG KAIROS_VERSION
+extension-image:
   FROM scratch
-  COPY (+build/usr/bin/tailscale --KAIROS_VERSION=$KAIROS_VERSION) /usr/bin/tailscale
-  COPY (+build/usr/sbin/tailscaled --KAIROS_VERSION=$KAIROS_VERSION) /usr/sbin/tailscaled
-  COPY (+build/usr/lib/extension-release.d/extension-release.tailscale --KAIROS_VERSION=$KAIROS_VERSION) /usr/lib/extension-release.d/extension-release.tailscale
-  COPY (+build/usr/lib/systemd/system/tailscaled.service --KAIROS_VERSION=$KAIROS_VERSION) /usr/lib/systemd/system/tailscaled.service
+  ARG KAIROS_VERSION
+  ARG IMG
+  COPY (+extension/extension --KAIROS_VERSION=$KAIROS_VERSION) /
+  SAVE IMAGE $IMG
