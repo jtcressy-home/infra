@@ -58,11 +58,14 @@ build:
       echo EXT_VERSION=$(cat /tailscale.version) >> /usr/lib/extension-release.d/extension-release.tailscale
 
   SAVE ARTIFACT /usr/bin/tailscale
-  SAVE ARTIFACT /sbin/tailscaled
+  SAVE ARTIFACT /usr/sbin/tailscaled
   SAVE ARTIFACT /usr/lib/extension-release.d/extension-release.tailscale
   SAVE ARTIFACT /usr/lib/systemd/system/tailscaled.service
 
 extension:
   ARG KAIROS_VERSION
   FROM scratch
-  COPY (+build/* --KAIROS_VERSION=$KAIROS_VERSION) /
+  COPY (+build/usr/bin/tailscale --KAIROS_VERSION=$KAIROS_VERSION) /usr/bin/tailscale
+  COPY (+build/usr/sbin/tailscaled --KAIROS_VERSION=$KAIROS_VERSION) /usr/sbin/tailscaled
+  COPY (+build/usr/lib/extension-release.d/extension-release.tailscale --KAIROS_VERSION=$KAIROS_VERSION) /usr/lib/extension-release.d/extension-release.tailscale
+  COPY (+build/usr/lib/systemd/system/tailscaled.service --KAIROS_VERSION=$KAIROS_VERSION) /usr/lib/systemd/system/tailscaled.service
