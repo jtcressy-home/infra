@@ -2,7 +2,7 @@
 
 # [Choice] Ubuntu version (use hirsuite or bionic on local arm64/Apple Silicon): hirsute, focal, bionic
 ARG VARIANT="jammy"
-ARG TAILSCALE_VERSION=v1.30.2
+ARG TAILSCALE_VERSION=latest
 
 FROM ghcr.io/tailscale/tailscale:${TAILSCALE_VERSION} as tailscale
 FROM gcr.io/google.com/cloudsdktool/google-cloud-cli:alpine as gcloud-sdk

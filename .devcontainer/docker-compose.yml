@@ -8,7 +8,7 @@ services:
       network: host
       args:
         VARIANT: jammy
-        TAILSCALE_VERSION: v1.32.3
+        TAILSCALE_VERSION: v1.34
     privileged: true
     volumes:
       - /dev:/dev
@@ -16,7 +16,7 @@ services:
       - tailscale-socket:/var/run/tailscale
     command: /bin/sh -c "while sleep 1000; do :; done"
   tailscale:
-    image: ghcr.io/tailscale/tailscale:v1.32.3
+    image: ghcr.io/tailscale/tailscale:v1.34
     env_file: /root/.codespaces/shared/.env
     depends_on:
       - "devcontainer"

@@ -40,10 +40,16 @@ packages:
 - jq
 - qrencode
 - dmidecode
+- linux-modules-extra-raspi
+- iptables-persistent
+
+bootcmd:
+- 'echo "LANG=POSIX" > /etc/default/locale'
+locale: POSIX
 
 write_files:
 - path: /usr/bin/set-hostname.py
-  permissions: 0644
+  permissions: "0644"
   owner: root
   content: |
     #!/usr/bin/env python3
@@ -91,7 +97,7 @@ write_files:
     os.system(f"hostnamectl set-hostname {mfg}-{serial}")
     exit(0)
 - path: /etc/systemd/system/set-hostname.service
-  permissions: 0644
+  permissions: "0644"
   owner: root
   content: |
     [Unit]
@@ -104,27 +110,27 @@ write_files:
 
     [Install]
     WantedBy=multi-user.target
-- path: /etc/tailscale/up-args.sh
-  permissions: 0755
+- path: /usr/bin/tailscale-login.sh
+  permissions: "0755"
   owner: root
   content: |
-    #!/bin/sh
-    echo "--reset"
-    echo "--ssh"
-    echo "--accept-dns"
-    echo "--accept-routes"
-    if [ -d /sys/devices/virtual/net/cni0 ];
-    then
-      echo "--advertise-routes $(ip route | grep src | grep cni0 | awk '{print $1}'),10.43.0.0/16"
-    fi
-    if [ -f /boot/firmware/tailscale-authkey ];
-    then
-      echo "--auth-key file:/boot/firmware/tailscale-authkey"
-    else
-      echo "--qr"
-    fi
+    #!/bin/bash
+
+    while true
+    do
+      tailscale_state=$(tailscale status --json | jq -r '.BackendState')
+      if [ "$tailscale_state" == "NeedsLogin" ]; then
+        if [ -f /boot/firmware/tailscale-authkey ]; then
+          tailscale login --timeout=1s --auth-key=file:/boot/firmware/tailscale-authkey
+        else
+          echo "starting tailscale login with 60s timeout"
+          tailscale login --timeout=60s
+        fi
+      fi
+      sleep 5;
+    done
 - path: /etc/systemd/system/tailscale-up.service
-  permissions: 0644
+  permissions: "0644"
   owner: root
   content: |
     [Unit]
@@ -133,7 +139,7 @@ write_files:
     Requires=tailscaled.service
 
     [Service]
-    ExecStart=/bin/bash -c "while true; do tailscale up `/etc/tailscale/up-args.sh`; sleep 5; done"
+    ExecStart=-/usr/bin/tailscale-login.sh
     Restart=always
     RestartSec=15s
     User=root
@@ -143,35 +149,55 @@ write_files:
 
     [Install]
     WantedBy=multi-user.target
+- path: /usr/bin/edgenode-dashboard
+  permissions: "0755"
+  owner: root
+  content: |
+    #!/bin/bash
+
+    export TEMPFILE=$(mktemp)
+
+    while true
+    do
+      echo "" > $TEMPFILE;
+      cat /etc/issue | sed 's@\\r@'"$(uname -r)"'@g' | sed 's@\\m@'"$(uname -m)"'@g' | sed 's@\\l@'"$(tty)"'@g' | sed 's@\\n@'"$(hostname)"'@g' >> $TEMPFILE;
+      
+      
+      authurl=$(tailscale status --json | jq -r '.AuthURL');
+      if [ "$authurl" != "" ]; then
+        echo $authurl | qrencode -t ANSIUTF8i >> $TEMPFILE;
+      fi
+      run-parts /etc/update-motd.d >> $TEMPFILE;
+      tailscale status >> $TEMPFILE;
+      
+      tailscale set --ssh
+      tailscale set --accept-dns
+      tailscale set --accept-routes
+
+      clear;
+      cat $TEMPFILE;
+      sleep 5;
+    done
 - path: /etc/systemd/system/getty@tty1.service.d/override.conf
-  permissions: 0644
+  permissions: "0644"
   owner: root
   content: |
     [Service]
     ExecStart=
-    ExecStart=-/bin/bash -c "while true; do clear; tailscale status; (tailscale status --json | jq -r '.AuthURL' | qrencode -t ANSI); sleep 5; done;"
+    ExecStart=-/usr/bin/edgenode-dashboard
     StandardInput=tty
     StandardOutput=tty
-- path: /etc/systemd/system/tailscale-cni0-route.path
-  permissions: 0644
-  owner: root
+- path: /etc/systemd/resolved.conf
+  append: true
   content: |
-    [Unit]
-    Description="Re-run tailscale up when cni0 appears/disappears"
-
-    [Path]
-    PathModified=/sys/devices/virtual/net/cni0
-    Unit=tailscale-up.service
-
-    [Install]
-    WantedBy=multi-user.target
-    
+    Domains=
 
 runcmd:
+- 'sudo iptables -P FORWARD ACCEPT'
+- 'sudo snap install microk8s --classic --channel=1.25'
 - 'systemctl daemon-reload'
 - 'systemctl enable --now set-hostname.service'
 - 'systemctl enable --now tailscale-up.service'
-- 'systemctl enable --now tailscale-cni0-route.path'
 - 'systemctl restart getty@tty1.service'
 - 'sudo ufw default deny incoming'
 - 'sudo ufw default allow outgoing'
