@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   application.resourceTrackingMethod: annotation
-  admin.enabled: 'false'
+  admin.enabled: 'true'
   statusbadge.enabled: 'true'
   # url: https://cd.mgmt.dottid.net
   kustomize.buildOptions: --enable-helm
