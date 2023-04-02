@@ -11,7 +11,7 @@ components:
 - ../../components/namespace
 # - ../../components/github-app-repo-creds
 - ../../components/default-project-lockdown
-- ../../tailscale-service-proxy
+- ../../components/tailscale-service-proxy
 
 patchesStrategicMerge:
 - argocd-cm.yaml
