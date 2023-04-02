@@ -1,0 +1,8 @@
+#cloud-config
+
+# Use this file as instance user-data script for cloud instances to pre-authorize them to join your tailnet
+write_files:
+- path: /var/lib/tailscale/authkey
+  permissions: "0400"
+  owner: root
+  content: "<tailscale authkey goes here>"

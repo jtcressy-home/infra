@@ -1,0 +1,1 @@
+# This addon will configure netplan.yaml on every node as a daemonset to include wifi networks - this enables "roadwarrior"-style nodes that can change network connections dynamically depending on what wifi network is available at the time.

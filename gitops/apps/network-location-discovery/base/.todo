@@ -1,0 +1,1 @@
+# This addon will run as a daemonset and analyze the node's local network to determine its approximate location, labelling the node with region information to assist with placement of kubernetes services.

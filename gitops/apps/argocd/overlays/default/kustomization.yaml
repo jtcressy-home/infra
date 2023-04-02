@@ -1,0 +1,18 @@
+bases:
+- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.6.7
+
+namespace: argocd
+
+resources:
+- infra-repo.yaml
+- root-application.yaml
+
+components:
+- ../../components/namespace
+# - ../../components/github-app-repo-creds
+- ../../components/default-project-lockdown
+
+patchesStrategicMerge:
+- argocd-cm.yaml
+- argocd-rbac-cm.yaml
+# - patch-resources.yaml
