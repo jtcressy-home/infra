@@ -3,28 +3,29 @@ name: "Elemental Image Packer Build"
 
 on:
   workflow_dispatch:
-    packer_target:
-      description: "the target packer build to run"
-      required: true
-      type: string
-    packer_vars_json:
-      description: "JSON formatted packer variables"
-      required: false
-      type: string
-    runs-on:
-      description: "github actions runner tag to run the job on"
-      required: true
-      type: string
-      default: 'ubuntu-latest'
-    gcp-auth:
-      description: "Whether to authenticate with gcp"
-      required: false
-      type: bool
-      default: false
-    environment:
-      description: "Select an environment for scoped secrets"
-      required: false
-      type: environment
+    inputs:
+      packer_target:
+        description: "the target packer build to run"
+        required: true
+        type: string
+      packer_vars_json:
+        description: "JSON formatted packer variables"
+        required: false
+        type: string
+      runs-on:
+        description: "github actions runner tag to run the job on"
+        required: true
+        type: string
+        default: 'ubuntu-latest'
+      gcp-auth:
+        description: "Whether to authenticate with gcp"
+        required: false
+        type: boolean
+        default: false
+      environment:
+        description: "Select an environment for scoped secrets"
+        required: false
+        type: environment
 
 jobs:
   packer:
