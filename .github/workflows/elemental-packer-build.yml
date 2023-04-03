@@ -72,7 +72,7 @@ jobs:
       run: "echo $PACKER_VARS > packer-vars.json"
     
     - name: Packer Init
-      run: "packer init ./images.json.pkr.hcl"
+      run: "packer init ."
 
     - name: Packer build
-      run: "packer build -color=false -on-error=abort -only ${{ github.event.inputs.packer_target }} -var-file=packer-vars.json ./images.json.pkr.hcl"
+      run: "packer build -color=false -on-error=abort -only ${{ github.event.inputs.packer_target }} -var-file=packer-vars.json ."
