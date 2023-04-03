@@ -18,7 +18,7 @@ on:
         type: string
         default: 'ubuntu-latest'
       gcp-auth:
-        description: "Whether to authenticate with gcp"
+        description: "Authenticate with gcp"
         required: false
         type: boolean
         default: false
