@@ -1,9 +1,7 @@
-bases:
-- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.6.7
-
 namespace: argocd
 
 resources:
+- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.6.7
 - infra-repo.yaml
 - root-application.yaml
 
@@ -11,9 +9,22 @@ components:
 - ../../components/namespace
 # - ../../components/github-app-repo-creds
 - ../../components/default-project-lockdown
-- ../../components/tailscale-service-proxy
 
 patchesStrategicMerge:
 - argocd-cm.yaml
 - argocd-rbac-cm.yaml
 # - patch-resources.yaml
+
+
+patches:
+- target:
+    kind: "Service"
+    name: "argocd-server"
+  patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: argocd-server
+      annotations:
+        tailscale.com/expose: "true"
+        tailscale.com/hostname: "argocd"
