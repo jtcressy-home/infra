@@ -4,19 +4,15 @@ metadata:
   name: infra-apps-default
 spec:
   generators:
-  - matrix:
-      generators:
-      - clusters:
-          name: in-cluster
-      - git:
-          repoURL: https://github.com/jtcressy-home/infra.git
-          revision: HEAD
-          directories:
-          # Add any application in /apps that has an overlay matching cluster's environment
-          - path: 'gitops/apps/*/overlays/infra-default'
-          # ArgoCD in mgmt is already handled separately
-          - path: 'gitops/apps/argocd/overlays/infra-default'
-            exclude: true
+  - git:
+      repoURL: https://github.com/jtcressy-home/infra.git
+      revision: HEAD
+      directories:
+      # Add any application in /apps that has an overlay matching cluster's environment
+      - path: 'gitops/apps/*/overlays/infra-default'
+      # ArgoCD in mgmt is already handled separately
+      - path: 'gitops/apps/argocd/overlays/infra-default'
+        exclude: true
   template:
     metadata:
       name: 'infra-app-{{path[1]}}-{{name}}'
@@ -30,7 +26,7 @@ spec:
         targetRevision: HEAD
         path: '{{path}}'
       destination:
-        server: '{{.server}}'
+        server: https://kubernetes.default.svc
       syncPolicy:
         automated:
           prune: true
