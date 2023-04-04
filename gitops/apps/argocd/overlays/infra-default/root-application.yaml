@@ -35,7 +35,6 @@ spec:
     automated:
       prune: true
       selfHeal: true
-      allowEmpty: false
 ---
 # The following application spec configures argocd to manage itself.
 ### TREAD CAREFULLY ###
