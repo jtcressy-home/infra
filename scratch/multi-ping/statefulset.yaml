@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: busybox-ping
+  namespace: default
+spec:
+  clusterIP: None
+  selector:
+    app: busybox-ping
+  ports:
+  - name: dummy
+    port: 1234
+    targetPort: 1234
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: busybox-ping
+  namespace: default
+spec:
+  serviceName: "busybox-ping"
+  replicas: 3
+  updateStrategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: busybox-ping
+  template:
+    metadata:
+      labels:
+        app: busybox-ping
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - busybox-ping
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: busybox
+        image: busybox:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            POD_INDEX="${POD_NAME##*-}"
+            TOTAL_REPLICAS=$(($(echo $STATEFULSET_SIZE) - 1))
+            for i in $(seq 0 $TOTAL_REPLICAS); do
+              if [ "$i" != "${POD_INDEX}" ]; then
+                PEER_POD_NAME="busybox-ping-$i.busybox-ping.default.svc.cluster.local"
+                ping -c 1 "$PEER_POD_NAME"
+              fi
+            done
+            sleep 1
+          done
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: STATEFULSET_SIZE
+          value: "3"

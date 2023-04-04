@@ -15,10 +15,10 @@ spec:
         exclude: true
   template:
     metadata:
-      name: 'infra-app-{{path[1]}}-{{name}}'
+      name: 'infra-app-{{path[2]}}'
       labels:
         infra.jtcressy.net/appset: infra-apps-default
-        infra.jtcressy.net/appname: '{{path[1]}}'
+        infra.jtcressy.net/appname: '{{path[2]}}'
     spec:
       project: 'infra'
       source:
