@@ -1,0 +1,12 @@
+resources:
+- https://raw.githubusercontent.com/external-secrets/external-secrets/v0.8.1/deploy/crds/bundle.yaml
+- namespace.yaml
+helmCharts:
+- name: external-secrets
+  repo: https://charts.external-secrets.io
+  version: "0.8.1"
+  releaseName: external-secrets
+  namespace: external-secrets
+  includeCRDs: false
+  valuesInline:
+    installCRDs: false
