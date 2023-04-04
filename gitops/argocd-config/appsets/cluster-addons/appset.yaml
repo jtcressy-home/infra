@@ -27,7 +27,7 @@ spec:
         targetRevision: HEAD
         path: '{{.path.path}}'
       destination:
-        url: '{{.url}}'
+        server: '{{.server}}'
       syncPolicy:
         automated:
           prune: true
