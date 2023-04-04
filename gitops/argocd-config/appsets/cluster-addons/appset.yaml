@@ -12,7 +12,7 @@ spec:
           revision: HEAD
           directories:
           # Add any application in /apps that has an overlay named "cluster-addon"
-          - path: apps/*/overlays/cluster-addon
+          - path: gitops/apps/*/overlays/cluster-addon
       - clusters: {}
   template:
     metadata:
