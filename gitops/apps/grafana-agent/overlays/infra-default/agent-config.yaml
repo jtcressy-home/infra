@@ -308,7 +308,7 @@ metadata:
 spec:
   config:
     cache_path: /etc/eventhandler/eventhandler.cache
-    logs_instance: default/grafana-agent-logs
+    logs_instance: grafana-agent/grafana-agent-logs
   name: eventhandler
   type:
     unique: true
@@ -331,7 +331,7 @@ spec:
   config:
     autoscrape:
       enable: true
-      metrics_instance: default/grafana-agent-metrics
+      metrics_instance: grafana-agent/grafana-agent-metrics
     procfs_path: host/proc
     rootfs_path: /host/root
     sysfs_path: /host/sys
