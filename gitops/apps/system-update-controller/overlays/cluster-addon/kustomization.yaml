@@ -26,3 +26,8 @@ patches:
                 - matchExpressions:
                   - key: node.kubernetes.io/microk8s-controlplane
                     operator: Exists
+          containers:
+          - name: system-upgrade-controller
+            env:
+            - name: SYSTEM_UPGRADE_JOB_ACTIVE_DEADLINE_SECONDS
+              value: "1800"
