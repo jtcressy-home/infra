@@ -122,6 +122,7 @@ spec:
       containers:
         - name: operator
           image: tailscale/k8s-operator:unstable
+          imagePullPolicy: Always
           resources:
             requests:
               cpu: 500m
