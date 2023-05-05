@@ -20,6 +20,34 @@ patches:
     spec:
       template:
         spec:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoreDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: feature.node.kubernetes.io/hw-virt-enabled
+                  operator: In
+                  values:
+                  - "true"
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                  - "linux"
+                - key: kuberntes.io/arch
+                  operator: In
+                  values:
+                  - "amd64"
+                  #- "arm64"
+          containers:
+          - name: kube-kata
+            lifecycle:
+              postStart:
+                exec:
+                  command:
+                  - bash
+                  - -c
+                  - |
+                    ln -s /etc/systemd/system/snap.microk8s.daemon-containerd.service /etc/systemd/system/containerd.service || true;
+                    systemctl daemon-reload;
           volumes:
           - name: containerd-conf
             hostPath:
