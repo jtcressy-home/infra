@@ -38,7 +38,7 @@ patches:
           volumes:
           - name: containerd-conf
             hostPath:
-              name: /var/snap/microk8s/current/args/
+              path: /var/snap/microk8s/current/args/
           - name: local-bin
             hostPath:
               type: DirectoryOrCreate
