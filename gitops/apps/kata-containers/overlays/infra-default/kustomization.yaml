@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../base
+- nfd-rule-hwvirt.yaml
+
+patches:
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    namespace: kube-system
+    name: kata-deploy
+  patch: |
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: kata-deploy
+      namespace: kube-system
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: containerd-conf
+            hostPath:
+              name: /var/snap/microk8s/current/args/
+          - name: local-bin
+            hostPath:
+              type: DirectoryOrCreate
