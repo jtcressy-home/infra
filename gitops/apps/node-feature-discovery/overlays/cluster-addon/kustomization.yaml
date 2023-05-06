@@ -26,3 +26,21 @@ patches:
           - hostPath:
               path: /var/snap/microk8s/common/var/lib/kubelet
             name: kubelet-state-files
+- target:
+    group: ''
+    version: v1
+    kind: ConfigMap
+    namespace: node-feature-discovery
+    name: nfd-worker-conf
+  patch: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: nfd-worker-conf
+      namespace: node-feature-discovery
+    data:
+      nfd-worker.conf: |
+        core:
+          # I don't plan on running a very large cluster
+          # but want more responsiveness to hardware changes
+          sleepInterval: 10s
