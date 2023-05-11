@@ -1,56 +1,42 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.224.3/containers/ubuntu/.devcontainer/base.Dockerfile
-
-# [Choice] Ubuntu version (use hirsuite or bionic on local arm64/Apple Silicon): hirsute, focal, bionic
-ARG VARIANT="jammy"
-ARG TAILSCALE_VERSION=latest
+ARG ARGOCD_VERSION="v2.6.7"
+ARG K9S_VERSION="v0.26.7"
+ARG TAILSCALE_VERSION="1.40.1"
+ARG CLOUDFLARED_VERSION="2023.5.0"
 
 FROM ghcr.io/tailscale/tailscale:${TAILSCALE_VERSION} as tailscale
-FROM gcr.io/google.com/cloudsdktool/google-cloud-cli:alpine as gcloud-sdk
-FROM quay.io/derailed/k9s as k9s
+FROM quay.io/derailed/k9s:${K9S_VERSION} as k9s
 FROM docker.io/envcli/kubectx as kx
 FROM docker.io/cloudflare/cloudflared:2022.8.0 as cloudflared
 
-FROM mcr.microsoft.com/vscode/devcontainers/base:0-${VARIANT}
+FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+# Add google cloud sdk repo
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/atp/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.gpg
 
-# Install Google Cloud SDK
-ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
-COPY --from=gcloud-sdk /google-cloud-sdk/ /usr/local/gcloud/google-cloud-sdk/
+# Apt Package Install
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends \
+    musl fzf htop jq golang-go gnupg \
+    inetutils-ping dnsutils python3-pip \
+    google-cloud-cli 
 
-# Google Cloud SDK Setup
-RUN gcloud components update && gcloud components install -q \
-    gke-gcloud-auth-plugin nomos bq pkg kubectl kubectl-oidc kpt \
-    terraform-tools skaffold kustomize docker-credential-gcr alpha beta
-
-# Install ClusterCTL
-RUN curl -L https://github.com/kubernetes-sigs/cluster-api/releases/latest/download/clusterctl-linux-amd64 -o /usr/local/bin/clusterctl \
-    && chmod +x /usr/local/bin/clusterctl
-
-# Install Helm
-RUN curl -s https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash -
-
-# Install doctl (DigitalOcean CLI)
-ENV DOCTL_VERSION 1.72.0
-RUN wget https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz && \
-    tar xf ./doctl-${DOCTL_VERSION}-linux-amd64.tar.gz && \
-    mv ./doctl /usr/local/bin/doctl
-
+# Install cloudflared CLI
 COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared
 
+# Install kubectx and kubens shortcuts
 COPY --from=kx /usr/local/bin/kubectx /usr/local/bin/kubectx
 COPY --from=kx /usr/local/bin/kubens /usr/local/bin/kubens
 
+# Install tailscale
 COPY --from=tailscale /usr/local/bin/tailscale /usr/local/bin/tailscale
 COPY --from=tailscale /usr/local/bin/tailscaled /usr/local/bin/tailscaled
 
+# Install k9s CUI and use bundled kubectl
 COPY --from=k9s /bin/k9s /usr/local/bin/k9s
+COPY --from=k9s /usr/local/bin/kubectl /usr/bin/kubectl
 
-ENV KAIROS_VERSION 1.3.2
-RUN curl -L https://github.com/kairos-io/provider-kairos/releases/download/v${KAIROS_VERSION}/kairos-cli-v${KAIROS_VERSION}-Linux-x86_64.tar.gz -o - | tar -xvzf - -C . && \
-    mv ./kairos-cli /usr/local/bin/kairos
-
-RUN curl -sLS https://get.k3sup.dev | sh && \
-    k3sup version
+# Install argocd CLI and use bundled kustomize+helm
+COPY --from=argocd /usr/local/bin/argocd /usr/bin/argocd
+COPY --from=argocd /usr/local/bin/kustomize /usr/bin/kustomize
+COPY --from=argocd /usr/local/bin/helm /usr/bin/helm

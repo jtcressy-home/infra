@@ -7,8 +7,10 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        VARIANT: jammy
-        TAILSCALE_VERSION: v1.34
+        ARGOCD_VERSION: "v2.6.7"
+        K9S_VERSION: "v0.26.7"
+        CLOUDFLARED_VERSION: "2023.5.0"
+        TAILSCALE_VERSION: v1.40.1
     privileged: true
     volumes:
       - /dev:/dev
@@ -16,7 +18,7 @@ services:
       - tailscale-socket:/var/run/tailscale
     command: /bin/sh -c "while sleep 1000; do :; done"
   tailscale:
-    image: ghcr.io/tailscale/tailscale:v1.34
+    image: ghcr.io/tailscale/tailscale:v1.40.1
     env_file: /root/.codespaces/shared/.env
     depends_on:
       - "devcontainer"
