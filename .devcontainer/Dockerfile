@@ -6,7 +6,7 @@ ARG CLOUDFLARED_VERSION="2023.5.0"
 FROM ghcr.io/tailscale/tailscale:${TAILSCALE_VERSION} as tailscale
 FROM quay.io/derailed/k9s:${K9S_VERSION} as k9s
 FROM docker.io/envcli/kubectx as kx
-FROM docker.io/cloudflare/cloudflared:2022.8.0 as cloudflared
+FROM docker.io/cloudflare/cloudflared:${CLOUDFLARED_VERSION} as cloudflared
 
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
