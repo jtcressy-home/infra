@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: infra-apps-default
+  name: core-infra-apps
 spec:
   generators:
   - git:
@@ -9,15 +9,15 @@ spec:
       revision: HEAD
       directories:
       # Add any application in /apps that has an overlay matching cluster's environment
-      - path: 'gitops/apps/*/overlays/infra-default'
+      - path: 'gitops/apps/*/overlays/core-infra'
       # ArgoCD in mgmt is already handled separately
-      - path: 'gitops/apps/argocd/overlays/infra-default'
+      - path: 'gitops/apps/argocd/overlays/core-infra'
         exclude: true
   template:
     metadata:
-      name: 'infra-app-{{path[2]}}'
+      name: '{{path[2]}}'
       labels:
-        infra.jtcressy.net/appset: infra-apps-default
+        infra.jtcressy.net/appset: core-infra-apps
         infra.jtcressy.net/appname: '{{path[2]}}'
     spec:
       project: 'infra'

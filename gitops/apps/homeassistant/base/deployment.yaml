@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homeassistant-deployment
+  namespace: homeassistant
+spec:
+  selector:
+    matchLabels:
+      app: homeassistant
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: homeassistant
+      annotations:
+        # k8s.v1.cni.cncf.io/networks: kube-system/macvlan-conf-dhcp
+        prometheus.io/path: /api/prometheus
+        prometheus.io/port: "8123"
+        prometheus.io/scrape: "true"
+    spec:
+      nodeSelector: # TODO: require scheduling on nodes that have zwave/zigbee usb sticks
+        kubernetes.io/hostname: hp-2ua7021myw
+      containers:
+      - name: homeassistant
+        image: homeassistant/home-assistant:2023.5.2
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 8123
+          protocol: TCP
+        volumeMounts:
+        - name: homeassistant-volume
+          mountPath: /config
+        resources:
+          requests:
+            memory: "1024Mi"
+            cpu: "2"
+          limits:
+            memory: "1024Mi"
+            cpu: "2"
+      volumes:
+      - name: homeassistant-volume
+        persistentVolumeClaim:
+          claimName: homeassistant-pvc

@@ -16,7 +16,7 @@ spec:
       - clusters: {}
   template:
     metadata:
-      name: 'cluster-addon-{{index (splitList "/" .path.path) 2}}-{{.name}}'
+      name: '{{index (splitList "/" .path.path) 2}}-{{.name}}'
       labels:
         infra.jtcressy.net/appset: cluster-addons
         infra.jtcressy.net/appname: '{{index (splitList "/" .path.path) 2}}'

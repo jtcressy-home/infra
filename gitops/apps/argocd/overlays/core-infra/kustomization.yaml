@@ -4,6 +4,7 @@ resources:
 - github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.6.7
 - infra-repo.yaml
 - root-application.yaml
+- in-cluster-config.yaml
 
 components:
 - ../../components/namespace
