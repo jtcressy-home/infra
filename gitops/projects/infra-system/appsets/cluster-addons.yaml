@@ -21,7 +21,7 @@ spec:
         infra.jtcressy.net/appset: cluster-addons
         infra.jtcressy.net/appname: '{{index (splitList "/" .path.path) 2}}'
     spec:
-      project: 'infra'
+      project: 'infra-system'
       source:
         repoURL: https://github.com/jtcressy-home/infra.git
         targetRevision: HEAD

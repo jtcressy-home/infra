@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: argocd
 resources:
-- appsets/cluster-addons
-- appsets/core-infra-apps
+- argocd
+- infra-system
+- home-automation

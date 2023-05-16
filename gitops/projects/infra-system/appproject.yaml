@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infra-system
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: 'infra-system'
+  - namespace: 'cert-manager'
+  - namespace: 'kube-system'
+  - namespace: 'grafana-agent-operator'
+  - namespace: 'grafana-agent'
+  - namespace: 'node-feature-discovery'
+  - namespace: 'system-upgrade'
+  - namespace: 'tailscale'
+  - namespace: 'longhorn-system'
+  - namespace: 'cloudflared'
+  sourceRepos:
+  - https://github.com/jtcressy-home/infra
+  orphanedResources:
+    warn: true

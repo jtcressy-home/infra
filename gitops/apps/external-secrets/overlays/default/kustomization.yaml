@@ -1,3 +1,2 @@
 resources:
-- ../../base
 - cluster-secret-store.yaml
