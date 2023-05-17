@@ -29,6 +29,8 @@ spec:
     server: '*'
   - namespace: 'cloudflared'
     server: '*'
+  - namespace: 'external-secrets'
+    server: '*'
   sourceRepos:
   - https://github.com/jtcressy-home/infra
   orphanedResources:
