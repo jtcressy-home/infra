@@ -4,6 +4,7 @@ metadata:
   name: core-infra
   namespace: argocd
 spec:
+  goTemplate: true
   generators:
   - git:
       repoURL: https://github.com/jtcressy-home/infra.git
@@ -16,16 +17,16 @@ spec:
         exclude: true
   template:
     metadata:
-      name: '{{path[2]}}'
+      name: '{{index (splitList "/" .path.path) 2}}'
       labels:
         infra.jtcressy.net/appset: core-infra
-        infra.jtcressy.net/appname: '{{path[2]}}'
+        infra.jtcressy.net/appname: '{{index (splitList "/" .path.path) 2}}'
     spec:
       project: 'infra-system'
       source:
         repoURL: https://github.com/jtcressy-home/infra.git
         targetRevision: HEAD
-        path: '{{path}}'
+        path: '{{.path.path}}'
       destination:
         namespace: '{{index (splitList "/" .path.path) 5}}'
         server: https://kubernetes.default.svc
