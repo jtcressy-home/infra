@@ -10,9 +10,9 @@ spec:
       revision: HEAD
       directories:
       # Add any application in /apps that has an overlay matching cluster's environment
-      - path: 'gitops/apps/*/overlays/core-infra'
+      - path: 'gitops/apps/*/overlays/core-infra/*'
       # ArgoCD is already handled separately
-      - path: 'gitops/apps/argocd/overlays/core-infra'
+      - path: 'gitops/apps/argocd/overlays/core-infra/*'
         exclude: true
   template:
     metadata:
@@ -27,6 +27,7 @@ spec:
         targetRevision: HEAD
         path: '{{path}}'
       destination:
+        namespace: '{{index (splitList "/" .path.path) 5}}'
         server: https://kubernetes.default.svc
       syncPolicy:
         automated:
