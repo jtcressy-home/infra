@@ -10,15 +10,25 @@ spec:
     kind: '*'
   destinations:
   - namespace: 'infra-system'
+    server: '*'
   - namespace: 'cert-manager'
+    server: '*'
   - namespace: 'kube-system'
+    server: '*'
   - namespace: 'grafana-agent-operator'
+    server: '*'
   - namespace: 'grafana-agent'
+    server: '*'
   - namespace: 'node-feature-discovery'
+    server: '*'
   - namespace: 'system-upgrade'
+    server: '*'
   - namespace: 'tailscale'
+    server: '*'
   - namespace: 'longhorn-system'
+    server: '*'
   - namespace: 'cloudflared'
+    server: '*'
   sourceRepos:
   - https://github.com/jtcressy-home/infra
   orphanedResources:
