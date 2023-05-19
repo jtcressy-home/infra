@@ -2,6 +2,7 @@ apiVersion: v1
 data:
   policy.csv: |
     g, argocd-admin, role:admin
+    g, jtcressy-home:infra-admins, role:admin
     g, argocd-ro, role:readonly
 kind: ConfigMap
 metadata:
