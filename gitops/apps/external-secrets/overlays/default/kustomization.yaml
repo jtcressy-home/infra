@@ -1,2 +1,2 @@
 resources:
-- cluster-secret-store.yaml
+- onepassword.yaml
