@@ -4,3 +4,4 @@ resources:
 - appproject.yaml
 - static-apps/projects.yaml
 - static-apps/argocd.yaml
+- static-apps/secrets.yaml
