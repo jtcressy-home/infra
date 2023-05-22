@@ -7,7 +7,6 @@ patches:
     version: v1
     kind: Deployment
     name: homeassistant-deployment
-    namespace: homeassistant
   patch: |
     apiVersion: apps/v1
     kind: Deployment

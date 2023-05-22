@@ -6,7 +6,6 @@ patches:
     version: v1
     kind: PersistentVolumeClaim
     name: homeassistant-pvc
-    namespace: homeassistant
   patch: |
     apiVersion: v1
     kind: PersistentVolumeClaim
