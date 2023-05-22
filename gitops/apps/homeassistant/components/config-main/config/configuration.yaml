@@ -21,8 +21,8 @@ homeassistant:
   packages:
     security: !include security.yaml
 
-  allowlist_external_dirs:
-    - /config/www/camera
+  # allowlist_external_dirs:
+  #   - /config/www/camera
 
 default_config:
 
