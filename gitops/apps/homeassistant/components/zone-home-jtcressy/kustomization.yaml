@@ -16,4 +16,4 @@ patches:
       template:
         spec:
           nodeSelector:
-            topology.kubernets.io/zone: home-jtcressy
+            topology.kubernetes.io/zone: home-jtcressy
