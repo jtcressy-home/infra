@@ -2,13 +2,11 @@ apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 
 configMapGenerator:
-- name: homeassistant-config
+- name: homeassistant-config-static
   files:
   - config/configuration.yaml
   - config/security.yaml
   behavior: merge
-  options:
-    disableNameSuffixHash: true
 
 patches:
 - target:

@@ -48,4 +48,4 @@ spec:
           claimName: homeassistant-config
       - name: config-static
         configMap:
-          name: homeassistant-config
+          name: homeassistant-config-static
