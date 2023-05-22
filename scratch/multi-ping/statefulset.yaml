@@ -19,9 +19,9 @@ metadata:
   namespace: default
 spec:
   serviceName: "busybox-ping"
-  replicas: 3
+  replicas: 5
   updateStrategy:
-    type: Recreate
+    type: RollingUpdate
   selector:
     matchLabels:
       app: busybox-ping
@@ -64,4 +64,4 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: STATEFULSET_SIZE
-          value: "3"
+          value: "5"
