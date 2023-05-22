@@ -8,15 +8,7 @@ components:
 - ../../components/dhcp-network-binding
 - ../../components/zone-home-jtcressy
 - ../../components/secrets
-
-configMapGenerator:
-- name: homeassistant-config
-  files:
-  - config/configuration.yaml
-  - config/security.yaml
-  behavior: merge
-  options:
-    disableNameSuffixHash: true
+- ../../components/config-main
 
 patches:
 - target:
@@ -40,7 +32,3 @@ patches:
                 memory: 512M
               limits:
                 memory: 2048M
-            volumeMounts:
-            - subPath: security.yaml
-              mountPath: /config/security.yaml
-              name: config-static

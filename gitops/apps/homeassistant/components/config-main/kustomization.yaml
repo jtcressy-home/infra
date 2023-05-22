@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+- name: homeassistant-config
+  files:
+  - config/configuration.yaml
+  - config/security.yaml
+  behavior: merge
+  options:
+    disableNameSuffixHash: true
+
+patches:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: homeassistant
+  patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: homeassistant
+    spec:
+      template:
+        spec:
+          containers:
+          - name: homeassistant
+            volumeMounts:
+            - subPath: security.yaml
+              mountPath: /config/security.yaml
+              name: config-static

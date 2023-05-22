@@ -57,13 +57,13 @@ discovery:
 prometheus:
   namespace: hass
 
-mqtt: !include config/mqtt.yaml
-script: !include_dir_merge_named scripts
-sensor: !include config/sensors.yaml
-automation: !include_dir_merge_list automation
-shell_command: !include shell/shell.yaml
-zone: !include config/zones.yaml
-group: !include groups.yaml
+# mqtt: !include config/mqtt.yaml
+# script: !include_dir_merge_named scripts
+# sensor: !include config/sensors.yaml
+# automation: !include_dir_merge_list automation
+# shell_command: !include shell/shell.yaml
+# zone: !include config/zones.yaml
+# group: !include groups.yaml
 
 
 notify:
