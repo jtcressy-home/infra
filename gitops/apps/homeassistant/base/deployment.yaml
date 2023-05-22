@@ -15,13 +15,10 @@ spec:
       labels:
         app: homeassistant
       annotations:
-        # k8s.v1.cni.cncf.io/networks: kube-system/macvlan-conf-dhcp
         prometheus.io/path: /api/prometheus
         prometheus.io/port: "8123"
         prometheus.io/scrape: "true"
     spec:
-      nodeSelector: # TODO: require scheduling on nodes that have zwave/zigbee usb sticks
-        kubernetes.io/hostname: hp-2ua7021myw
       containers:
       - name: homeassistant
         image: homeassistant/home-assistant:2023.5.2
