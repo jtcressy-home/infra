@@ -19,7 +19,8 @@ patches:
             k8s.v1.cni.cncf.io/networks: |-
               [
                 {
-                  "name": "kube-system/macvlan-conf-dhcp",
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
                   "interface": "eth1"
                 }
               ]
