@@ -7,3 +7,35 @@ components:
 - ../../components/longhorn-pvc
 - ../../components/dhcp-network-binding
 - ../../components/zone-home-jtcressy
+- ../../components/secrets
+
+configMapGenerator:
+- name: homeassistant-config
+  files:
+  - config/configuration.yaml
+  behavior: merge
+  options:
+    disableNameSuffixHash: true
+
+patches:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: homeassistant
+  patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: homeassistant
+    spec:
+      template:
+        spec:
+          containers:
+          - name: homeassistant
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512M
+              limits:
+                memory: 2048M

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: homeassistant-deployment
+  name: homeassistant
 spec:
   selector:
     matchLabels:
@@ -28,16 +28,24 @@ spec:
         - containerPort: 8123
           protocol: TCP
         volumeMounts:
-        - name: homeassistant-volume
+        - name: config
           mountPath: /config
-        resources:
-          requests:
-            memory: "1024Mi"
-            cpu: "500m"
-          limits:
-            memory: "1024Mi"
-            cpu: "2"
+        - name: config-static
+          mountPath: /config/configuration.yaml
+          subPath: configuration.yaml
+        - name: config-static
+          mountPath: /config/automations.yaml
+          subPath: automations.yaml
+        - name: config-static
+          mountPath: /config/scripts.yaml
+          subPath: scripts.yaml
+        - name: config-static
+          mountPath: /config/scenes.yaml
+          subPath: scenes.yaml
       volumes:
-      - name: homeassistant-volume
+      - name: config
         persistentVolumeClaim:
-          claimName: homeassistant-pvc
+          claimName: homeassistant-config
+      - name: config-static
+        configMap:
+          name: homeassistant-config

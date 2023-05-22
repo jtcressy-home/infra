@@ -5,11 +5,11 @@ patches:
 - target:
     version: v1
     kind: PersistentVolumeClaim
-    name: homeassistant-pvc
+    name: homeassistant-config
   patch: |
     apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
-      name: homeassistant-pvc
+      name: homeassistant-config
     spec:
       storageClassName: longhorn

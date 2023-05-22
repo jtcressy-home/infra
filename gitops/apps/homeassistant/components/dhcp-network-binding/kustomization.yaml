@@ -6,12 +6,12 @@ patches:
     group: apps
     version: v1
     kind: Deployment
-    name: homeassistant-deployment
+    name: homeassistant
   patch: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: homeassistant-deployment
+      name: homeassistant
     spec:
       template:
         metadata:
