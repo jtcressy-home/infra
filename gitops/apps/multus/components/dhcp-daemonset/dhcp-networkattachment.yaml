@@ -11,15 +11,15 @@ spec:
           "type": "dhcp",
           "provide": [
             {
-              "option": "host-name",
+              "option": "12",
               "fromArg": "dhcp-host-name"
             },
             {
-              "option": "host-name",
+              "option": "12",
               "fromArg": "K8S_POD_NAME"
             },
             {
-              "option": "host-name",
+              "option": "12",
               "value": "macvlan-default-hostname"
             }
         ]
