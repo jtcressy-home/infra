@@ -38,7 +38,7 @@ helmCharts:
       readiness:
         enabled: false
       startup:
-        enabled: true
+        enabled: false
     persistence:
       config:
         enabled: true
