@@ -1,34 +1,86 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../base
+- externalsecret.yaml
 
-components:
-- ../../components/longhorn-pvc
-- ../../components/dhcp-network-binding
-- ../../components/zone-home-jtcressy
-- ../../components/secrets
-- ../../components/config-main
+helmCharts:
+- name: app-template
+  repo: https://bjw-s.github.io/helm-charts/
+  version: 1.5.0
+  releaseName: homeassistant
+  valuesInline:
+    image:
+      repository: homeassistant/home-assistant
+      tag: 2023.5.3
+    env:
+      TZ: "America/Chicago"
+    envFrom:
+      - secretRef:
+          name: homeassistant-secret
+    service:
+      main:
+        type: ClusterIP
+        ports:
+          http:
+            port: 8123
+    serviceMonitor:
+      main:
+        enabled: true
+        endpoints:
+        - port: http
+          scheme: http
+          path: /api/prometheus
+          interval: 1m
+          scrapeTimeout: 10s
+    probes:
+      liveness:
+        enabled: false
+      readiness:
+        enabled: false
+      startup:
+        enabled: true
+    persistence:
+      config:
+        enabled: true
+        storageClass: "longhorn"
+        accessMode: ReadWriteOnce
+        size: "10Gi"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512M
+      limits:
+        memory: 2048M
+    nodeSelector:
+      topology.kubernetes.io/zone: home-jtcressy
+    podAnnotations:
+      k8s.v1.cni.cncf.io/networks: |-
+        [
+          {
+            "name": "macvlan-conf-dhcp",
+            "namespace": "kube-system",
+            "interface": "eth1"
+          }
+        ]
+    addons:
+      codeserver:
+        enabled: true
+        image:
+          repository: codercom/code-server
+          tag: 4.13.0
+        workingDir: "/config"
+        args:
+          - --user-data-dir
+          - "/config/.vscode"
+          - --auth
+          - "none"
+        env:
+          TZ: America/Chicago
+          HASS_SERVER: http://localhost:8123
+        volumeMounts:
+        - name: config
+          mountPath: /config
 
-patches:
-- target:
-    group: apps
-    version: v1
-    kind: Deployment
-    name: homeassistant
-  patch: |
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: homeassistant
-    spec:
-      template:
-        spec:
-          containers:
-          - name: homeassistant
-            resources:
-              requests:
-                cpu: 100m
-                memory: 512M
-              limits:
-                memory: 2048M
+
+# components:
+# - ../../components/config-main
