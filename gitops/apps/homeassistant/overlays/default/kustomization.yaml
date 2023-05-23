@@ -80,7 +80,3 @@ helmCharts:
         volumeMounts:
         - name: config
           mountPath: /config
-
-
-# components:
-# - ../../components/config-main
