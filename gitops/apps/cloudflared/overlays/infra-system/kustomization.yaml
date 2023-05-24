@@ -23,8 +23,8 @@ helmCharts:
       TUNNEL_TOKEN:
         valueFrom:
           secretKeyRef:
-            name: tunnel-credentials
-            key: token
+            name: cloudflared-creds
+            key: tunnel-token
     
     args:
       - tunnel
