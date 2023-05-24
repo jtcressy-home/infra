@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+helmCharts:
+- name: nats
+  repo: https://nats-io.github.io/k8s/helm/charts/
+  version: 1.0.0-beta.4
+  releaseName: nats
+  valuesInline:
+    config:
+      cluster:
+        enabled: true
+        replicas: 3
+      jetstream:
+        enabled: true
+        fileStore:
+          pvc:
+            storageClassName: longhorn
+            size: 10Gi
+      mqtt:
+        enabled: true
+    promExporter:
+      enabled: true
+      podMonitor:
+        enabled: true
+    natsBox:
+      enabled: true
