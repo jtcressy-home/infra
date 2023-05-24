@@ -79,9 +79,13 @@ helmCharts:
           failureThreshold: 30
           periodSeconds: 10
 
-      resources:
-        requests:
-          cpu: 6m
-          memory: 105Mi
-        limits:
-          memory: 105Mi
+    resources:
+      requests:
+        cpu: 6m
+        memory: 105Mi
+      limits:
+        memory: 105Mi
+
+    addons:
+      netshoot:
+        enabled: true
