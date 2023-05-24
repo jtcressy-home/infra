@@ -1,25 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: core-infra
+  name: infra-system
   namespace: argocd
 spec:
   goTemplate: true
   generators:
-  - git:
-      repoURL: https://github.com/jtcressy-home/infra.git
-      revision: HEAD
-      directories:
-      # Add any application in /apps that has an overlay matching cluster's environment
-      - path: 'gitops/apps/*/overlays/core-infra/*'
-      # ArgoCD is already handled separately
-      - path: 'gitops/apps/argocd/overlays/core-infra'
-        exclude: true
+  - matrix:
+      generators:
+      - git:
+          repoURL: https://github.com/jtcressy-home/infra.git
+          revision: HEAD
+          directories:
+          # Add any application in /apps that has an overlay named "cluster-addon"
+          - path: gitops/apps/*/overlays/infra-system
+      - clusters: {}
   template:
     metadata:
-      name: '{{index (splitList "/" .path.path) 2}}'
+      name: '{{index (splitList "/" .path.path) 2}}-{{.name}}'
       labels:
-        infra.jtcressy.net/appset: core-infra
+        infra.jtcressy.net/appset: infra-system
         infra.jtcressy.net/appname: '{{index (splitList "/" .path.path) 2}}'
     spec:
       project: 'infra-system'
@@ -28,8 +28,8 @@ spec:
         targetRevision: HEAD
         path: '{{.path.path}}'
       destination:
-        namespace: '{{index (splitList "/" .path.path) 5 | default "infra-system"}}'
-        server: https://kubernetes.default.svc
+        namespace: 'infra-system'
+        server: '{{.server}}'
       syncPolicy:
         automated:
           prune: true

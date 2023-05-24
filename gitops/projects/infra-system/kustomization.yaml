@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
 - namespace.yaml
 - appproject.yaml
+- appsets/infra-system.yaml
 - appsets/cluster-addons.yaml
 - appsets/core-infra.yaml
 - static-apps/external-secret-stores.yaml
