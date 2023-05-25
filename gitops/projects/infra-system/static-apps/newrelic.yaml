@@ -25,6 +25,7 @@ spec:
       - Validate=false
       - CreateNamespace=true
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
     automated:
       prune: true
       selfHeal: true
