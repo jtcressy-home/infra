@@ -19,6 +19,8 @@ spec:
     server: '*'
   - namespace: 'grafana-agent'
     server: '*'
+  - namespace: 'newrelic'
+    server: '*'
   - namespace: 'node-feature-discovery'
     server: '*'
   - namespace: 'system-upgrade'

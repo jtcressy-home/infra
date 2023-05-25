@@ -11,11 +11,9 @@ spec:
     repoURL: https://github.com/jtcressy-home/infra.git
     targetRevision: HEAD
     path: gitops/apps/newrelic/overlays/core
-    kustomize:
-      namespace: infra-system
   destination:
     server: https://kubernetes.default.svc
-    namespace: infra-system
+    namespace: newrelic
   syncPolicy:
     automated:
       prune: true

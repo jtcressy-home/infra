@@ -7,6 +7,7 @@ helmCharts:
   repo: https://helm-charts.newrelic.com
   version: 5.0.15
   releaseName: newrelic-bundle
+  namespace: newrelic
   valuesInline:
     global:
       cluster: core
