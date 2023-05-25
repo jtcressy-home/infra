@@ -31,10 +31,10 @@ helmCharts:
         kubernetes:
           integrations_filter:
             enabled: true
-    logging:
-      enabled: true
-    newrelic-logging:
-      lowDataMode: true
+    # logging:
+    #   enabled: true
+    # newrelic-logging:
+    #   lowDataMode: true
     newrelic-pixie:
       enabled: true
       # apiKey: ""
