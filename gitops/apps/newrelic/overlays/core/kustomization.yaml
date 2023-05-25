@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+helmCharts:
+- name: nri-bundle
+  repo: https://helm-charts.newrelic.com
+  version: 5.0.15
+  releaseName: newrelic-bundle
+  valuesInline:
+    global:
+      cluster: core
+      lowDataMode: true
+      customSecretName: newrelic
+      customSecretKey: licenseKey
+    newrelic-infrastructure:
+      privileged: true
+    kube-state-metrics:
+      enabled: true
+      image:
+        tag: v2.7.0
+    kubeEvents:
+      enabled: true
+    newrelic-prometheus-agent:
+      enabled: true
+      lowDataMode: true
+      config:
+        kubernetes:
+          integrations_filter:
+            enabled: true
+    logging:
+      enabled: true
+    newrelic-logging:
+      lowDataMode: true
+    newrelic-pixie:
+      enabled: true
+      # apiKey: ""
+      customSecretApiKeyName: newrelic
+      customSecretApiKeyKey: pixie_apiKey
+    pixie-chart:
+      enabled: true
+      # deployKey: ""
+      customDeployKeySecret: newrelic # requires key to be 'deploy-key' in the secret
+      clusterName: core

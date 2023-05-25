@@ -7,3 +7,4 @@ resources:
 - appsets/cluster-addons.yaml
 - appsets/core-infra.yaml
 - static-apps/external-secret-stores.yaml
+- static-apps/newrelic.yaml
