@@ -21,7 +21,7 @@ metadata:
   name: agent-eventhandler
   namespace: grafana-agent
 spec:
-  storageClass: longhorn
+  storageClassName: longhorn
   accessModes:
   - ReadWriteOnce
   resources:
