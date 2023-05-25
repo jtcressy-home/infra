@@ -11,6 +11,8 @@ spec:
   destinations:
   - namespace: 'infra-system'
     server: '*'
+  - namespace: 'olm'
+    server: '*'
   - namespace: 'cert-manager'
     server: '*'
   - namespace: 'kube-system'
