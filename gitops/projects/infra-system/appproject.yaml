@@ -23,6 +23,8 @@ spec:
     server: '*'
   - namespace: 'newrelic'
     server: '*'
+  - namespace: 'px-operator'
+    server: '*'
   - namespace: 'node-feature-discovery'
     server: '*'
   - namespace: 'system-upgrade'
