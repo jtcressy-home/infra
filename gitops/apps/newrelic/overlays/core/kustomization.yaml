@@ -8,6 +8,7 @@ helmCharts:
   version: 5.0.15
   releaseName: newrelic-bundle
   namespace: newrelic
+  includeCRDs: true
   valuesInline:
     global:
       cluster: core
