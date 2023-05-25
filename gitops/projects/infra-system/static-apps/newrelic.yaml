@@ -14,18 +14,10 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: newrelic
-  ignoreDifferences:
-    - kind: Vizier
-      group: px.dev
-      version: v1alpha1
-      jsonPointers:
-      - /spec/deployKey
   syncPolicy:
     syncOptions:
-      - Validate=false
       - CreateNamespace=true
       - ServerSideApply=true
-      - RespectIgnoreDifferences=true
     automated:
       prune: true
       selfHeal: true
