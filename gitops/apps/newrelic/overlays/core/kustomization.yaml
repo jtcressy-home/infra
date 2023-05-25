@@ -42,6 +42,6 @@ helmCharts:
       customSecretApiKeyKey: pixie_apiKey
     pixie-chart:
       enabled: true
-      deployKey: ''
+      deployKey: null
       customDeployKeySecret: newrelic # requires key to be 'deploy-key' in the secret
       clusterName: core
