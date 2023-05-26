@@ -30,7 +30,7 @@ helmCharts:
       config:
         kubernetes:
           integrations_filter:
-            enabled: true
+            enabled: false
     # logging:
     #   enabled: true
     # newrelic-logging:
@@ -44,15 +44,15 @@ helmCharts:
       enabled: false
       customDeployKeySecret: newrelic # requires key to be 'deploy-key' in the secret
       clusterName: core
-- name: pixie-operator-chart
-  repo: https://pixie-operator-charts.storage.googleapis.com
-  releaseName: pixie
-  namespace: newrelic
-  includeCRDs: true
-  valuesInline:
-    customDeployKeySecret: newrelic
-    clusterName: core
-    pemMemoryLimit: 1Gi
+# - name: pixie-operator-chart
+#   repo: https://pixie-operator-charts.storage.googleapis.com
+#   releaseName: pixie
+#   namespace: newrelic
+#   includeCRDs: true
+#   valuesInline:
+#     customDeployKeySecret: newrelic
+#     clusterName: core
+#     pemMemoryLimit: 1Gi
 
 patches:
 - target:
