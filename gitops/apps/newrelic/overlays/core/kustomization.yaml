@@ -35,6 +35,7 @@ helmCharts:
       - name: homeassistant-token
         mountPath: /var/run/secrets/hass.io
         readOnly: true
+      verboseLog: true
       config:
         kubernetes:
           integrations_filter:
