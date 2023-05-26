@@ -19,10 +19,6 @@ helmCharts:
     envFrom:
       - secretRef:
           name: homeassistant-secret
-    podAnnotations:
-      prometheus.io/path: /api/prometheus
-      prometheus.io/port: "8123"
-      prometheus.io/scrape: "true"
     service:
       main:
         annotations:
@@ -64,6 +60,9 @@ helmCharts:
     nodeSelector:
       topology.kubernetes.io/zone: home-jtcressy
     podAnnotations:
+      prometheus.io/path: /api/prometheus
+      prometheus.io/port: "8123"
+      prometheus.io/scrape: "true"
       k8s.v1.cni.cncf.io/networks: |-
         [
           {
