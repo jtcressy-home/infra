@@ -27,10 +27,55 @@ helmCharts:
     newrelic-prometheus-agent:
       enabled: true
       lowDataMode: true
+      extraVolumes:
+      - name: homeassistant-token
+        secret:
+          secretName: homeassistant-token
+      extraVolumeMounts:
+      - name: homeassistant-token
+        mountPath: /var/run/secrets/hass.io
+        readOnly: true
       config:
         kubernetes:
           integrations_filter:
             enabled: false
+        static_targets:
+          jobs:
+          - job_name: self-metrics
+            skip_sharding: true  # sharding is skipped to obtain self-metrics from all Prometheus servers.
+            targets:
+              - "localhost:9090"
+            extra_metric_relabel_config:
+              - source_labels: [__name__]
+                regex: "\
+                  prometheus_agent_active_series|\
+                  prometheus_target_interval_length_seconds|\
+                  prometheus_target_scrape_pool_targets|\
+                  prometheus_remote_storage_samples_pending|\
+                  prometheus_remote_storage_samples_in_total|\
+                  prometheus_remote_storage_samples_retried_total|\
+                  prometheus_agent_corruptions_total|\
+                  prometheus_remote_storage_shards|\
+                  prometheus_sd_kubernetes_events_total|\
+                  prometheus_agent_checkpoint_creations_failed_total|\
+                  prometheus_agent_checkpoint_deletions_failed_total|\
+                  prometheus_remote_storage_samples_dropped_total|\
+                  prometheus_remote_storage_samples_failed_total|\
+                  prometheus_sd_kubernetes_http_request_total|\
+                  prometheus_agent_truncate_duration_seconds_sum|\
+                  prometheus_build_info|\
+                  process_resident_memory_bytes|\
+                  process_virtual_memory_bytes|\
+                  process_cpu_seconds_total"
+                action: keep
+          - job_name: homeassistant
+            targets:
+              - homeassistant.home-automation.svc.cluster.local:8123
+            metrics_path: /metrics
+            scrape_interval: 60s
+            authorization:
+              credentials_file: /var/run/secrets/hass.io/token
+
     # logging:
     #   enabled: true
     # newrelic-logging:

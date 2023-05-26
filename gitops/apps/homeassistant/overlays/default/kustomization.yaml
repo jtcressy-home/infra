@@ -21,23 +21,10 @@ helmCharts:
           name: homeassistant-secret
     service:
       main:
-        annotations:
-          prometheus.io/path: /api/prometheus
-          prometheus.io/port: "8123"
-          prometheus.io/scrape: "true"
         type: ClusterIP
         ports:
           http:
             port: 8123
-    serviceMonitor:
-      main:
-        enabled: false
-        endpoints:
-        - port: http
-          scheme: http
-          path: /api/prometheus
-          interval: 1m
-          scrapeTimeout: 10s
     probes:
       liveness:
         enabled: false
@@ -60,9 +47,6 @@ helmCharts:
     nodeSelector:
       topology.kubernetes.io/zone: home-jtcressy
     podAnnotations:
-      prometheus.io/path: /api/prometheus
-      prometheus.io/port: "8123"
-      prometheus.io/scrape: "true"
       k8s.v1.cni.cncf.io/networks: |-
         [
           {
