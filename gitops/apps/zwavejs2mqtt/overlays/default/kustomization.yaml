@@ -54,6 +54,7 @@ helmCharts:
       usb:
         enabled: true
         type: hostPath
+        mountPath: /dev/zwave
         hostPath: /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_86f2e3788a94eb11984f3a703d98b6d1-if00-port0
         hostPathType: CharDevice
 
