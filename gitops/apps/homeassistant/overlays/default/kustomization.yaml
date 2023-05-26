@@ -19,6 +19,10 @@ helmCharts:
     envFrom:
       - secretRef:
           name: homeassistant-secret
+    podAnnotations:
+      prometheus.io/path: /api/prometheus
+      prometheus.io/port: "8123"
+      prometheus.io/scrape: "true"
     service:
       main:
         annotations:
