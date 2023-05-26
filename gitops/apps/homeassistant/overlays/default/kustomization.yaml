@@ -21,13 +21,17 @@ helmCharts:
           name: homeassistant-secret
     service:
       main:
+        annotations:
+          prometheus.io/path: /api/prometheus
+          prometheus.io/port: "8123"
+          prometheus.io/scrape: "true"
         type: ClusterIP
         ports:
           http:
             port: 8123
     serviceMonitor:
       main:
-        enabled: true
+        enabled: false
         endpoints:
         - port: http
           scheme: http
