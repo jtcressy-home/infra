@@ -35,7 +35,7 @@ helmCharts:
       - name: homeassistant-token
         mountPath: /var/run/secrets/hass.io
         readOnly: true
-      verboseLog: true
+      verboseLog: false
       config:
         kubernetes:
           integrations_filter:
@@ -72,7 +72,7 @@ helmCharts:
           - job_name: homeassistant
             targets:
               - homeassistant.home-automation.svc.cluster.local:8123
-            metrics_path: /metrics
+            metrics_path: /api/prometheus
             scrape_interval: 60s
             authorization:
               credentials_file: /var/run/secrets/hass.io/token
