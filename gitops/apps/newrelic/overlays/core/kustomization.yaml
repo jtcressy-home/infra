@@ -76,10 +76,6 @@ helmCharts:
             scrape_interval: 60s
             authorization:
               credentials_file: /var/run/secrets/hass.io/token
-            extra_metric_relabel_config:
-              - source_labels: [__name__]
-                regex: "hass_*"
-                action: keep
 
     # logging:
     #   enabled: true
