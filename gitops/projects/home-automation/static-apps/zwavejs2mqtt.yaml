@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: zwavejs2mqtt.yaml
+  name: zwavejs2mqtt
   namespace: argocd
 spec:
   project: home-automation
