@@ -22,7 +22,15 @@ helmCharts:
         enabled: true
     promExporter:
       enabled: true
+      port: 7777
       podMonitor:
-        enabled: true
+        enabled: false
+    podTemplate:
+      merge:
+        metadata:
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "7777"
+            prometheus.io/path: "/metrics"
     natsBox:
       enabled: true

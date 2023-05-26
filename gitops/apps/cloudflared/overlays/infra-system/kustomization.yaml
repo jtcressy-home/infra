@@ -35,16 +35,10 @@ helmCharts:
         ports:
           http:
             port: 8080
-    
-    serviceMonitor:
-      main:
-        enabled: true
-        endpoints:
-          - port: http
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 30s
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
+      prometheus.io/path: "/metrics"
     
     probes:
       liveness:
