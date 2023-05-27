@@ -108,6 +108,9 @@ helmCharts:
         hostPath: /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_a499044e2813ec119a3321c7bd930c07-if00-port0
         hostPathType: CharDevice
 
+    securityContext:
+      privileged: true
+
     affinity:
       nodeAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
