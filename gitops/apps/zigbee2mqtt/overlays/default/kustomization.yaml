@@ -60,7 +60,7 @@ helmCharts:
       ZIGBEE2MQTT_CONFIG_MQTT_KEEPALIVE: 60
       ZIGBEE2MQTT_CONFIG_MQTT_REJECT_UNAUTHORIZED: "true"
       ZIGBEE2MQTT_CONFIG_MQTT_SERVER: "mqtt://nats.home-automation.svc.cluster.local"
-      ZIGBEE2MQTT_CONFIG_MQTT_VERSION: 5
+      ZIGBEE2MQTT_CONFIG_MQTT_VERSION: 4
       # ZIGBEE2MQTT_CONFIG_MQTT_USER:
       #   valueFrom:
       #     secretKeyRef:
