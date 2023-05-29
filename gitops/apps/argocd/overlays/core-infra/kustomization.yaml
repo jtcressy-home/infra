@@ -28,75 +28,75 @@ patches:
       annotations:
         tailscale.com/expose: "true"
         tailscale.com/hostname: "argocd"
-- target:
-    kind: Service
-    name: argocd-metrics
-  patch: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: argocd-metrics
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8082"
-        prometheus.io/path: "/metrics"
-- target:
-    kind: Service
-    name: argocd-applicationset-controller
-  patch: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: argocd-applicationset-controller
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/metrics"
-- target:
-    kind: Service
-    name: argocd-dex-server
-  patch: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: argocd-dex-server
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "5558"
-        prometheus.io/path: "/metrics"
-- target:
-    kind: Service
-    name: argocd-notifications-controller-metrics
-  patch: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: argocd-notifications-controller-metrics
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9001"
-        prometheus.io/path: "/metrics"
-- target:
-    kind: Service
-    name: argocd-repo-server
-  patch: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: argocd-repo-server
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8084"
-        prometheus.io/path: "/metrics"
-- target:
-    kind: Service
-    name: argocd-server-metrics
-  patch: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: argocd-server-metrics
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8083"
-        prometheus.io/path: "/metrics"
+# - target:
+#     kind: Service
+#     name: argocd-metrics
+#   patch: |
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: argocd-metrics
+#       annotations:
+#         prometheus.io/scrape: "true"
+#         prometheus.io/port: "8082"
+#         prometheus.io/path: "/metrics"
+# - target:
+#     kind: Service
+#     name: argocd-applicationset-controller
+#   patch: |
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: argocd-applicationset-controller
+#       annotations:
+#         prometheus.io/scrape: "true"
+#         prometheus.io/port: "8080"
+#         prometheus.io/path: "/metrics"
+# - target:
+#     kind: Service
+#     name: argocd-dex-server
+#   patch: |
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: argocd-dex-server
+#       annotations:
+#         prometheus.io/scrape: "true"
+#         prometheus.io/port: "5558"
+#         prometheus.io/path: "/metrics"
+# - target:
+#     kind: Service
+#     name: argocd-notifications-controller-metrics
+#   patch: |
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: argocd-notifications-controller-metrics
+#       annotations:
+#         prometheus.io/scrape: "true"
+#         prometheus.io/port: "9001"
+#         prometheus.io/path: "/metrics"
+# - target:
+#     kind: Service
+#     name: argocd-repo-server
+#   patch: |
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: argocd-repo-server
+#       annotations:
+#         prometheus.io/scrape: "true"
+#         prometheus.io/port: "8084"
+#         prometheus.io/path: "/metrics"
+# - target:
+#     kind: Service
+#     name: argocd-server-metrics
+#   patch: |
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: argocd-server-metrics
+#       annotations:
+#         prometheus.io/scrape: "true"
+#         prometheus.io/port: "8083"
+#         prometheus.io/path: "/metrics"
