@@ -40,8 +40,8 @@ spec:
       - group: apiextensions.k8s.io
         kind: MutatingWebhookConfiguration
         jsonPointers:
-        - /spec/conversion/webhook/clientConfig
+        - /webhooks/clientConfig
       - group: apiextensions.k8s.io
         kind: ValidatingWebhookConfiguration
         jsonPointers:
-        - /spec/conversion/webhook/clientConfig
+        - /webhooks/clientConfig
