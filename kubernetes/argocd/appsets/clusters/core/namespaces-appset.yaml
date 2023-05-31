@@ -22,7 +22,7 @@ spec:
         path: '{{ .path.path }}'
       destination:
         namespace: 'argocd'
-        server: https://kubernetes.default.svc
+        name: core
       # syncPolicy:
       #   automated:
       #     prune: false

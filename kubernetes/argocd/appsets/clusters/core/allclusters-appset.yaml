@@ -25,7 +25,7 @@ spec:
         path: '{{.path.path}}'
       destination:
         namespace: '{{ index (splitList "/" .path.path) 1 }}'
-        server: '{{.server}}'
+        name: '{{.name}}'
       syncPolicy:
         syncOptions:
           - PrunePropagationPolicy=orphan
