@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+helmCharts:
+- name: app-template
+  repo: https://bjw-s.github.io/helm-charts/
+  version: 1.5.0
+  releaseName: node-red
+  valuesInline:
+    image:
+      repository: nodered/node-red
+      tag: 3.0.2-18-minimal
+
+    env:
+      TZ: "America/Chicago"
+      FLOWS: "flows.json"
+      NODE_RED_ENABLE_PROJECTS: "true"
+      NODE_RED_ENABLE_SAFE_MODE: "false"
+
+    service:
+      main:
+        ports:
+          http:
+            port: 1880
+    
+    podSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+      fsGroupChangePolicy: "OnRootMismatch"
+    
+    persistence:
+      data:
+        enabled: true
+        mountPath: /data
+        storageClass: "longhorn-sticky"
+        accessMode: ReadWriteOnce
+        size: 5Gi
+    
+    nodeSelector:
+      topology.kubernetes.io/zone: home-jtcressy
+
+    resources:
+      requests:
+        cpu: 22m
+        memory: 164M
+      limits:
+        memory: 262M

@@ -7,3 +7,4 @@ resources:
 - static-apps/nats.yaml
 - static-apps/zwavejs2mqtt.yaml
 - static-apps/zigbee2mqtt.yaml
+- static-apps/node-red.yaml
