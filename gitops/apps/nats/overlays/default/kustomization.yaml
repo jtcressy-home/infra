@@ -29,6 +29,7 @@ helmCharts:
       topologySpreadConstraints:
         kubernetes.io/hostname:
           maxSkew: 1
+          whenUnsatisfiable: ScheduleAnyway
       merge:
         metadata:
           annotations:
