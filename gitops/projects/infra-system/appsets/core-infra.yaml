@@ -31,8 +31,9 @@ spec:
         namespace: '{{index (splitList "/" .path.path) 5 | default "infra-system"}}'
         server: https://kubernetes.default.svc
       syncPolicy:
+        preserveResourcesOnDeletion: true
         automated:
-          prune: true
+          prune: false
           selfHeal: true
       ignoreDifferences:
       - group: apiextensions.k8s.io
