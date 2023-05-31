@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: allclusters
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+  - matrix:
+      generators:
+      - git:
+          repoURL: https://github.com/jtcressy-home/infra.git
+          revision: HEAD
+          directories:
+          - path: 'kuberntes/*/*/clusters/__all__'
+      - clusters: {}
+  template:
+    metadata:
+      name: '{{ index (splitList "/" .path.path) 2 }}-{{ .name }}'
+    spec:
+      project: '{{ index (splitList "/" .path.path) 1 }}'
+      source:
+        repoURL: https://github.com/jtcressy-home/infra.git
+        targetRevision: HEAD
+        path: '{{.path.path}}'
+      destination:
+        namespace: '{{ index (splitList "/" .path.path) 1 }}'
+        server: '{{.server}}'
+      syncPolicy:
+        syncOptions:
+          - PrunePropagationPolicy=orphan
+        # automated:
+        #   prune: false
+        #   selfHeal: true
+        #   allowEmpty: false
+      ignoreDifferences:
+      - group: apiextensions.k8s.io
+        kind: CustomResourceDefinition
+        jsonPointers:
+        - /spec/conversion/webhook/clientConfig
