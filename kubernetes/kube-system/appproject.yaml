@@ -3,7 +3,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: kube-system
-  namespace: kube-system
 spec:
   clusterResourceWhitelist:
   - group: '*'

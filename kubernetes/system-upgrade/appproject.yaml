@@ -3,7 +3,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: system-upgrade
-  namespace: system-upgrade
 spec:
   clusterResourceWhitelist:
   - group: '*'

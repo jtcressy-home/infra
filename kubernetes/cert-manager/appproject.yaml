@@ -3,7 +3,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: cert-manager
-  namespace: cert-manager
 spec:
   clusterResourceWhitelist:
   - group: '*'
