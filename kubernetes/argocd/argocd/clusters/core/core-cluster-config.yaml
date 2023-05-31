@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: in-cluster
+  name: core
   labels:
     argocd.argoproj.io/secret-type: cluster
 type: Opaque
