@@ -24,7 +24,7 @@ spec:
         path: '{{.path.path}}'
       destination:
         namespace: '{{ index (splitList "/" .path.path) 1 }}'
-        name: '{{ index (splitList "/" path.path) 4 }}'
+        name: '{{ index (splitList "/" .path.path) 4 }}'
       syncPolicy:
         syncOptions:
           - PrunePropagationPolicy=orphan
