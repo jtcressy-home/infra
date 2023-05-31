@@ -15,7 +15,7 @@ spec:
         exclude: true # to be handled by allclusters appset
   template:
     metadata:
-      name: '{{ index (splitList "/" .path.path) 2 }}-{{ index (splitlist "/" .path.path) 4 }}'
+      name: '{{ index (splitList "/" .path.path) 2 }}-{{ index (splitList "/" .path.path) 4 }}'
     spec:
       project: '{{ index (splitList "/" .path.path) 1 }}'
       source:
