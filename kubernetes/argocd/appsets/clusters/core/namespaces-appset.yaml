@@ -23,10 +23,10 @@ spec:
       destination:
         namespace: 'argocd'
         name: core
-      # syncPolicy:
-      #   automated:
-      #     prune: false
-      #     selfHeal: true
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
       ignoreDifferences:
       - group: apiextensions.k8s.io
         kind: CustomResourceDefinition
