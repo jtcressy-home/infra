@@ -1,0 +1,17 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infra-system
+  namespace: infra-system
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: infra-system
+    name: '*'
+  sourceRepos:
+  - https://github.com/jtcressy-home/infra
+  orphanedResources:
+    warn: true

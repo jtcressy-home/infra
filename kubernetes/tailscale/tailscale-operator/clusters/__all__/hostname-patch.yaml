@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: operator
+  namespace: tailscale
+spec:
+  template:
+    spec:
+      containers:
+        - name: operator
+          env:
+            - name: OPERATOR_HOSTNAME
+              value: "tailscale-operator" # TODO: change to k8s-api-core

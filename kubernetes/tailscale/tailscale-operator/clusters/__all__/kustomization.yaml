@@ -1,0 +1,14 @@
+resources:
+- ../../base
+
+components:
+- ../../components/auth-proxy
+
+patches:
+- target:
+    kind: Deployment
+    group: apps
+    version: v1
+    name: operator
+    namespace: tailscale
+  path: hostname-patch.yaml

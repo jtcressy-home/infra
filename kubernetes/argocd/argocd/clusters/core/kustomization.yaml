@@ -5,10 +5,8 @@ resources:
 - infra-repo.yaml
 - core-cluster-config.yaml
 
-components:
-# - ../../components/namespace
+# components:
 # - ../../components/github-app-repo-creds
-- ../../components/default-project-lockdown
 
 patchesStrategicMerge:
 - argocd-cm.yaml
