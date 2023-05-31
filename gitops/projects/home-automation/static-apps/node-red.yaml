@@ -15,7 +15,9 @@ spec:
     server: https://kubernetes.default.svc
     namespace: home-automation
   syncPolicy:
+    syncOptions:
+      - PrunePropagationPolicy=orphan
     automated:
-      prune: true
+      prune: false
       selfHeal: true
       allowEmpty: false
