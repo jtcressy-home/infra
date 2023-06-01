@@ -21,9 +21,13 @@ patches:
         profiles:
           - name: Default
             pluginConfig:
-            - name: RemoveDuplicates
-            - name: RemovePodsViolatingInterPodAntiAffinity
-            - name: LowNodeUtilization
+            - name: "DefaultEvictor"
+              args:
+                nodeFit: true
+                evictLocalStoragePods: true
+            - name: "RemoveDuplicates"
+            - name: "RemovePodsViolatingInterPodAntiAffinity"
+            - name: "LowNodeUtilization"
               args:
                 thresholds:
                   "cpu": 20
@@ -33,27 +37,27 @@ patches:
                   "cpu": 50
                   "memory": 50
                   "pods": 60
-            - name: RemovePodsHavingTooManyRestarts
+            - name: "RemovePodsHavingTooManyRestarts"
               args:
                 podRestartThreshold: 100
                 includingInitContainers: true
-            - name: RemovePodsViolatingTopologySpreadConstraint
+            - name: "RemovePodsViolatingTopologySpreadConstraint"
               args:
                 includeSoftConstraints: false
-            - name: RemovePodsViolatingNodeTaints
-            - name: RemovePodsViolatingNodeAffinity
+            - name: "RemovePodsViolatingNodeTaints"
+            - name: "RemovePodsViolatingNodeAffinity"
               args:
                 nodeAffinityType:
-                - requiredDuringSchedulingIgnoredDuringExecution
+                - "requiredDuringSchedulingIgnoredDuringExecution"
             plugins:
               deschedule:
                 enabled:
-                  - RemovePodsViolatingInterPodAntiAffinity
-                  - RemovePodsHavingTooManyRestarts
-                  - RemovePodsViolatingNodeTaints
-                  - RemovePodsViolatingNodeAffinity
+                  - "RemovePodsViolatingInterPodAntiAffinity"
+                  - "RemovePodsHavingTooManyRestarts"
+                  - "RemovePodsViolatingNodeTaints"
+                  - "RemovePodsViolatingNodeAffinity"
               balance:
                 enabled:
-                  - RemoveDuplicates
-                  - LowNodeUtilization
-                  - RemovePodsViolatingTopologySpreadConstraint
+                  - "RemoveDuplicates"
+                  - "LowNodeUtilization"
+                  - "RemovePodsViolatingTopologySpreadConstraint"
