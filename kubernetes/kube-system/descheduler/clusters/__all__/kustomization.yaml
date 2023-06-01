@@ -43,7 +43,7 @@ patches:
             - name: RemovePodsViolatingNodeTaints
             - name: RemovePodsViolatingNodeAffinity
               args:
-                nodeAffinityTypes:
+                nodeAffinityType:
                 - requiredDuringSchedulingIgnoredDuringExecution
             plugins:
               deschedule:
