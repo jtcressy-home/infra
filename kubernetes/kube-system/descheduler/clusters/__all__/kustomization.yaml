@@ -18,8 +18,7 @@ helmCharts:
         RemovePodsViolatingNodeAffinity:
           enabled: true
           params:
-            nodeAffinityType:
-            - requiredDuringSchedulingIgnoredDuringExecution
+            nodeAffinityType: ["requiredDuringSchedulingIgnoredDuringExecution"]
         RemovePodsViolatingTopologySpreadConstraint:
           enabled: true
           params:
