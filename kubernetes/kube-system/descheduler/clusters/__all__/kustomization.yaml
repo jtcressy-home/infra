@@ -16,28 +16,44 @@ patches:
       namespace: kube-system
     data:
       policy.yaml: |
-        apiVersion: descheduler/v1alpha1
+        apiVersion: descheduler/v1alpha2
         kind: DeschedulerPolicy
-        strategies:
-          RemoveDuplicates:
-            enabled: true
-          RemovePodsViolatingInterPodAntiAffinity:
-            enabled: true
-          RemovePodsViolatingNodeAffinity:
-            enabled: true
-          RemovePodsViolatingNodeTaints:
-            enabled: true
-          RemovePodsViolatingTopologySpreadConstraints:
-            enabled: true
-          LowNodeUtilization:
-            enabled: true
-            params:
-              nodeResourceUtilizationThresholds:
+        profiles:
+          - name: Default
+            pluginConfig:
+            - name: RemoveDuplicates
+            - name: RemovePodsViolatingInterPodAntiAffinity
+            - name: LowNodeUtilization
+              args:
                 thresholds:
-                  "cpu" : 20
+                  "cpu": 20
                   "memory": 20
                   "pods": 20
                 targetThresholds:
-                  "cpu" : 50
+                  "cpu": 50
                   "memory": 50
-                  "pods": 50
+                  "pods": 60
+            - name: RemovePodsHavingTooManyRestarts
+              args:
+                podRestartThreshold: 100
+                includingInitContainers: true
+            - name: RemovePodsViolatingTopologySpreadConstraint
+              args:
+                includeSoftConstraints: false
+            - name: RemovePodsViolatingNodeTaints
+            - name: RemovePodsViolatingNodeAffinity
+              args:
+                nodeAffinityTypes:
+                - requiredDuringSchedulingIgnoredDuringExecution
+            plugins:
+              deschedule:
+                enabled:
+                  - RemovePodsViolatingInterPodAntiAffinity
+                  - RemovePodsHavingTooManyRestarts
+                  - RemovePodsViolatingNodeTaints
+                  - RemovePodsViolatingNodeAffinity
+              balance:
+                enabled:
+                  - RemoveDuplicates
+                  - LowNodeUtilization
+                  - RemovePodsViolatingTopologySpreadConstraint
