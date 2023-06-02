@@ -2,6 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - extra-storageclass.yaml
+- backup-target-secret.yaml
+- recurringjobs.yaml
 helmCharts:
 - name: longhorn
   repo: https://charts.longhorn.io
@@ -47,4 +49,6 @@ helmCharts:
       kubeletRootDir: /var/snap/microk8s/common/var/lib/kubelet
 
     defaultSettings:
+      backupTarget: s3://longhorn-backups@us-east-1/core/
+      backupTargetCredentialSecret: longhorn-backup-target
       defaultDataPath: /opt/longhorn
