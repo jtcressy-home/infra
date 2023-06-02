@@ -9,7 +9,7 @@ helmCharts:
   valuesInline:
     kind: Deployment
     deschedulingInterval: 1m
-    deschedulerPolicyApiVersion: descheduler/v1alpha2
+    deschedulerPolicyAPIVersion: descheduler/v1alpha2
     deschedulerPolicy:
       profiles:
       - name: Default
@@ -54,6 +54,7 @@ helmCharts:
               - "RemoveDuplicates"
               # - "LowNodeUtilization"
               - "RemovePodsViolatingTopologySpreadConstraint"
+      strategies: null
       # strategies:
       #   RemoveDuplicates:
       #     enabled: true
