@@ -9,14 +9,11 @@ helmCharts:
   releaseName: node-red
   valuesInline:
     image:
-      # repository: nodered/node-red
-      # tag: 3.0.2-18-minimal
-      repository: ghcr.io/hassio-addons/node-red/amd64
-      tag: 14.2.2
+      repository: nodered/node-red
+      tag: 3.0.2-18-minimal
+      # repository: ghcr.io/hassio-addons/node-red/amd64
+      # tag: 14.2.2
 
-    command:
-    - npm
-    - start
 
     env:
       TZ: "America/Chicago"
@@ -46,7 +43,6 @@ helmCharts:
     
     nodeSelector:
       topology.kubernetes.io/zone: home-jtcressy
-      kubernetes.io/arch: amd64
 
     resources:
       requests:
