@@ -10,7 +10,7 @@ helmCharts:
   valuesInline:
     image:
       repository: nodered/node-red
-      tag: 3.0.2-18-minimal
+      tag: 3.0.2-18
       # repository: ghcr.io/hassio-addons/node-red/amd64
       # tag: 14.2.2
 
