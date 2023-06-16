@@ -14,6 +14,10 @@ helmCharts:
       repository: ghcr.io/hassio-addons/node-red/amd64
       tag: 14.2.2
 
+    command:
+    - npm
+    - start
+
     env:
       TZ: "America/Chicago"
       FLOWS: "flows.json"
