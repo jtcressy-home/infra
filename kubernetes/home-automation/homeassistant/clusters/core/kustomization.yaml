@@ -38,6 +38,11 @@ helmCharts:
         storageClass: "longhorn"
         accessMode: ReadWriteOnce
         size: "10Gi"
+      secretfiles:
+        enabled: true
+        type: secret
+        mountPath: "/config/secrets"
+        name: homeassistant-secret-files
     resources:
       requests:
         cpu: 100m
