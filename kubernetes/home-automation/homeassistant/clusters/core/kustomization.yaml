@@ -41,7 +41,7 @@ helmCharts:
       secretfiles:
         enabled: true
         type: secret
-        mountPath: "/config/secrets"
+        mountPath: "/var/run/secrets/homeassistant"
         name: homeassistant-secret-files
     resources:
       requests:
