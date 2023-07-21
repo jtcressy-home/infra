@@ -3,7 +3,7 @@ module github.com/jtcressy-home/infra/magefiles
 go 1.19
 
 require (
-	github.com/magefile/mage v1.14.0
+	github.com/magefile/mage v1.15.0
 	tailscale.com v1.46.0
 )
 
