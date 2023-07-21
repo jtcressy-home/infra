@@ -6,7 +6,7 @@ resources:
 helmCharts:
 - name: nri-bundle
   repo: https://helm-charts.newrelic.com
-  version: 5.0.15
+  version: 5.0.22
   releaseName: newrelic-bundle
   namespace: newrelic
   includeCRDs: true
