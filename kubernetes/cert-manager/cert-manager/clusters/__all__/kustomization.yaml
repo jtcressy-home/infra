@@ -11,4 +11,4 @@ helmCharts:
       leaderElection:
         namespace: cert-manager
     installCRDs: true
-  version: v1.12.2
+  version: v1.12.3
