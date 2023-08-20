@@ -3,6 +3,13 @@ kind: AppProject
 metadata:
   name: media
 spec:
-  clusterResourceWhitelist: []
-  destinations: []
-  sourceRepos: []
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: media
+    name: core
+  sourceRepos:
+  - https://github.com/jtcressy-home/infra
+  orphanedResources:
+    warn: true
