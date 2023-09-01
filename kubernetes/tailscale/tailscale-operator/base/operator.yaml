@@ -40,7 +40,10 @@ metadata:
   name: tailscale-operator
 rules:
 - apiGroups: [""]
-  resources: ["services", "services/status"]
+  resources: ["events", "services", "services/status"]
+  verbs: ["*"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "ingresses/status"]
   verbs: ["*"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -117,7 +120,6 @@ spec:
       containers:
         - name: operator
           image: tailscale/k8s-operator:unstable
-          imagePullPolicy: Always
           resources:
             requests:
               cpu: 500m
