@@ -1,11 +1,3 @@
-# Copyright (c) Tailscale Inc & AUTHORS
-# SPDX-License-Identifier: BSD-3-Clause
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: tailscale
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -93,15 +85,15 @@ roleRef:
   kind: Role
   name: operator
   apiGroup: rbac.authorization.k8s.io
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: operator-oauth
-  namespace: tailscale
-stringData:
-  client_id: # SET CLIENT ID HERE
-  client_secret: # SET CLIENT SECRET HERE
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: operator-oauth
+#   namespace: tailscale
+# stringData:
+#   client_id: # SET CLIENT ID HERE
+#   client_secret: # SET CLIENT SECRET HERE
 ---
 apiVersion: apps/v1
 kind: Deployment
