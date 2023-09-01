@@ -1,8 +1,10 @@
 module github.com/jtcresy-home/infra/scratch/ts-route-setter
 
-go 1.19
+go 1.21
 
-require tailscale.com v1.46.0
+toolchain go1.21.0
+
+require tailscale.com v1.48.1
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -19,10 +21,10 @@ require (
 	github.com/mitchellh/go-ps v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go4.org/mem v0.0.0-20220726221520-4f986261bf13 // indirect
-	go4.org/netipx v0.0.0-20230303233057-f1b76eb4bb35 // indirect
+	go4.org/netipx v0.0.0-20230728180743-ad4cb58a6516 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/exp v0.0.0-20230725093048-515e97ebf090 // indirect
+	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect

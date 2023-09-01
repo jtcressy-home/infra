@@ -56,6 +56,7 @@ go4.org/mem v0.0.0-20220726221520-4f986261bf13/go.mod h1:reUoABIJ9ikfM5sgtSF3Wus
 go4.org/netipx v0.0.0-20220725152314-7e7bdc8411bf h1:IdwJUzqoIo5lkr2EOyKoe5qipUaEjbOKKY5+fzPBZ3A=
 go4.org/netipx v0.0.0-20220725152314-7e7bdc8411bf/go.mod h1:+QXzaoURFd0rGDIjDNpyIkv+F9R7EmeKorvlKRnhqgA=
 go4.org/netipx v0.0.0-20230303233057-f1b76eb4bb35/go.mod h1:TQvodOM+hJTioNQJilmLXu08JNb8i+ccq418+KWu1/Y=
+go4.org/netipx v0.0.0-20230728180743-ad4cb58a6516/go.mod h1:TQvodOM+hJTioNQJilmLXu08JNb8i+ccq418+KWu1/Y=
 go4.org/unsafe/assume-no-moving-gc v0.0.0-20220617031537-928513b29760 h1:FyBZqvoA/jbNzuAWLQE2kG820zMAkcilx6BMjGbL/E4=
 golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f h1:OeJjE6G4dgCY4PIXvIRQbE8+RX+uXZyGhUy/ksMGJoc=
 golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
@@ -94,3 +95,4 @@ gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
 tailscale.com v1.32.2 h1:bTYbeNPhC3OBH0g5kYWXBEoUOiEsNYf0WSvsvFsYlB0=
 tailscale.com v1.32.2/go.mod h1:AwKk+tI7z1+EXzmLxVNXA4dBpgTKd6RVV1VjFYEiv94=
 tailscale.com v1.46.0/go.mod h1:ibLiUQopXCzj65xktDlL9/fdhRbyHc1jVamRS0gbsZk=
+tailscale.com v1.48.1/go.mod h1:RWW4emjviEEAIqr6P6bbZZGXr19BdAdtwtUVfW9SBvU=
