@@ -94,9 +94,7 @@ helmCharts:
         enabled: true
         merge:
           remotes:
-          - url: nats://nats-0.nats-headless.home-automation.svc.cluster.local:7422
-          - url: nats://nats-1.nats-headless.home-automation.svc.cluster.local:7422
-          - url: nats://nats-2.nats-headless.home-automation.svc.cluster.local:7422
+          - url: nats-leaf://nats.home-automation.svc.cluster.local:7422
       mqtt:
         enabled: true
         merge:
