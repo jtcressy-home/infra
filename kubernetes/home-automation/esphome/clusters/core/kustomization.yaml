@@ -85,20 +85,22 @@ helmCharts:
 - name: nats
   repo: https://nats-io.github.io/k8s/helm/charts/
   version: 1.0.2
-  releaseName: nats-esphome-leafnode
+  releaseName: nats-esphome
   valuesInline:
     config:
       cluster:
         enabled: true
         replicas: 1
         merge:
-          name: nats-esphome-leafnode
+          name: nats-esphome
       jetstream:
         enabled: false
-        # fileStore:
-        #   pvc:
-        #     storageClassName: longhorn-sticky
-        #     size: 5Gi
+        merge:
+          domain: nats-esphome
+        fileStore:
+          pvc:
+            storageClassName: longhorn-sticky
+            size: 5Gi
       leafnodes:
         enabled: true
         merge:

@@ -14,6 +14,8 @@ helmCharts:
         replicas: 3
       jetstream:
         enabled: true
+        merge:
+          domain: nats
         fileStore:
           pvc:
             storageClassName: longhorn
