@@ -89,7 +89,7 @@ helmCharts:
   valuesInline:
     config:
       cluster:
-        enabled: true
+        enabled: false
         replicas: 1
         merge:
           name: nats-esphome
