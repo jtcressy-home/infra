@@ -94,7 +94,7 @@ helmCharts:
         merge:
           name: nats-esphome
       jetstream:
-        enabled: false
+        enabled: true
         merge:
           domain: nats-esphome
         fileStore:
