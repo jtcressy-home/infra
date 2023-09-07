@@ -105,8 +105,9 @@ helmCharts:
       enabled: false
     podTemplate:
       merge:
-        nodeSelector:
-          topology.kubernetes.io/zone: home-jtcressy
+        spec:
+          nodeSelector:
+            topology.kubernetes.io/zone: home-jtcressy
         metadata:
           annotations:
             k8s.v1.cni.cncf.io/networks: |-
