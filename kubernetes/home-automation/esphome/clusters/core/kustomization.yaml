@@ -119,14 +119,14 @@ helmCharts:
         spec:
           nodeSelector:
             topology.kubernetes.io/zone: home-jtcressy
-        metadata:
-          annotations:
-            k8s.v1.cni.cncf.io/networks: |-
-              [
-                {
-                  "name": "macvlan-conf-dhcp",
-                  "namespace": "kube-system",
-                  "interface": "eth1",
-                  "mac": "02:42:ac:11:00:0b"
-                }
-              ]
+        # metadata:
+        #   annotations:
+        #     k8s.v1.cni.cncf.io/networks: |-
+        #       [
+        #         {
+        #           "name": "macvlan-conf-dhcp",
+        #           "namespace": "kube-system",
+        #           "interface": "eth1",
+        #           "mac": "02:42:ac:11:00:0b"
+        #         }
+        #       ]
