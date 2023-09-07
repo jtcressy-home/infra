@@ -20,6 +20,8 @@ helmCharts:
             size: 10Gi
       mqtt:
         enabled: true
+      leafnodes:
+        enabled: true
     promExporter:
       enabled: true
       port: 7777

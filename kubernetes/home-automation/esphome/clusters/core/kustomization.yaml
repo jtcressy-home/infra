@@ -82,3 +82,39 @@ helmCharts:
         accessMode: ReadWriteOnce
         size: 5Gi
         storageClass: longhorn
+- name: nats
+  repo: https://nats-io.github.io/k8s/helm/charts/
+  version: 1.0.2
+  releaseName: nats-esphome-leafnode
+  valuesInline:
+    config:
+      cluster:
+        replicas: 1
+      leafnodes:
+        enabled: true
+        merge:
+          remotes:
+          - url: nats://nats.home-automation.svc.cluster.local:7422
+      mqtt:
+        enabled: true
+        merge:
+          authorization:
+            username: esphome
+            password: esphome # TODO: find a way to reference a secret
+    natsbox:
+      enabled: false
+    podTemplate:
+      merge:
+        nodeSelector:
+          topology.kubernetes.io/zone: home-jtcressy
+        metadata:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |-
+              [
+                {
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
+                  "interface": "eth1",
+                  "mac": "02:42:ac:11:00:0b"
+                }
+              ]
