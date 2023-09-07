@@ -89,7 +89,16 @@ helmCharts:
   valuesInline:
     config:
       cluster:
+        enabled: true
         replicas: 1
+        merge:
+          name: nats-esphome-leafnode
+      jetstream:
+        enabled: true
+        fileStore:
+          pvc:
+            storageClassName: longhorn-sticky
+            size: 5Gi
       leafnodes:
         enabled: true
         merge:
