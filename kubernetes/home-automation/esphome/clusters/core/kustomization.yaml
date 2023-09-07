@@ -95,10 +95,10 @@ helmCharts:
           name: nats-esphome-leafnode
       jetstream:
         enabled: false
-        fileStore:
-          pvc:
-            storageClassName: longhorn-sticky
-            size: 5Gi
+        # fileStore:
+        #   pvc:
+        #     storageClassName: longhorn-sticky
+        #     size: 5Gi
       leafnodes:
         enabled: true
         merge:
