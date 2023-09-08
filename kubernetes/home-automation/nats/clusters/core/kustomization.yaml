@@ -25,6 +25,9 @@ helmCharts:
       leafnodes:
         enabled: true
     service:
+      ports:
+        monitor:
+          enabled: true
       patch:
       - op: add
         path: /spec/type
