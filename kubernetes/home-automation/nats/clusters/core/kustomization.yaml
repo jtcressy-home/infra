@@ -32,6 +32,9 @@ helmCharts:
       - op: add
         path: /spec/type
         value: LoadBalancer
+      - op: add
+        path: /spec/externalTrafficPolicy
+        value: Local
     promExporter:
       enabled: true
       port: 7777
