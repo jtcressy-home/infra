@@ -1,6 +1,5 @@
 # Local .terraform directories
 **/.terraform/*
-
 # .tfstate files
 *.tfstate
 *.tfstate.*
@@ -29,3 +28,4 @@ override.tf.json
 # example: *tfplan*
 
 gitops/**/charts/
+kubernetes/**/charts/

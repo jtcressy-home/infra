@@ -24,6 +24,11 @@ helmCharts:
         enabled: true
       leafnodes:
         enabled: true
+    service:
+      patch:
+      - op: add
+        path: /spec/type
+        value: LoadBalancer
     promExporter:
       enabled: true
       port: 7777
