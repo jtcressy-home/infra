@@ -48,7 +48,7 @@ services:
     icon: "fas fa-cloud"
     items:
       - name: "Weather"
-        location: "Dallas, TX"
+        locationId: "4684888" # Dallas, TX
         apikey: "${OPENWEATHER_API_KEY}"
         units: "imperial"
         background: "square"
