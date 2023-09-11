@@ -40,19 +40,19 @@ colors:
     link-hover: "#BF616A"
 
 # Optional navbar
-links: []
+links:
+  - name: "Weather"
+    locationId: "4684888" # Dallas, TX
+    apikey: "${OPENWEATHER_API_KEY}"
+    units: "imperial"
+    background: "square"
+    type: "OpenWeather"
 
 services:
 ### Cloud ####
   - name: "Cloud"
     icon: "fas fa-cloud"
     items:
-      - name: "Weather"
-        locationId: "4684888" # Dallas, TX
-        apikey: "${OPENWEATHER_API_KEY}"
-        units: "imperial"
-        background: "square"
-        type: "OpenWeather"
       - name: "iCloud"
         logo: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg"
         url: "https://www.icloud.com/"
