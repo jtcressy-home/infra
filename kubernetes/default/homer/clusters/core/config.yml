@@ -139,7 +139,7 @@ services:
       #   logo: "https://raw.githubusercontent.com/FairwindsOps/goldilocks/master/pkg/dashboard/assets/images/favicon-32x32.png"
       #   url: "https://goldilocks.${SECRET_DOMAIN}/"
       - name: Kubeview
-        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/kubernetes.png"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/kubernetes-dashboard.png"
         url: "https://kubeview.home.jtcressy.net/"
 
 #### Home Automation ####
