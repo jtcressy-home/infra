@@ -9,6 +9,8 @@ helmCharts:
   version: 1.5.1
   releaseName: homer
   valuesInline:
+    controller:
+      replicas: 3
     image:
       repository: ghcr.io/bastienwirtz/homer
       tag: v23.05.1
