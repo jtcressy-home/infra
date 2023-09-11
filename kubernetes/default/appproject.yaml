@@ -4,5 +4,10 @@ metadata:
   name: default
 spec:
   clusterResourceWhitelist: []
-  destinations: []
-  sourceRepos: []
+  destinations:
+  - namespace: default
+    name: core
+  sourceRepos:
+  - https://github.com/jtcressy-home/infra
+  orphanedResources:
+    warn: true
