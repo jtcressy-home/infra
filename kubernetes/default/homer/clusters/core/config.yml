@@ -40,13 +40,7 @@ colors:
     link-hover: "#BF616A"
 
 # Optional navbar
-links:
-  - name: "Weather"
-    locationId: "4684888" # Dallas, TX
-    apikey: "${OPENWEATHER_API_KEY}"
-    units: "imperial"
-    background: "square"
-    type: "OpenWeather"
+links: []
 
 services:
 ### Cloud ####
@@ -56,6 +50,12 @@ services:
       - name: "iCloud"
         logo: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg"
         url: "https://www.icloud.com/"
+      - name: "Weather"
+        locationId: "4684888" # Dallas, TX
+        apikey: "${OPENWEATHER_API_KEY}"
+        units: "imperial"
+        background: "square"
+        type: "OpenWeather"
       # - name: "Bitwarden"
       #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/bitwarden.png"
       #   url: "https://vault.bitwarden.com"
