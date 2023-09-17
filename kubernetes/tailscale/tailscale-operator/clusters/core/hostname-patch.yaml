@@ -10,4 +10,4 @@ spec:
         - name: operator
           env:
             - name: OPERATOR_HOSTNAME
-              value: "tailscale-operator" # TODO: change to k8s-api-core
+              value: "k8s-api-core"

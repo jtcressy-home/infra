@@ -4,6 +4,8 @@ metadata:
   name: namespace-projects
   namespace: argocd
 spec:
+  syncPolicy:
+    applicationsSync: create-update
   goTemplate: true
   generators:
   - git:
@@ -11,9 +13,11 @@ spec:
       revision: HEAD
       directories:
       - path: kubernetes/*
+      values:
+        namespace: "{{index .path.segments 1}}"
   template:
     metadata:
-      name: 'nsproj-{{ index (splitList "/" .path.path) 1 }}'
+      name: 'nsproj.{{ .values.namespace }}'
     spec:
       project: 'argocd'
       source:

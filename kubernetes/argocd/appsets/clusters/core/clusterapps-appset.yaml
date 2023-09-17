@@ -13,18 +13,22 @@ spec:
       - path: 'kubernetes/*/*/clusters/*'
       - path: 'kubernetes/*/*/clusters/__all__'
         exclude: true # to be handled by allclusters appset
+      values:
+        app: '{{ index (splitList "/" .path.path) 2 }}'
+        namespace: '{{ index (splitList "/" .path.path) 1 }}'
+        cluster: '{{ index (splitList "/" .path.path) 4 }}'
   template:
     metadata:
-      name: '{{ index (splitList "/" .path.path) 2 }}-{{ index (splitList "/" .path.path) 4 }}'
+      name: '{{ .values.app }}-{{ .values.cluster }}'
     spec:
-      project: '{{ index (splitList "/" .path.path) 1 }}'
+      project: '{{ .values.namespace }}'
       source:
         repoURL: https://github.com/jtcressy-home/infra.git
         targetRevision: HEAD
         path: '{{.path.path}}'
       destination:
-        namespace: '{{ index (splitList "/" .path.path) 1 }}'
-        name: '{{ index (splitList "/" .path.path) 4 }}'
+        namespace: '{{ .values.namespace }}'
+        name: '{{ .values.cluster }}'
       syncPolicy:
         automated:
           prune: true
