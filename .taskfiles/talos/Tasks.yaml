@@ -1,0 +1,142 @@
+---
+version: "3"
+
+env:
+  TALOSCONFIG: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/talosconfig"
+  clusterName: "{{.cluster}}"
+  clusterEndpointIP: "op://{{.opVault}}/talos-cluster-{{.cluster}}/clusterEndpointIP"
+  CLUSTERID: "op://{{.opVault}}/talos-cluster-{{.cluster}}/cluster/id"
+  CLUSTERSECRET: "op://{{.opVault}}/talos-cluster-{{.cluster}}/cluster/secret"
+  TRUSTDINFOTOKEN: "op://{{.opVault}}/talos-cluster-{{.cluster}}/trustdinfo/token"
+  K8SAGGREGATORCERT: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.k8saggregator/CERT"
+  K8SAGGREGATORCERTKEY: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.k8saggregator/KEY"
+  CLUSTERCERT: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.k8s/CERT"
+  CLUSTERCERTKEY: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.k8s/KEY"
+  ETCDCERT: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.etcd/CERT"
+  ETCDCERTKEY: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.etcd/KEY"
+  K8SSERVICEACCOUNTKEY: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.k8sserviceAccount/KEY"
+  MACHINECERT: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.os/CERT"
+  MACHINECERTKEY: "op://{{.opVault}}/talos-cluster-{{.cluster}}/certs.os/KEY"
+
+  BOOTSTRAPTOKEN: "op://{{.opVault}}/talos-cluster-{{.cluster}}/secrets/bootstraptoken"
+  SECRETBOXENCRYPTIONSECRET: "op://{{.opVault}}/talos-cluster-{{.cluster}}/secrets/secretboxencryptionsecret"
+
+  TAILSCALE_AUTHKEY: "op://{{.opVault}}/Tailscale/authkeys/reusable"
+  CLOUDFLARED_CLUSTER_TUNNEL_TOKEN: "op://{{.opVault}}/talos-cluster-{{.cluster}}/cloudflared/tunnel-token"
+
+tasks:
+  gensecret:
+    desc: Generate talos secrets and store in 1password via op cli
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    env:
+      cluster: "{{.cluster}}"
+      secretjson:
+        sh: talhelper gensecret | yq '. | tojson'
+    cmds:
+      - >-
+        (op item get "talos-cluster-$cluster" && echo "Cluster Secrets Already Generated") ||
+        op item create 
+        --category password
+        --title "talos-cluster-$cluster"
+        --vault "{{.opVault}}"
+        "cluster.id=$(echo $secretjson | jq -r '.cluster.id')"
+        "cluster.secret=$(echo $secretjson | jq -r .cluster.secret)"
+        "trustdinfo.token=$(echo $secretjson | jq -r .trustdinfo.token)"
+        "certs\.k8saggregator.CERT=$(echo $secretjson | jq -r .certs.k8saggregator.crt)"
+        "certs\.k8saggregator.KEY=$(echo $secretjson | jq -r .certs.k8saggregator.key)"
+        "certs\.k8s.CERT=$(echo $secretjson | jq -r .certs.k8s.crt)"
+        "certs\.k8s.KEY=$(echo $secretjson | jq -r .certs.k8s.key)"
+        "certs\.etcd.CERT=$(echo $secretjson | jq -r .certs.etcd.crt)"
+        "certs\.etcd.KEY=$(echo $secretjson | jq -r .certs.etcd.key)"
+        "certs\.k8sserviceaccount.KEY=$(echo $secretjson | jq -r .certs.k8sserviceaccount.key)"
+        "certs\.os.CERT=$(echo $secretjson | jq -r .certs.os.crt)"
+        "certs\.os.KEY=$(echo $secretjson | jq -r .certs.os.key)"
+        "secrets.bootstraptoken=$(echo $secretjson | jq -r .secrets.bootstraptoken)"
+        "secrets.secretboxencryptionsecret=$(echo $secretjson | jq -r .secrets.secretboxencryptionsecret)"
+
+  genconfig:
+    desc: Generate talos config
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    cmds:
+      - talhelper -v
+      - op run -- talhelper genconfig
+
+  bootstrap:
+    desc: Bootstrap talos cluster
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    vars:
+      node: "{{.node | default nil}}"
+    cmds:
+      - talosctl bootstrap -n {{.node}}
+
+  disks:
+    desc: Get disks
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    vars:
+      cluster: "{{.cluster}}"
+      node: "{{.ip}}"
+    cmds:
+      - talosctl -n {{.ip}} disks --insecure
+
+  get-machine:
+    desc: Get machine
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    vars:
+      cluster: "{{.cluster}}"
+      node: "{{.node | default nil}}"
+    cmds:
+      - talosctl -n {{.node}} get mc
+
+  join-node:
+    desc: Apply talos config on a new node in maintenance mode
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    vars:
+      ip: "{{.ip}}"
+      node: "{{.node}}"
+      cluster: "{{.cluster}}"
+    cmds:
+      - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+
+  apply-config:
+    desc: Apply talos config on a node
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    vars:
+      cluster: "{{.cluster}}"
+      node: "{{.node | default nil}}"
+    cmds:
+      - talosctl apply-config -n {{.node}} -f "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+    preconditions:
+      - talosctl -n {{.node}} get mc
+
+  upgrade-talos:
+    desc: Upgrade talos on a node
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    vars:
+      cluster: "{{.cluster}}"
+      node: "{{.node | default nil}}"
+      image: "{{.image | default nil}}"
+    cmds:
+      - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
+    preconditions:
+      - talosctl -n {{.node}} get mc --insecure
+
+  upgrade-k8s:
+    desc: Upgrade k8s on a node
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    vars:
+      cluster: "{{.cluster}}"
+      node: "{{.node | default nil}}"
+      to: "{{.to | default nil}}"
+    cmds:
+      - talosctl -n {{.node}} upgrade-k8s --to {{.to}}
+    preconditions:
+      - talosctl -n {{.node}} get mc

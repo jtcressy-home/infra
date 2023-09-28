@@ -1,0 +1,205 @@
+---
+clusterName: ${clusterName}
+talosVersion: v1.5.3
+kubernetesVersion: v1.28.2
+endpoint: https://hp-2ua7292pkz.tailnet-4d89.ts.net:6443
+
+allowSchedulingOnMasters: true
+allowSchedulingOnControlPlanes: true
+
+additionalApiServerCertSans: []
+
+additionalMachineCertSans: []
+
+clusterPodNets:
+  - 10.244.0.0/16
+clusterSvcNets:
+  - 10.245.0.0/16
+
+cniConfig:
+  name: none
+
+talosImageURL: ghcr.io/siderolabs/installer
+
+nodes:
+  # - hostname: oldbessie.k8s.home
+  #   ipAddress: 192.168.20.211
+  #   controlPlane: true
+  #   installDiskSelector:
+  #     busPath: /pci0000:00/0000:00:09.0/0000:09:00.0/host7/port-7:0/expander-7:0/port-7:0:0/end_device-7:0:0/target7:0:0/7:0:0:0/
+  #   disableSearchDomain: true
+  #   networkInterfaces:
+  #     - interface: eth0
+  #       mtu: 0
+  #       dhcp: true
+  #   nodeLabels:
+  #     topology.kubernetes.io/region: home
+  #     topology.kubernetes.io/zone: home-office-rack
+  - hostname: hp-2ua7021myw.tailnet-4d89.ts.net
+    # ipAddress: 100.86.86.13
+    ipAddress: hp-2ua7021myw.tailnet-4d89.ts.net
+    controlPlane: true
+    installDiskSelector:
+      model: SOLIDIGM SSDPFKNU010TZ
+      serial: PHEH243002VJ1P0B
+      device: /dev/nvme0n1
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+  - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
+    # ipAddress: 192.168.20.193
+    ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
+    controlPlane: true
+    installDiskSelector:
+      model: INTEL SSDPEKNU010TZ
+      serial: PHKA223501R01P0B
+      device: /dev/nvme0n1
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+  - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
+    # ipAddress: 192.168.20.248
+    ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
+    controlPlane: true
+    installDiskSelector:
+      model: INTEL SSDPEKNU010TZ
+      serial: PHKA223503D41P0B
+      device: /dev/nvme0n1
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+  - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
+    # ipAddress: 100.97.20.13
+    ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
+    controlPlane: false
+    installDiskSelector:
+      model: INTEL SSDPEKNU010TZ
+      serial: PHKA223504UX1P0B
+      device: /dev/nvme0n1
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+  - hostname: keaton-remote-vm.tailnet-4d89.ts.net
+    # ipAddress: 104.6.213.196
+    ipAddress: keaton-remote-vm.tailnet-4d89.ts.net
+    controlPlane: false
+    installDisk: /dev/vda
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: zeppos
+      topology.kubernetes.io/zone: lab
+controlPlane:
+  patches:
+    - |
+      machine:
+        install:
+          extensions:
+            - image: ghcr.io/jtcressy-home/cloudflared:2023.8.2
+        files:
+        - content: |
+            TUNNEL_TRANSPORT_PROTOCOL=auto
+            TUNNEL_TOKEN=${CLOUDFLARED_CLUSTER_TUNNEL_TOKEN}
+          permissions: 0o644
+          path: /var/etc/cloudflared/env
+          op: create
+  inlinePatch:
+    cluster: &clusterconfig
+      allowSchedulingOnMasters: true
+      apiServer:
+        admissionControl: null
+        extraArgs:
+          bind-address: 0.0.0.0
+          oidc-issuer-url: https://vault.jtcressy.net/v1/identity/oidc/provider/default
+          oidc-client-id: Xg96CJ6FgSZzyoPlumEdhXBncKcNigwS
+          oidc-groups-claim: groups
+          oidc-groups-prefix: "vault:"
+          oidc-username-claim: username
+          oidc-username-prefix: "vault:"
+      controllerManager:
+        extraArgs:
+          bind-address: 0.0.0.0
+      discovery:
+        enabled: true
+        registries:
+          kubernetes:
+            disabled: true
+          service: {}
+      etcd:
+        extraArgs:
+          listen-metrics-urls: http://0.0.0.0:2381
+        advertisedSubnets:
+          - 100.64.0.0/10
+      proxy:
+        disabled: true
+        extraArgs:
+          metrics-bind-address: 0.0.0.0:10249
+      scheduler:
+        extraArgs:
+          bind-address: 0.0.0.0
+    machine: &machineconfig
+      features:
+        kubePrism:
+          enabled: true
+          port: 7445
+      install:
+        extensions:
+          - image: ghcr.io/siderolabs/tailscale:1.50.0
+      network:
+        nameservers:
+          - 100.100.100.100
+          - 1.1.1.1
+          # - 8.8.8.8
+      files:
+        - content: |
+            TS_AUTHKEY=${TAILSCALE_AUTHKEY}
+            TS_ACCEPT_DNS=true
+          permissions: 0o644
+          path: /var/etc/tailscale/auth.env
+          op: create
+        - content: |
+            [plugins."io.containerd.grpc.v1.cri"]
+              enable_unprivileged_ports = true
+              enable_unprivileged_icmp = true
+          op: create
+          path: /etc/cri/conf.d/20-customization.part
+      sysctls:
+        fs.inotify.max_user_instances: "8192"
+        fs.inotify.max_user_watches: "1048576"
+        # For CloudflareD QUIC, sets maximum receive buffer size to 2.5MB
+        # https://github.com/quic-go/quic-go/wiki/UDP-Receive-Buffer-Size
+        net.core.rmem_max: 2500000
+      kubelet:
+        nodeIP:
+          validSubnets:
+            - 100.64.0.0/10
+      time:
+        disabled: false
+        servers:
+          - time.cloudflare.com
+worker:
+  inlinePatch:
+    machine: *machineconfig

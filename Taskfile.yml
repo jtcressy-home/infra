@@ -1,0 +1,23 @@
+---
+version: "3"
+
+vars:
+  opVault: jtcressy-net-infra
+  PROJECT_DIR:
+    sh: "git rev-parse --show-toplevel"
+
+dotenv:
+  - "{{.PROJECT_DIR}}/talos/op.env"
+
+env:
+  TALOSCONFIG: ./talos/clusterconfig/talosconfig
+
+includes:
+  # externalsecrets: .taskfiles/externalsecrets/tasks.yaml
+  talos: .taskfiles/talos/tasks.yaml
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task -l

@@ -1,0 +1,17 @@
+talosconfig
+talos-home-hp-2ua72228tz.tailnet-4d89.ts.net.yaml
+talos-home-hp-2ua72228tz.yaml
+bastion-talos-bastion-rainbowtank.yaml
+bastion-oldbessie.yaml
+bastion-192.168.20.211.yaml
+bastion-oldbessie.k8s.home.yaml
+bastion-talos-test-vm.k8s.home.yaml
+bastion-hp-2ua7021myw.yaml
+bastion-hp-2ua72228tz.yaml
+bastion-hp-2ua7292pkz.yaml
+bastion-hp-2ua7212ndg.yaml
+bastion-hp-2ua7021myw.tailnet-4d89.ts.net.yaml
+bastion-hp-2ua72228tz.tailnet-4d89.ts.net.yaml
+bastion-hp-2ua7292pkz.tailnet-4d89.ts.net.yaml
+bastion-hp-2ua7212ndg.tailnet-4d89.ts.net.yaml
+bastion-keaton-remote-vm.tailnet-4d89.ts.net.yaml
