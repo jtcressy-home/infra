@@ -22,19 +22,6 @@ cniConfig:
 talosImageURL: ghcr.io/siderolabs/installer
 
 nodes:
-  # - hostname: oldbessie.k8s.home
-  #   ipAddress: 192.168.20.211
-  #   controlPlane: true
-  #   installDiskSelector:
-  #     busPath: /pci0000:00/0000:00:09.0/0000:09:00.0/host7/port-7:0/expander-7:0/port-7:0:0/end_device-7:0:0/target7:0:0/7:0:0:0/
-  #   disableSearchDomain: true
-  #   networkInterfaces:
-  #     - interface: eth0
-  #       mtu: 0
-  #       dhcp: true
-  #   nodeLabels:
-  #     topology.kubernetes.io/region: home
-  #     topology.kubernetes.io/zone: home-office-rack
   - hostname: hp-2ua7021myw.tailnet-4d89.ts.net
     # ipAddress: 100.86.86.13
     ipAddress: hp-2ua7021myw.tailnet-4d89.ts.net
@@ -99,19 +86,74 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-  - hostname: keaton-remote-vm.tailnet-4d89.ts.net
-    # ipAddress: 104.6.213.196
-    ipAddress: keaton-remote-vm.tailnet-4d89.ts.net
+  - hostname: dell-inc-4nh5kn1.tailnet-4d89.ts.net
+    # ipAddress: 192.168.20.47
+    ipAddress: dell-inc-4nh5kn1.tailnet-4d89.ts.net
     controlPlane: false
-    installDisk: /dev/vda
+    installDiskSelector:
+      size: <257GiB
+      model: Samsung SSD 850
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
         mtu: 0
         dhcp: true
     nodeLabels:
-      topology.kubernetes.io/region: zeppos
-      topology.kubernetes.io/zone: lab
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-extra
+  - hostname: oldbessie.tailnet-4d89.ts.net
+    # ipAddress: 192.168.20.211
+    ipAddress: oldbessie.tailnet-4d89.ts.net
+    controlPlane: false
+    installDiskSelector:
+      busPath: /pci0000:00/0000:00:09.0/0000:09:00.0/host7/port-7:0/expander-7:0/port-7:0:0/end_device-7:0:0/target7:0:0/7:0:0:0/
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-extra
+  - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
+    # ipAddress: 192.168.20.104
+    ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
+    controlPlane: false
+    installDisk: /dev/mmcblk0
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-sbc
+  - hostname: raspberrypi-dca632210a61.tailnet-4d89.ts.net
+    # ipAddress: 192.168.20.39
+    ipAddress: raspberrypi-dca632210a61.tailnet-4d89.ts.net
+    controlPlane: false
+    installDisk: /dev/mmcblk0
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-sbc
+  - hostname: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
+    # ipAddress: 192.168.20.190
+    ipAddress: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
+    controlPlane: false
+    installDisk: /dev/mmcblk0
+    disableSearchDomain: true
+    networkInterfaces:
+      - interface: eth0
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-sbc
 controlPlane:
   patches:
     - |
