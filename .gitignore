@@ -29,6 +29,7 @@ override.tf.json
 
 gitops/**/charts/
 kubernetes/**/charts/
+talos/**/charts/
 
 # macOS files
 .DS_Store

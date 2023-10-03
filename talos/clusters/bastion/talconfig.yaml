@@ -22,14 +22,13 @@ cniConfig:
 talosImageURL: ghcr.io/siderolabs/installer
 
 nodes:
+## CORE HOME OFFICE RACK (battery backup) ##
   - hostname: hp-2ua7021myw.tailnet-4d89.ts.net
-    # ipAddress: 100.86.86.13
     ipAddress: hp-2ua7021myw.tailnet-4d89.ts.net
     controlPlane: true
     installDiskSelector:
-      model: SOLIDIGM SSDPFKNU010TZ
-      serial: PHEH243002VJ1P0B
-      device: /dev/nvme0n1
+      model: KingFast
+      serial: CA0077Y000122
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
@@ -39,13 +38,12 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
   - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
-    # ipAddress: 192.168.20.193
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
     controlPlane: true
     installDiskSelector:
-      model: INTEL SSDPEKNU010TZ
-      serial: PHKA223501R01P0B
-      device: /dev/nvme0n1
+      model: SPCC M.2 PCIe SSD
+      serial: AA000000000000003334
+      size: <=257GiB
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
@@ -55,13 +53,12 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
   - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
-    # ipAddress: 192.168.20.248
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
     controlPlane: true
     installDiskSelector:
-      model: INTEL SSDPEKNU010TZ
-      serial: PHKA223503D41P0B
-      device: /dev/nvme0n1
+      model: SPCC M.2 PCIe SSD
+      serial: AA000000000000000214
+      size: <=257GiB
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
@@ -71,13 +68,12 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
   - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
-    # ipAddress: 100.97.20.13
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
-    controlPlane: false
+    controlPlane: true
     installDiskSelector:
-      model: INTEL SSDPEKNU010TZ
-      serial: PHKA223504UX1P0B
-      device: /dev/nvme0n1
+      model: SPCC M.2 PCIe SSD
+      serial: AA000000000000001494
+      size: <=257GiB
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
@@ -86,8 +82,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
+## EXTRA OFFICE NODES (non-battery-backup) ##
   - hostname: dell-inc-4nh5kn1.tailnet-4d89.ts.net
-    # ipAddress: 192.168.20.47
     ipAddress: dell-inc-4nh5kn1.tailnet-4d89.ts.net
     controlPlane: false
     installDiskSelector:
@@ -102,7 +98,6 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-extra
   - hostname: oldbessie.tailnet-4d89.ts.net
-    # ipAddress: 192.168.20.211
     ipAddress: oldbessie.tailnet-4d89.ts.net
     controlPlane: false
     installDiskSelector:
@@ -115,8 +110,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-extra
+## SBC'S ##
   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
-    # ipAddress: 192.168.20.104
     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
     controlPlane: false
     installDisk: /dev/mmcblk0
@@ -129,7 +124,6 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-sbc
   - hostname: raspberrypi-dca632210a61.tailnet-4d89.ts.net
-    # ipAddress: 192.168.20.39
     ipAddress: raspberrypi-dca632210a61.tailnet-4d89.ts.net
     controlPlane: false
     installDisk: /dev/mmcblk0
@@ -142,7 +136,6 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-sbc
   - hostname: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
-    # ipAddress: 192.168.20.190
     ipAddress: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
     controlPlane: false
     installDisk: /dev/mmcblk0
@@ -154,6 +147,20 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-sbc
+## CLOUD NODES ##
+  - hostname: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
+    ipAddress: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
+    installDiskSelector:
+      size: ">= 32GiB"
+    disableSearchDomain: true
+    nodeLabels:
+      topology.kubernetes.io/region: us-phoenix-1
+      topology.kubernetes.io/zone: phx-ad-1 # availability domain
+      infra.jtcressy.net/oci-vcn: default
+      infra.jtcressy.net/oci-shape: "VM.Standard.A1.Flex"
+      infra.jtcressy.net/oci-cpus: "4"
+      infra.jtcressy.net/oci-memory: "24"
+      infra.jtcressy.net/oci-image: "talos-v1.5.3-tailscale-v1.50.0-arm64"
 controlPlane:
   patches:
     - |
@@ -194,11 +201,9 @@ controlPlane:
         extraArgs:
           listen-metrics-urls: http://0.0.0.0:2381
         advertisedSubnets:
-          - 100.64.0.0/10
+          - 100.64.0.0/10 # we want etcd to talk over tailscale for stable network paths
       proxy:
         disabled: true
-        extraArgs:
-          metrics-bind-address: 0.0.0.0:10249
       scheduler:
         extraArgs:
           bind-address: 0.0.0.0

@@ -1,6 +1,12 @@
 ---
 version: "3"
 
+required:
+  vars: [cluster]
+
+vars:
+  cluster: "{{.cluster | default nil}}"
+
 env:
   TALOSCONFIG: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/talosconfig"
   clusterName: "{{.cluster}}"
@@ -21,8 +27,8 @@ env:
   BOOTSTRAPTOKEN: "op://{{.opVault}}/talos-cluster-{{.cluster}}/secrets/bootstraptoken"
   SECRETBOXENCRYPTIONSECRET: "op://{{.opVault}}/talos-cluster-{{.cluster}}/secrets/secretboxencryptionsecret"
 
-  TAILSCALE_AUTHKEY: "op://{{.opVault}}/Tailscale/authkeys/reusable"
-  CLOUDFLARED_CLUSTER_TUNNEL_TOKEN: "op://{{.opVault}}/talos-cluster-{{.cluster}}/cloudflared/tunnel-token"
+  TAILSCALE_AUTHKEY: "op://{{.opVault}}/talos-cluster-{{.cluster}}/network/tailscale-auth-key"
+  CLOUDFLARED_CLUSTER_TUNNEL_TOKEN: "op://{{.opVault}}/talos-cluster-{{.cluster}}/network/cloudflared-tunnel-token"
 
 tasks:
   gensecret:
@@ -102,6 +108,53 @@ tasks:
       cluster: "{{.cluster}}"
     cmds:
       - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+    
+  launch-node-oci:
+    desc: Launch an Oracle Cloud instance and join it to the cluster
+    # dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    interactive: true
+    requires:
+      vars: [cluster, node]
+    vars:
+      node: "{{.node}}"
+      configfile: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      hostname: "{{.node | splitList \".\" | first}}"
+      compartmentId:
+        sh: op read op://{{.opVault}}/Oracle/compartmentId
+      region:
+        sh: yq -r '.machine.nodeLabels["topology.kubernetes.io/region"]' "{{.configfile}}"
+      vcn:
+        sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-vcn"]' "{{.configfile}}"
+      shape:
+        sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-shape"]' "{{.configfile}}"
+      image:
+        sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-image"]' "{{.configfile}}"
+      shapeCpu:
+        sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-cpus"]' "{{.configfile}}"
+      shapeMemory:
+        sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-memory"]' "{{.configfile}}"
+      vcnId: # use oci cli to get vcn id
+        sh: oci network vcn list --auth security_token --compartment-id={{.compartmentId | shellQuote}} --query "data[?\"display-name\"=='{{.vcn}}'].id | [0]" --raw-output
+      subnetId: # use oci cli to get 'default' subnet id
+        sh: oci network subnet list --auth security_token --compartment-id={{.compartmentId | shellQuote}} --vcn-id={{.vcnId | shellQuote}} --query "data[?\"display-name\"=='default-{{.region}}'].id | [0]" --raw-output
+      imageId: # use oci cli to get image id of a latest Talos image
+        sh: oci compute image list --compartment-id={{.compartmentId | shellQuote}} --operating-system Custom --operating-system-version Custom --auth security_token --query "data[?\"display-name\"=='{{.image}}'].id | [0]" --raw-output
+      availabilityDomain:
+        sh: oci iam availability-domain list --auth security_token --compartment-id={{.compartmentId | shellQuote}} --query data[0].name --raw-output
+    cmds:
+      - |
+        oci compute instance launch --auth security_token --shape={{.shape | shellQuote}} --shape-config='{"ocpus":{{.shapeCpu}},"memoryInGBs":{{.shapeMemory}}}' --availability-domain={{.availabilityDomain | shellQuote}} --compartment-id={{.compartmentId | shellQuote}} --image-id={{.imageId | shellQuote}} --subnet-id={{.subnetId | shellQuote}} --display-name={{.hostname | shellQuote}} --assign-public-ip=true --launch-options='{"networkType":"PARAVIRTUALIZED"}' --user-data-file={{.configfile}} --query 'data.id' --raw-output
+        echo 🚀🚀🚀
+    preconditions:
+      - oci session validate --auth security_token
+      - |
+        if [[ $(oci compute instance list --compartment-id={{.compartmentId | shellQuote}} --display-name={{.hostname | shellQuote}} --auth security_token --query "data[?\"lifecycle-state\"!='TERMINATING' && \"lifecycle-state\"!='TERMINATED'].id" --raw-output | wc -l) -gt 0 ]]; then
+          echo "Instance already exists with display-name {{.hostname}}"
+          exit 1
+        else
+          echo "Instance does not exist with display-name {{.hostname}}. Proceeding with launch. 🚀"
+          exit 0
+        fi
 
   apply-config:
     desc: Apply talos config on a node

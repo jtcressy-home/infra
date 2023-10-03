@@ -9,9 +9,6 @@ vars:
 dotenv:
   - "{{.PROJECT_DIR}}/talos/op.env"
 
-env:
-  TALOSCONFIG: ./talos/clusterconfig/talosconfig
-
 includes:
   # externalsecrets: .taskfiles/externalsecrets/tasks.yaml
   talos: .taskfiles/talos/tasks.yaml
