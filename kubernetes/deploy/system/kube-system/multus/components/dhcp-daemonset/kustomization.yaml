@@ -5,4 +5,5 @@ resources:
 - dhcp-networkattachment.yaml
 
 commonAnnotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   argocd.argoproj.io/sync-wave: "10"
