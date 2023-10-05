@@ -42,17 +42,7 @@ patches:
         spec:
           initContainers:
           - name: cni-installer
-            image: ghcr.io/angelnu/cni-plugins:1.3.0
-            volumeMounts:
-            - name: cnibin
-              mountPath: /host/opt/cni/bin
-          containers:
-          - name: cni-inspector
             image: ghcr.io/onedr0p/cni-plugins:1.3.0
-            command:
-            - /bin/sh
-            - -c
-            - sleep 3600
             volumeMounts:
             - name: cnibin
               mountPath: /host/opt/cni/bin
