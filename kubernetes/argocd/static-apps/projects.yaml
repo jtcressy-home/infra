@@ -1,0 +1,19 @@
+# projects application installs all projects in kubernetes/argocd/projects
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: projects
+  namespace: argocd
+spec:
+  project: admin
+  source:
+    path: kubernetes/argocd/projects
+    repoURL: https://github.com/jtcressy-home/infra
+    targetRevision: HEAD
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      allowEmpty: false

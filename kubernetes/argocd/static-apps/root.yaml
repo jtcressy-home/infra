@@ -1,0 +1,19 @@
+# root application installs static-apps (including itself)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: admin
+  source:
+    path: kubernetes/argocd/static-apps
+    repoURL: https://github.com/jtcressy-home/infra
+    targetRevision: HEAD
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      allowEmpty: false

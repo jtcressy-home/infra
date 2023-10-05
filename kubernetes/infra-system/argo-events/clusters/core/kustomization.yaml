@@ -1,3 +1,0 @@
-namespace: infra-system
-resources:
-- github.com/argoproj/argo-events/manifests/cluster-install?ref=v1.8.1

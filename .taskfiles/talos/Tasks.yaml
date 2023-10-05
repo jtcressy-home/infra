@@ -1,16 +1,9 @@
 ---
 version: "3"
 
-required:
-  vars: [cluster]
-
-vars:
-  cluster: "{{.cluster | default nil}}"
-
 env:
-  TALOSCONFIG: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/talosconfig"
+  TALOSCONFIG: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
   clusterName: "{{.cluster}}"
-  clusterEndpointIP: "op://{{.opVault}}/talos-cluster-{{.cluster}}/clusterEndpointIP"
   CLUSTERID: "op://{{.opVault}}/talos-cluster-{{.cluster}}/cluster/id"
   CLUSTERSECRET: "op://{{.opVault}}/talos-cluster-{{.cluster}}/cluster/secret"
   TRUSTDINFOTOKEN: "op://{{.opVault}}/talos-cluster-{{.cluster}}/trustdinfo/token"
@@ -34,7 +27,9 @@ tasks:
   gensecret:
     desc: Generate talos secrets and store in 1password via op cli
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster]
     env:
       cluster: "{{.cluster}}"
       secretjson:
@@ -64,60 +59,66 @@ tasks:
   genconfig:
     desc: Generate talos config
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster]
     cmds:
       - talhelper -v
       - op run -- talhelper genconfig
 
+  mergeclientconfig:
+    desc: Merge cluster talos client config into home directory default talosconfig
+    interactive: true
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster]
+    cmds:
+      - talosctl config merge --talosconfig=$HOME/.talos/config "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
+
   bootstrap:
     desc: Bootstrap talos cluster
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
-    vars:
-      node: "{{.node | default nil}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster, node]
     cmds:
       - talosctl bootstrap -n {{.node}}
 
   disks:
     desc: Get disks
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
-    vars:
-      cluster: "{{.cluster}}"
-      node: "{{.ip}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster, ip]
     cmds:
       - talosctl -n {{.ip}} disks --insecure
 
   get-machine:
     desc: Get machine
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
-    vars:
-      cluster: "{{.cluster}}"
-      node: "{{.node | default nil}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster, node]
     cmds:
       - talosctl -n {{.node}} get mc
 
   join-node:
     desc: Apply talos config on a new node in maintenance mode
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
-    vars:
-      ip: "{{.ip}}"
-      node: "{{.node}}"
-      cluster: "{{.cluster}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster, node, ip]
     cmds:
-      - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
     
   launch-node-oci:
     desc: Launch an Oracle Cloud instance and join it to the cluster
-    # dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     interactive: true
     requires:
       vars: [cluster, node]
     vars:
-      node: "{{.node}}"
-      configfile: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      configfile: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
       hostname: "{{.node | splitList \".\" | first}}"
       compartmentId:
         sh: op read op://{{.opVault}}/Oracle/compartmentId
@@ -159,36 +160,33 @@ tasks:
   apply-config:
     desc: Apply talos config on a node
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster, node]
     vars:
-      cluster: "{{.cluster}}"
-      node: "{{.node | default nil}}"
+      mode: '{{if .reboot }}reboot{{else}}no-reboot{{end}}'
     cmds:
-      - talosctl apply-config -n {{.node}} -f "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      - talosctl apply-config -n {{.node}} -m {{.mode}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
     preconditions:
       - talosctl -n {{.node}} get mc
 
   upgrade-talos:
     desc: Upgrade talos on a node
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
-    vars:
-      cluster: "{{.cluster}}"
-      node: "{{.node | default nil}}"
-      image: "{{.image | default nil}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster, node, image]
     cmds:
       - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
     preconditions:
-      - talosctl -n {{.node}} get mc --insecure
+      - talosctl -n {{.node}} get mc
 
   upgrade-k8s:
     desc: Upgrade k8s on a node
     interactive: true
-    dir: "{{.PROJECT_DIR}}/talos/clusters/{{.cluster}}"
-    vars:
-      cluster: "{{.cluster}}"
-      node: "{{.node | default nil}}"
-      to: "{{.to | default nil}}"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster, node, to]
     cmds:
       - talosctl -n {{.node}} upgrade-k8s --to {{.to}}
     preconditions:

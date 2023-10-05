@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-cni
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+  - git:
+      repoURL: https://github.com/jtcressy-home/infra.git
+      revision: HEAD
+      directories:
+      - path: 'kubernetes/clusters/*/cni'
+      values:
+        cluster: '{{ index .path.segments 2 }}'
+  template:
+    metadata:
+      name: '{{ .values.cluster }}-cni'
+    spec:
+      project: admin
+      source:
+        repoURL: https://github.com/jtcressy-home/infra.git
+        targetRevision: HEAD
+        path: '{{.path.path}}'
+      destination:
+        namespace: kube-system
+        name: '{{ .values.cluster }}'
+      kustomize:
+        namespace: kube-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
