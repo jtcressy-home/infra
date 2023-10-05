@@ -11,7 +11,7 @@ helmCharts:
   valuesInline:
     controller:
       type: daemonset
-      hostNetwork: true
+    hostNetwork: true
       
     image:
       repository: docker.io/cloudflare/cloudflared
