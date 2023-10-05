@@ -1,7 +1,8 @@
 namespace: argocd
 
 resources:
-- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.8.2
+- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.8.4
+- default-project.yaml
 - infra-repo.yaml
 - bastion-cluster-config.yaml
 # Yes, I know this external secret fails on bootstrapping because external secrets isn't deployed yet.
