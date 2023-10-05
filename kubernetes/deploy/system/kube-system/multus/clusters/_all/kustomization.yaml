@@ -9,7 +9,7 @@ helmCharts:
   valuesInline:
     image:
       repository: ghcr.io/k8snetworkplumbingwg/multus-cni
-      tag: v4.0.2
+      tag: v4.0.2-thick
     cni:
       image:
         repository: ghcr.io/angelnu/cni-plugins
@@ -26,27 +26,27 @@ helmCharts:
     hostPaths:
       netns: /var/run/netns
 
-patches:
-- target:
-    group: apps
-    version: v1
-    kind: DaemonSet
-    name: multus
-  patch: |-
-    apiVersion: apps/v1
-    kind: Daemonset
-    metadata:
-      name: multus
-    spec:
-      template:
-        spec:
-          containers:
-          - name: multus
-            command:
-            - /thin_entrypoint
-          initContainers:
-          - name: multus-installer
-            $patch: delete
+# patches:
+# - target:
+#     group: apps
+#     version: v1
+#     kind: DaemonSet
+#     name: multus
+#   patch: |-
+#     apiVersion: apps/v1
+#     kind: Daemonset
+#     metadata:
+#       name: multus
+#     spec:
+#       template:
+#         spec:
+#           containers:
+#           - name: multus
+#             command:
+#             - /thin_entrypoint
+#           initContainers:
+#           - name: multus-installer
+#             $patch: delete
 
 resources:
 - crd.yaml
