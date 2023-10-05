@@ -9,9 +9,9 @@ spec:
       kind: '*'
   description: System apps targeting all clusters
   destinations:
-    - name: '*'
-      namespace: (cert-manager|external-secrets|kube-system)
-      server: '*'
+    - namespace: cert-manager
+    - namespace: external-secrets
+    - namespace: kube-system
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
