@@ -1,66 +1,67 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-helmCharts:
-- name: multus
-  repo: https://angelnu.github.io/helm-charts
-  version: 5.0.3
-  releaseName: multus
-  namespace: kube-system
-  valuesInline:
-    image:
-      repository: ghcr.io/k8snetworkplumbingwg/multus-cni
-      tag: v4.0.2
-    cni:
-      image:
-        repository: ghcr.io/angelnu/cni-plugins
-        tag: 1.3.0
-      paths:
-        config: /etc/cni/net.d
-        bin: /opt/cni/bin
-    resources:
-      requests:
-        cpu: 5m
-        memory: 64M
-      limits:
-        memory: 64M
-    hostPaths:
-      netns: /var/run/netns
+# helmCharts:
+# - name: multus
+#   repo: https://angelnu.github.io/helm-charts
+#   version: 5.0.3
+#   releaseName: multus
+#   namespace: kube-system
+#   valuesInline:
+#     image:
+#       repository: ghcr.io/k8snetworkplumbingwg/multus-cni
+#       tag: v4.0.2
+#     cni:
+#       image:
+#         repository: ghcr.io/angelnu/cni-plugins
+#         tag: 1.3.0
+#       paths:
+#         config: /etc/cni/net.d
+#         bin: /opt/cni/bin
+#     resources:
+#       requests:
+#         cpu: 5m
+#         memory: 64M
+#       limits:
+#         memory: 64M
+#     hostPaths:
+#       netns: /var/run/netns
 
-patches:
-- target:
-    group: apps
-    version: v1
-    kind: DaemonSet
-    name: multus
-  patch: |-
-    apiVersion: apps/v1
-    kind: Daemonset
-    metadata:
-      name: multus
-    spec:
-      template:
-        spec:
-          containers:
-          - name: multus
-            command:
-            - /thin_entrypoint
-            args:
-            - --multus-conf-file=auto
-            - --multus-autoconfig-dir=/host/etc/cni/net.d
-            - --cleanup-config-on-exit
-            - --cni-conf-dir=/host/etc/cni/net.d
-            - --cni-bin-dir=/host/opt/cni/bin
-            - --cni-version=0.3.1
-          initContainers:
-          - name: multus-installer
-            command:
-            - /install_multus
-            args:
-            - --type
-            - thin
+# patches:
+# - target:
+#     group: apps
+#     version: v1
+#     kind: DaemonSet
+#     name: multus
+#   patch: |-
+#     apiVersion: apps/v1
+#     kind: Daemonset
+#     metadata:
+#       name: multus
+#     spec:
+#       template:
+#         spec:
+#           containers:
+#           - name: multus
+#             command:
+#             - /thin_entrypoint
+#             args:
+#             - --multus-conf-file=auto
+#             - --multus-autoconfig-dir=/host/etc/cni/net.d
+#             - --cleanup-config-on-exit
+#             - --cni-conf-dir=/host/etc/cni/net.d
+#             - --cni-bin-dir=/host/opt/cni/bin
+#             - --cni-version=0.3.1
+#           initContainers:
+#           - name: multus-installer
+#             command:
+#             - /install_multus
+#             args:
+#             - --type
+#             - thin
 
 resources:
-- crd.yaml
+# - crd.yaml
+- https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/v4.0.2/deployments/multus-daemonset.yml
 
 components:
 - ../../components/dhcp-daemonset
