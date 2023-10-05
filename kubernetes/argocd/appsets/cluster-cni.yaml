@@ -17,16 +17,16 @@ spec:
     metadata:
       name: '{{ .values.cluster }}-cni'
     spec:
-      project: admin
+      project: system
       source:
         repoURL: https://github.com/jtcressy-home/infra.git
         targetRevision: HEAD
         path: '{{.path.path}}'
+        kustomize:
+          namespace: kube-system
       destination:
         namespace: kube-system
         name: '{{ .values.cluster }}'
-      kustomize:
-        namespace: kube-system
       syncPolicy:
         automated:
           prune: true

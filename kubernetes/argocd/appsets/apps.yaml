@@ -41,11 +41,11 @@ spec:
         repoURL: https://github.com/jtcressy-home/infra.git
         targetRevision: HEAD
         path: '{{.path.path}}'
+        kustomize:
+          namespace: '{{ .values.namespace }}'
       destination:
         namespace: '{{ .values.namespace }}'
         name: '{{ .values.cluster }}'
-      kustomize:
-        namespace: '{{ .values.namespace }}'
       syncPolicy:
         automated:
           prune: true
