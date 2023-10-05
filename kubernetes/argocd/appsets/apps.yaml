@@ -18,23 +18,25 @@ spec:
       - path: 'kubernetes/deploy/*/*/*/clusters/_all'
         exclude: true # to be handled by next generator
       values:
-        project: '{{ index .path.segments 2 }}'
-        namespace: '{{ index .path.segments 3 }}'
-        app: '{{ index .path.segments 4 }}'
+        # project: '{{ index .path.segments 2 }}'
+        # namespace: '{{ index .path.segments 3 }}'
+        # app: '{{ index .path.segments 4 }}'
         cluster: '{{ index .path.segments 6 }}'
   - matrix:
       generators:
-      - clusters: {}
+      - clusters:
+          values:
+            cluster: '{{ .name }}'
       - git:
           repoURL: https://github.com/jtcressy-home/infra.git
           revision: HEAD
           directories:
           - path: 'kubernetes/deploy/*/*/*/clusters/_all'
-          values:
-            # project: '{{ index .path.segments 2 }}'
-            # namespace: '{{ index .path.segments 3 }}'
-            # app: '{{ index .path.segments 4 }}'
-            cluster: '{{ .name }}'
+          # values:
+          #   project: '{{ index .path.segments 2 }}'
+          #   namespace: '{{ index .path.segments 3 }}'
+          #   app: '{{ index .path.segments 4 }}'
+          #   cluster: '{{ .name }}'
   template:
     metadata:
       name: '{{ index .path.segments 4 }}-{{ .values.cluster }}'
