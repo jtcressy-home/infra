@@ -27,31 +27,31 @@ kind: Kustomization
 #       netns: /var/run/netns
 
 patches:
-- target:
-    group: apps
-    version: v1
-    kind: DaemonSet
-  patch: |-
-    apiVersion: apps/v1
-    kind: Daemonset
-    metadata:
-      name: any
-    spec:
-      template:
-        spec:
-          affinity:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                - matchExpressions:
-                  # - key: topology.kubernetes.io/zone
-                  #   operator: NotIn
-                  #   values:
-                  #   - home-sbc
-                  - key: topology.kubernetes.io/region
-                    operator: In
-                    values:
-                    - home
+# - target:
+#     group: apps
+#     version: v1
+#     kind: DaemonSet
+#   patch: |-
+#     apiVersion: apps/v1
+#     kind: Daemonset
+#     metadata:
+#       name: any
+#     spec:
+#       template:
+#         spec:
+#           affinity:
+#             nodeAffinity:
+#               requiredDuringSchedulingIgnoredDuringExecution:
+#                 nodeSelectorTerms:
+#                 - matchExpressions:
+#                   # - key: topology.kubernetes.io/zone
+#                   #   operator: NotIn
+#                   #   values:
+#                   #   - home-sbc
+#                   - key: topology.kubernetes.io/region
+#                     operator: In
+#                     values:
+#                     - home
 - target:
     group: apps
     version: v1
