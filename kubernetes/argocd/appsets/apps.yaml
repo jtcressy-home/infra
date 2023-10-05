@@ -29,6 +29,7 @@ spec:
           directories:
           - path: 'kubernetes/deploy/*/*/*/clusters/_all'
           values:
+            path: '{{ .path.path }}'
             project: '{{ index .path.segments 2 }}'
             namespace: '{{ index .path.segments 3 }}'
             app: '{{ index .path.segments 4 }}'
@@ -36,6 +37,8 @@ spec:
   template:
     metadata:
       name: '{{ .values.app }}-{{ .values.cluster }}'
+      labels:
+        path: '{{ .values.path }}'
     spec:
       project: '{{ .values.project }}'
       source:
