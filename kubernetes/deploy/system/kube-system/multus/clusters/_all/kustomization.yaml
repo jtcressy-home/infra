@@ -50,7 +50,11 @@ patches:
             - --cni-conf-dir=/host/etc/cni/net.d
           initContainers:
           - name: multus-installer
-            $patch: delete
+            command:
+            - /install_multus
+            args:
+            - --type
+            - thin
 
 resources:
 - crd.yaml
