@@ -233,7 +233,7 @@ controlPlane:
           port: 7445
       install:
         extensions:
-          - image: ghcr.io/siderolabs/tailscale:1.50.0
+          - image: ghcr.io/siderolabs/tailscale:1.48.1
       network:
         nameservers:
           - 100.100.100.100
@@ -270,5 +270,5 @@ worker:
   inlinePatch:
     machine: 
       <<: *machineconfig
-      nodeLabels:
-        node-role.kubernetes.io/worker: ""
+      # nodeLabels:
+      #   node-role.kubernetes.io/worker: ""
