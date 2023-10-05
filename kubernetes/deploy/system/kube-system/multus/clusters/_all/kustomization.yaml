@@ -40,9 +40,13 @@ patches:
     spec:
       template:
         spec:
+          containers:
+          - name: multus
+            command:
+            - /thin_entrypoint
           initContainers:
-            - name: multus-installer
-              $patch: delete
+          - name: multus-installer
+            $patch: delete
 
 resources:
 - crd.yaml
