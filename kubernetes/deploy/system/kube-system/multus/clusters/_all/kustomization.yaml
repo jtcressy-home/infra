@@ -31,6 +31,28 @@ patches:
     group: apps
     version: v1
     kind: DaemonSet
+    name: kube-dhcp-ds
+  patch: |-
+    apiVersion: apps/v1
+    kind: Daemonset
+    metadata:
+      name: kube-dhcp-ds
+    spec:
+      template:
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: topology.kubernetes.io/zone
+                    operator: NotIn
+                    values:
+                    - home-sbc
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
     name: kube-multus-ds
   patch: |-
     apiVersion: apps/v1
