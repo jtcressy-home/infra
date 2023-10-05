@@ -10,8 +10,14 @@ spec:
   description: System apps targeting all clusters
   destinations:
     - namespace: cert-manager
+      name: '*'
+      server: '*'
     - namespace: external-secrets
+      name: '*'
+      server: '*'
     - namespace: kube-system
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
