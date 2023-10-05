@@ -20,6 +20,7 @@ spec:
         cluster: '{{ index .path.segments 6 }}'
   - matrix:
       generators:
+      - clusters: {}
       - git:
           repoURL: https://github.com/jtcressy-home/infra.git
           revision: HEAD
@@ -29,8 +30,6 @@ spec:
             project: '{{ index .path.segments 2 }}'
             namespace: '{{ index .path.segments 3 }}'
             app: '{{ index .path.segments 4 }}'
-      - clusters:
-          values:
             cluster: '{{ .name }}'
   template:
     metadata:
