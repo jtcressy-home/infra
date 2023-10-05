@@ -44,10 +44,10 @@ patches:
               requiredDuringSchedulingIgnoredDuringExecution:
                 nodeSelectorTerms:
                 - matchExpressions:
-                  - key: topology.kubernetes.io/zone
-                    operator: NotIn
-                    values:
-                    - home-sbc
+                  # - key: topology.kubernetes.io/zone
+                  #   operator: NotIn
+                  #   values:
+                  #   - home-sbc
                   - key: topology.kubernetes.io/region
                     operator: In
                     values:
