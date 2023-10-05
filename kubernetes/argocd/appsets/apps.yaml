@@ -14,10 +14,10 @@ spec:
       - path: 'kubernetes/deploy/*/*/*/clusters/_all'
         exclude: true # to be handled by next generator
       values:
-        project: '{{ index .path.segments 2 }}'
-        namespace: '{{ index .path.segments 3 }}'
-        app: '{{ index .path.segments 4 }}'
-        cluster: '{{ index .path.segments 6 }}'
+        project: '{{ index (splitList "/" .path.path) 2 }}'
+        namespace: '{{ index (splitList "/" .path.path) 3 }}'
+        app: '{{ index (splitList "/" .path.path) 4 }}'
+        cluster: '{{ index (splitList "/" .path.path) 6 }}'
   - matrix:
       generators:
       - clusters: {}
@@ -27,9 +27,9 @@ spec:
           directories:
           - path: 'kubernetes/deploy/*/*/*/clusters/_all'
           values:
-            project: '{{ index .path.segments 2 }}'
-            namespace: '{{ index .path.segments 3 }}'
-            app: '{{ index .path.segments 4 }}'
+            project: '{{ index (splitList "/" .path.path) 2 }}'
+            namespace: '{{ index (splitList "/" .path.path) 3 }}'
+            app: '{{ index (splitList "/" .path.path) 4 }}'
             cluster: '{{ .name }}'
   template:
     metadata:
