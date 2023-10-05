@@ -11,7 +11,7 @@ helmCharts:
   valuesInline:
     controller:
       type: daemonset
-    hostNetwork: true
+    hostNetwork: false
       
     image:
       repository: docker.io/cloudflare/cloudflared
@@ -20,7 +20,7 @@ helmCharts:
     env:
       NO_AUTOUPDATE: "true"
       TUNNEL_METRICS: 0.0.0.0:8080
-      TUNNEL_TRANSPORT_PROTOCOL: auto
+      TUNNEL_TRANSPORT_PROTOCOL: http2
       TUNNEL_TOKEN:
         valueFrom:
           secretKeyRef:
