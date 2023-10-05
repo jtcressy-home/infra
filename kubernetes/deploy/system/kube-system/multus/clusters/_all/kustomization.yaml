@@ -111,7 +111,11 @@ patches:
 
 resources:
 # - crd.yaml
-- https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/v3.9.3/deployments/multus-daemonset.yml
+- https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/v4.0.2/deployments/multus-daemonset.yml
 
 components:
 - ../../components/dhcp-daemonset
+
+images:
+- name: ghcr.io/k8snetworkplumbingwg/multus-cni
+  newTag: v3.9.3
