@@ -33,7 +33,7 @@ spec:
           - path: 'kubernetes/deploy/*/*/*/clusters/_all'
           values:
             path: '{{ .path.path }}'
-            project: '{{ index .path.segments 2 }}'
+            # project: '{{ index .path.segments 2 }}'
             # namespace: '{{ index .path.segments 3 }}'
             app: '{{ index .path.segments 4 }}'
             cluster: '{{ .name }}'
