@@ -9,7 +9,7 @@ helmCharts:
   valuesInline:
     image:
       repository: ghcr.io/k8snetworkplumbingwg/multus-cni
-      tag: v4.0.2-thick
+      tag: v4.0.2
     cni:
       image:
         repository: ghcr.io/angelnu/cni-plugins
@@ -25,6 +25,9 @@ helmCharts:
         memory: 64M
     hostPaths:
       netns: /var/run/netns
+
+resources:
+- crd.yaml
 
 components:
 - ../../components/dhcp-daemonset
