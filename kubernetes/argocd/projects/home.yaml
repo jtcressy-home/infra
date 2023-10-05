@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: home
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: Homey apps, even automation ones
+  destinations:
+    - namespace: default
+      name: '*'
+      server: '*'
+    - namespace: home-automation
+      name: '*'
+      server: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - 'https://github.com/jtcressy-home/infra'

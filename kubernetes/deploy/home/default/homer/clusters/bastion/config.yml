@@ -1,0 +1,166 @@
+title: "Dashboard"
+#subtitle: ""
+#logo: ""
+
+header: true
+footer: false
+
+columns: "auto"
+connectivityCheck: true
+
+proxy:
+  useCredentials: true
+
+theme: default
+# colors from Nord theme: https://github.com/arcticicestudio/nord
+colors:
+  light:
+    highlight-primary: "#3367d6"
+    highlight-secondary: "#4285f4"
+    highlight-hover: "#5a95f5"
+    background: "#f5f5f5"
+    card-background: "#ffffff"
+    text: "#363636"
+    text-header: "#ffffff"
+    text-title: "#303030"
+    text-subtitle: "#424242"
+    card-shadow: rgba(0, 0, 0, 0.1)
+    link-hover: "#363636"
+  dark:
+    highlight-primary: "#2E3440"
+    highlight-secondary: "#4C566A"
+    highlight-hover: "#81A1C1"
+    background: "#3B4252"
+    card-background: "#2E3440"
+    text: "#D8DEE9"
+    text-header: "#D8DEE9"
+    text-title: "#81A1C1"
+    text-subtitle: "#81A1C1"
+    card-shadow: rgba(0, 0, 0, 0.4)
+    link-hover: "#BF616A"
+
+# Optional navbar
+links: []
+
+services:
+### Cloud ####
+  - name: "Cloud"
+    icon: "fas fa-cloud"
+    items:
+      - name: "iCloud"
+        logo: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg"
+        url: "https://www.icloud.com/"
+      - name: "Weather"
+        locationId: "4684888" # Dallas, TX
+        apikey: "${OPENWEATHER_API_KEY}"
+        units: "imperial"
+        background: "square"
+        type: "OpenWeather"
+      # - name: "Bitwarden"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/bitwarden.png"
+      #   url: "https://vault.bitwarden.com"
+      # - name: "Fastmail"
+      #   logo: "https://www.fastmail.com/wp-content/uploads/2022/11/FM-Icon-RGB.png"
+      #   url: "https://app.fastmail.com/"
+      # - name: "Google Drive"
+      #   logo: "https://cdn-icons-png.flaticon.com/512/2875/2875406.png"
+      #   url: "https://drive.google.com/"
+      # - name: "Google Calendar"
+      #   logo: "https://cdn-icons-png.flaticon.com/512/5968/5968499.png"
+      #   url: "https://calendar.google.com/calendar"
+
+#### Selfhosted ####
+  # - name: "Selfhosted"
+  #   icon: "fas fa-flask-vial"
+  #   items:
+  #     - name: "Paperless"
+  #       logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/paperless-ng.png"
+  #       url: "https://paperless.${SECRET_DOMAIN}"
+  #     - name: "Tandoo Receipes"
+  #       logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/tandoorrecipes.png"
+  #       url: "https://receipes.${SECRET_DOMAIN}"
+  #     - name: "Minio"
+  #       logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/minio.png"
+  #       url: "https://s3.nas.${SECRET_DOMAIN}"
+  #       subtitle: "Synology NAS"
+  #     - name: "JDownloader2"
+  #       logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/jdownloader.png"
+  #       url: "https://jd2.${SECRET_DOMAIN}"
+  #     - name: "Plex"
+  #       logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/plex.png"
+  #       url: "https://plex.nas.${SECRET_DOMAIN}"
+
+#### Management ####
+  - name: "Management"
+    icon: "fas fa-door-open"
+    items:
+      # - name: "Proxmox"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/proxmox.png"
+      #   url: "https://proxmox.${SECRET_DOMAIN}"
+      # - name: "Synology"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/synology.png"
+      #   url: "https://nas.${SECRET_DOMAIN}"
+      # - name: "OPNsense"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/opnsense.png"
+      #   url: "https://opnsense.${SECRET_DOMAIN}/"
+      # - name: "Rancher"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/rancher.png"
+      #   url: "https://rancher.${SECRET_DOMAIN}/"
+      - name: "Unifi Console (Cloud)"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/unifi.png"
+        url: "https://unifi.ui.com/"
+      - name: "Vault"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/vault.png"
+        url: "https://vault.jtcressy.net/"
+      - name: "ArgoCD"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/argocd.png"
+        url: "https://argocd.infra.jtcressy.net/"
+      # - name: "Longhorn"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/longhorn.png"
+      #   url: "https://longhorn.infra.jtcressy.net/"
+
+#### Monitoring ####
+  - name: "Monitoring"
+    icon: "fas fa-desktop"
+    items:
+      # - name: "Weave GitOps"
+      #   logo: "https://docs.gitops.weave.works/img/weave-logo.png"
+      #   url: "https://gitops.${SECRET_DOMAIN}/"
+      # - name: "Grafana"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/grafana.png"
+      #   url: "https://grafana.${SECRET_DOMAIN}/"
+      # - name: "Prometheus"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/prometheus.png"
+      #   url: "https://prometheus.${SECRET_DOMAIN}/"
+      # - name: "Alertmanager"
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/alertmanager.png"
+      #   url: "https://alert-manager.${SECRET_DOMAIN}/"
+      # - name: "Goldilocks"
+      #   logo: "https://raw.githubusercontent.com/FairwindsOps/goldilocks/master/pkg/dashboard/assets/images/favicon-32x32.png"
+      #   url: "https://goldilocks.${SECRET_DOMAIN}/"
+      # - name: Kubeview
+      #   logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/kubernetes-dashboard.png"
+      #   url: "https://kubeview.home.jtcressy.net/"
+
+#### Home Automation ####
+  - name: "Home Automation"
+    icon: "fas fa-home"
+    items:
+      - name: "Home Assistant"
+        logo: "https://static-00.iconduck.com/assets.00/home-assistant-icon-512x512-5t6h1s28.png"
+        url: "https://ha.home.jtcressy.net/"
+      - name: "Home Assistant Config"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/code.png"
+        url: "https://config.ha.home.jtcressy.net/"
+      - name: "Node RED"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/nodered.png"
+        url: "https://node-red.home.jtcressy.net"
+      - name: "Zigbee2MQTT"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/zigbee2mqtt.png"
+        url: "https://zb.home.jtcressy.net"
+      - name: "ZwaveJS UI"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/zwavejs.png"
+        url: "https://zw.home.jtcressy.net"
+      - name: "ESPHome Dashboard"
+        logo: "https://raw.githubusercontent.com/NX211/homer-icons/master/png/esphome.png"
+        url: "https://esp.home.jtcressy.net"
