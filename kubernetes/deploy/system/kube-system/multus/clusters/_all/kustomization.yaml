@@ -25,8 +25,24 @@ helmCharts:
         memory: 64M
     hostPaths:
       netns: /var/run/netns
-    initContainers:
-      multus-installer: null
+
+patches:
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    name: multus
+  patch: |-
+    apiVersion: apps/v1
+    kind: Daemonset
+    metadata:
+      name: multus
+    spec:
+      template:
+        spec:
+          initContainers:
+            - name: multus-installer
+              $patch: delete
 
 resources:
 - crd.yaml
