@@ -25,6 +25,8 @@ helmCharts:
         memory: 64M
     hostPaths:
       netns: /var/run/netns
+    initContainers:
+      multus-installer: null
 
 resources:
 - crd.yaml
