@@ -48,6 +48,11 @@ patches:
             - --multus-conf-file=auto
             - --multus-autoconfig-dir=/host/etc/cni/net.d
             - --cni-conf-dir=/host/etc/cni/net.d
+            - --chroot-dir=/hostroot
+            - --conf-dir=/host/etc/cni/net.d
+            - --socket-dir=/host/run/multus/
+            - --bin-dir=/opt/cni/bin
+            - --cni-version=0.3.1
           initContainers:
           - name: multus-installer
             command:
