@@ -18,6 +18,9 @@ spec:
     - namespace: kube-system
       name: '*'
       server: '*'
+    - namespace: rook-ceph
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
