@@ -31,6 +31,11 @@ helmCharts:
     hostPaths:
       netns: /var/run/netns
 
+
+resources:
+- crd.yaml
+- dhcp-networkattachment.yaml
+
 patches:
 - target:
     group: apps
@@ -60,9 +65,59 @@ patches:
             args:
             - --type
             - thin
-
-resources:
-- crd.yaml
-
-components:
-- ../../components/dhcp-daemonset
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    name: multus
+  patch: |-
+    apiVersion: apps/v1
+    kind: Daemonset
+    metadata:
+      name: multus
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: dhcp-cleanup
+            image: busybox
+            command: ["/bin/sh"]
+            args: ["-c", "rm -f /host/run/cni/dhcp.sock"]
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - name: dhcp-socketpath
+              mountPath: /host/run/cni
+          containers:
+          - name: dhcp-daemon
+            image: ghcr.io/onedr0p/cni-plugins
+            command:
+            - /plugins/dhcp
+            args:
+            - daemon
+            - -hostprefix
+            - /host
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "50Mi"
+              limits:
+                cpu: "100m"
+                memory: "50Mi"
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - name: dhcp-socketpath
+              mountPath: /host/run/cni
+            - name: procpath
+              mountPath: /host/proc
+            - name: host-run-netns
+              mountPath: /var/run/netns
+              mountPropagation: HostToContainer
+          volumes:
+          - name: dhcp-socketpath
+            hostPath:
+              path: /var/run/cni
+          - name: procpath
+            hostPath:
+              path: /proc
