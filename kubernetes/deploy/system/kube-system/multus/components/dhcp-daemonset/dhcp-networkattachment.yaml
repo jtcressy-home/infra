@@ -12,11 +12,13 @@ spec:
       "type": "macvlan",
       "ipam": {
           "type": "dhcp",
-          "provide": [
+          "request": [
             {
-              "option": "host-name",
-              "value": "macvlan-default-hostname"
-            },
+              "skipDefault": true,
+              "option": "ip-address"
+            }
+          ],
+          "provide": [
             {
               "option": "host-name",
               "fromArg": "K8S_POD_NAME"
