@@ -117,7 +117,7 @@ patches:
           volumes:
           - name: dhcp-socketpath
             hostPath:
-              path: /var/run/cni
+              path: /run/cni
           - name: procpath
             hostPath:
               path: /proc
