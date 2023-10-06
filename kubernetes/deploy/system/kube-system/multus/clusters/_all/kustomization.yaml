@@ -112,7 +112,7 @@ patches:
             - name: procpath
               mountPath: /host/proc
             - name: host-run-netns
-              mountPath: /var/run/netns
+              mountPath: /host/var/run/netns
               mountPropagation: HostToContainer
           volumes:
           - name: dhcp-socketpath
