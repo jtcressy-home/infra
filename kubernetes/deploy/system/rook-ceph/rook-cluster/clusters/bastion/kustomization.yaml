@@ -144,9 +144,9 @@ helmCharts:
               limits:
                 memory: 2000Mi
             instances: 2
-          healthCheck:
-            bucket:
-              interval: 60s
+          # healthCheck: # TODO: for some reason this is a perpetual diff in argocd
+          #   bucket:
+          #     interval: 60s 
         storageClass:
           enabled: true
           name: office-rack-ceph-objectstore
