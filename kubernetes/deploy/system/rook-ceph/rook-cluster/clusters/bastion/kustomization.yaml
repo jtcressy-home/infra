@@ -27,9 +27,15 @@ helmCharts:
       bdev_enable_discard = true
       bdev_async_discard = true
       osd_class_update_on_start = false
+      [mgr.dashboard]
+      standby_behavior = "error"
     cephClusterSpec:
       network:
         provider: host
+        # provider: multus
+        # selectors:
+        #   public: "cilium"
+        #   private: "cluster-network" # in the rook-ceph namespace
       crashCollector:
         disable: false
       dashboard:
@@ -47,26 +53,18 @@ helmCharts:
             devices:
               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03016
               - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223503D41P0B
-                config:
-                  osdsPerDevice: "2"
           - name: hp-2ua7021myw
             devices:
               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IB23FE0001S00710
               - name: /dev/disk/by-id/nvme-SOLIDIGM_SSDPFKNU010TZ_PHEH243002VJ1P0B
-                config:
-                  osdsPerDevice: "2"
           - name: hp-2ua7212ndg
             devices:
               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03070
               - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223504UX1P0B
-                config:
-                  osdsPerDevice: "2"
           - name: hp-2ua72228tz
             devices:
               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03062
               - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223501R01P0B
-                config:
-                  osdsPerDevice: "2"
       placement:
         all:
           nodeAffinity:
