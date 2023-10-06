@@ -106,6 +106,6 @@ resources:
 components:
 - ../../components/dhcp-daemonset
 
-images:
-- name: ghcr.io/k8snetworkplumbingwg/multus-cni
-  newTag: v4.0.2
+# images:
+# - name: ghcr.io/k8snetworkplumbingwg/multus-cni
+#   newTag: v4.0.2
