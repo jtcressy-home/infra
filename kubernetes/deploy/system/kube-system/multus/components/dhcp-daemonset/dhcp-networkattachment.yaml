@@ -14,7 +14,8 @@ spec:
           "type": "dhcp",
           "request": [
             {
-              "skipDefault": true
+              "skipDefault": true,
+              "option": "ip-address"
             }
           ],
           "provide": [
