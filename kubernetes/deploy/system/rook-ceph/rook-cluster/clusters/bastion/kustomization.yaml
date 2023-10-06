@@ -8,7 +8,7 @@ helmCharts:
   namespace: rook-ceph
   valuesInline:
     monitoring:
-      enabled: true
+      enabled: false
       createPrometheusRules: false # TODO
     ingress: # TODO w/ cloudflared
       dashboard:
