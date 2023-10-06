@@ -14,8 +14,7 @@ spec:
           "type": "dhcp",
           "request": [
             {
-              "skipDefault": true,
-              "option": 193
+              "skipDefault": true
             }
           ],
           "provide": [
