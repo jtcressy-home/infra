@@ -15,7 +15,7 @@ spec:
           "request": [
             {
               "skipDefault": true,
-              "option": "ip-address"
+              "option": 193
             }
           ],
           "provide": [
