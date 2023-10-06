@@ -10,16 +10,16 @@ helmCharts:
     monitoring:
       enabled: true
       createPrometheusRules: false # TODO
-    # ingress: # TODO w/ cloudflared
-    #   dashboard:
-    #     ingressClassName: nginx
-    #     annotations: {}
-    #     host:
-    #       name: &host rook.infra.jtcressy.net
-    #       path: /
-    #     tls:
-    #       - hosts:
-    #           - *host
+    ingress: # TODO w/ cloudflared
+      dashboard:
+        ingressClassName: nginx
+        annotations: {}
+        host:
+          name: &host rook.infra.jtcressy.net
+          path: /
+        tls:
+          - hosts:
+              - *host
     toolbox:
       enabled: true
     configOverride: |
