@@ -1,176 +1,176 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-helmCharts:
-- name: rook-ceph-cluster
-  repo: https://charts.rook.io/release
-  version: v1.12.4
-  releaseName: rook-ceph-cluster
-  namespace: rook-ceph
-  valuesInline:
-    monitoring:
-      enabled: false
-      createPrometheusRules: false # TODO
-    # ingress: # TODO w/ cloudflared
-    #   dashboard:
-    #     ingressClassName: nginx
-    #     annotations: {}
-    #     host:
-    #       name: &host rook.infra.jtcressy.net
-    #       path: /
-    #     tls:
-    #       - hosts:
-    #           - *host
-    toolbox:
-      enabled: true
-    configOverride: |
-      [global]
-      bdev_enable_discard = true
-      bdev_async_discard = true
-      osd_class_update_on_start = false
-      [mgr.dashboard]
-      standby_behavior = "error"
-    cephClusterSpec:
-      network:
-        provider: host
-        # provider: multus
-        # selectors:
-        #   public: "cilium"
-        #   private: "cluster-network" # in the rook-ceph namespace
-      crashCollector:
-        disable: false
-      dashboard:
-        enabled: true
-        urlPrefix: /
-        ssl: true # just going to reterminate and skip verify w/ cloudflared
-        port: 8443
-      storage:
-        useAllNodes: false
-        useAllDevices: false
-        config:
-          osdsPerDevice: "1"
-        nodes:
-          - name: hp-2ua7292pkz
-            devices:
-              - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03016
-              - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223503D41P0B
-          - name: hp-2ua7021myw
-            devices:
-              - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IB23FE0001S00710
-              - name: /dev/disk/by-id/nvme-SOLIDIGM_SSDPFKNU010TZ_PHEH243002VJ1P0B
-          - name: hp-2ua7212ndg
-            devices:
-              - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03070
-              - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223504UX1P0B
-          - name: hp-2ua72228tz
-            devices:
-              - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03062
-              - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223501R01P0B
-      placement:
-        all:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: topology.kubernetes.io/region
-                      operator: In
-                      values:
-                        - home
-        mgr:
-          nodeAffinity: &nodeAffinity
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: topology.kubernetes.io/zone
-                      operator: In
-                      values:
-                        - home-office-rack
-        mon:
-          nodeAffinity: *nodeAffinity
-    cephBlockPools:
-      - name: ceph-blockpool
-        spec:
-          failureDomain: host
-          replicated:
-            size: 3
-        storageClass:
-          enabled: true
-          name: office-rack-ceph-blockpool
-          isDefault: true
-          reclaimPolicy: Delete
-          allowVolumeExpansion: true
-          parameters:
-            imageFormat: "2"
-            imageFeatures: "layering"
-            csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
-            csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
-            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
-            csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
-            csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
-            csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
-            csi.storage.k8s.io/fstype: ext4
-    cephFileSystems:
-      - name: ceph-filesystem
-        spec:
-          metadataPool:
-            replicated:
-              size: 3
-          dataPools:
-            - failureDomain: host
-              replicated:
-                size: 3
-          metadataServer:
-            activeCount: 1
-            activeStandby: true
-            resources:
-              requests:
-                cpu: 1000m
-                memory: 4000Mi
-              limits:
-                memory: 4000Mi
-        storageClass:
-          enabled: true
-          isDefault: false
-          name: office-rack-ceph-filesystem
-          pool: data0
-          reclaimPolicy: Delete
-          allowVolumeExpansion: true
-          parameters:
-            csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
-            csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
-            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
-            csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
-            csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
-            csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
-            csi.storage.k8s.io/fstype: ext4
-    cephObjectStores:
-      - name: ceph-objectstore
-        spec:
-          metadataPool:
-            failureDomain: host
-            replicated:
-              size: 3
-          dataPool:
-            failureDomain: host
-            erasureCoded:
-              dataChunks: 2
-              codingChunks: 1
-          preservePoolsOnDelete: true
-          gateway:
-            port: 80
-            resources:
-              requests:
-                cpu: 1000m
-                memory: 1000Mi
-              limits:
-                memory: 2000Mi
-            instances: 2
-          # healthCheck: # TODO: for some reason this is a perpetual diff in argocd
-          #   bucket:
-          #     interval: 60s 
-        storageClass:
-          enabled: true
-          name: office-rack-ceph-objectstore
-          reclaimPolicy: Delete
-          parameters:
-            region: us-east-1
+# helmCharts:
+# - name: rook-ceph-cluster
+#   repo: https://charts.rook.io/release
+#   version: v1.12.4
+#   releaseName: rook-ceph-cluster
+#   namespace: rook-ceph
+#   valuesInline:
+#     monitoring:
+#       enabled: false
+#       createPrometheusRules: false # TODO
+#     # ingress: # TODO w/ cloudflared
+#     #   dashboard:
+#     #     ingressClassName: nginx
+#     #     annotations: {}
+#     #     host:
+#     #       name: &host rook.infra.jtcressy.net
+#     #       path: /
+#     #     tls:
+#     #       - hosts:
+#     #           - *host
+#     toolbox:
+#       enabled: true
+#     configOverride: |
+#       [global]
+#       bdev_enable_discard = true
+#       bdev_async_discard = true
+#       osd_class_update_on_start = false
+#       [mgr.dashboard]
+#       standby_behavior = "error"
+#     cephClusterSpec:
+#       network:
+#         provider: host
+#         # provider: multus
+#         # selectors:
+#         #   public: "cilium"
+#         #   private: "cluster-network" # in the rook-ceph namespace
+#       crashCollector:
+#         disable: false
+#       dashboard:
+#         enabled: true
+#         urlPrefix: /
+#         ssl: true # just going to reterminate and skip verify w/ cloudflared
+#         port: 8443
+#       storage:
+#         useAllNodes: false
+#         useAllDevices: false
+#         config:
+#           osdsPerDevice: "1"
+#         nodes:
+#           - name: hp-2ua7292pkz
+#             devices:
+#               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03016
+#               - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223503D41P0B
+#           - name: hp-2ua7021myw
+#             devices:
+#               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IB23FE0001S00710
+#               - name: /dev/disk/by-id/nvme-SOLIDIGM_SSDPFKNU010TZ_PHEH243002VJ1P0B
+#           - name: hp-2ua7212ndg
+#             devices:
+#               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03070
+#               - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223504UX1P0B
+#           - name: hp-2ua72228tz
+#             devices:
+#               - name: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03062
+#               - name: /dev/disk/by-id/nvme-INTEL_SSDPEKNU010TZ_PHKA223501R01P0B
+#       placement:
+#         all:
+#           nodeAffinity:
+#             requiredDuringSchedulingIgnoredDuringExecution:
+#               nodeSelectorTerms:
+#                 - matchExpressions:
+#                     - key: topology.kubernetes.io/region
+#                       operator: In
+#                       values:
+#                         - home
+#         mgr:
+#           nodeAffinity: &nodeAffinity
+#             requiredDuringSchedulingIgnoredDuringExecution:
+#               nodeSelectorTerms:
+#                 - matchExpressions:
+#                     - key: topology.kubernetes.io/zone
+#                       operator: In
+#                       values:
+#                         - home-office-rack
+#         mon:
+#           nodeAffinity: *nodeAffinity
+#     cephBlockPools:
+#       - name: ceph-blockpool
+#         spec:
+#           failureDomain: host
+#           replicated:
+#             size: 3
+#         storageClass:
+#           enabled: true
+#           name: office-rack-ceph-blockpool
+#           isDefault: true
+#           reclaimPolicy: Delete
+#           allowVolumeExpansion: true
+#           parameters:
+#             imageFormat: "2"
+#             imageFeatures: "layering"
+#             csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+#             csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+#             csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+#             csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+#             csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+#             csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+#             csi.storage.k8s.io/fstype: ext4
+#     cephFileSystems:
+#       - name: ceph-filesystem
+#         spec:
+#           metadataPool:
+#             replicated:
+#               size: 3
+#           dataPools:
+#             - failureDomain: host
+#               replicated:
+#                 size: 3
+#           metadataServer:
+#             activeCount: 1
+#             activeStandby: true
+#             resources:
+#               requests:
+#                 cpu: 1000m
+#                 memory: 4000Mi
+#               limits:
+#                 memory: 4000Mi
+#         storageClass:
+#           enabled: true
+#           isDefault: false
+#           name: office-rack-ceph-filesystem
+#           pool: data0
+#           reclaimPolicy: Delete
+#           allowVolumeExpansion: true
+#           parameters:
+#             csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+#             csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+#             csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+#             csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+#             csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+#             csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+#             csi.storage.k8s.io/fstype: ext4
+#     cephObjectStores:
+#       - name: ceph-objectstore
+#         spec:
+#           metadataPool:
+#             failureDomain: host
+#             replicated:
+#               size: 3
+#           dataPool:
+#             failureDomain: host
+#             erasureCoded:
+#               dataChunks: 2
+#               codingChunks: 1
+#           preservePoolsOnDelete: true
+#           gateway:
+#             port: 80
+#             resources:
+#               requests:
+#                 cpu: 1000m
+#                 memory: 1000Mi
+#               limits:
+#                 memory: 2000Mi
+#             instances: 2
+#           # healthCheck: # TODO: for some reason this is a perpetual diff in argocd
+#           #   bucket:
+#           #     interval: 60s 
+#         storageClass:
+#           enabled: true
+#           name: office-rack-ceph-objectstore
+#           reclaimPolicy: Delete
+#           parameters:
+#             region: us-east-1
 
