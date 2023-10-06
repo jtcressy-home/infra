@@ -26,7 +26,7 @@ helmCharts:
     hostPaths:
       netns: /var/run/netns
 
-# patches:
+patches:
 # - target:
 #     group: apps
 #     version: v1
@@ -71,37 +71,33 @@ helmCharts:
 #             volumeMounts:
 #             - name: cnibin
 #               mountPath: /host/opt/cni/bin
-# - target:
-#     group: apps
-#     version: v1
-#     kind: DaemonSet
-#     name: multus
-#   patch: |-
-#     apiVersion: apps/v1
-#     kind: Daemonset
-#     metadata:
-#       name: multus
-#     spec:
-#       template:
-#         spec:
-#           containers:
-#           - name: multus
-#             command:
-#             - /thin_entrypoint
-#             args:
-#             - --multus-conf-file=auto
-#             - --multus-autoconfig-dir=/host/etc/cni/net.d
-#             - --cleanup-config-on-exit
-#             - --cni-conf-dir=/host/etc/cni/net.d
-#             - --cni-bin-dir=/host/opt/cni/bin
-#             - --cni-version=0.3.1
-#           initContainers:
-#           - name: multus-installer
-#             command:
-#             - /install_multus
-#             args:
-#             - --type
-#             - thin
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    name: multus
+  patch: |-
+    apiVersion: apps/v1
+    kind: Daemonset
+    metadata:
+      name: multus
+    spec:
+      template:
+        spec:
+          containers:
+          - name: multus
+            command:
+            - /thin_entrypoint
+            args:
+            - --multus-conf-file=auto
+            - --multus-autoconfig-dir=/host/etc/cni/net.d
+          initContainers:
+          - name: multus-installer
+            command:
+            - /install_multus
+            args:
+            - --type
+            - thin
 
 resources:
 - crd.yaml
