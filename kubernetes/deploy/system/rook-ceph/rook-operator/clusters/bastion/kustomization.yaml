@@ -24,4 +24,5 @@ helmCharts:
         cpu: 10m
         memory: 128Mi
       limits:
+        cpu: 1500m
         memory: 512Mi
