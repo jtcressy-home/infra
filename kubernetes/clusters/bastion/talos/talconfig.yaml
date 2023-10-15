@@ -283,6 +283,8 @@ controlPlane:
         servers:
           - time.cloudflare.com
 worker:
+  patches:
+  - '@./patch-drbd.yaml'
   inlinePatch:
     machine: 
       <<: *machineconfig
