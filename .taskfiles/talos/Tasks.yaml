@@ -73,7 +73,7 @@ tasks:
     requires:
       vars: [cluster]
     cmds:
-      - talosctl config merge --talosconfig=$HOME/.talos/config "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
+      - talosctl config merge --context={{.cluster}} --talosconfig=$HOME/.talos/config "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
 
   bootstrap:
     desc: Bootstrap talos cluster

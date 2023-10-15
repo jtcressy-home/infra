@@ -188,6 +188,23 @@ nodes:
       infra.jtcressy.net/oci-cpus: "4"
       infra.jtcressy.net/oci-memory: "24"
       infra.jtcressy.net/oci-image: "talos-v1.5.3-tailscale-v1.50.0-arm64"
+patches:
+- |
+  machine:
+    files:
+      - content: |
+          [plugins."io.containerd.grpc.v1.cri"]
+            enable_unprivileged_ports = true
+            enable_unprivileged_icmp = true
+        op: create
+        path: /etc/cri/conf.d/20-customization.part
+    time:
+      disabled: false
+      servers:
+        - time.cloudflare.com
+- '@./patch-global-sysctls.yaml'
+- '@./patch-tailscale-underlay.yaml'
+- '@./patch-drbd.yaml'
 controlPlane:
   patches:
     - |
@@ -202,91 +219,41 @@ controlPlane:
           permissions: 0o644
           path: /var/etc/cloudflared/env
           op: create
-  inlinePatch:
-    cluster: &clusterconfig
-      allowSchedulingOnMasters: true
-      apiServer:
-        admissionControl: null
-        extraArgs:
-          bind-address: 0.0.0.0
-          oidc-issuer-url: https://vault.jtcressy.net/v1/identity/oidc/provider/default
-          oidc-client-id: Xg96CJ6FgSZzyoPlumEdhXBncKcNigwS
-          oidc-groups-claim: groups
-          oidc-groups-prefix: "vault:"
-          oidc-username-claim: username
-          oidc-username-prefix: "vault:"
-      controllerManager:
-        extraArgs:
-          bind-address: 0.0.0.0
-      discovery:
-        enabled: true
-        registries:
-          kubernetes:
-            disabled: true
-          service: {}
-      etcd:
-        extraArgs:
-          listen-metrics-urls: http://0.0.0.0:2381
-        advertisedSubnets:
-          - 100.64.0.0/10 # we want etcd to talk over tailscale for stable network paths
-      proxy:
-        disabled: true
-      scheduler:
-        extraArgs:
-          bind-address: 0.0.0.0
-    machine: &machineconfig
-      features:
-        kubePrism:
+    - |
+      cluster:
+        allowSchedulingOnMasters: true
+        apiServer:
+          admissionControl: null
+          extraArgs:
+            bind-address: 0.0.0.0
+            oidc-issuer-url: https://vault.jtcressy.net/v1/identity/oidc/provider/default
+            oidc-client-id: Xg96CJ6FgSZzyoPlumEdhXBncKcNigwS
+            oidc-groups-claim: groups
+            oidc-groups-prefix: "vault:"
+            oidc-username-claim: username
+            oidc-username-prefix: "vault:"
+        controllerManager:
+          extraArgs:
+            bind-address: 0.0.0.0
+        discovery:
           enabled: true
-          port: 7445
-      install:
-        extensions:
-          - image: ghcr.io/siderolabs/tailscale:1.48.1
-      network:
-        nameservers:
-          - 100.100.100.100
-          - 1.1.1.1
-          # - 8.8.8.8
-      files:
-        - content: |
-            TS_AUTHKEY=${TAILSCALE_AUTHKEY}
-            TS_ACCEPT_DNS=true
-          permissions: 0o644
-          path: /var/etc/tailscale/auth.env
-          op: create
-        - content: |
-            [plugins."io.containerd.grpc.v1.cri"]
-              enable_unprivileged_ports = true
-              enable_unprivileged_icmp = true
-          op: create
-          path: /etc/cri/conf.d/20-customization.part
-      sysctls:
-        fs.inotify.max_user_instances: "8192"
-        fs.inotify.max_user_watches: "1048576"
-        net.core.netdev_max_backlog: 25000
-        net.core.rmem_max: 4136960
-        net.core.wmem_max: 4136960
-        net.ipv4.tcp_congestion_control: cubic
-        net.ipv4.tcp_fin_timeout: 1
-        net.ipv4.tcp_limit_output_bytes: 131072
-        net.ipv4.tcp_low_latency: 0
-        net.ipv4.tcp_max_tw_buckets: 450000
-        net.ipv4.tcp_rmem: 4096 87380 4136960
-        net.ipv4.tcp_wmem: 4096 87380 4136960
-        net.ipv4.tcp_tw_reuse: 1
-      kubelet:
-        nodeIP:
-          validSubnets:
-            - 100.64.0.0/10
-      time:
-        disabled: false
-        servers:
-          - time.cloudflare.com
+          registries:
+            kubernetes:
+              disabled: true
+            service: {}
+        etcd:
+          extraArgs:
+            listen-metrics-urls: http://0.0.0.0:2381
+          advertisedSubnets:
+            - 100.64.0.0/10 # we want etcd to talk over tailscale for stable network paths
+        proxy:
+          disabled: true
+        scheduler:
+          extraArgs:
+            bind-address: 0.0.0.0
 worker:
   patches:
-  - '@./patch-drbd.yaml'
-  inlinePatch:
-    machine: 
-      <<: *machineconfig
-      nodeLabels:
-        node-role.kubernetes.io/worker: worker
+    - |
+      machine:
+        nodeLabels:
+          node-role.kubernetes.io/worker: worker
