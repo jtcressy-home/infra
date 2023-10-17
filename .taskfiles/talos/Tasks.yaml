@@ -162,9 +162,9 @@ tasks:
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     requires:
-      vars: [cluster, node]
+      vars: [cluster, node, mode]
     vars:
-      mode: '{{if .reboot }}reboot{{else}}no-reboot{{end}}'
+      mode: '{{ .mode | default "auto" }}'
     cmds:
       - talosctl apply-config -n {{.node}} -m {{.mode}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
     preconditions:
@@ -177,7 +177,7 @@ tasks:
     requires:
       vars: [cluster, node, image]
     cmds:
-      - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
+      - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true -s
     preconditions:
       - talosctl -n {{.node}} get mc
 

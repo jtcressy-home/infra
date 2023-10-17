@@ -128,7 +128,8 @@ nodes:
     ipAddress: oldbessie.tailnet-4d89.ts.net
     controlPlane: false
     installDiskSelector:
-      busPath: /pci0000:00/0000:00:09.0/0000:09:00.0/host7/port-7:0/expander-7:0/port-7:0:0/end_device-7:0:0/target7:0:0/7:0:0:0/
+      size: <=513GB
+      model: BTO SSD
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
