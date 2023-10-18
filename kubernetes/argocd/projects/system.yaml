@@ -21,6 +21,9 @@ spec:
     - namespace: rook-ceph
       name: '*'
       server: '*'
+    - namespace: piraeus-datastore
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
