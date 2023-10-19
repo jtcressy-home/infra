@@ -18,10 +18,10 @@ parameters:
   #     - topology.kubernetes.io/zone
   linstor.csi.linbit.com/replicasOnSame: topology.kubernetes.io/zone
   # Linstor properties 
-  property.linstor.csi.linbit.com/DrbdOptions/auto-quorum: suspend-io
-  property.linstor.csi.linbit.com/DrbdOptions/Resource/on-no-data-accessible: suspend-io
-  property.linstor.csi.linbit.com/DrbdOptions/Resource/on-suspended-primary-outdated: force-secondary
-  property.linstor.csi.linbit.com/DrbdOptions/Net/rr-conflict: retry-connect
+  # property.linstor.csi.linbit.com/DrbdOptions/auto-quorum: suspend-io
+  # property.linstor.csi.linbit.com/DrbdOptions/Resource/on-no-data-accessible: suspend-io
+  # property.linstor.csi.linbit.com/DrbdOptions/Resource/on-suspended-primary-outdated: force-secondary
+  # property.linstor.csi.linbit.com/DrbdOptions/Net/rr-conflict: retry-connect
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -39,7 +39,7 @@ parameters:
   linstor.csi.linbit.com/autoPlace: "1"
   linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"
   # Linstor properties 
-  property.linstor.csi.linbit.com/DrbdOptions/auto-quorum: suspend-io
-  property.linstor.csi.linbit.com/DrbdOptions/Resource/on-no-data-accessible: suspend-io
-  property.linstor.csi.linbit.com/DrbdOptions/Resource/on-suspended-primary-outdated: force-secondary
-  property.linstor.csi.linbit.com/DrbdOptions/Net/rr-conflict: retry-connect
+  # property.linstor.csi.linbit.com/DrbdOptions/auto-quorum: suspend-io
+  # property.linstor.csi.linbit.com/DrbdOptions/Resource/on-no-data-accessible: suspend-io
+  # property.linstor.csi.linbit.com/DrbdOptions/Resource/on-suspended-primary-outdated: force-secondary
+  # property.linstor.csi.linbit.com/DrbdOptions/Net/rr-conflict: retry-connect
