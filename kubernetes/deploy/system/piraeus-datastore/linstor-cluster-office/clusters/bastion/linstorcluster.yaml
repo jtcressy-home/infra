@@ -6,7 +6,6 @@ metadata:
 spec:
   nodeSelector:
     topology.kubernetes.io/region: home
-    topology.kubernetes.io/zone: home-office-rack
   properties:
     - name: TcpPortAutoRange
       value: "8000-8999"
