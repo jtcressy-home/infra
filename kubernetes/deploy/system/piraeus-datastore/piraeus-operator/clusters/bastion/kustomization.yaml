@@ -45,6 +45,6 @@ patches:
       {
         "op": "add",
         "path": "/spec/template/spec/containers/0/args/-",
-        "value": "--logLevel=INFO"
+        "value": "--zap-log-level=INFO"
       }
     ]

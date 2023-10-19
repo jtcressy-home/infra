@@ -1,19 +1,6 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: replicated-test-volume
-  namespace: default
-spec:
-  storageClassName: linstor-default-replicated
-  resources:
-    requests:
-      storage: 20Gi
-  accessModes:
-    - ReadWriteOnce
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
   name: test-volume
   namespace: default
 spec:
@@ -52,17 +39,16 @@ spec:
             - -c
             - |
               apk add fio
-              fio \
-                --randrepeat=1 \
-                --ioengine=libaio \
-                --direct=1 --gtod_reduce=1 \
-                --name=test --bs=4k --iodepth=64 \
-                --readwrite=randrw --rwmixread=75 \
-                --size=4G \
-                --filename=/volume/test.fio | tee /volume/$NODENAME-gitlabRecommendedTest.fio.log
-              fio --name=random-write --ioengine=posixaio --rw=randrw --bs=4k --size=4g --numjobs=1 --iodepth=1 --runtime=60 --time_based --end_fsync=1 --filename=/volume/test.fio | tee /volume/$NODENAME-single4KiBrandomrw.fio.log
-              fio --name=random-write --ioengine=posixaio --rw=randrw --bs=64k --size=256m --numjobs=16 --iodepth=16 --runtime=60 --time_based --end_fsync=1 --filename=/volume/test.fio | tee /volume/$NODENAME-16parallel64KiBrandomrw.fio.log
-              fio --name=random-write --ioengine=posixaio --rw=randrw --bs=1m --size=16g --numjobs=1 --iodepth=1 --runtime=60 --time_based --end_fsync=1 --filename=/volume/test.fio | tee /volume/$NODENAME-single1MBrandomrw.fio.log
+              # test volume performance
+              fio --name=gitlabRecommendedTest   --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --bs=4k --iodepth=64 --readwrite=randrw --rwmixread=75 --size=4G --filename=/volume/test.fio | tee /volume/$NODENAME-gitlabRecommendedTest.fio.log
+              fio --name=single4KiBrandomrw      --ioengine=libaio --rw=randrw --bs=4k  --size=4g   --numjobs=1  --iodepth=1  --runtime=60 --time_based --end_fsync=1 --filename=/volume/test.fio | tee /volume/$NODENAME-single4KiBrandomrw.fio.log
+              fio --name=16parallel64KiBrandomrw --ioengine=libaio --rw=randrw --bs=64k --size=256m --numjobs=16 --iodepth=16 --runtime=60 --time_based --end_fsync=1 --filename=/volume/test.fio | tee /volume/$NODENAME-16parallel64KiBrandomrw.fio.log
+              fio --name=single1MBrandomrw       --ioengine=libaio --rw=randrw --bs=1m  --size=16g   --numjobs=1 --iodepth=1  --runtime=60 --time_based --end_fsync=1 --filename=/volume/test.fio | tee /volume/$NODENAME-single1MBrandomrw.fio.log
+              # repeat all 4 of the above tests, but using /tmp/test.fio instead of /volume/test.fio to compare performance with the pod's ephemeral storage
+              fio --name=gitlabRecommendedTest   --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --bs=4k --iodepth=64 --readwrite=randrw --rwmixread=75 --size=4G --filename=/tmp/test.fio | tee /tmp/$NODENAME-gitlabRecommendedTest-ephemeral.fio.log
+              fio --name=single4KiBrandomrw      --ioengine=libaio --rw=randrw --bs=4k  --size=4g   --numjobs=1  --iodepth=1  --runtime=60 --time_based --end_fsync=1 --filename=/tmp/test.fio | tee /tmp/$NODENAME-single4KiBrandomrw-ephemeral.fio.log
+              fio --name=16parallel64KiBrandomrw --ioengine=libaio --rw=randrw --bs=64k --size=256m --numjobs=16 --iodepth=16 --runtime=60 --time_based --end_fsync=1 --filename=/tmp/test.fio | tee /tmp/$NODENAME-16parallel64KiBrandomrw-ephemeral.fio.log
+              fio --name=single1MBrandomrw       --ioengine=libaio --rw=randrw --bs=1m  --size=16g   --numjobs=1 --iodepth=1  --runtime=60 --time_based --end_fsync=1 --filename=/tmp/test.fio | tee /tmp/$NODENAME-single1MBrandomrw-ephemeral.fio.log
               # We use this to keep the Pod running
               tail -f /dev/null
           env:
@@ -73,6 +59,8 @@ spec:
           volumeMounts:
             - mountPath: /volume
               name: volume
+            - mountPath: /tmp
+              name: tmp
           resources:
             limits:
               cpu: 2000m
@@ -84,3 +72,5 @@ spec:
         - name: volume
           persistentVolumeClaim:
             claimName: test-volume
+        - name: tmp
+          emptyDir: {}
