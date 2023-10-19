@@ -6,3 +6,4 @@ resources:
 - nodeconnections.yaml
 - talos-loader-override.yaml
 - storage-pools.yaml
+- storage-classes.yaml
