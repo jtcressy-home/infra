@@ -1,11 +1,9 @@
 apiVersion: piraeus.io/v1
 kind: LinstorCluster
 metadata:
-  name: linstor-cluster-office
+  name: linstor-cluster
   namespace: piraeus-datastore
 spec:
-  nodeSelector:
-    topology.kubernetes.io/region: home
   properties:
     - name: TcpPortAutoRange
       value: "8000-8999"

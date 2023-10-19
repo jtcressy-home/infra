@@ -1,15 +1,15 @@
 apiVersion: piraeus.io/v1
 kind: LinstorSatelliteConfiguration
 metadata:
-  name: office-rack-default-pool
+  name: home-office-rack-default-pool
 spec:
   nodeSelector:
     topology.kubernetes.io/zone: home-office-rack
   storagePools:
-    - name: default
+    - name: home-office-rack-default
       filePool: 
-        directory: /var/lib/linstor-pools/default
----
+        directory: /var/lib/linstor-pools/home-office-rack-default
+# ---
 # apiVersion: piraeus.io/v1
 # kind: LinstorSatelliteConfiguration
 # metadata:
@@ -19,5 +19,3 @@ spec:
 #     kubernets.io/hostname: oldbessie
 #   storagePools:
 #     - name: oldbessie-zfs
-      
-# ---

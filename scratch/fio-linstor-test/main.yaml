@@ -27,6 +27,7 @@ spec:
       labels:
         app.kubernetes.io/name: volume-logger
     spec:
+      schedulerName: linstor-scheduler
       nodeSelector:
         kubernetes.io/hostname: hp-2ua7021myw
       terminationGracePeriodSeconds: 0
