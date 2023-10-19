@@ -19,11 +19,12 @@ helmCharts:
     version: 1.8.2
     releaseName: snapshot-validation-webhook
     namespace: piraeus-datastore
-  - name: linstor-affinity-controller
-    repo: https://piraeus.io/helm-charts/
-    version: 1.3.0
-    releaseName: linstor-affinity-controller
-    namespace: piraeus-datastore
+  ## affinity controller not necessary if you use the STORK scheduler
+  # - name: linstor-affinity-controller
+  #   repo: https://piraeus.io/helm-charts/
+  #   version: 1.3.0
+  #   releaseName: linstor-affinity-controller
+  #   namespace: piraeus-datastore
 
 ### Recommended storageclass parameters to use piraeus-ha-controller
 # parameters:
