@@ -11,7 +11,7 @@ parameters:
   # LINSTOR parameters
   # Available Parameters: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-kubernetes-sc-parameters
   linstor.csi.linbit.com/storagePool: home-office-rack-default
-  linstor.csi.linbit.com/autoPlace: "2"
+  linstor.csi.linbit.com/autoPlace: "3"
   linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"
   # linstor.csi.linbit.com/allowRemoteVolumeAccess: |
   #   - fromSame:
