@@ -30,9 +30,11 @@ nodes:
     ##  and we want to ensure we still have 3 active nodes in etcd
     controlPlane: false 
     installDiskSelector:
-      model: SPCC M.2 PCIe SSD
-      serial: AA000000000000003835
-      size: <=257GiB
+      # model: SPCC M.2 PCIe SSD
+      # serial: AA000000000000003835
+      # size: <=257GiB
+      model: SOLIDIGM SSDPFKNU010TZ
+      serial: PHEH243002VJ1P0B
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
@@ -47,9 +49,11 @@ nodes:
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
     controlPlane: true
     installDiskSelector:
-      model: SPCC M.2 PCIe SSD
-      serial: AA000000000000003334
-      size: <=257GiB
+      # model: SPCC M.2 PCIe SSD
+      # serial: AA000000000000003334
+      # size: <=257GiB
+      model: INTEL SSDPEKNU010TZ
+      serial: PHKA223501R01P0B
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
@@ -64,9 +68,11 @@ nodes:
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
     controlPlane: true
     installDiskSelector:
-      model: SPCC M.2 PCIe SSD
-      serial: AA000000000000000214
-      size: <=257GiB
+      # model: SPCC M.2 PCIe SSD
+      # serial: AA000000000000000214
+      # size: <=257GiB
+      model: INTEL SSDPEKNU010TZ
+      serial: PHKA223503D41P0B
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0
@@ -81,9 +87,11 @@ nodes:
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
     controlPlane: true
     installDiskSelector:
-      model: SPCC M.2 PCIe SSD
-      serial: AA000000000000001494
-      size: <=257GiB
+      # model: SPCC M.2 PCIe SSD
+      # serial: AA000000000000001494
+      # size: <=257GiB
+      model: INTEL SSDPEKNU010TZ
+      serial: PHKA223504UX1P0B
     disableSearchDomain: true
     networkInterfaces:
       - interface: eth0

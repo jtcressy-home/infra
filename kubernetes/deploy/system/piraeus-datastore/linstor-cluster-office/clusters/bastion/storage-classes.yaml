@@ -17,4 +17,4 @@ allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 parameters:
   linstor.csi.linbit.com/storagePool: default
-  linstor.csi.linbit.com/placementCount: "3"
+  linstor.csi.linbit.com/placementCount: "2"
