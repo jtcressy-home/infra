@@ -1,0 +1,11 @@
+apiVersion: piraeus.io/v1
+kind: LinstorNodeConnection
+metadata:
+  name: same-region-only
+spec:
+  selector:
+    - matchLabels:
+        - key: topology.kubernetes.io/region
+          op: Same
+        - key: topology.kubernetes.io/zone
+          op: NotSame

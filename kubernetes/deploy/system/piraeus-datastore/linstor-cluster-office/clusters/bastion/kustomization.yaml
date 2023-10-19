@@ -3,4 +3,6 @@ kind: Kustomization
 namespace: piraeus-datastore
 resources:
 - linstorcluster.yaml
+- nodeconnections.yaml
 - talos-loader-override.yaml
+- storage-pools.yaml

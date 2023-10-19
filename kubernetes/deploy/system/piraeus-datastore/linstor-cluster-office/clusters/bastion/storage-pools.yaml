@@ -1,0 +1,11 @@
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: office-rack-default-pool
+spec:
+  nodeSelector:
+    topology.kubernetes.io/zone: home-office-rack
+  storagePools:
+    - name: default
+      filePool: /var/lib/linstor-pools/default
+---
