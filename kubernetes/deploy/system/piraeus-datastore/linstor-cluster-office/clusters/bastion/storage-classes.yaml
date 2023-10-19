@@ -16,5 +16,5 @@ provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 parameters:
-  linstor.csi.linbit.com/storagePool: pool1
+  linstor.csi.linbit.com/storagePool: default
   linstor.csi.linbit.com/placementCount: "3"
