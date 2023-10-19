@@ -7,3 +7,10 @@ resources:
 - talos-loader-override.yaml
 - storage-pools.yaml
 - storage-classes.yaml
+
+helmCharts:
+  - name: linstor-affinity-controller
+    repo: https://piraeus.io/helm-charts/
+    version: 1.3.0
+    releaseName: linstor-affinity-controller
+    namespace: piraeus-datastore
