@@ -10,3 +10,14 @@ spec:
       filePool: 
         directory: /var/lib/linstor-pools/default
 ---
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: oldbessie-zfs
+spec:
+  nodeSelector:
+    kubernets.io/hostname: oldbessie
+  storagePools:
+    - name: oldbessie-zfs
+      
+---

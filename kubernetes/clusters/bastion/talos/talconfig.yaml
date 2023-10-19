@@ -132,6 +132,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-extra
+    patches:
+    - '@./patch-zfs.yaml'
   - hostname: oldbessie.tailnet-4d89.ts.net
     ipAddress: oldbessie.tailnet-4d89.ts.net
     controlPlane: false
@@ -146,6 +148,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-extra
+    patches:
+    - '@./patch-zfs.yaml'
 ## SBC'S ##
   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net

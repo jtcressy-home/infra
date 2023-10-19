@@ -1,0 +1,4 @@
+machine:
+  install:
+    extensions:
+      - image: ghcr.io/siderolabs/zfs:2.1.12-v1.5.3

@@ -12,11 +12,11 @@ spec:
   patches:
     - target:
         kind: Deployment
-        name: csi-controller
+        name: linstor-csi-controller
       patch: |-
         apiVersion: apps/v1
         kind: Deployment
         metadata:
-          name: csi-controller
+          name: linstor-csi-controller
         spec:
           replicas: 3
