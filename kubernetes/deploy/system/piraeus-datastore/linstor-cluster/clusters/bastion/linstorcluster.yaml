@@ -18,3 +18,12 @@ spec:
           name: linstor-csi-controller
         spec:
           replicas: 3
+    - target:
+        group: networking.k8s.io
+        version: v1
+        kind: NetworkPolicy
+        name: satellite
+      # necessary until this is fixed: https://github.com/cilium/cilium/issues/16622
+      patch: |-
+        - op: remove
+          path: /spec/ingress/1/ports
