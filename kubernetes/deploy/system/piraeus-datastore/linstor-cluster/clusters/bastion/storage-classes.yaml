@@ -7,7 +7,8 @@ allowVolumeExpansion: true
 volumeBindingMode: Immediate
 parameters: 
   # CSI related parameters
-  csi.storage.k8s.io/fstype: xfs
+  # csi.storage.k8s.io/fstype: xfs
+  csi.storage.k8s.io/fstype: ext4
   # LINSTOR parameters
   # Available Parameters: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-kubernetes-sc-parameters
   linstor.csi.linbit.com/storagePool: home-office-rack-default
@@ -32,7 +33,8 @@ allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 parameters: 
   # CSI related parameters
-  csi.storage.k8s.io/fstype: xfs
+  # csi.storage.k8s.io/fstype: xfs
+  csi.storage.k8s.io/fstype: ext4
   # LINSTOR parameters
   # Available Parameters: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-kubernetes-sc-parameters
   linstor.csi.linbit.com/storagePool: home-office-rack-default
