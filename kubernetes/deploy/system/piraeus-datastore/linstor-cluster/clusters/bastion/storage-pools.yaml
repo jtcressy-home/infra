@@ -14,9 +14,6 @@ spec:
       source:
         hostDevices:
           - /dev/sda
-    - name: home-office-rack-standard-thin
-      lvmThinPool:
-        volumeGroup: home-office-rack-standard
 
 # ---
 # apiVersion: piraeus.io/v1
