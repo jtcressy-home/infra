@@ -17,7 +17,6 @@ spec:
     - name: home-office-rack-standard-thin
       lvmThinPool:
         volumeGroup: home-office-rack-standard
-        thinPool: home-office-rack-standard-thin
 
 # ---
 # apiVersion: piraeus.io/v1

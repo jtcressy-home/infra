@@ -157,6 +157,28 @@ tasks:
           exit 0
         fi
 
+  terminate-node-oci:
+    desc: Terminate an Oracle Cloud instance and remove it from the cluster
+    # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    interactive: true
+    requires:
+      vars: [cluster, node]
+    vars:
+      configfile: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      hostname: "{{.node | splitList \".\" | first}}"
+      compartmentId:
+        sh: op read op://{{.opVault}}/Oracle/compartmentId
+      region:
+        sh: yq -r '.machine.nodeLabels["topology.kubernetes.io/region"]' "{{.configfile}}"
+      instance:
+        sh: oci compute instance list --compartment-id={{.compartmentId | shellQuote}} --display-name={{.hostname | shellQuote}} --auth security_token --query "data[?\"lifecycle-state\"!='TERMINATING' && \"lifecycle-state\"!='TERMINATED'].id | [0]" --raw-output
+    cmds:
+      - echo {{.instance}}
+      - talosctl reset -n {{.hostname}}
+      - oci compute instance --auth security_token terminate --instance-id={{.instance | shellQuote}}
+    preconditions:
+      - oci session validate --auth security_token
+
   apply-config:
     desc: Apply talos config on a node
     interactive: true
