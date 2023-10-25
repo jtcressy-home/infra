@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: host-netshoot-ds
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: host-netshoot
+  template:
+    metadata:
+      labels:
+        app: host-netshoot
+    spec:
+      hostNetwork: true
+      containers:
+      - name: netshoot
+        image: ghcr.io/nicolaka/netshoot:latest
+        imagePullPolicy: Always
+        command: ["sh", "-c", "sleep infinity"]
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 128Mi

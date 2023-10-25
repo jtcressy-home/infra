@@ -35,7 +35,7 @@ nodes:
       # size: <=257GiB
       model: SOLIDIGM SSDPFKNU010TZ
       serial: PHEH243002VJ1P0B
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -54,7 +54,7 @@ nodes:
       # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223501R01P0B
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -73,7 +73,7 @@ nodes:
       # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223503D41P0B
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -92,7 +92,7 @@ nodes:
       # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223504UX1P0B
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -109,7 +109,7 @@ nodes:
     installDiskSelector:
       model: Inland SATA SSD
       size: ">=258GiB"
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -124,7 +124,7 @@ nodes:
     installDiskSelector:
       size: <257GiB
       model: Samsung SSD 850
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -140,7 +140,7 @@ nodes:
     installDiskSelector:
       size: <=513GB
       model: BTO SSD
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -155,7 +155,7 @@ nodes:
     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
     controlPlane: false
     installDisk: /dev/mmcblk0
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -167,7 +167,7 @@ nodes:
     ipAddress: raspberrypi-dca632210a61.tailnet-4d89.ts.net
     controlPlane: false
     installDisk: /dev/mmcblk0
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -179,7 +179,7 @@ nodes:
     ipAddress: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
     controlPlane: false
     installDisk: /dev/mmcblk0
-    disableSearchDomain: true
+    disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
         mtu: 0
@@ -192,7 +192,7 @@ nodes:
     ipAddress: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
     installDiskSelector:
       size: ">= 32GiB"
-    disableSearchDomain: true
+    disableSearchDomain: false
     nodeLabels:
       topology.kubernetes.io/region: us-phoenix-1
       topology.kubernetes.io/zone: phx-ad-1 # availability domain

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: host-tailscale-ds
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: host-tailscale
+  template:
+    metadata:
+      labels:
+        app: host-tailscale
+    spec:
+      containers:
+      - name: tailscale
+        image: ghcr.io/tailscale/tailscale:v1.48.1
+        command: ["/usr/local/bin/tailscale", "web", "--listen", "0.0.0.0:8088"]
+        ports:
+          - containerPort: 8088
+            name: http
+        volumeMounts:
+        - name: tailscaled-sock
+          mountPath: /var/run/tailscale/tailscaled.sock
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 128Mi
+      - name: netshoot
+        image: ghcr.io/nicolaka/netshoot:latest
+        imagePullPolicy: Always
+        command: ["sh", "-c", "sleep infinity"]
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 128Mi
+      volumes:
+      - name: tailscaled-sock
+        hostPath:
+          path: /var/run/tailscale/tailscaled.sock
