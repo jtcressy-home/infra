@@ -1,17 +1,34 @@
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: home-office-rack-storage-pools
+spec:
+  nodeSelector:
+    topology.kubernetes.io/zone: home-office-rack
+  storagePools:
+    - name: home-office-rack-premium
+      filePool: 
+        directory: /var/lib/linstor-pools/home-office-rack-premium
+    - name: home-office-rack-standard
+      lvmPool: {}
+      source:
+        hostDevices:
+          - /dev/sda
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: home-office-rack-default-replicated
+  name: home-office-rack-premium-replicated
 provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
 volumeBindingMode: Immediate
 parameters: 
   # CSI related parameters
-  # csi.storage.k8s.io/fstype: xfs
-  csi.storage.k8s.io/fstype: ext4
+  csi.storage.k8s.io/fstype: xfs
+  # csi.storage.k8s.io/fstype: ext4
   # LINSTOR parameters
   # Available Parameters: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-kubernetes-sc-parameters
-  linstor.csi.linbit.com/storagePool: home-office-rack-default
+  linstor.csi.linbit.com/storagePool: home-office-rack-premium
   linstor.csi.linbit.com/autoPlace: "3"
   linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"
   # linstor.csi.linbit.com/allowRemoteVolumeAccess: |
@@ -27,17 +44,17 @@ parameters:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: home-office-rack-default-strict-local
+  name: home-office-rack-premium-strict-local
 provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 parameters: 
   # CSI related parameters
-  # csi.storage.k8s.io/fstype: xfs
-  csi.storage.k8s.io/fstype: ext4
+  csi.storage.k8s.io/fstype: xfs
+  # csi.storage.k8s.io/fstype: ext4
   # LINSTOR parameters
   # Available Parameters: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-kubernetes-sc-parameters
-  linstor.csi.linbit.com/storagePool: home-office-rack-default
+  linstor.csi.linbit.com/storagePool: home-office-rack-premium
   linstor.csi.linbit.com/autoPlace: "1"
   linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"
   # Linstor properties 
