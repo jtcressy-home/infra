@@ -38,6 +38,9 @@ helmCharts:
           args:
             includeSoftConstraints: true
         - name: "RemovePodsViolatingNodeTaints"
+          args:
+            excludedTaints:
+            - "drbd.linbit.com/lost-quorum"
         - name: "RemovePodsViolatingNodeAffinity"
           args:
             nodeAffinityType:
