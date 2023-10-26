@@ -21,7 +21,7 @@ metadata:
   name: home-office-rack-premium-replicated
 provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
-volumeBindingMode: Immediate
+volumeBindingMode: WaitForFirstConsumer
 parameters: 
   # CSI related parameters
   csi.storage.k8s.io/fstype: xfs
