@@ -5,6 +5,7 @@ resources:
 - linstorcluster.yaml
 - nodeconnection.yaml
 - talos-loader-override.yaml
+- pod-monitors.yaml
 - sp-home-office-rack-premium.yaml
 - sp-home-office-rack-standard.yaml
 
