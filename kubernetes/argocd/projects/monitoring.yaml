@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: monitoring apps
+  destinations:
+    - namespace: kube-system
+      name: '*'
+      server: '*'
+    - namespace: monitoring
+      name: '*'
+      server: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - 'https://github.com/jtcressy-home/infra'

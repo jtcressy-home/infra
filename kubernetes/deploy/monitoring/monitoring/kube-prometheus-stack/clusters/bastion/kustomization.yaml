@@ -1,0 +1,218 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- external-secret.yaml
+
+namespace: monitoring
+
+helmCharts:
+- name: kube-prometheus-stack
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 52.1.0
+  releaseName: kube-prometheus-stack
+  includeCRDs: true
+  valuesInline:
+    namespaceOverride: monitoring
+    alertmanager:
+      enabled: false
+    grafana:
+      enabled: false
+    prometheusOperator:
+      enabled: true
+      # admissionWebhooks:
+      #   certManager:
+      #     enabled: true
+      #     issuerRef:
+      #       name: "issuer"
+      #       kind: "ClusterIssuer"
+    global:
+      rbac:
+        create: true
+        createAggregateClusterRoles: true
+    prometheus:
+      enabled: true
+      prometheusSpec:
+        podMonitorNamespaceSelector: {}
+        podMonitorSelector: {}
+        podMonitorSelectorNilUsesHelmValues: false
+        ruleNamespaceSelector: {}
+        ruleSelector: {}
+        ruleSelectorNilUsesHelmValues: false
+        serviceMonitorNamespaceSelector: {}
+        serviceMonitorSelector: {}
+        serviceMonitorSelectorNilUsesHelmValues: false
+        retention: 30d
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: home-office-rack-standard-replicated
+              accessModes:
+              - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 100Gi
+
+- name: grafana
+  repo: https://grafana.github.io/helm-charts
+  version: 6.61.1
+  releaseName: grafana
+  valuesInline:
+    admin:
+      ## Name of the secret. Can be templated.
+      existingSecret: grafana-user
+      userKey: admin-user
+      passwordKey: admin-password
+    rbac:
+      pspEnabled: false
+    deploymentStrategy:
+      type: Recreate
+    env:
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
+      GF_SERVER_ROOT_URL: https://grafana.infra.jtcressy.net
+    envFromSecrets:
+    - name: grafana-secret
+    ingress:
+      enabled: false # i'm using cloudflared-tunnel which requires separate out-of-band config for ingresses
+    plugins:
+    - pr0ps-trackmap-panel
+    - natel-plotly-panel
+    - vonage-status-panel
+    - grafana-piechart-panel
+    - https://github.com/panodata/panodata-map-panel/releases/download/0.16.0/panodata-map-panel-0.16.0.zip;grafana-worldmap-panel-ng
+    - grafana-clock-panel
+    - grafana-worldmap-panel
+    - natel-discrete-panel
+    serviceMonitor:
+      enabled: true
+    serviceAccount:
+      autoMount: true
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+        - name: 'teslamate'
+          orgId: 1
+          folder: Teslamate
+          type: file
+          disableDeletion: false
+          # updateIntervalSeconds: -1
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/teslamate
+    dashboards:
+      default:
+        cert-manager:
+          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
+          datasource: Prometheus
+        linstor:
+          url: https://raw.githubusercontent.com/invertedorigin/home-infra/main/apps/monitoring/linstor_dashboard.json
+          datasource: Prometheus
+        cloudnative-pg:
+          url: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/samples/monitoring/grafana-dashboard.json
+          datasource: Prometheus
+        home-assistant:
+          url: https://raw.githubusercontent.com/billimek/k8s-gitops/master/monitoring/grafana/dashboards/home_assistant.json
+          datasource: home_assistant
+        nginx-dashboard:
+          url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
+          datasource: Prometheus
+        node-exporter-full:
+          gnetId: 1860
+          revision: 31
+          datasource: Prometheus
+      teslamate:
+        charge-level:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charge-level.json
+          # datasource: TeslaMate
+        charges:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charges.json
+          # datasource: TeslaMate
+        charging-stats:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charging-stats.json
+          # datasource: TeslaMate
+        drive-stats:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/drive-stats.json
+          # datasource: TeslaMate
+        drives:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/drives.json
+          # datasource: TeslaMate
+        efficiency:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/efficiency.json
+          # datasource: TeslaMate
+        locations:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/locations.json
+          # datasource: TeslaMate
+        mileage:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/mileage.json
+          # datasource: TeslaMate
+        overview:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/overview.json
+          # datasource: TeslaMate
+        projected-range:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/projected-range.json
+          # datasource: TeslaMate
+        states:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/states.json
+          # datasource: TeslaMate
+        statistics:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/statistics.json
+          # datasource: TeslaMate
+        timeline:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/timeline.json
+          # datasource: TeslaMate
+        trip:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/trip.json
+          # datasource: TeslaMate
+        updates:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/updates.json
+          datasource: TeslaMate
+        vampire-drain:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/vampire-drain.json
+          # datasource: TeslaMate
+        visited:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/visited.json
+          # datasource: TeslaMate
+        charge-details:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/internal/charge-details.json
+        drive-details:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/internal/drive-details.json
+    sidecar:
+      datasources:
+        enabled: true
+        searchNamespace: ALL
+        # defaultDatasourceEnabled: false
+      dashboards:
+        enabled: true
+        searchNamespace: ALL
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        deleteDatasources:
+        - name: Loki
+          orgId: 1
+        datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          isDefault: true
+        # TODO: install teslamate db
+        # - name: TeslaMate
+        #   type: postgres
+        #   access: proxy
+        #   url: teslamate-db-rw.teslamate.svc.cluster.local
+        #   database: teslamate
+        #   user: postgres
+        #   secureJsonData:
+        #     password: "$TESLAMATE_DB_PASSWORD"
+        #   jsonData:
+        #     postgresVersion: 1000
+        #     sslmode: disable
