@@ -108,6 +108,24 @@ helmCharts:
           allowUiUpdates: true
           options:
             path: /var/lib/grafana/dashboards/default
+        - name: 'infra'
+          orgId: 1
+          folder: Infra
+          type: file
+          disableDeletion: false
+          # updateIntervalSeconds: -1
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/infra
+        - name: 'kubernetes'
+          orgId: 1
+          folder: Kubernetes
+          type: file
+          disableDeletion: false
+          # updateIntervalSeconds: -1
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/kubernetes
         - name: 'teslamate'
           orgId: 1
           folder: Teslamate
