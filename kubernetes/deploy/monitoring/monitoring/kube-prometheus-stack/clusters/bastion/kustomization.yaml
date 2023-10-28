@@ -119,24 +119,54 @@ helmCharts:
             path: /var/lib/grafana/dashboards/teslamate
     dashboards:
       default:
-        cert-manager:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
-          datasource: Prometheus
-        linstor:
-          url: https://raw.githubusercontent.com/invertedorigin/home-infra/main/apps/monitoring/linstor_dashboard.json
-          datasource: Prometheus
         cloudnative-pg:
           url: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/samples/monitoring/grafana-dashboard.json
           datasource: Prometheus
         home-assistant:
           url: https://raw.githubusercontent.com/billimek/k8s-gitops/master/monitoring/grafana/dashboards/home_assistant.json
           datasource: home_assistant
-        nginx-dashboard:
-          url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
+        nats-server-dashboard:
+          gnetId: 2279
+          datasource: Prometheus
+        nats-jetstream:
+          gnetId: 14862
+          datasource: Prometheus
+      infra:
+        cert-manager:
+          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
+          datasource: Prometheus
+        linstor:
+          url: https://raw.githubusercontent.com/invertedorigin/home-infra/main/apps/monitoring/linstor_dashboard.json
+          datasource: Prometheus
+        argocd:
+          gnetId: 14584
+          revision: 1
           datasource: Prometheus
         node-exporter-full:
           gnetId: 1860
           revision: 31
+          datasource: Prometheus
+      kubernetes:
+        addons/prometheus:
+          gnetId: 19105
+          datasource: Prometheus
+        system/api-server:
+          gnetId: 15761
+          datasource: Prometheus
+        system/coredns:
+          gnetId: 15762
+          datasource: Prometheus
+        views/global:
+          gnetId: 15757
+          datasource: Prometheus
+        views/namespaces:
+          gnetId: 15758
+          datasource: Prometheus
+        views/nodes:
+          gnetId: 15759
+          datasource: Prometheus
+        views/pods:
+          gnetId: 15760
           datasource: Prometheus
       teslamate:
         charge-level:
