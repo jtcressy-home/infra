@@ -1,0 +1,84 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+helmCharts:
+- name: nats
+  repo: https://nats-io.github.io/k8s/helm/charts/
+  version: 1.1.2
+  releaseName: nats
+  valuesInline:
+    config:
+      cluster:
+        enabled: true
+        replicas: 3
+      jetstream:
+        enabled: true
+        merge:
+          domain: nats
+        fileStore:
+          pvc:
+            storageClassName: home-office-rack-standard-strict-local
+            size: 10Gi
+      mqtt:
+        enabled: true
+    service:
+      ports:
+        monitor:
+          enabled: true
+      patch:
+      - op: add
+        path: /spec/type
+        value: LoadBalancer
+      - op: add
+        path: /spec/externalTrafficPolicy
+        value: Local
+    promExporter:
+      enabled: true
+      port: 7777
+      podMonitor:
+        enabled: true
+    podTemplate:
+      # topologySpreadConstraints:
+      #   kubernetes.io/hostname:
+      #     maxSkew: 1
+      #     whenUnsatisfiable: ScheduleAnyway
+      merge:
+        # metadata:
+        #   annotations:
+        #     prometheus.io/scrape: "true"
+        #     prometheus.io/port: "7777"
+        #     prometheus.io/path: "/metrics"
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: topology.kubernetes.io/region
+                    operator: In
+                    values:
+                    - home
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values:
+                    - home-office-rack
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                    - nats
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                    - nats
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                    - nats
+                topologyKey: kubernetes.io/hostname
+    natsBox:
+      enabled: true
