@@ -165,25 +165,25 @@ helmCharts:
           revision: 31
           datasource: Prometheus
       kubernetes:
-        addons/prometheus:
+        addons-prometheus:
           gnetId: 19105
           datasource: Prometheus
-        system/api-server:
+        system-api-server:
           gnetId: 15761
           datasource: Prometheus
-        system/coredns:
+        system-coredns:
           gnetId: 15762
           datasource: Prometheus
-        views/global:
+        views-global:
           gnetId: 15757
           datasource: Prometheus
-        views/namespaces:
+        views-namespaces:
           gnetId: 15758
           datasource: Prometheus
-        views/nodes:
+        views-nodes:
           gnetId: 15759
           datasource: Prometheus
-        views/pods:
+        views-pods:
           gnetId: 15760
           datasource: Prometheus
       teslamate:
