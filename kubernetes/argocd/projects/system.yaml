@@ -24,6 +24,9 @@ spec:
     - namespace: piraeus-datastore
       name: '*'
       server: '*'
+    - namespace: metallb-system
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
