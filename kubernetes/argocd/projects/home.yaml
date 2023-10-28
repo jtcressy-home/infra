@@ -15,6 +15,9 @@ spec:
     - namespace: home-automation
       name: '*'
       server: '*'
+    - namespace: nats
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
