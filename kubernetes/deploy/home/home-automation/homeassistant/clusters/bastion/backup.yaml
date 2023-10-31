@@ -21,6 +21,16 @@ spec:
   dataFrom:
     - extract:
         key: volsync-restic-template
+        property: REPOSITORY_TEMPLATE
+    - extract:
+        key: volsync-restic-template
+        property: RESTIC_PASSWORD
+    - extract:
+        key: volsync-restic-template
+        property: AWS_ACCESS_KEY_ID
+    - extract:
+        key: volsync-restic-template
+        property: AWS_SECRET_ACCESS_KEY
 ---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationSource
