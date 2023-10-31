@@ -30,6 +30,10 @@ helmCharts:
             image:
               repository: ghcr.io/esphome/esphome
               tag: 2023.8.3
+            ports:
+              - name: http
+                containerPort: 6052
+                protocol: TCP
             probes:
               liveness:
                 enabled: false
