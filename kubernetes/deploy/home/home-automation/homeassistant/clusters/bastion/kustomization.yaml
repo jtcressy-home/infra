@@ -12,6 +12,8 @@ helmCharts:
     defaultPodOptions:
       nodeSelector:
         topology.kubernetes.io/zone: home-office-rack
+      securityContext:
+        fsGroup: 1000
     controllers:
       main:
         type: statefulset
