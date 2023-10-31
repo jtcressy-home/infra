@@ -65,7 +65,7 @@ helmCharts:
               tag: 4.16.1
             ports:
               - name: http
-                containerPort: 8080
+                containerPort: 12321
                 protocol: TCP
             workingDir: /config
             args:
@@ -73,6 +73,9 @@ helmCharts:
               - "/config/.vscode"
               - --auth
               - "none"
+              - --port
+              - "12321"
+              - /config
             env:
               TZ: "America/Chicago"
               HASS_SERVER: http://localhost:8123
@@ -87,7 +90,7 @@ helmCharts:
         ports:
           http:
             port: 12321
-            targetPort: 8080
+            targetPort: 12321
     persistence:
       config:
         enabled: true
