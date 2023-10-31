@@ -4,7 +4,7 @@
 	"name": "Ubuntu",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "devcontainer",
-	"workspaceFolder": "/workspaces",
+	// "workspaceFolder": "/workspaces",
 
 	// Configure tool-specific properties.
 	"customizations": {
