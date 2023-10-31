@@ -75,14 +75,14 @@ patches:
       path: /spec/template/spec/initContainers/-
       value:
         name: multus-config-cleanup
-          image: busybox
-          command: ["/bin/sh"]
-          args: ["-c", "rm -f /host/etc/cni/net.d/00-multus.conf"]
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - name: cni
-              mountPath: /host/etc/cni/net.d
+        image: busybox
+        command: ["/bin/sh"]
+        args: ["-c", "rm -f /host/etc/cni/net.d/00-multus.conf"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: cni
+            mountPath: /host/etc/cni/net.d
 - target:
     group: apps
     version: v1
