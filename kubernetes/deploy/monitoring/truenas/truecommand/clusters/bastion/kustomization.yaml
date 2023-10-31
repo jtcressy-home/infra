@@ -20,7 +20,7 @@ helmCharts:
     service:
       main:
         ports:
-          main:
+          http:
             port: 10031
             targetPort: 80
     persistence:
