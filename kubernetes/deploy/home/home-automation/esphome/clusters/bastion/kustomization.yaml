@@ -30,6 +30,19 @@ helmCharts:
             image:
               repository: ghcr.io/esphome/esphome
               tag: 2023.8.3
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512M
+              limits:
+                memory: 2048M
     service:
       main:
         ports:
