@@ -122,8 +122,8 @@ nodes:
     ipAddress: dell-inc-4nh5kn1.tailnet-4d89.ts.net
     controlPlane: false
     installDiskSelector:
-      size: <257GiB
-      model: Samsung SSD 850
+      model: KingFast
+      serial: CA0077Y000122
     disableSearchDomain: false
     networkInterfaces:
       - interface: eth0

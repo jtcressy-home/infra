@@ -15,6 +15,9 @@ spec:
     - namespace: monitoring
       name: '*'
       server: '*'
+    - namespace: truenas
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
