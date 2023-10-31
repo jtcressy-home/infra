@@ -100,7 +100,7 @@ helmCharts:
         type: persistentVolumeClaim
         accessMode: ReadWriteOnce
         size: 10Gi
-        storageClass: home-office-rack-premium-replicated
+        storageClass: home-office-rack-standard-replicated
         globalMounts:
           - mountPath: /config
             readOnly: false
