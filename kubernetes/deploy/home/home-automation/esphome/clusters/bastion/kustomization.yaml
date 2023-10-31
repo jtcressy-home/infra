@@ -48,6 +48,7 @@ helmCharts:
         ports:
           http:
             port: 6052
+            targetPort: 6052
     persistence:
       config:
         enabled: true

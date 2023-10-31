@@ -73,11 +73,13 @@ helmCharts:
         ports:
           http:
             port: 8123
+            targetPort: 8123
       codeserver:
         controller: main
         ports:
           http:
             port: 12321
+            targetPort: 8080
     persistence:
       config:
         enabled: true
