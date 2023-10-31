@@ -46,5 +46,5 @@ spec:
       runAsGroup: 568
       fsGroup: 568
     volumeSnapshotClassName: linstor
-    storageClassName: home-office-rack-premium-replicated
+    storageClassName: home-office-rack-premium-strict-local
     cacheStorageClassName: home-office-rack-premium-strict-local
