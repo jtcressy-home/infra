@@ -1,0 +1,51 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources: []
+
+helmCharts:
+- name: app-template
+  repo: https://bjw-s.github.io/helm-charts/
+  version: 2.0.3
+  releaseName: esphome
+  valuesInline:
+    defaultPodOptions:
+      nodeSelector:
+        topology.kubernetes.io/zone: home-office-rack
+    controllers:
+      main:
+        type: statefulset
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |-
+              [
+                {
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
+                  "interface": "eth1",
+                  "mac": "02:42:ac:11:00:0a"
+                }
+              ]
+        containers:
+          main:
+            image:
+              repository: ghcr.io/esphome/esphome
+              tag: 2023.8.3
+    service:
+      main:
+        ports:
+          http:
+            port: 6052
+    persistence:
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        mountPath: /config
+        storageClass: home-office-rack-premium-replicated
+      esphome-cache:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - mountPath: /config/.esphome
+            readOnly: false
