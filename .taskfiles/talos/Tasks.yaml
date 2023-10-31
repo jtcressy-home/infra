@@ -1,7 +1,7 @@
 ---
 version: "3"
 
-env:
+.env: &env
   TALOSCONFIG: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
   clusterName: "{{.cluster}}"
   CLUSTERID: "op://{{.opVault}}/talos-cluster-{{.cluster}}/cluster/id"
@@ -31,6 +31,7 @@ tasks:
     requires:
       vars: [cluster]
     env:
+      <<: *env
       cluster: "{{.cluster}}"
       secretjson:
         sh: talhelper gensecret | yq '. | tojson'
@@ -60,6 +61,7 @@ tasks:
     desc: Generate talos config
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster]
     cmds:
@@ -70,6 +72,7 @@ tasks:
     desc: Merge cluster talos client config into home directory default talosconfig
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster]
     cmds:
@@ -79,6 +82,7 @@ tasks:
     desc: Bootstrap talos cluster
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster, node]
     cmds:
@@ -88,6 +92,7 @@ tasks:
     desc: Get disks
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster, ip]
     cmds:
@@ -97,6 +102,7 @@ tasks:
     desc: Get machine
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster, node]
     cmds:
@@ -106,6 +112,7 @@ tasks:
     desc: Apply talos config on a new node in maintenance mode
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster, node, ip]
     cmds:
@@ -114,6 +121,7 @@ tasks:
   launch-node-oci:
     desc: Launch an Oracle Cloud instance and join it to the cluster
     # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     interactive: true
     requires:
       vars: [cluster, node]
@@ -160,6 +168,7 @@ tasks:
   terminate-node-oci:
     desc: Terminate an Oracle Cloud instance and remove it from the cluster
     # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     interactive: true
     requires:
       vars: [cluster, node]
@@ -183,6 +192,7 @@ tasks:
     desc: Apply talos config on a node
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster, node, mode]
     vars:
@@ -196,6 +206,7 @@ tasks:
     desc: Upgrade talos on a node
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster, node, image]
     cmds:
@@ -207,6 +218,7 @@ tasks:
     desc: Upgrade k8s on a node
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *env
     requires:
       vars: [cluster, node, to]
     cmds:

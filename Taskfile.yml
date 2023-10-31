@@ -9,6 +9,7 @@ vars:
 includes:
   # externalsecrets: .taskfiles/externalsecrets/tasks.yaml
   talos: .taskfiles/talos/tasks.yaml
+  restic: .taskfiles/restic/tasks.yaml
 
 tasks:
   default:
