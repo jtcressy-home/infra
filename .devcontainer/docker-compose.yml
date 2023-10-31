@@ -7,18 +7,18 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        ARGOCD_VERSION: "v2.6.7"
-        K9S_VERSION: "v0.26.7"
-        CLOUDFLARED_VERSION: "2023.5.0"
-        TAILSCALE_VERSION: v1.40.1
+        ARGOCD_VERSION: "v2.8.4"
+        K9S_VERSION: "latest"
+        CLOUDFLARED_VERSION: "2023.8.2"
+        TAILSCALE_VERSION: v1.50.1
     privileged: true
     volumes:
       - /dev:/dev
       - /var/run/docker.sock:/var/run/docker.sock
       - tailscale-socket:/var/run/tailscale
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: /bin/sh -c "tail -f /dev/null"
   tailscale:
-    image: ghcr.io/tailscale/tailscale:v1.48.1
+    image: ghcr.io/tailscale/tailscale:v1.50.1
     env_file: /root/.codespaces/shared/.env
     depends_on:
       - "devcontainer"
@@ -29,7 +29,7 @@ services:
     environment:
       HOSTNAME: codespaces
     volumes:
-      - /var/lib/docker/codespacemoutn/.persistedshare/tailscale:/tailscale
+      - /var/lib/docker/codespacemount/.persistedshare/tailscale:/tailscale
       - tailscale-socket:/var/run/tailscale
     devices:
       - "/dev/net/tun:/dev/net/tun"

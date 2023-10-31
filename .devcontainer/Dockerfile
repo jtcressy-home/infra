@@ -1,18 +1,19 @@
-ARG ARGOCD_VERSION="v2.6.7"
-ARG K9S_VERSION="v0.26.7"
-ARG TAILSCALE_VERSION="v1.48.1"
+ARG ARGOCD_VERSION="v2.8.4"
+ARG K9S_VERSION="latest"
+ARG TAILSCALE_VERSION="v1.50.1"
 ARG CLOUDFLARED_VERSION="2023.8.2"
 
 FROM ghcr.io/tailscale/tailscale:${TAILSCALE_VERSION} as tailscale
-FROM quay.io/derailed/k9s:${K9S_VERSION} as k9s
+FROM docker.io/derailed/k9s:${K9S_VERSION} as k9s
+FROM quay.io/argoproj/argocd:${ARGOCD_VERSION} as argocd
 FROM docker.io/envcli/kubectx as kx
 FROM docker.io/cloudflare/cloudflared:${CLOUDFLARED_VERSION} as cloudflared
 
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
 # Add google cloud sdk repo
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/atp/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.gpg
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.asc] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.asc
 
 # Apt Package Install
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
