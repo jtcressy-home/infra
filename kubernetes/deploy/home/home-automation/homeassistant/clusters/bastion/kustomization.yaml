@@ -74,6 +74,7 @@ helmCharts:
           http:
             port: 8123
       codeserver:
+        controller: main
         ports:
           http:
             port: 12321
