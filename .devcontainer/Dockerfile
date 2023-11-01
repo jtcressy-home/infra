@@ -30,7 +30,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Install taskfile CLI
 RUN go install github.com/go-task/task/v3/cmd/task@latest
 # Install talhelper
-RUN go install github.com/budimanjojo/talhelper@v1.14.0
+RUN curl https://i.jpillora.com/budimanjojo/talhelper! | sudo bash
 
 # Install cloudflared CLI
 COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared
