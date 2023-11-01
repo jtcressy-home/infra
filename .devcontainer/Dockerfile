@@ -28,7 +28,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     google-cloud-cli doppler
 
 # Install taskfile CLI
-RUN go install github.com/go-task/task/v3/cmd/task@latest
+RUN GOBIN=/usr/local/bin go install github.com/go-task/task/v3/cmd/task@latest
 # Install talhelper
 RUN curl https://i.jpillora.com/budimanjojo/talhelper! | sudo bash
 
