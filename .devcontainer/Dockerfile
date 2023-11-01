@@ -15,12 +15,22 @@ FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.asc] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.asc
 
+# Add doppler repo
+RUN curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" | sudo tee /etc/apt/sources.list.d/doppler-cli.list
+
+
 # Apt Package Install
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
     musl fzf htop jq golang-go gnupg \
     inetutils-ping dnsutils python3-pip \
-    google-cloud-cli 
+    google-cloud-cli doppler
+
+# Install taskfile CLI
+RUN go install github.com/go-task/task/v3/cmd/task@latest
+# Install talhelper
+RUN go install github.com/budimanjojo/talhelper@v1.14.0
 
 # Install cloudflared CLI
 COPY --from=cloudflared /usr/local/bin/cloudflared /usr/local/bin/cloudflared

@@ -41,7 +41,9 @@
 				"redhat.vscode-yaml",
 				"eamodio.gitlens",
 				"ms-azuretools.vscode-docker",
-				"ms-kubernetes-tools.kind-vscode"
+				"ms-kubernetes-tools.kind-vscode",
+				"doppler.doppler-vscode",
+				"task.vscode-task"
 			]
 		}
 	},
