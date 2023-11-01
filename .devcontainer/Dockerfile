@@ -25,7 +25,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
     musl fzf htop jq golang-go gnupg \
     inetutils-ping dnsutils python3-pip \
-    google-cloud-cli doppler
+    google-cloud-cli doppler restic
 
 # Install taskfile CLI
 RUN GOBIN=/usr/local/bin go install github.com/go-task/task/v3/cmd/task@latest
