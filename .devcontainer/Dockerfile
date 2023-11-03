@@ -2,12 +2,15 @@ ARG ARGOCD_VERSION="v2.8.4"
 ARG K9S_VERSION="latest"
 ARG TAILSCALE_VERSION="v1.50.1"
 ARG CLOUDFLARED_VERSION="2023.8.2"
+ARG TALOSCTL_VERSION="v1.5.3"
 
 FROM ghcr.io/tailscale/tailscale:${TAILSCALE_VERSION} as tailscale
 FROM docker.io/derailed/k9s:${K9S_VERSION} as k9s
 FROM quay.io/argoproj/argocd:${ARGOCD_VERSION} as argocd
 FROM docker.io/envcli/kubectx as kx
 FROM docker.io/cloudflare/cloudflared:${CLOUDFLARED_VERSION} as cloudflared
+FROM ghcr.io/siderolabs/talosctl:${TALOSCTL_VERSION} as talosctl
+FROM docker.io/mikefarah/yq:latest as yq
 
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
@@ -51,3 +54,9 @@ COPY --from=k9s /usr/local/bin/kubectl /usr/bin/kubectl
 COPY --from=argocd /usr/local/bin/argocd /usr/bin/argocd
 COPY --from=argocd /usr/local/bin/kustomize /usr/bin/kustomize
 COPY --from=argocd /usr/local/bin/helm /usr/bin/helm
+
+# Install talosctl
+COPY --from=talosctl /talosctl /usr/local/bin/talosctl
+
+# Install yq
+COPY --from=yq /usr/bin/yq /usr/bin/yq

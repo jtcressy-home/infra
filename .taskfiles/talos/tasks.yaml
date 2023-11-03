@@ -6,49 +6,68 @@ version: "3"
   clusterName: "{{.cluster}}"
 
 tasks:
-  # gensecret:
-  #   desc: Generate talos secrets and store in 1password via op cli
-  #   interactive: true
-  #   dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
-  #   requires:
-  #     vars: [cluster]
-  #   env:
-  #     <<: *env
-  #     cluster: "{{.cluster}}"
-  #     secretjson:
-  #       sh: talhelper gensecret | yq '. | tojson'
-  #   cmds:
-  #     - >-
-  #       (op item get "talos-cluster-$cluster" && echo "Cluster Secrets Already Generated") ||
-  #       op item create 
-  #       --category password
-  #       --title "talos-cluster-$cluster"
-  #       --vault "{{.opVault}}"
-  #       "cluster.id=$(echo $secretjson | jq -r '.cluster.id')"
-  #       "cluster.secret=$(echo $secretjson | jq -r .cluster.secret)"
-  #       "trustdinfo.token=$(echo $secretjson | jq -r .trustdinfo.token)"
-  #       "certs\.k8saggregator.CERT=$(echo $secretjson | jq -r .certs.k8saggregator.crt)"
-  #       "certs\.k8saggregator.KEY=$(echo $secretjson | jq -r .certs.k8saggregator.key)"
-  #       "certs\.k8s.CERT=$(echo $secretjson | jq -r .certs.k8s.crt)"
-  #       "certs\.k8s.KEY=$(echo $secretjson | jq -r .certs.k8s.key)"
-  #       "certs\.etcd.CERT=$(echo $secretjson | jq -r .certs.etcd.crt)"
-  #       "certs\.etcd.KEY=$(echo $secretjson | jq -r .certs.etcd.key)"
-  #       "certs\.k8sserviceaccount.KEY=$(echo $secretjson | jq -r .certs.k8sserviceaccount.key)"
-  #       "certs\.os.CERT=$(echo $secretjson | jq -r .certs.os.crt)"
-  #       "certs\.os.KEY=$(echo $secretjson | jq -r .certs.os.key)"
-  #       "secrets.bootstraptoken=$(echo $secretjson | jq -r .secrets.bootstraptoken)"
-  #       "secrets.secretboxencryptionsecret=$(echo $secretjson | jq -r .secrets.secretboxencryptionsecret)"
+  default:
+    silent: true
+    requires:
+      vars: [cluster]
+    env: *env
+    dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    cmds:
+      - talosctl {{.CLI_ARGS}}
 
+  gensecret:
+    desc: Generate talos secrets and store in a new doppler config
+    summary: |
+      Uses talhelper to generate secrets for a new cluster,
+        storing them in a new doppler branch config that branches from "{{.dopplerConfig}}"
+      
+      This task also uses "{{.dopplerProject}}" for the doppler project.
+    interactive: false
+    # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    requires:
+      vars: [cluster]
+    env:
+      <<: *env
+      secretsJson:
+        sh: talhelper gensecret | yq '. | tojson'
+    vars:
+      secretMappings: |
+        .cluster.id=CLUSTERID
+        .cluster.secret=CLUSTERSECRET
+        .trustdinfo.token=TRUSTDINFOTOKEN
+        .certs.k8saggregator.crt=K8SAGGREGATORCERT
+        .certs.k8saggregatorkey=K8SAGGREGATORCERTKEY
+        .certs.k8s.crt=CLUSTERCERT
+        .certs.k8s.key=CLUSTERCERTKEY
+        .certs.etcd.crt=ETCDCERT
+        .certs.etcd.key=ETCDCERTKEY
+        .certs.k8sserviceaccount.key=K8SSERVICEACCOUNTKEY
+        .certs.os.crt=MACHINECERT
+        .certs.os.key=MACHINECERTKEY
+        .secrets.bootstraptoken=BOOTSTRAPTOKEN
+        .secrets.secretboxencryptionsecret=SECRETBOXENCRYPTIONSECRET
+    cmds:
+      - for:
+          var: secretMappings
+        cmd: echo $secretsJson | jq -r '{{index (.ITEM | splitList "=") 0}}' | doppler --silent -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} secrets set {{index (.ITEM | splitList "=") 1 | shellQuote}}
+    preconditions:
+      - sh: doppler -p {{.dopplerProject}} configs create {{.dopplerConfig}}_{{.cluster}}
+        msg: |-
+          Failed to create doppler config "{{.dopplerConfig}}_{{.cluster}}" in project "{{.dopplerProject}}". Make sure it doesn't already exist.
+        
   genconfig:
     desc: Generate talos config
     interactive: true
-    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *env
     requires:
-      vars: [cluster]
+      vars: [cluster, dopplerProject, dopplerConfig]
     cmds:
       - talhelper -v
-      - doppler run --config=cluster_{{.cluster}} -- talhelper genconfig
+      - echo {{.PROJECT_DIR | shellQuote}}
+      - pwd
+      - ls
+      - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper genconfig
 
   mergeclientconfig:
     desc: Merge cluster talos client config into home directory default talosconfig

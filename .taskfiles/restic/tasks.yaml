@@ -1,9 +1,5 @@
 version: '3'
 
-vars:
-  dopplerProject: restic-backups
-  dopplerConfig: cloudflare-r2
-
 tasks:
   default:
     silent: true

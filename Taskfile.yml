@@ -2,14 +2,20 @@
 version: "3"
 
 vars:
-  opVault: jtcressy-net-infra
   PROJECT_DIR:
     sh: "git rev-parse --show-toplevel"
 
 includes:
-  # externalsecrets: .taskfiles/externalsecrets/tasks.yaml
-  talos: .taskfiles/talos/tasks.yaml
-  restic: .taskfiles/restic/tasks.yaml
+  talos: 
+    taskfile: .taskfiles/talos/tasks.yaml
+    vars:
+      dopplerProject: jtcressy-home-infra
+      dopplerConfig: cluster
+  restic:
+    taskfile: .taskfiles/restic/tasks.yaml
+    vars:
+      dopplerProject: restic-backups
+      dopplerConfig: cloudflare-r2
 
 tasks:
   default:
