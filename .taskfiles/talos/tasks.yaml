@@ -199,7 +199,10 @@ tasks:
     vars:
       mode: '{{ .mode | default "auto" }}'
     cmds:
-      - talosctl apply-config -n {{.node}} -m {{.mode}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      - for:
+          var: node
+          split: ','
+        cmd: talosctl apply-config -n {{.ITEM}} -m {{.mode}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.ITEM}}.yaml"
     preconditions:
       - talosctl -n {{.node}} get mc
 

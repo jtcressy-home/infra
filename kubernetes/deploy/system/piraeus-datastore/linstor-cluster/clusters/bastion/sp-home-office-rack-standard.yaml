@@ -6,12 +6,14 @@ metadata:
 spec:
   nodeSelector:
     topology.kubernetes.io/zone: home-office-rack
-  storagePools: []
-    # - name: home-office-rack-standard
-    #   lvmPool: {}
-    #   source:
-    #     hostDevices:
-    #       - /dev/sda
+  storagePools:
+    - name: home-office-rack-standard
+      filePool:
+        directory: /var/mnt/sata/home-office-rack-standard
+      # lvmPool: {}
+      # source:
+      #   hostDevices:
+      #     - /dev/sda
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
