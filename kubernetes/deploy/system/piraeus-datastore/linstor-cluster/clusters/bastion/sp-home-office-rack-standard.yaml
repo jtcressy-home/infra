@@ -1,3 +1,4 @@
+---
 apiVersion: piraeus.io/v1
 kind: LinstorSatelliteConfiguration
 metadata:
@@ -5,16 +6,12 @@ metadata:
 spec:
   nodeSelector:
     topology.kubernetes.io/zone: home-office-rack
-  storagePools:
-    - name: home-office-rack-standard
-      lvmPool: {}
-      source:
-        hostDevices:
-          - /dev/sda
-    - name: home-office-rack-standard-thin
-      lvmThinPool:
-        volumeGroup: home-office-rack-standard
-        thinPool: thin # MUST be created manually because piraeus operator is not feature complete >:(
+  storagePools: []
+    # - name: home-office-rack-standard
+    #   lvmPool: {}
+    #   source:
+    #     hostDevices:
+    #       - /dev/sda
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -43,35 +40,5 @@ volumeBindingMode: WaitForFirstConsumer
 parameters:
   csi.storage.k8s.io/fstype: xfs
   linstor.csi.linbit.com/storagePool: home-office-rack-standard
-  linstor.csi.linbit.com/autoPlace: "1"
-  linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: home-office-rack-standard-thin-replicated
-provisioner: linstor.csi.linbit.com
-allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
-parameters:
-  csi.storage.k8s.io/fstype: xfs
-  linstor.csi.linbit.com/storagePool: home-office-rack-standard-thin
-  linstor.csi.linbit.com/autoPlace: "3"
-  linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"
-  # linstor.csi.linbit.com/allowRemoteVolumeAccess: |
-  #   - fromSame:
-  #     - topology.kubernetes.io/zone
-  linstor.csi.linbit.com/replicasOnSame: topology.kubernetes.io/zone
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: home-office-rack-standard-thin-strict-local
-provisioner: linstor.csi.linbit.com
-allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
-parameters:
-  csi.storage.k8s.io/fstype: xfs
-  linstor.csi.linbit.com/storagePool: home-office-rack-standard-thin
   linstor.csi.linbit.com/autoPlace: "1"
   linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"

@@ -35,6 +35,10 @@ nodes:
       # size: <=257GiB
       model: SOLIDIGM SSDPFKNU010TZ
       serial: PHEH243002VJ1P0B
+    machineDisks:
+      - device: /dev/disk/by-id/ata-Inland_SATA_SSD_IB23FE0001S00710
+        partitions:
+          - mountpoint: /var/mnt/sata
     disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
@@ -54,6 +58,10 @@ nodes:
       # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223501R01P0B
+    machineDisks:
+      - device: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03062
+        partitions:
+          - mountpoint: /var/mnt/sata
     disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
@@ -73,6 +81,10 @@ nodes:
       # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223503D41P0B
+    machineDisks:
+      - device: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03016
+        partitions:
+          - mountpoint: /var/mnt/sata
     disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
@@ -92,6 +104,10 @@ nodes:
       # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223504UX1P0B
+    machineDisks:
+      - device: /dev/disk/by-id/ata-Inland_SATA_SSD_IBYTMC2209001S03070
+        partitions:
+          - mountpoint: /var/mnt/sata
     disableSearchDomain: false
     networkInterfaces:
       - interface: eth0
