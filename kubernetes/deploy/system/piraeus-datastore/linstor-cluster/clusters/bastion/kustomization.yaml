@@ -8,7 +8,7 @@ resources:
 - talos-loader-override.yaml
 - pod-monitors.yaml
 - sp-home-office-rack-premium.yaml
-- sp-home-office-rack-standard.yaml
+# - sp-home-office-rack-standard.yaml
 
 helmCharts:
   # - name: linstor-affinity-controller
