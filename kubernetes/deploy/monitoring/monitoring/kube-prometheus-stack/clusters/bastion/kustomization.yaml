@@ -40,7 +40,7 @@ helmCharts:
         create: true
         createAggregateClusterRoles: true
     prometheus:
-      enabled: false
+      enabled: true
       prometheusSpec:
         podMonitorNamespaceSelector: {}
         podMonitorSelector: {}
