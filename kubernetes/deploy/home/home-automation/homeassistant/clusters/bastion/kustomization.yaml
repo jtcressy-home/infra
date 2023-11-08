@@ -34,11 +34,11 @@ helmCharts:
             image:
               repository: homeassistant/home-assistant
               tag: 2023.8.4
-            command: # TODO: remove after restoring data
-            - /bin/sh
-            - -c
-            - |
-              tail -f /dev/null
+            # command: # TODO: remove after restoring data
+            # - /bin/sh
+            # - -c
+            # - |
+            #   tail -f /dev/null
             env:
               TZ: "America/Chicago"
             envFrom:
