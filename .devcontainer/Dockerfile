@@ -30,6 +30,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     inetutils-ping dnsutils python3-pip \
     google-cloud-cli doppler restic
 
+# Ensure restic is up to date
+RUN restic self-update
+
 # Install taskfile CLI
 RUN GOBIN=/usr/local/bin go install github.com/go-task/task/v3/cmd/task@latest
 # Install talhelper

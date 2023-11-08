@@ -16,6 +16,8 @@ includes:
     vars:
       dopplerProject: restic-backups
       dopplerConfig: cloudflare-r2
+  volsync:
+    taskfile: .taskfiles/VolSync/Tasks.yaml
 
 tasks:
   default:
