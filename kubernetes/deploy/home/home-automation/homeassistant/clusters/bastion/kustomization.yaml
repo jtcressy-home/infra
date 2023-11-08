@@ -108,6 +108,11 @@ helmCharts:
         enabled: true
         type: secret
         name: homeassistant-secret-files
+        advancedMounts:
+          main:
+            main:
+              - path: /var/run/secrets/homeassistant
+                readOnly: true
         globalMounts:
           - mountPath: /var/run/secrets/homeassistant
             readOnly: true
