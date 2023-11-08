@@ -21,7 +21,7 @@ metadata:
   name: home-office-rack-standard-replicated
 provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 parameters:
   csi.storage.k8s.io/fstype: xfs
   linstor.csi.linbit.com/storagePool: home-office-rack-standard
