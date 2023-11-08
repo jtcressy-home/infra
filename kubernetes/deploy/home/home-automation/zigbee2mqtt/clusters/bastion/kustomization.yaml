@@ -27,11 +27,11 @@ helmCharts:
       repository: ghcr.io/koenkk/zigbee2mqtt
       tag: 1.33.0
 
-    command:
-      - /bin/sh
-      - -c
-      - |
-        tail -f /dev/null
+    # command:
+    #   - /bin/sh
+    #   - -c
+    #   - |
+    #     tail -f /dev/null
     
     env:
       ZIGBEE2MQTT_CONFIG_ADVANCED_HOMEASSISTANT_DISCOVERY_TOPIC: homeassistant
