@@ -35,6 +35,22 @@ parameters:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
+  name: home-office-rack-standard-replicated-remote
+provisioner: linstor.csi.linbit.com
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
+parameters:
+  csi.storage.k8s.io/fstype: xfs
+  linstor.csi.linbit.com/storagePool: home-office-rack-standard
+  linstor.csi.linbit.com/autoPlace: "3"
+  linstor.csi.linbit.com/allowRemoteVolumeAccess: |
+    - fromSame:
+      - topology.kubernetes.io/region
+  linstor.csi.linbit.com/replicasOnSame: topology.kubernetes.io/zone
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
   name: home-office-rack-standard-strict-local
 provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
@@ -44,3 +60,18 @@ parameters:
   linstor.csi.linbit.com/storagePool: home-office-rack-standard
   linstor.csi.linbit.com/autoPlace: "1"
   linstor.csi.linbit.com/allowRemoteVolumeAccess: "false"
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: home-office-rack-standard-strict-remote
+provisioner: linstor.csi.linbit.com
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  csi.storage.k8s.io/fstype: xfs
+  linstor.csi.linbit.com/storagePool: home-office-rack-standard
+  linstor.csi.linbit.com/autoPlace: "1"
+  linstor.csi.linbit.com/allowRemoteVolumeAccess: |
+    - fromSame:
+      - topology.kubernetes.io/region
