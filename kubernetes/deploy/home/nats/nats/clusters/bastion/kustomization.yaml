@@ -1,6 +1,24 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+patches:
+- target:
+    group: monitoring.coreos.com
+    version: v1
+    kind: PodMonitor
+    name: nats
+  patch: |-
+    apiVersion: monitoring.coreos.com/v1
+    kind: PodMonitor
+    metadata:
+      name: nats
+    spec:
+      podMetricsEndpoints:
+      - port: prom-metrics
+        metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: nats_(.*)
+          targetLabel: gnatsd_$1
 
 helmCharts:
 - name: nats
