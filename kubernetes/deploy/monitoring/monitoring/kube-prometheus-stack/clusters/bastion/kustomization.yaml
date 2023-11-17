@@ -143,12 +143,6 @@ helmCharts:
         home-assistant:
           url: https://raw.githubusercontent.com/billimek/k8s-gitops/master/monitoring/grafana/dashboards/home_assistant.json
           datasource: home_assistant
-        nats-server-dashboard:
-          gnetId: 2279
-          datasource: Prometheus
-        nats-jetstream:
-          gnetId: 14862
-          datasource: Prometheus
       infra:
         cert-manager:
           url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
@@ -163,6 +157,39 @@ helmCharts:
         node-exporter-full:
           gnetId: 1860
           revision: 31
+          datasource: Prometheus
+        nats-server-dashboard:
+          gnetId: 2279
+          datasource: Prometheus
+        nats-jetstream:
+          gnetId: 14862
+          datasource: Prometheus
+        nats/clients:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/clients-dashboard.json
+          datasource: Prometheus
+        nats/clusters:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/clusters-dashboard.json
+          datasource: Prometheus
+        nats/jetstream-state-metrics:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/jetstream-state-metrics-dashboard.json
+          datasource: Prometheus
+        nats/nats-surveyor:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/nats-surveyor-dashboard.json
+          datasource: Prometheus
+        nats/overview:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/natsoverview-dashboard.json
+          datasource: Prometheus
+        nats/network:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/network-dashboard.json
+          datasource: Prometheus
+        nats/noderesource:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/noderesource-dashboard.json
+          datasource: Prometheus
+        nats/observations:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/observations-dashboard.json
+          datasource: Prometheus
+        nats/supercluster:
+          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/supercluster-dashboard.json
           datasource: Prometheus
       kubernetes:
         addons-prometheus:

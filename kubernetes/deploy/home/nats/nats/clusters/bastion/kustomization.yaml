@@ -18,12 +18,24 @@ patches:
         metricRelabelings:
         - sourceLabels: [__name__]
           regex: nats_(.*)
-          targetLabel: gnatsd_$1
+          replacement: gnatsd_$1
 
 helmCharts:
+
+- name: surveyor
+  repo: https://nats-io.github.io/k8s/helm/charts/
+  version: 0.16.3
+  releaseName: surveyor
+  valuesInline:
+    serviceMonitor:
+      enabled: true
+    config:
+      expectedServers: 3 # needs to match config.cluster.replicas of the nats chart
+      jetstream:
+        enabled: true
 - name: nats
   repo: https://nats-io.github.io/k8s/helm/charts/
-  version: 1.1.2
+  version: 1.1.5
   releaseName: nats
   valuesInline:
     config:
