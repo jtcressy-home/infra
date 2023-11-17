@@ -15,11 +15,13 @@ patches:
     spec:
       podMetricsEndpoints:
       - port: prom-metrics
-        metricRelabelings:
-        - sourceLabels: [__name__]
-          targetLabel: __name__
+        relabelings:
+        - action: replace
           regex: nats_(.*)
           replacement: gnatsd_$1
+          sourceLabels:
+          - __name__
+          targetLabel: __name__
 
 helmCharts:
 
