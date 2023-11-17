@@ -17,6 +17,7 @@ patches:
       - port: prom-metrics
         metricRelabelings:
         - sourceLabels: [__name__]
+          targetLabel: __name__
           regex: nats_(.*)
           replacement: gnatsd_$1
 
