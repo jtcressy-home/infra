@@ -12,7 +12,7 @@ helmCharts:
   valuesInline:
     image:
       repository: ghcr.io/zwave-js/zwave-js-ui
-      tag: 8.24.2
+      tag: 9.5.1
 
     # command: # remove after restoring data
     #   - /bin/sh
