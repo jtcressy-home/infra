@@ -71,5 +71,5 @@ spec:
         - kube-webhook-certgen
       - group: storage.k8s.io
         kind: CSIDriver
-        jqPathExpressions: # https://github.com/argoproj/argo-cd/issues/13585
-          - .spec.seLinuxMount
+        jsonPointers: # https://github.com/argoproj/argo-cd/issues/13585
+          - /spec/seLinuxMount
