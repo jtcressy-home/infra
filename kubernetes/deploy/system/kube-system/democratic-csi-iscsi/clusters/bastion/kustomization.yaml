@@ -35,3 +35,14 @@ helmCharts:
       existingConfigSecret: truenas-rainbowbox-iscsi
       config:
         driver: freenas-api-iscsi
+    # Talos specific node settings
+    node:
+      hostPID: true
+      driver:
+        extraEnv:
+          - name: ISCSIADM_HOST_STRATEGY
+            value: nsenter
+          - name: ISCSIADM_HOST_PATH
+            value: /usr/local/sbin/iscsiadm
+        iscsiDirHostPath: /usr/local/etc/iscsi
+        iscsiDirHostPathType: ""
