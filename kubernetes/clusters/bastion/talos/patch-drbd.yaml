@@ -1,7 +1,7 @@
 machine:
-  install:
-    extensions:
-      - image: ghcr.io/siderolabs/drbd:9.2.4-v1.5.3
+  # install:
+  #   extensions:
+  #     - image: ghcr.io/siderolabs/drbd:9.2.4-v1.5.3
   kernel:
     modules:
       - name: drbd

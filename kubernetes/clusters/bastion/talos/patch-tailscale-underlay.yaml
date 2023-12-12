@@ -1,7 +1,7 @@
 machine:
-  install:
-    extensions:
-      - image: ghcr.io/siderolabs/tailscale:1.48.1
+  # install:
+  #   extensions:
+  #     - image: ghcr.io/siderolabs/tailscale:1.48.1
   files:
     - content: |
         TS_AUTHKEY=${TAILSCALE_AUTHKEY}

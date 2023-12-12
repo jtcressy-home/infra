@@ -13,3 +13,4 @@ machine:
       net.ipv4.tcp_rmem: 4096 87380 4136960
       net.ipv4.tcp_wmem: 4096 87380 4136960
       net.ipv4.tcp_tw_reuse: 1
+      user.max_user_namespaces: 15000 # enables rootless buildkit

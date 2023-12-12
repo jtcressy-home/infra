@@ -214,7 +214,7 @@ tasks:
     requires:
       vars: [cluster, node, image]
     cmds:
-      - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true -s
+      - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
     preconditions:
       - talosctl -n {{.node}} get mc
 

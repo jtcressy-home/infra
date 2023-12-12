@@ -1,0 +1,3 @@
+machine:
+  install:
+    image: ghcr.io/jtcressy-home/installer:v1.5.5-secureboot

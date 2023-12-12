@@ -1,6 +1,7 @@
 ---
 clusterName: ${clusterName}
-talosVersion: v1.5.3
+talosImageURL: ghcr.io/jtcressy-home/installer
+talosVersion: v1.5.5
 kubernetesVersion: v1.28.2
 endpoint: https://hp-2ua7292pkz.tailnet-4d89.ts.net:6443
 
@@ -18,8 +19,6 @@ clusterSvcNets:
 
 cniConfig:
   name: none
-
-talosImageURL: ghcr.io/siderolabs/installer
 
 nodes:
 ## CORE HOME OFFICE RACK (battery backup) ##
@@ -48,6 +47,7 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
+      - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
   - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
@@ -71,6 +71,7 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
+      # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
   - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
@@ -94,6 +95,7 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
+      # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
   - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
@@ -117,6 +119,7 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
+      - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
 ## LAPTOP NODES (internal battery backup) ##
   - hostname: lenovo-r9dwedy.tailnet-4d89.ts.net
@@ -148,8 +151,6 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-extra
-    patches:
-    - '@./patch-zfs.yaml'
   - hostname: oldbessie.tailnet-4d89.ts.net
     ipAddress: oldbessie.tailnet-4d89.ts.net
     controlPlane: false
@@ -164,8 +165,6 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-extra
-    patches:
-    - '@./patch-zfs.yaml'
 ## SBC'S ##
   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
@@ -236,18 +235,18 @@ patches:
 - '@./patch-drbd.yaml'
 controlPlane:
   patches:
-    - |
-      machine:
-        install:
-          extensions:
-            - image: ghcr.io/jtcressy-home/cloudflared:2023.8.2
-        files:
-        - content: |
-            TUNNEL_TRANSPORT_PROTOCOL=auto
-            TUNNEL_TOKEN=${CLOUDFLARED_CLUSTER_TUNNEL_TOKEN}
-          permissions: 0o644
-          path: /var/etc/cloudflared/env
-          op: create
+    # - |
+    #   machine:
+    #     install:
+    #       extensions:
+    #         - image: ghcr.io/jtcressy-home/cloudflared:2023.8.2
+    #     files:
+    #     - content: |
+    #         TUNNEL_TRANSPORT_PROTOCOL=auto
+    #         TUNNEL_TOKEN=${CLOUDFLARED_CLUSTER_TUNNEL_TOKEN}
+    #       permissions: 0o644
+    #       path: /var/etc/cloudflared/env
+    #       op: create
     - |
       cluster:
         allowSchedulingOnMasters: true

@@ -1,8 +1,8 @@
 machine:
-  install:
-    extensions:
-      - image: ghcr.io/siderolabs/i915-ucode:20230804
-      - image: ghcr.io/siderolabs/intel-ucode:20230808
+  # install:
+  #   extensions:
+  #     - image: ghcr.io/siderolabs/i915-ucode:20230804
+  #     - image: ghcr.io/siderolabs/intel-ucode:20230808
   sysfs:
     devices.system.cpu.intel_pstate.no_turbo: 1
     devices.system.cpu.cpu0.cpufreq.scaling_governor: performance
