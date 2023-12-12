@@ -1,13 +1,13 @@
 namespace: argocd
 
 resources:
-- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.8.4
+- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.9.3
 - default-project.yaml
 - infra-repo.yaml
 - bastion-cluster-config.yaml
 # Yes, I know this external secret fails on bootstrapping because external secrets isn't deployed yet.
 # But argocd still works without it, so once it deploys external secrets, it will reconcile.
-- github-oauth-client.yaml 
+- github-oauth-client.yaml
 
 # components:
 # - ../../components/github-app-repo-creds
