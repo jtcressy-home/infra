@@ -11,6 +11,11 @@ includes:
     vars:
       dopplerProject: jtcressy-home-infra
       dopplerConfig: cluster
+  eso:
+    taskfile: .taskfiles/eso/tasks.yaml
+    vars:
+      dopplerProject: jtcressy-home-infra
+      dopplerConfig: eso
   restic:
     taskfile: .taskfiles/restic/tasks.yaml
     vars:

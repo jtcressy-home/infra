@@ -1,0 +1,20 @@
+---
+version: "3"
+
+tasks:
+  connect-doppler-branch:
+    desc: Connect a doppler config branch to the current k8s cluster
+    summary: |
+      Connects external-secrets to a doppler config branch from "{{.dopplerProject}}" to the current k8s cluster,
+        creating it if it doesn't exist. Branch name is formatted as "{{.dopplerConfig}}_{{.name}}".
+      This task assumes that a SecretStore or ClusterSecretStore be created to use the secret this task generates.
+      The secret will be located in the "external-secrets" namespace and be named doppler-token-{{.name}}
+      This task also uses "{{.dopplerProject}}" for the doppler project.
+    interactive: true
+    requires:
+      vars: [dopplerProject, dopplerConfig, name]
+    cmds:
+      - doppler -p {{.dopplerProject}} configs create {{.dopplerConfig}}_{{.name}} || true
+      - kubectl create secret generic -n external-secrets doppler-token-{{.name}} --from-literal=dopplerToken=$(doppler configs tokens create -p {{.dopplerProject}} --config {{.dopplerConfig}}_{{.name}} doppler-token-{{.name}} --plain)
+  
+  
