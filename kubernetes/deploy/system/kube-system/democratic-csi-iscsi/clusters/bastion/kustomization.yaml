@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- externalsecret.yaml
+
+helmCharts:
+- name: democratic-csi
+  repo: https://democratic-csi.github.io/charts/
+  version: 0.14.2
+  releaseName: rainbowbox-iscsi
+  valuesInline:
+    csiDriver:
+      name: "iscsi"
+    storageClasses:
+    - name: rainbowbox-iscsi
+      defaultClass: false
+      reclaimPolicy: Delete
+      volumeBindingMode: Immediate
+      allowVolumeExpansion: true
+      parameters:
+        fsType: ext4
+        detachedVolumesFromSnapshots: "false"
+      mountOptions: []
+      secrets:
+        provisioner-secret:
+        controller-publish-secret:
+        node-stage-secret:
+        node-publish-secret:
+        controller-expand-secret:
+    volumeSnapshotClasses:
+    - name: iscsi
+      parameters:
+        detachedSnapshots: "true"
+    driver:
+      existingConfigSecret: truenas-rainbowbox-iscsi
+      config:
+        driver: freenas-api-iscsi
