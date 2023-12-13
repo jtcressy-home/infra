@@ -17,6 +17,7 @@ metadata:
 provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
 parameters: 
   # CSI related parameters
   csi.storage.k8s.io/fstype: xfs
@@ -43,6 +44,7 @@ metadata:
 provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
 parameters: 
   # CSI related parameters
   csi.storage.k8s.io/fstype: xfs

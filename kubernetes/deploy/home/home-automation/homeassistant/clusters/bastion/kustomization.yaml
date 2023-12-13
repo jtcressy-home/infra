@@ -100,7 +100,7 @@ helmCharts:
         type: persistentVolumeClaim
         accessMode: ReadWriteOnce
         size: 10Gi
-        storageClass: home-office-rack-standard-replicated
+        storageClass: rainbowbox-iscsi
         globalMounts:
           - mountPath: /config
             readOnly: false

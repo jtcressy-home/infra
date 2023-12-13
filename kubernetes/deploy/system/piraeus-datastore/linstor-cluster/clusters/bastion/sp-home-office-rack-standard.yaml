@@ -20,6 +20,7 @@ kind: StorageClass
 metadata:
   name: home-office-rack-standard-replicated
 provisioner: linstor.csi.linbit.com
+reclaimPolicy: Retain
 allowVolumeExpansion: true
 volumeBindingMode: Immediate
 parameters:
@@ -37,6 +38,7 @@ kind: StorageClass
 metadata:
   name: home-office-rack-standard-replicated-remote
 provisioner: linstor.csi.linbit.com
+reclaimPolicy: Retain
 allowVolumeExpansion: true
 volumeBindingMode: Immediate
 parameters:
@@ -53,6 +55,7 @@ kind: StorageClass
 metadata:
   name: home-office-rack-standard-strict-local
 provisioner: linstor.csi.linbit.com
+reclaimPolicy: Retain
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 parameters:
@@ -66,6 +69,7 @@ kind: StorageClass
 metadata:
   name: home-office-rack-standard-strict-remote
 provisioner: linstor.csi.linbit.com
+reclaimPolicy: Retain
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 parameters:

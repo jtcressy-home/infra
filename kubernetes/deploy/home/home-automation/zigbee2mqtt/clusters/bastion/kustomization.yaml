@@ -103,7 +103,7 @@ helmCharts:
         mountPath: /data
         accessMode: ReadWriteOnce
         size: 1Gi
-        storageClass: home-office-rack-standard-replicated
+        storageClass: rainbowbox-iscsi
 
     persistence:
       # config:

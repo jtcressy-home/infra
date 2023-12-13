@@ -54,7 +54,7 @@ helmCharts:
     persistence:
       config:
         enabled: true
-        storageClass: home-office-rack-standard-replicated
+        storageClass: rainbowbox-iscsi
         accessMode: ReadWriteOnce
         size: 1Gi
         mountPath: /usr/src/app/store
