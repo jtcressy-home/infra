@@ -15,6 +15,12 @@ data:
         clientSecret: $github-oauth-client:dex.github.clientSecret
         orgs:
         - name: jtcressy-home
+  resource.customizations.ignoreDifferences._CSIDriver: |
+    jqPathExpressions:
+    - .spec.seLinuxMount
+    jsonPointers:
+    - /spec/seLinuxMount
+
 kind: ConfigMap
 metadata:
   name: argocd-cm
