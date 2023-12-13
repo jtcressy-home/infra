@@ -22,6 +22,7 @@ helmCharts:
         fsType: nfs
         detachedVolumesFromSnapshots: "false"
       mountOptions:
+      - nolock
       - noatime
       - nfsvers=3
       secrets:
