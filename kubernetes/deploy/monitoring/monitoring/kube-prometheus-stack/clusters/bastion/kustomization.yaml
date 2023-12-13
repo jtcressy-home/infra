@@ -55,7 +55,7 @@ helmCharts:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: home-office-rack-standard-replicated
+              storageClassName: rainbowbox-iscsi
               accessModes:
               - ReadWriteOnce
               resources:
