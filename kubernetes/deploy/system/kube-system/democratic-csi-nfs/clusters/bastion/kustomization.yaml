@@ -7,21 +7,23 @@ helmCharts:
 - name: democratic-csi
   repo: https://democratic-csi.github.io/charts/
   version: 0.14.2
-  releaseName: rainbowbox-iscsi
+  releaseName: rainbowbox-nfs
   namespace: kube-system
   valuesInline:
     csiDriver:
-      name: "iscsi"
+      name: "nfs"
     storageClasses:
-    - name: rainbowbox-iscsi
+    - name: rainbowbox-nfs
       defaultClass: false
       reclaimPolicy: Delete
       volumeBindingMode: Immediate
       allowVolumeExpansion: true
       parameters:
-        fsType: ext4
+        fsType: nfs
         detachedVolumesFromSnapshots: "false"
-      mountOptions: []
+      mountOptions:
+      - noatime
+      - nfsvers=3
       secrets:
         provisioner-secret:
         controller-publish-secret:
@@ -29,21 +31,10 @@ helmCharts:
         node-publish-secret:
         controller-expand-secret:
     volumeSnapshotClasses:
-    - name: rainbowbox-iscsi
+    - name: rainbowbox-nfs
       parameters:
         detachedSnapshots: "true"
     driver:
-      existingConfigSecret: truenas-rainbowbox-iscsi
+      existingConfigSecret: truenas-rainbowbox-nfs
       config:
-        driver: freenas-api-iscsi
-    # Talos specific node settings
-    node:
-      hostPID: true
-      driver:
-        extraEnv:
-          - name: ISCSIADM_HOST_STRATEGY
-            value: nsenter
-          - name: ISCSIADM_HOST_PATH
-            value: /usr/local/sbin/iscsiadm
-        iscsiDirHostPath: /usr/local/etc/iscsi
-        iscsiDirHostPathType: ""
+        driver: freenas-api-nfs
