@@ -119,7 +119,7 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
-      - "@./patch-secureboot.yaml"
+      # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
 ## LAPTOP NODES (internal battery backup) ##
   - hostname: lenovo-r9dwedy.tailnet-4d89.ts.net
@@ -253,6 +253,7 @@ controlPlane:
         apiServer:
           admissionControl: null
           extraArgs:
+            feature-gates: SELinuxMountReadWriteOncePod=false # prevents .spec.seLinuxMount from being set on CSIDriver to work around https://github.com/argoproj/argo-cd/issues/13585
             bind-address: 0.0.0.0
             oidc-issuer-url: https://vault.jtcressy.net/v1/identity/oidc/provider/default
             oidc-client-id: Xg96CJ6FgSZzyoPlumEdhXBncKcNigwS
