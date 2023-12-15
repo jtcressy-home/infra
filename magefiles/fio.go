@@ -34,7 +34,7 @@ func runfio(ctx context.Context, testName, storageClass, nodeName string) (*fio.
 	return fioRunner.RunFio(ctx, &fio.RunFIOArgs{
 		StorageClass: storageClass,
 		Size:         "20Gi",
-		Namespace:    "default",
+		Namespace:    "fio",
 		NodeSelector: map[string]string{
 			"kubernetes.io/hostname": nodeName,
 		},
