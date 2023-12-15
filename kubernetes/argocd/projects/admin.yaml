@@ -12,6 +12,9 @@ spec:
     - name: 'in-cluster'
       namespace: 'argocd'
       server: 'https://kubernetes.default.svc'
+    - namespace: 'cap*' # allows installation of cluster-api components
+      server: '*'
+      name: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
