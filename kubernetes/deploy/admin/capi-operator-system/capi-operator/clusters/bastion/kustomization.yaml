@@ -9,8 +9,10 @@ helmCharts:
   repo: https://kubernetes-sigs.github.io/cluster-api-operator
   version: 0.7.0
   releaseName: capi-operator
-  includeCRDs: true
+  includeCRDs: false
   valuesInline:
+    cert-manager:
+      enabled: false
     configSecret: {}
 
 patches:
