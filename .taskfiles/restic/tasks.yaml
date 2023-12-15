@@ -29,5 +29,4 @@ tasks:
       resticBucket:
         sh: doppler -p {{.dopplerProject}} -c {{.dopplerConfig}} secrets get --plain REPOSITORY_TEMPLATE
     cmds:
-      - doppler -p {{.dopplerProject}} -c {{.dopplerConfig}} run -- restic restore \
-        --repo={{.resticBaseRepo}}/{{.repo}} {{.id}} --target {{.dest}}
+      - doppler -p {{.dopplerProject}} -c {{.dopplerConfig}} run -- restic restore --repo={{.resticBucket}}/{{.repo}} --target {{.dest}} {{.id}}

@@ -6,6 +6,7 @@ x-task-vars: &task-vars
   controller: '{{.controller}}'
   ns: '{{.ns}}'
   claim: '{{.claim}}'
+  sc: '{{.sc}}'
   ts: '{{.ts}}'
   ks: '{{.ks}}'
   previous: '{{.previous}}'
@@ -65,7 +66,7 @@ tasks:
       - kubectl -n {{.ns}} wait job/volsync-src-{{.rsrc}} --for condition=complete --timeout=120m
       # TODO: Find a way to output logs
       # Error from server (NotFound): jobs.batch "volsync-src-zzztest" not found
-      # - kubectl -n {{.ns}} logs job/volsync-src-{{.rsrc}}
+      - kubectl -n {{.ns}} logs job/volsync-src-{{.rsrc}}
     vars:
       rsrc: '{{ or .rsrc (fail "ReplicationSource `rsrc` is required") }}'
       ns: '{{.ns | default "default"}}'
@@ -92,17 +93,12 @@ tasks:
     vars:
       rsrc: '{{ or .rsrc (fail "Variable `rsrc` is required") }}'
       ns: '{{.ns | default "default"}}'
-      # # 1) Query to find the Flux Kustomization associated with the ReplicationSource (rsrc)
-      # kustomization:
-      #   sh: |
-      #     kubectl -n {{.ns}} get replicationsource {{.rsrc}} \
-      #       -o jsonpath="{.metadata.labels.kustomize\.toolkit\.fluxcd\.io/name}"
-      # 2) Query to find the Claim associated with the ReplicationSource (rsrc)
+      # 1) Query to find the Claim associated with the ReplicationSource (rsrc)
       claim:
         sh: |
           kubectl -n {{.ns}} get replicationsource {{.rsrc}} \
             -o jsonpath="{.spec.sourcePVC}"
-      # 3) Query to find the controller associated with the PersistentVolumeClaim (claim)
+      # 2) Query to find the controller associated with the PersistentVolumeClaim (claim)
       controller:
         sh: |
           app=$(kubectl -n {{.ns}} get persistentvolumeclaim {{.claim}} -o jsonpath="{.metadata.labels.app\.kubernetes\.io/name}")
@@ -111,6 +107,11 @@ tasks:
           else
             echo "statefulset.apps/$app"
           fi
+      # 3) Query to find the StorageClass associated with the PersistentVolumeClaim (claim)
+      sc:
+        sh: |
+          kubectl -n {{.ns}} get persistentvolumeclaim {{.claim}} \
+            -o jsonpath="{.spec.storageClassName}"
       previous: "{{.previous | default 2}}"
     env: *task-vars
     preconditions:
@@ -118,13 +119,11 @@ tasks:
       - sh: test -f {{.destinationTemplate}}
       - sh: test -f {{.waitForJobScript}}
 
-  # Suspend the Flux ks and hr
+  # Suspend ArgoCD Application Controller
   suspend-task:
     internal: true
     cmds:
-      # - flux -n flux-system suspend kustomization {{.ks}}
-      # - flux -n {{.ns}} suspend helmrelease {{.rsrc}}
-      - echo "TODO, suspend argocd app somehow"
+      - kubectl -n argocd scale statefulset.apps/argocd-application-controller --replicas 0
       - kubectl -n {{.ns}} scale {{.controller}} --replicas 0
       - kubectl -n {{.ns}} wait pod --for delete --selector="app.kubernetes.io/name={{.rsrc}}" --timeout=2m
     env: *task-vars
@@ -150,11 +149,11 @@ tasks:
       - kubectl -n {{.ns}} delete replicationdestination {{.rsrc}}-{{.claim}}-{{.ts}}
     env: *task-vars
 
-  # Resume Flux ks and hr
+  # Resume ArgoCD Application Controller
   resume-task:
     internal: true
     cmds:
       # - flux -n {{.ns}} resume helmrelease {{.rsrc}}
       # - flux -n flux-system resume kustomization {{.ks}}
-      - echo "TODO, Not implemented"
+      - kubectl -n argocd scale statefulset.apps/argocd-application-controller --replicas 1
     env: *task-vars
