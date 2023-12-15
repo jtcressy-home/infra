@@ -1,19 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-# resources:
-# - github.com/kubernetes-sigs/cluster-api-operator//config/crd?ref=v0.7.0
-# - externalsecret.yaml
+resources:
+- github.com/kubernetes-sigs/cluster-api-operator//config/default?ref=v0.7.0
 
-helmCharts:
-- name: cluster-api-operator
-  repo: https://kubernetes-sigs.github.io/cluster-api-operator
-  version: 0.7.0
-  releaseName: capi-operator
-  includeCRDs: false
-  valuesInline:
-    cert-manager:
-      enabled: false
-    configSecret: {}
+images:
+  - name: gcr.io/k8s-staging-capi-operator/cluster-api-operator
+    newName: registry.k8s.io/capi-operator/cluster-api-operator
+    newTag: v0.7.0
 
 patches:
   - target:
