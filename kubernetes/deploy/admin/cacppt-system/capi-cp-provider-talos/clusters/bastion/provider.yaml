@@ -8,4 +8,4 @@ spec:
   # configSecret:
   #   name: talos-variables
   fetchConfig:
-    url: https://github.com/siderolabs/cluster-api-control-plane-provider-talos/releases
+    url: https://github.com/siderolabs/cluster-api-control-plane-provider-talos/releases/v0.5.4/control-plane-components.yaml

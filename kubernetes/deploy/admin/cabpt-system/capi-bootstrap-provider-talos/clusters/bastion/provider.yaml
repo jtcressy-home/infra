@@ -8,4 +8,4 @@ spec:
   # configSecret:
   #   name: talos-variables
   fetchConfig:
-    url: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos/releases
+    url: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos/releases/v0.6.3/bootstrap-components.yaml
