@@ -5,7 +5,7 @@ metadata:
  namespace: cacppt-system
 spec:
   version: v0.5.4
-  configSecret:
-    name: talos-variables
+  # configSecret:
+  #   name: talos-variables
   fetchConfig:
     url: https://github.com/siderolabs/cluster-api-control-plane-provider-talos/releases

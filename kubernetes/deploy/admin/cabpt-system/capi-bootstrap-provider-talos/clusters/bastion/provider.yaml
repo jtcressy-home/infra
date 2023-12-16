@@ -5,7 +5,7 @@ metadata:
  namespace: cabpt-system
 spec:
   version: v0.6.3
-  configSecret:
-    name: talos-variables
+  # configSecret:
+  #   name: talos-variables
   fetchConfig:
     url: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos/releases
