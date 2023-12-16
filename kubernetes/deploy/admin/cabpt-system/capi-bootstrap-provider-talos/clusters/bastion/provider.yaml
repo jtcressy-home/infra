@@ -1,0 +1,11 @@
+apiVersion: operator.cluster.x-k8s.io/v1alpha2
+kind: BootstrapProvider
+metadata:
+ name: talos
+ namespace: cabpt-system
+spec:
+  version: v0.6.3
+  configSecret:
+    name: talos-variables
+  fetchConfig:
+    url: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos/releases
