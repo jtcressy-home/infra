@@ -6,11 +6,13 @@ helmCharts:
   repo: https://intel.github.io/helm-charts
   version: 0.29.0
   releaseName: intel-device-plugin-operator
+  includeCRDs: true
   valuesInline: {}
 - name: intel-device-plugins-gpu
   repo: https://intel.github.io/helm-charts
   version: 0.29.0
   releaseName: intel-device-plugins-gpu
+  includeCRDs: true
   valuesInline: 
     name: intel-device-plugin-gpu
     sharedDevNum: 3
