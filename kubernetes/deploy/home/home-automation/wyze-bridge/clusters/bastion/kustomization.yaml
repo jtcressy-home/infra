@@ -1,0 +1,62 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- externalsecret.yaml
+
+helmCharts:
+- name: app-template
+  repo: https://bjw-s.github.io/helm-charts/
+  version: 2.2.0
+  releaseName: wyze-bridge
+  valuesInline:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: mrlt8/wyze-bridge
+              tag: 2.6.0-qsv
+            
+            env:
+              TZ: America/Chicago
+              H264_ENC: h264_qsv
+              NET_MODE: LAN
+              ON_DEMAND: False
+              SUBSTREAM: True
+              LIBVA_DRIVER_NAME: i965
+            envFrom:
+              - secretRef:
+                  name: wyze-secret
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                cpu: 1000m
+                memory: 500M
+                gpu.intel.com/i915: 1
+              limits:
+                memory: 2000M
+                gpu.intel.com/i915: 1
+        pod:
+          nodeSelector:
+            intel.feature.node.kubernetes.io/gpu: "true"
+
+    service:
+      main:
+        ports:
+          http:
+            enabled: true
+            port: 5000
+          rtmp:
+            enabled: true
+            port: 1935
+          rtsp:
+            enabled: true
+            port: 8554
+          hls:
+            enabled: true
+            port: 8888
+          webrtc:
+            enabled: true
+            port: 8889    
+            
