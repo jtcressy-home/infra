@@ -37,9 +37,9 @@ helmCharts:
               limits:
                 memory: 2000M
                 gpu.intel.com/i915: 1
-        pod:
-          nodeSelector:
-            intel.feature.node.kubernetes.io/gpu: "true"
+        # pod:
+        #   nodeSelector:
+        #     intel.feature.node.kubernetes.io/gpu: "true"
 
     service:
       main:
