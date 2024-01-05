@@ -9,9 +9,12 @@ helmCharts:
   namespace: kube-system
   valuesInline:
     csiDriver:
-      name: "node-manual"
+      attachRequired: false
+      name: "org.democratic-csi.node-manual"
     controller:
       enabled: false
+      externalAttacher:
+        enabled: true
     driver:
       config:
         driver: node-manual

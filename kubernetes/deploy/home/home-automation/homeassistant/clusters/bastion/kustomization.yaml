@@ -116,3 +116,11 @@ helmCharts:
         globalMounts:
           - mountPath: /var/run/secrets/homeassistant
             readOnly: true
+      media:
+        enabled: true
+        type: nfs
+        server: rainbowbox.tailnet-4d89.ts.net
+        path: /mnt/default/general/media
+        globalMounts:
+          - mountPath: /config/media
+            readOnly: false
