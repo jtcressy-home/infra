@@ -10,6 +10,8 @@ helmCharts:
   valuesInline:
     csiDriver:
       name: "node-manual"
+    controller:
+      disabled: true
     driver:
       config:
         driver: node-manual
