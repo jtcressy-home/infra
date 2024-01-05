@@ -102,19 +102,14 @@ helmCharts:
         size: 10Gi
         storageClass: rainbowbox-iscsi
         globalMounts:
-          - mountPath: /config
+          - path: /config
             readOnly: false
       secretfiles:
         enabled: true
         type: secret
         name: homeassistant-secret-files
-        advancedMounts:
-          main:
-            main:
-              - path: /var/run/secrets/homeassistant
-                readOnly: true
         globalMounts:
-          - mountPath: /var/run/secrets/homeassistant
+          - path: /var/run/secrets/homeassistant
             readOnly: true
       media:
         enabled: true
@@ -122,5 +117,5 @@ helmCharts:
         server: rainbowbox.tailnet-4d89.ts.net
         path: /mnt/default/general/media
         globalMounts:
-          - mountPath: /config/media
+          - path: /config/media
             readOnly: false
