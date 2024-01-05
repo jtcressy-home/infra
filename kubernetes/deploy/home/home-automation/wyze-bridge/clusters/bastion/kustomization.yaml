@@ -61,7 +61,7 @@ helmCharts:
             command:
               - unifi-cam-proxy
               - --host=$(NVR_HOST)
-              - --mac=$(RANDOM_MAC)
+              - --mac="$(RANDOM_MAC)"
               - --cert=$(CERT_PATH)
               - --token=$(ADOPTION_TOKEN)
               - rtsp
