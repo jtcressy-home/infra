@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+- name: democratic-csi
+  repo: https://democratic-csi.github.io/charts/
+  version: 0.14.2
+  releaseName: node-manual
+  namespace: kube-system
+  valuesInline:
+    csiDriver:
+      name: "node-manual"
+    driver:
+      config:
+        driver: node-manual
