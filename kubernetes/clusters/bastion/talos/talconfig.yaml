@@ -49,6 +49,7 @@ nodes:
     patches:
       - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
+      - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
     controlPlane: true
@@ -73,6 +74,7 @@ nodes:
     patches:
       # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
+      - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
     controlPlane: true
@@ -97,6 +99,7 @@ nodes:
     patches:
       # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
+      - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
     controlPlane: true
@@ -121,6 +124,7 @@ nodes:
     patches:
       # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
+      - "@./patch-intelgpu.yaml"
 ## LAPTOP NODES (internal battery backup) ##
   - hostname: lenovo-r9dwedy.tailnet-4d89.ts.net
     ipAddress: lenovo-r9dwedy.tailnet-4d89.ts.net
