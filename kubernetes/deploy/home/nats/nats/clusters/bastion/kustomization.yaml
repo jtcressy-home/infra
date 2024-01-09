@@ -51,7 +51,7 @@ helmCharts:
           domain: nats
         fileStore:
           pvc:
-            storageClassName: home-office-rack-standard-strict-local
+            storageClassName: rainbowbox-iscsi
             size: 10Gi
       mqtt:
         enabled: true
