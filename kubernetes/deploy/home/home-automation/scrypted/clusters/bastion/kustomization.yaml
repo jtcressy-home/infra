@@ -1,0 +1,54 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources: []
+
+helmCharts:
+- name: app-template
+  repo: https://bjw-s.github.io/helm-charts/
+  version: 1.5.1
+  releaseName: scrypted
+  valuesInline:
+    image:
+      repository: koush/scrypted
+      tag: latest@sha256:a816d08a53310f53f4aef0adb2b77e66a3eae7d4c9e1e145a5270f8926dd1681
+
+    podAnnotations:
+      k8s.v1.cni.cncf.io/networks: |-
+        [
+          {
+            "name": "macvlan-conf-dhcp",
+            "namespace": "kube-system",
+            "mac": "fa:77:a4:fe:98:91"
+          }
+        ]
+
+    env:
+      TZ: "America/Chicago"
+
+    service:
+      main:
+        ports:
+          http:
+            port: 10443
+
+    probes:
+      liveness:
+        enabled: false
+      readiness:
+        enabled: false
+      startup:
+        enabled: false
+    
+    resources:
+      requests:
+        cpu: 450m
+        memory: 4Gi
+
+    persistence:
+      config:
+        enabled: true
+        mountPath: /server/volume
+        storageClass: rainbowbox-iscsi
+        accessMode: ReadWriteOnce
+        size: 10Gi
