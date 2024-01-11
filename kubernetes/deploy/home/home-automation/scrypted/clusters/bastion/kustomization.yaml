@@ -34,17 +34,6 @@ helmCharts:
               tag: 18-jammy-full-v0.81.0
             env:
               TZ: America/Chicago
-              # potentially used by docker-wyze-bridge embedded in the wyze plugin
-              NET_MODE: P2P
-              # NET_MODE: LAN
-              ON_DEMAND: "false"
-              IGNORE_OFFLINE: "true"
-              FPS_FIX: "true"
-              ENABLE_BOA: "true"
-              QUALITY: "HD60"
-              H264_ENC: h264_qsv
-              SUBSTREAM: "true"
-              LIBVA_DRIVER_NAME: i965
             probes:
               liveness:
                 enabled: false
