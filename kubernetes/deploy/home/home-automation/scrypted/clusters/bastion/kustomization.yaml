@@ -6,50 +6,64 @@ resources: []
 helmCharts:
 - name: app-template
   repo: https://bjw-s.github.io/helm-charts/
-  version: 1.5.1
+  version: 2.2.0
   releaseName: scrypted
   valuesInline:
-    image:
-      repository: koush/scrypted
-      tag: latest@sha256:a816d08a53310f53f4aef0adb2b77e66a3eae7d4c9e1e145a5270f8926dd1681
-
-    podAnnotations:
-      k8s.v1.cni.cncf.io/networks: |-
-        [
-          {
-            "name": "macvlan-conf-dhcp",
-            "namespace": "kube-system",
-            "interface": "eth1",
-            "mac": "fa:77:a4:fe:98:91"
-          }
-        ]
-
-    env:
-      TZ: "America/Chicago"
-
+    controllers:
+      main:
+        type: statefulset
+        replicas: 1
+        containers:
+          main:
+            image:
+              repository: koush/scrypted
+              tag: full@sha256:2a1df3a5ecbec38b789ca1e77bb7075951ae9b9f148609ec0dd340f0168a6e37
+            env:
+              TZ: America/Chicago
+              # potentially used by docker-wyze-bridge embedded in the wyze plugin
+              H264_ENC: h264_qsv
+              NET_MODE: LAN
+              ON_DEMAND: False
+              SUBSTREAM: True
+              LIBVA_DRIVER_NAME: i965
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 1000m
+                memory: 4Gi
+              limits:
+                memory: 4Gi
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |-
+              [
+                {
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
+                  "interface": "eth1",
+                  "mac": "fa:77:a4:fe:98:91"
+                }
+              ]
+          nodeSelector:
+            kubernetes.io/arch: amd64
+            intel.feature.node.kubernetes.io/gpu: "true"
     service:
       main:
         ports:
           http:
             port: 10443
-
-    probes:
-      liveness:
-        enabled: false
-      readiness:
-        enabled: false
-      startup:
-        enabled: false
-    
-    resources:
-      requests:
-        cpu: 450m
-        memory: 4Gi
-
     persistence:
       config:
         enabled: true
-        mountPath: /server/volume
         storageClass: rainbowbox-iscsi
         accessMode: ReadWriteOnce
         size: 10Gi
+        globalMounts:
+        - path: /server/volume
+          readOnly: false

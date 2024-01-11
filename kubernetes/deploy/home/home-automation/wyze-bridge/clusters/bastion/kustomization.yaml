@@ -16,16 +16,16 @@ helmCharts:
           main:
             image:
               repository: mrlt8/wyze-bridge
-              # tag: 2.6.0-qsv
-              tag: 2.6.0
+              tag: 2.6.0-qsv
+              # tag: 2.6.0
             
             env:
               TZ: America/Chicago
-              # H264_ENC: h264_qsv
+              H264_ENC: h264_qsv
               NET_MODE: LAN
               ON_DEMAND: False
               SUBSTREAM: True
-              # LIBVA_DRIVER_NAME: i965
+              LIBVA_DRIVER_NAME: i965
             envFrom:
               - secretRef:
                   name: wyze-secret
@@ -35,10 +35,10 @@ helmCharts:
               requests:
                 cpu: 1000m
                 memory: 500M
-                # gpu.intel.com/i915: 1
+                gpu.intel.com/i915: 1
               limits:
                 memory: 2000M
-                # gpu.intel.com/i915: 1
+                gpu.intel.com/i915: 1
           # proxy-kitchen-cam: &unifi-cam-proxy
           #   env:
           #     - name: CAMERA_NAME
