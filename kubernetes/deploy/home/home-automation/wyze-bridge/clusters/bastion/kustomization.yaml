@@ -46,6 +46,8 @@ helmCharts:
               LLHLS: "True"
               SUBSTREAM: "True"
               LIBVA_DRIVER_NAME: i965
+              ENABLE_AUDIO: "True"
+              AUDIO_CODEC: "AAC"
               MQTT_HOST: nats.nats.svc.cluster.local:1883
               MQTT_TOPIC: wyzebridge
               MQTT_DTOPIC: homeassistant
