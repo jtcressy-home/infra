@@ -39,45 +39,45 @@ helmCharts:
               limits:
                 memory: 2000M
                 # gpu.intel.com/i915: 1
-          proxy-kitchen-cam: &unifi-cam-proxy
-            env:
-              - name: CAMERA_NAME
-                value: kitchen-cam
-              - name: RANDOM_MAC
-                value: C4:7E:66:9F:1A:2A
-              - name: CERT_PATH
-                value: /unifi-cam-proxy/client.pem
-              - name: TZ
-                value: America/Chicago
-              - name: NVR_HOST
-                valueFrom:
-                  secretKeyRef:
-                    name: unifi-cam-proxy
-                    key: NVR_HOST
-              - name: ADOPTION_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: unifi-cam-proxy
-                    key: ADOPTION_TOKEN
-            command:
-              - unifi-cam-proxy
-              - --host=$(NVR_HOST)
-              - --mac="$(RANDOM_MAC)"
-              - --cert=$(CERT_PATH)
-              - --token=$(ADOPTION_TOKEN)
-              - rtsp
-              - -s
-              - rtsp://localhost:8554/$(CAMERA_NAME)
-            image:
-              repository: keshavdv/unifi-cam-proxy
-              tag: latest
-          proxy-office-cam:
-            <<: *unifi-cam-proxy
-            env:
-              - name: CAMERA_NAME
-                value: office-cam
-              - name: RANDOM_MAC
-                value: C4:7E:66:9F:1A:2B
+          # proxy-kitchen-cam: &unifi-cam-proxy
+          #   env:
+          #     - name: CAMERA_NAME
+          #       value: kitchen-cam
+          #     - name: RANDOM_MAC
+          #       value: C4:7E:66:9F:1A:2A
+          #     - name: CERT_PATH
+          #       value: /unifi-cam-proxy/client.pem
+          #     - name: TZ
+          #       value: America/Chicago
+          #     - name: NVR_HOST
+          #       valueFrom:
+          #         secretKeyRef:
+          #           name: unifi-cam-proxy
+          #           key: NVR_HOST
+          #     - name: ADOPTION_TOKEN
+          #       valueFrom:
+          #         secretKeyRef:
+          #           name: unifi-cam-proxy
+          #           key: ADOPTION_TOKEN
+          #   command:
+          #     - unifi-cam-proxy
+          #     - --host=$(NVR_HOST)
+          #     - --mac="$(RANDOM_MAC)"
+          #     - --cert=$(CERT_PATH)
+          #     - --token=$(ADOPTION_TOKEN)
+          #     - rtsp
+          #     - -s
+          #     - rtsp://localhost:8554/$(CAMERA_NAME)
+          #   image:
+          #     repository: keshavdv/unifi-cam-proxy
+          #     tag: latest
+          # proxy-office-cam:
+          #   <<: *unifi-cam-proxy
+          #   env:
+          #     - name: CAMERA_NAME
+          #       value: office-cam
+          #     - name: RANDOM_MAC
+          #       value: C4:7E:66:9F:1A:2B
             
         # pod:
         #   nodeSelector:
