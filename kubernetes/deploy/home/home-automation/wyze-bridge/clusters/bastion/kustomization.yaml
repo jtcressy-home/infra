@@ -34,17 +34,21 @@ helmCharts:
               tag: 2.7.0-qsv
             env:
               TZ: America/Chicago
-              NET_MODE: P2P
-              # NET_MODE: LAN
-              ON_DEMAND: "false"
-              IGNORE_OFFLINE: "true"
-              FPS_FIX: "true"
-              ENABLE_BOA: "true"
-              QUALITY: "HD60"
+              NET_MODE: LAN
+              SNAPSHOT: "RTSP30"
+              ON_DEMAND: "False"
+              IGNORE_OFFLINE: "True"
+              FPS_FIX: "True"
+              ENABLE_BOA: "True"
+              QUALITY: "HD120"
+              ROTATE_DOOR: "True"
               H264_ENC: h264_qsv
-              LLHLS: "true"
-              SUBSTREAM: "true"
+              LLHLS: "True"
+              SUBSTREAM: "True"
               LIBVA_DRIVER_NAME: i965
+              MQTT_HOST: nats.nats.svc.cluster.local:1883
+              MQTT_TOPIC: wyzebridge
+              MQTT_DTOPIC: homeassistant
             probes:
               liveness:
                 enabled: false
