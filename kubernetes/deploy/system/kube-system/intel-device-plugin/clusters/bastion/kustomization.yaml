@@ -17,3 +17,44 @@ helmCharts:
     name: intel-device-plugin-gpu
     sharedDevNum: 3
     nodeFeatureRule: true
+
+patches:
+- target:
+    group: nfd.k8s-sigs.io
+    version: v1alpha1
+    kind: NodeFeatureRule
+    name: intel-dp-gpu-device
+  patch: |-
+    apiVersion: nfd.k8s.io/v1alpha1
+    kind: NodeFeatureRule
+    metadata:
+      name: intel-dp-gpu-device
+    spec:
+      rules:
+      - name: intel.gpu
+        labels:
+          intel.feature.node.kubernetes.io/gpu: "true"
+        matchAny:
+        - matchFeatures: # PCI Device exists AND i915 is loaded as reported by '/proc/modules'
+          - &pci-device
+            feature: pci.device
+            matchExpressions:
+              class:
+                op: In
+                value:
+                - "0300"
+                - "0380"
+              vendor:
+                op: In
+                value:
+                - "8086"
+          - feature: kernel.loadedmodule
+            matchExpressions:
+              i915:
+                op: Exists
+        - matchFeatures: # PCI Device exists AND i915 is enabled via in-tree/builtin as reported by 'modules.builtin'
+          - *pci-device
+          - feature: kernel.enabledmodule
+            matchExpressions:
+              i915:
+                op: Exists
