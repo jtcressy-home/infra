@@ -45,6 +45,7 @@ helmCharts:
               H264_ENC: h264_qsv
               LLHLS: "True"
               SUBSTREAM: "True"
+              SUB_QUALITY: "SD255"
               LIBVA_DRIVER_NAME: i965
               ENABLE_AUDIO: "True"
               AUDIO_CODEC: "AAC"
