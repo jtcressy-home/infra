@@ -44,6 +44,13 @@ helmCharts:
               H264_ENC: h264_qsv
               SUBSTREAM: "true"
               LIBVA_DRIVER_NAME: i965
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
             envFrom:
               - secretRef:
                   name: wyze-secret
