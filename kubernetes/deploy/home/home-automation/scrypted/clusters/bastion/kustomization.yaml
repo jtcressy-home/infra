@@ -51,7 +51,7 @@ helmCharts:
               requests:
                 gpu.intel.com/i915: 1
                 cpu: 136m
-                memory: 1024Gi
+                memory: 1024Mi
               limits:
                 gpu.intel.com/i915: 1
                 memory: 8192Mi
