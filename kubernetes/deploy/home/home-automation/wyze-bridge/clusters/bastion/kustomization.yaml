@@ -42,6 +42,7 @@ helmCharts:
               ENABLE_BOA: "true"
               QUALITY: "HD60"
               H264_ENC: h264_qsv
+              LLHLS: "true"
               SUBSTREAM: "true"
               LIBVA_DRIVER_NAME: i965
             probes:
