@@ -11,20 +11,38 @@ helmCharts:
   valuesInline:
     controllers:
       main:
-        replicas: 0
+        type: statefulset
+        replicas: 1
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |-
+              [
+                {
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
+                  "interface": "eth1",
+                  "mac": "fa:77:a4:fe:98:91"
+                }
+              ]
+          nodeSelector:
+            kubernetes.io/arch: amd64
+            intel.feature.node.kubernetes.io/gpu: "true"
         containers:
           main:
             image:
               repository: mrlt8/wyze-bridge
-              tag: 2.6.0-qsv
-              # tag: 2.6.0
-            
+              tag: 2.7.0-qsv
             env:
               TZ: America/Chicago
+              NET_MODE: P2P
+              # NET_MODE: LAN
+              ON_DEMAND: "false"
+              IGNORE_OFFLINE: "true"
+              FPS_FIX: "true"
+              ENABLE_BOA: "true"
+              QUALITY: "HD60"
               H264_ENC: h264_qsv
-              NET_MODE: LAN
-              ON_DEMAND: False
-              SUBSTREAM: True
+              SUBSTREAM: "true"
               LIBVA_DRIVER_NAME: i965
             envFrom:
               - secretRef:
@@ -33,7 +51,7 @@ helmCharts:
               privileged: true
             resources:
               requests:
-                cpu: 1000m
+                cpu: 136m
                 memory: 500M
                 gpu.intel.com/i915: 1
               limits:
@@ -79,9 +97,6 @@ helmCharts:
           #     - name: RANDOM_MAC
           #       value: C4:7E:66:9F:1A:2B
             
-        # pod:
-        #   nodeSelector:
-        #     intel.feature.node.kubernetes.io/gpu: "true"
 
     service:
       main:
