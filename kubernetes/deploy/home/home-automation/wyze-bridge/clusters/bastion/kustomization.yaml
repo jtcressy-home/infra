@@ -44,7 +44,7 @@ helmCharts:
               ROTATE_DOOR: "True"
               H264_ENC: h264_qsv
               LLHLS: "True"
-              SUBSTREAM: "True"
+              SUBSTREAM: "False" # Wyze cams can only have one stream at a time
               SUB_QUALITY: "SD255"
               LIBVA_DRIVER_NAME: i965
               ENABLE_AUDIO: "True"
