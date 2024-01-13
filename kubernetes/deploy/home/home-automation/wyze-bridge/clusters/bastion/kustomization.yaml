@@ -30,8 +30,10 @@ helmCharts:
         containers:
           main:
             image:
-              repository: mrlt8/wyze-bridge
-              tag: 2.7.0-qsv
+              # repository: mrlt8/wyze-bridge
+              # tag: 2.7.0-qsv
+              repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
+              tag: latest
             env:
               TZ: America/Chicago
               NET_MODE: LAN
@@ -72,45 +74,69 @@ helmCharts:
               limits:
                 memory: 2000M
                 gpu.intel.com/i915: 1
-          # proxy-kitchen-cam: &unifi-cam-proxy
-          #   env:
-          #     - name: CAMERA_NAME
-          #       value: kitchen-cam
-          #     - name: RANDOM_MAC
-          #       value: C4:7E:66:9F:1A:2A
-          #     - name: CERT_PATH
-          #       value: /unifi-cam-proxy/client.pem
-          #     - name: TZ
-          #       value: America/Chicago
-          #     - name: NVR_HOST
-          #       valueFrom:
-          #         secretKeyRef:
-          #           name: unifi-cam-proxy
-          #           key: NVR_HOST
-          #     - name: ADOPTION_TOKEN
-          #       valueFrom:
-          #         secretKeyRef:
-          #           name: unifi-cam-proxy
-          #           key: ADOPTION_TOKEN
-          #   command:
-          #     - unifi-cam-proxy
-          #     - --host=$(NVR_HOST)
-          #     - --mac="$(RANDOM_MAC)"
-          #     - --cert=$(CERT_PATH)
-          #     - --token=$(ADOPTION_TOKEN)
-          #     - rtsp
-          #     - -s
-          #     - rtsp://localhost:8554/$(CAMERA_NAME)
-          #   image:
-          #     repository: keshavdv/unifi-cam-proxy
-          #     tag: latest
-          # proxy-office-cam:
-          #   <<: *unifi-cam-proxy
-          #   env:
-          #     - name: CAMERA_NAME
-          #       value: office-cam
-          #     - name: RANDOM_MAC
-          #       value: C4:7E:66:9F:1A:2B
+          proxy-kitchen-cam: &unifi-cam-proxy
+            env:
+              - name: CAMERA_NAME
+                value: kitchen-cam
+              - name: RANDOM_MAC
+                value: C4:7E:66:9F:1A:2A
+              - name: CERT_PATH
+                value: /unifi-cam-proxy/client.pem
+              - name: TZ
+                value: America/Chicago
+              - name: NVR_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-cam-proxy
+                    key: NVR_HOST
+              - name: ADOPTION_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-cam-proxy
+                    key: ADOPTION_TOKEN
+            securityContext:
+              privileged: true
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                gpu.intel.com/i915: 1
+              limits:
+                gpu.intel.com/i915: 1
+            command:
+              - unifi-cam-proxy
+              - --host=$(NVR_HOST)
+              - --mac="$(RANDOM_MAC)"
+              - --cert=$(CERT_PATH)
+              - --token=$(ADOPTION_TOKEN)
+              - rtsp
+              - -s
+              - rtsp://localhost:8554/$(CAMERA_NAME)
+              - --ffmpeg-args='-hwaccel qsv -hwaccel_device /dev/dri/renderD128'
+            image:
+              repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
+              tag: latest
+              # repository: keshavdv/unifi-cam-proxy
+              # tag: latest
+          proxy-office-cam:
+            <<: *unifi-cam-proxy
+            env:
+              - name: CAMERA_NAME
+                value: office-cam
+              - name: RANDOM_MAC
+                value: C4:7E:66:9F:1A:2B
+          proxy-the-dogtagon:
+            <<: *unifi-cam-proxy
+            env:
+              - name: CAMERA_NAME
+                value: the-dogtagon
+              - name: RANDOM_MAC
+                value: C4:7E:66:9F:1A:2C
             
 
     service:
