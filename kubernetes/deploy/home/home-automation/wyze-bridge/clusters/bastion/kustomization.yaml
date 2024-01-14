@@ -103,9 +103,9 @@ helmCharts:
                 enabled: false
               startup:
                 enabled: false
-            resources:
-              limits:
-                gpu.intel.com/i915: 1
+            # resources:
+            #   limits:
+            #     gpu.intel.com/i915: 1
             command:
               - unifi-cam-proxy
               - --host=$(NVR_HOST)
