@@ -115,27 +115,27 @@ helmCharts:
               - rtsp
               - -s
               - rtsp://localhost:8554/$(CAMERA_NAME)
-              - --ffmpeg-args=' -hwaccel qsv -hwaccel_device /dev/dri/renderD128'
+              - --ffmpeg-args=' -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p'
             image:
               repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
               tag: latest
               imagePullPolicy: Always
               # repository: keshavdv/unifi-cam-proxy
               # tag: latest
-          proxy-office-cam:
-            <<: *unifi-cam-proxy
-            env:
-              - name: CAMERA_NAME
-                value: office-cam
-              - name: RANDOM_MAC
-                value: C4:7E:66:9F:1A:2B
-          proxy-the-dogtagon:
-            <<: *unifi-cam-proxy
-            env:
-              - name: CAMERA_NAME
-                value: the-dogtagon
-              - name: RANDOM_MAC
-                value: C4:7E:66:9F:1A:2C
+          # proxy-office-cam:
+          #   <<: *unifi-cam-proxy
+          #   env:
+          #     - name: CAMERA_NAME
+          #       value: office-cam
+          #     - name: RANDOM_MAC
+          #       value: C4:7E:66:9F:1A:2B
+          # proxy-the-dogtagon:
+          #   <<: *unifi-cam-proxy
+          #   env:
+          #     - name: CAMERA_NAME
+          #       value: the-dogtagon
+          #     - name: RANDOM_MAC
+          #       value: C4:7E:66:9F:1A:2C
             
 
     service:
