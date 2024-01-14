@@ -115,7 +115,7 @@ helmCharts:
               - rtsp
               - -s
               - rtsp://localhost:8554/$(CAMERA_NAME)
-              - --ffmpeg-args=' -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p'
+              - --ffmpeg-args=' -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p-codec:a aac '
             image:
               repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
               tag: latest
