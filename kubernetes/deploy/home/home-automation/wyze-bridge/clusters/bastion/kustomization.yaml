@@ -119,6 +119,7 @@ helmCharts:
             image:
               repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
               tag: latest
+              imagePullPolicy: Always
               # repository: keshavdv/unifi-cam-proxy
               # tag: latest
           proxy-office-cam:
