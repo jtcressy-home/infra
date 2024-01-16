@@ -40,10 +40,10 @@ jobs:
         working-directory: elemental-toolkit/packer
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Checkout elemental-toolkit
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: "rancher/elemental-toolkit"
         ref: "v0.10.6"
