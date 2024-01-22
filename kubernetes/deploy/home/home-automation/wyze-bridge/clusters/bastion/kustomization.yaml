@@ -30,10 +30,10 @@ helmCharts:
         containers:
           main:
             image:
-              # repository: mrlt8/wyze-bridge
-              # tag: 2.7.0-qsv
-              repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
-              tag: latest
+              repository: mrlt8/wyze-bridge
+              tag: 2.7.0-qsv
+              # repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
+              # tag: latest
             env:
               TZ: America/Chicago
               NET_MODE: LAN
@@ -42,7 +42,7 @@ helmCharts:
               IGNORE_OFFLINE: "True"
               FPS_FIX: "True"
               ENABLE_BOA: "True"
-              QUALITY: "HD255"
+              QUALITY: "HD60"
               ROTATE_DOOR: "True"
               H264_ENC: h264_qsv
               LLHLS: "True"
