@@ -42,7 +42,7 @@ helmCharts:
               IGNORE_OFFLINE: "True"
               FPS_FIX: "True"
               ENABLE_BOA: "True"
-              QUALITY: "HD60"
+              QUALITY: "HD255"
               ROTATE_DOOR: "True"
               H264_ENC: h264_qsv
               LLHLS: "True"
