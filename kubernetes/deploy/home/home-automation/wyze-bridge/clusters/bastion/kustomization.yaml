@@ -74,52 +74,52 @@ helmCharts:
               limits:
                 memory: 2000M
                 gpu.intel.com/i915: 1
-          proxy-kitchen-cam: &unifi-cam-proxy
-            env:
-              - name: CAMERA_NAME
-                value: kitchen-cam
-              - name: RANDOM_MAC
-                value: C4:7E:66:9F:1A:2A
-              - name: CERT_PATH
-                value: /unifi-cam-proxy/client.pem
-              - name: TZ
-                value: America/Chicago
-              - name: NVR_HOST
-                valueFrom:
-                  secretKeyRef:
-                    name: unifi-cam-proxy
-                    key: NVR_HOST
-              - name: ADOPTION_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: unifi-cam-proxy
-                    key: ADOPTION_TOKEN
-            securityContext:
-              privileged: true
-            probes:
-              liveness:
-                enabled: false
-              readiness:
-                enabled: false
-              startup:
-                enabled: false
-            # resources:
-            #   limits:
-            #     gpu.intel.com/i915: 1
-            command:
-              - unifi-cam-proxy
-              - --host=$(NVR_HOST)
-              - --mac="$(RANDOM_MAC)"
-              - --cert=$(CERT_PATH)
-              - --token=$(ADOPTION_TOKEN)
-              - rtsp
-              - -s
-              - rtsp://localhost:8554/$(CAMERA_NAME)
-              - --ffmpeg-args=' -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p-codec:a aac '
-            image:
-              repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
-              tag: latest
-              imagePullPolicy: Always
+          # proxy-kitchen-cam: &unifi-cam-proxy
+          #   env:
+          #     - name: CAMERA_NAME
+          #       value: kitchen-cam
+          #     - name: RANDOM_MAC
+          #       value: C4:7E:66:9F:1A:2A
+          #     - name: CERT_PATH
+          #       value: /unifi-cam-proxy/client.pem
+          #     - name: TZ
+          #       value: America/Chicago
+          #     - name: NVR_HOST
+          #       valueFrom:
+          #         secretKeyRef:
+          #           name: unifi-cam-proxy
+          #           key: NVR_HOST
+          #     - name: ADOPTION_TOKEN
+          #       valueFrom:
+          #         secretKeyRef:
+          #           name: unifi-cam-proxy
+          #           key: ADOPTION_TOKEN
+          #   securityContext:
+          #     privileged: true
+          #   probes:
+          #     liveness:
+          #       enabled: false
+          #     readiness:
+          #       enabled: false
+          #     startup:
+          #       enabled: false
+          #   # resources:
+          #   #   limits:
+          #   #     gpu.intel.com/i915: 1
+          #   command:
+          #     - unifi-cam-proxy
+          #     - --host=$(NVR_HOST)
+          #     - --mac="$(RANDOM_MAC)"
+          #     - --cert=$(CERT_PATH)
+          #     - --token=$(ADOPTION_TOKEN)
+          #     - rtsp
+          #     - -s
+          #     - rtsp://localhost:8554/$(CAMERA_NAME)
+          #     - --ffmpeg-args=' -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p-codec:a aac '
+          #   image:
+          #     repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
+          #     tag: latest
+          #     imagePullPolicy: Always
               # repository: keshavdv/unifi-cam-proxy
               # tag: latest
           # proxy-office-cam:
@@ -161,9 +161,9 @@ helmCharts:
             port: 8189
             protocol: UDP
     
-    persistence:
-      unifi-cam-proxy:
-        enabled: true
-        type: secret
-        name: unifi-cam-proxy
+    # persistence:
+    #   unifi-cam-proxy:
+    #     enabled: true
+    #     type: secret
+    #     name: unifi-cam-proxy
             
