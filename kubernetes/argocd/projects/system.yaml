@@ -30,6 +30,9 @@ spec:
     - namespace: longhorn-system
       name: '*'
       server: '*'
+    - namespace: tailscale
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
