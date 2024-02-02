@@ -6,6 +6,7 @@ machine:
     - content: |
         TS_AUTHKEY=${TAILSCALE_AUTHKEY}
         TS_ACCEPT_DNS=true
+        TS_EXTRA_ARGS="--advertise-connector --advertise-tags=tag:k8s-cluster-bastion"
       permissions: 0o644
       path: /var/etc/tailscale/auth.env
       op: create

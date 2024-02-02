@@ -1,8 +1,12 @@
 ---
 clusterName: ${clusterName}
-talosImageURL: ghcr.io/jtcressy-home/installer
+
+# renovate: datasource=github-releases depName=siderolabs/talos
 talosVersion: v1.5.5
+
+# renovate: datasource=github-releases depName=kubernetes/kubernetes
 kubernetesVersion: v1.28.2
+
 endpoint: https://hp-2ua7292pkz.tailnet-4d89.ts.net:6443
 
 allowSchedulingOnMasters: true
@@ -27,6 +31,7 @@ nodes:
     ## myw is a spare node so controlPlane can be set to true 
     ##  when performing extended maintenance on a control plane node
     ##  and we want to ensure we still have 3 active nodes in etcd
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: false 
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -47,11 +52,11 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
-      - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -72,11 +77,11 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
-      # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -97,11 +102,11 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
-      # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -122,12 +127,12 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
     patches:
-      # - "@./patch-secureboot.yaml"
       - "@./patch-hp-minis-sysfs.yaml"
       - "@./patch-intelgpu.yaml"
 ## LAPTOP NODES (internal battery backup) ##
   - hostname: lenovo-r9dwedy.tailnet-4d89.ts.net
     ipAddress: lenovo-r9dwedy.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: false
     installDiskSelector:
       model: Inland SATA SSD
@@ -143,6 +148,7 @@ nodes:
 ## EXTRA OFFICE NODES (non-battery-backup) ##
   - hostname: dell-inc-4nh5kn1.tailnet-4d89.ts.net
     ipAddress: dell-inc-4nh5kn1.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: false
     installDiskSelector:
       model: KingFast
@@ -157,6 +163,7 @@ nodes:
       topology.kubernetes.io/zone: home-office-extra
   - hostname: oldbessie.tailnet-4d89.ts.net
     ipAddress: oldbessie.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: false
     installDiskSelector:
       size: <=513GB
@@ -172,6 +179,7 @@ nodes:
 ## SBC'S ##
   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: false
     installDisk: /dev/mmcblk0
     disableSearchDomain: false
@@ -184,6 +192,7 @@ nodes:
       topology.kubernetes.io/zone: home-sbc
   - hostname: raspberrypi-dca632210a61.tailnet-4d89.ts.net
     ipAddress: raspberrypi-dca632210a61.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: false
     installDisk: /dev/mmcblk0
     disableSearchDomain: false
@@ -196,6 +205,7 @@ nodes:
       topology.kubernetes.io/zone: home-sbc
   - hostname: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
     ipAddress: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     controlPlane: false
     installDisk: /dev/mmcblk0
     disableSearchDomain: false
@@ -209,6 +219,7 @@ nodes:
 ## CLOUD NODES ##
   - hostname: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
     ipAddress: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
+    talosImageURL: ghcr.io/jtcressy-home/installer
     installDiskSelector:
       size: ">= 32GiB"
     disableSearchDomain: false
@@ -234,11 +245,22 @@ patches:
       disabled: false
       servers:
         - time.cloudflare.com
+- '@./patch-longhorn.yaml'
 - '@./patch-global-sysctls.yaml'
 - '@./patch-tailscale-underlay.yaml'
 - '@./patch-drbd.yaml'
 controlPlane:
   patches:
+
+    - |
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:admin
+            allowedKubernetesNamespaces:
+              - system-upgrade
     # - |
     #   machine:
     #     install:
@@ -284,9 +306,3 @@ controlPlane:
         scheduler:
           extraArgs:
             bind-address: 0.0.0.0
-worker:
-  patches:
-    - |
-      machine:
-        nodeLabels:
-          node-role.kubernetes.io/worker: worker

@@ -1,3 +1,4 @@
+.task/
 .local/
 .local/*
 kubeconfig
