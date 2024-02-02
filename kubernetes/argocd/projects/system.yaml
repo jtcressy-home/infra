@@ -27,6 +27,9 @@ spec:
     - namespace: metallb-system
       name: '*'
       server: '*'
+    - namespace: longhorn-system
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
