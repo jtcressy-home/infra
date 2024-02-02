@@ -10,8 +10,8 @@ helmCharts:
     repo: https://charts.longhorn.io/
     releaseName: longhorn
     valuesInline:
-      helmPreUpgradeCheckerJob:
-        enabled: false
+      preUpgradeChecker:
+        jobEnabled: false
       
       persistence:
         defaultClass: false
