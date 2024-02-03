@@ -23,6 +23,8 @@ includes:
       dopplerConfig: cloudflare-r2
   volsync:
     taskfile: .taskfiles/VolSync/Tasks.yaml
+  apps:
+    taskfile: .taskfiles/apps/tasks.yaml
 
 tasks:
   default:
