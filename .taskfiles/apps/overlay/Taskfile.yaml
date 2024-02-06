@@ -131,8 +131,6 @@ tasks:
     desc: "Opens the kustomization.yaml for an app overlay in your default editor"
     silent: true
     interactive: true
-    sources:
-      - "{{.overlayPath}}/kustomization.yaml"
     cmds:
       - $EDITOR "{{.overlayPath}}/kustomization.yaml"
     preconditions:
