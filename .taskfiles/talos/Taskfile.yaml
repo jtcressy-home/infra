@@ -130,10 +130,10 @@ tasks:
   get-machine:
     desc: Get machine
     interactive: true
-    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
-      vars: [cluster, node]
+      vars: [cluster]
     vars:
       node: *autonode
     cmds:

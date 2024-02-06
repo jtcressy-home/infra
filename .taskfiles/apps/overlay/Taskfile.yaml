@@ -1,0 +1,126 @@
+---
+version: "3"
+
+vars:
+  project:
+    sh: |
+      {{- if eq .project "" -}}
+      ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select ArgoCD App Project: "
+      {{- else -}}
+      echo "{{.project}}"
+      {{- end -}}
+  namespace:
+    sh: |
+      {{- if eq .namespace "" -}}
+      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select Namespace: "
+      {{- else -}}
+      echo "{{.namespace}}"
+      {{- end -}}
+  app:
+    sh: |
+      {{- if eq .app "" -}}
+      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/ | fzf --height=~10 --prompt="Select App: "
+      {{- else -}}
+      echo "{{.app}}"
+      {{- end -}}
+  cluster:
+    sh: |
+      {{- if eq .cluster "" -}}
+      ls {{.PROJECT_DIR}}/kubernetes/clusters | fzf -1 --height=~5 --prompt="Choose a cluster: " | tr -d '\n\r'
+      {{- else -}}
+      echo "{{.cluster}}"
+      {{- end -}}
+  projectPath: "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
+  enabledPath: "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/clusters"
+  disabledPath: "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/disabled"
+  isDisabled:
+    sh: "test -f {{.disabledPath}}/{{.cluster}}/kustomization.yaml && echo true || echo false"
+  overlayPath: "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/{{if eq .isDisabled \"true\"}}disabled{{else}}clusters{{end}}/{{.cluster}}"
+
+tasks:
+  create:
+    desc: "Create a new app overlay"
+    summary: |
+      This task will create a new kustomize overlay targeting a specific cluster.
+      Common arguments (project, namespace, app, cluster) can be explicitly provided or interactively selected.
+      Note: if the project, namespace or app name doesn't exist, it will not be selectable as an option and should be explicitly provided.
+
+      Example: create a new overlay for the 'multus' app in the 'kube-system' namespace targeting the 'cluster1' cluster.
+        task apps:overlay:create project=system namespace=kube-system app=multus cluster=cluster1
+
+      Example: create a new overlay for a cluster addon that should target all clusters.
+        task apps:overlay:create project=system namespace=kube-system app=volsync cluster=_all
+    interactive: true
+    silent: true
+    generates:
+      - "{{.overlayPath}}/kustomization.yaml"
+    cmds:
+      - mkdir -p "{{.overlayPath}}"
+      - cd "{{.overlayPath}}" && kustomize create
+      - echo "Created overlay at {{.overlayPath}}"
+    preconditions:
+      - sh: test ! -f "{{.overlayPath}}/kustomization.yaml"
+        msg: "App overlay already exists at {{.overlayPath}}."
+      - sh: test -f "{{.projectPath}}"
+        msg: "ArgoCD App Project '{{.project}}' does not exist."
+  enable:
+    desc: "Enable an app overlay"
+    summary: |
+      This task will enable an existing, disabled kustomize overlay targeting a specific cluster.
+
+      Common arguments (project, namespace, app, cluster) can be explicitly provided or interactively selected.
+
+      Example: enable the 'multus' app overlay in the 'kube-system' namespace targeting the 'cluster1' cluster.
+        task apps:overlay:enable project=system namespace=kube-system app=multus cluster=cluster1
+
+      Example: enable a cluster addon that targets all clusters.
+        task apps:overlay:enable project=system namespace=kube-system app=volsync cluster=_all
+    interactive: true
+    silent: true
+    cmds:
+      - mkdir -p "{{.enabledPath}}"
+      - mv "{{.disabledPath}}/{{.cluster}}" "{{.enabledPath}}/"
+      - echo "Enabled overlay at {{.enabledPath}}/{{.cluster}}"
+    preconditions:
+      - sh: test -f "{{.disabledPath}}/{{.cluster}}/kustomization.yaml"
+        msg: "App overlay doesn't exist or isn't disabled."
+  disable:
+    desc: "Disable an app overlay"
+    summary: |
+      This task will disable an existing, enabled kustomize overlay targeting a specific cluster.
+
+      Common arguments (project, namespace, app, cluster) can be explicitly provided or interactively selected.
+
+      Example: disable the 'multus' app overlay in the 'kube-system' namespace targeting the 'cluster1' cluster.
+        task apps:overlay:disable project=system namespace=kube-system app=multus cluster=cluster1
+
+      Example: disable a cluster addon that targets all clusters.
+        task apps:overlay:disable project=system namespace=kube-system app=volsync cluster=_all
+    interactive: true
+    silent: true
+    cmds:
+      - mkdir -p "{{.disabledPath}}"
+      - mv "{{.enabledPath}}/{{.cluster}}" "{{.disabledPath}}/"
+      - echo "Disabled overlay at {{.disabledPath}}/{{.cluster}}"
+    preconditions:
+      - sh: test -f "{{.enabledPath}}/{{.cluster}}/kustomization.yaml"
+        msg: "App overlay doesn't exist or isn't enabled."
+  render:
+    desc: "Render the kustomization.yaml for an app overlay"
+    summary: |
+      This task will render the kustomization.yaml for an existing app overlay targeting a specific cluster.
+
+      Common arguments (project, namespace, app, cluster) can be explicitly provided or interactively selected.
+
+      Example: render the 'multus' app overlay in the 'kube-system' namespace targeting the 'cluster1' cluster.
+        task apps:overlay:render project=system namespace=kube-system app=multus cluster=cluster1
+
+      Example: render a cluster addon that targets all clusters.
+        task apps:overlay:render project=system namespace=kube-system app=volsync cluster=_all
+    silent: true
+    interactive: true
+    cmds:
+      - kustomize build --enable-helm "{{.overlayPath}}"
+    preconditions:
+      - sh: test -f "{{.overlayPath}}/kustomization.yaml"
+        msg: "App overlay doesn't exist."

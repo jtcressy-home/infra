@@ -1,0 +1,145 @@
+---
+version: "3"
+
+vars:
+  project:
+    sh: |
+      {{- if eq .project "" -}}
+      ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select ArgoCD App Project: "
+      {{- else -}}
+      echo "{{.project}}"
+      {{- end -}}
+  app: ""
+  namespace: >-
+    {{.namespace | default ""}}
+  cluster: ""
+  description: >
+    {{.description | default (list .project "project" | join " ")}}
+  projectPath: "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
+  createProjectTemplate: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: AppProject
+    metadata:
+      name: {{.project}}
+      namespace: argocd
+    spec:
+      clusterResourceWhitelist:
+        - group: "*"
+          kind: "*"
+      namespaceResourceWhitelist:
+        - group: "*"
+          kind: "*"
+      sourceRepos:
+        - 'https://github.com/jtcressy-home/infra'
+      description: {{.description}}
+
+tasks:
+  create:
+    desc: "Create a new ArgoCD App Project"
+    silent: true
+    requires:
+      vars: [project]
+    generates:
+      - "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
+    cmds:
+      - |
+        cat <<EOF > "{{.projectPath}}"
+        {{.createProjectTemplate}}
+        EOF
+    preconditions:
+      - sh: test ! -f "{{.projectPath}}"
+        msg: "Project already exists"
+      - sh: test -n "{{.project}}"
+        msg: "Project name is required"
+  
+  show:
+    desc: "Show an ArgoCD App Project"
+    aliases:
+      - get
+      - desc
+      - describe
+    summary: |
+      This task will display the contents of an ArgoCD App Project. 
+      <project> can be explicitly provided or interactively selected.
+
+      Example: Show the 'system' project.
+        task apps:project:show project=system
+    silent: true
+    requires:
+      vars: [project]
+    sources:
+      - "{{.projectPath}}"
+    cmds:
+      - cat "{{.projectPath}}"
+    preconditions:
+      - sh: test -f "{{.projectPath}}"
+        msg: "Project does not exist"
+
+  dest:add:
+    desc: "Add a new destination to an ArgoCD App Project"
+    summary: |
+      This task will add a new destination to an ArgoCD App Project. 
+      <project> can be explicitly provided or interactively selected.
+      <namespace> is required.
+      <server> and <name> are optional.
+
+      Example: Add a new destination to the 'system' project targeting the 'kube-system' namespace in the 'in-cluster' cluster.
+        task apps:project:dest:add project=system namespace=kube-system server=https://kubernetes.default.svc name=in-cluster
+
+      Example: Add a new destination to the 'system' project targeting the 'kube-system' namespace in all clusters.
+        task apps:project:dest:add project=system namespace=kube-system
+      
+    silent: true
+    requires:
+      vars: [project, namespace]
+    vars:
+      name: >-
+        {{.name | default "" }}
+      server: >-
+        {{.server | default "" }}
+    cmds:
+      - |
+        yq eval '.spec.destinations += [{ {{if eq .name ""}}{{else}}"name": "{{.name}}", {{end}}"namespace": "{{.namespace}}"{{if eq .server ""}}{{else}}, "server": "{{.server}}"{{end}} }]' -i "{{.projectPath}}"
+    preconditions:
+      - sh: test -f "{{.projectPath}}"
+        msg: "Project does not exist"
+      - sh: test -n "{{.namespace}}"
+        msg: "Namespace is required"
+      - sh: test ! -n "$(yq -r '.spec.destinations[] | select(.namespace == "{{.namespace}}") {{if eq .name ""}}{{else}}| select(.name == "{{.name}}"){{end}} {{if eq .server ""}}{{else}}| select(.server == "{{.server}}"){{end}}' < "{{.projectPath}}")"
+        msg: "Destination already exists in project"
+
+  dest:remove:
+    desc: "Remove a destination from an ArgoCD App Project"
+    summary: |
+      This task will remove a destination from an ArgoCD App Project. 
+      <project> can be explicitly provided or interactively selected.
+      <namespace> is required.
+      <server> and <name> are optional.
+
+      Example: Remove a destination from the 'system' project targeting the 'kube-system' namespace in the 'in-cluster' cluster.
+        task apps:project:dest:remove project=system namespace=kube-system server=https://kubernetes.default.svc name=in-cluster
+
+      Example: Remove a destination from the 'system' project targeting the 'kube-system' namespace in all clusters.
+        task apps:project:dest:remove project=system namespace=kube-system
+    aliases:
+      - dest:rm
+      - dest:del
+      - dest:delete
+    silent: true
+    requires:
+      vars: [project, namespace]
+    vars:
+      name: >-
+        {{.name | default "" }}
+      server: >-
+        {{.server | default "" }}
+    cmds:
+      - |
+        yq eval 'del(.spec.destinations[] | select(.namespace == "{{.namespace}}") {{if eq .name ""}}{{else}}| select(.name == "{{.name}}"){{end}} {{if eq .server ""}}{{else}}| select(.server == "{{.server}}"){{end}})' -i "{{.projectPath}}"
+    preconditions:
+      - sh: test -f "{{.projectPath}}"
+        msg: "Project does not exist"
+      - sh: test -n "{{.namespace}}"
+        msg: "Namespace is required"
+      - sh: test -n "$(yq -r '.spec.destinations[] | select(.namespace == "{{.namespace}}") {{if eq .name ""}}{{else}}| select(.name == "{{.name}}"){{end}} {{if eq .server ""}}{{else}}| select(.server == "{{.server}}"){{end}}' < "{{.projectPath}}")"
+        msg: "Destination does not exist in project"

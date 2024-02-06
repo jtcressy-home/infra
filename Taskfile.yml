@@ -7,24 +7,24 @@ vars:
 
 includes:
   talos: 
-    taskfile: .taskfiles/talos/tasks.yaml
+    taskfile: .taskfiles/talos/Taskfile.yaml
     vars:
       dopplerProject: jtcressy-home-infra
       dopplerConfig: cluster
   eso:
-    taskfile: .taskfiles/eso/tasks.yaml
+    taskfile: .taskfiles/eso/Taskfile.yaml
     vars:
       dopplerProject: jtcressy-home-infra
       dopplerConfig: eso
   restic:
-    taskfile: .taskfiles/restic/tasks.yaml
+    taskfile: .taskfiles/restic/Taskfile.yaml
     vars:
       dopplerProject: restic-backups
       dopplerConfig: cloudflare-r2
   volsync:
-    taskfile: .taskfiles/VolSync/Tasks.yaml
+    taskfile: .taskfiles/volsync/Taskfile.yaml
   apps:
-    taskfile: .taskfiles/apps/tasks.yaml
+    taskfile: .taskfiles/apps/Taskfile.yaml
 
 tasks:
   default:
