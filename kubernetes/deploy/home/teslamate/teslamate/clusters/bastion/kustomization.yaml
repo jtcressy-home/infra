@@ -35,12 +35,14 @@ helmCharts:
               DATABASE_USER:
                 valueFrom:
                   secretKeyRef:
-                    name: teslamate-db-app
+                    # name: teslamate-db-app
+                    name: teslamate-db-superuser
                     key: username
               DATABASE_PASS:
                 valueFrom:
                   secretKeyRef:
-                    name: teslamate-db-app
+                    # name: teslamate-db-app
+                    name: teslamate-db-superuser
                     key: password
             envFrom:
             - secretRef:
