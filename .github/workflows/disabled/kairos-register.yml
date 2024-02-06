@@ -15,7 +15,7 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Kairos CLI
       run: |
         curl -L https://github.com/kairos-io/provider-kairos/releases/download/v1.2.0/kairos-cli-v1.2.0-Linux-x86_64.tar.gz -o - | tar -xvzf - -C .

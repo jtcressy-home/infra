@@ -43,7 +43,7 @@ jobs:
         env:
           OP_SESSION: ${{ secrets.OP_CREDENTIALS_B64 }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Mask GitHub Token
         run: |
           echo "::add-mask::${{ github.event.inputs.github-pat }}"
