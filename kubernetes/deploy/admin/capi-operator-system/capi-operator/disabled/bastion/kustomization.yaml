@@ -6,7 +6,7 @@ resources:
 images:
   - name: gcr.io/k8s-staging-capi-operator/cluster-api-operator
     newName: registry.k8s.io/capi-operator/cluster-api-operator
-    newTag: v0.7.0
+    newTag: v0.8.1
 
 patches:
   - target:
