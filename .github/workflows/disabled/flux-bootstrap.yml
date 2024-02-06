@@ -64,7 +64,7 @@ jobs:
 
       - name: Tailscale
         if: inputs.tailscale
-        uses: tailscale/github-action@v1
+        uses: tailscale/github-action@v2
         with:
           authkey: ${{ env.TAILSCALE_AUTHKEY }}
       
