@@ -1,7 +1,7 @@
 namespace: argocd
 
 resources:
-- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.9.3
+- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.10.0
 - default-project.yaml
 - infra-repo.yaml
 - bastion-cluster-config.yaml
