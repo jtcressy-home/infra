@@ -8,6 +8,8 @@ spec:
 
   imageName: ghcr.io/cloudnative-pg/postgresql:15.5
 
+  enableSuperuserAccess: true
+
   # bootstrap:
   #   recovery:
   #     source: clusterBackup
