@@ -18,6 +18,9 @@ spec:
     - namespace: nats
       name: '*'
       server: '*'
+    - name: '*'
+      namespace: teslamate
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

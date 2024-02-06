@@ -1,0 +1,69 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: teslamate-db
+  namespace: teslamate
+spec:
+  instances: 3
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.5
+
+  # bootstrap:
+  #   recovery:
+  #     source: clusterBackup
+  #     recoveryTarget:
+  #       targetTime: "2024-01-19 00:00:00.00000+00"
+
+  externalClusters:
+    - name: clusterBackup
+      barmanObjectStore:
+        destinationPath: s3://restic-backups/teslamate
+        endpointURL: https://5d4249bf326be62396b18a9f6000341b.r2.cloudflarestorage.com/
+        serverName: "teslamate-db"
+        s3Credentials:
+          accessKeyId:
+            name: cloudflare-r2-secret
+            key: AWS_ACCESS_KEY_ID
+          secretAccessKey:
+            name: cloudflare-r2-secret
+            key: AWS_SECRET_ACCESS_KEY
+        wal:
+          compression: gzip
+          maxParallel: 8
+          encryption: AES256
+        data:
+          compression: gzip
+          encryption: AES256
+
+  storage:
+    size: 10Gi
+    storageClass: longhorn-strict-local-standalone
+
+  monitoring:
+    enablePodMonitor: true
+
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://restic-backups/teslamate/
+      endpointURL: https://5d4249bf326be62396b18a9f6000341b.r2.cloudflarestorage.com
+      serverName: "teslamate-recovered"
+      s3Credentials:
+        accessKeyId:
+          name: cloudflare-r2-secret
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: cloudflare-r2-secret
+          key: AWS_SECRET_ACCESS_KEY
+      wal:
+        compression: gzip
+        maxParallel: 8
+        encryption: AES256
+      data:
+        compression: gzip
+        encryption: AES256
+    retentionPolicy: "7d"

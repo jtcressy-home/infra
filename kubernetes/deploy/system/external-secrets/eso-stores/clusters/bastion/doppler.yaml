@@ -12,3 +12,17 @@ spec:
             name: doppler-token-bastion
             namespace: external-secrets
             key: dopplerToken
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: doppler-eso-teslamate
+spec:
+  provider:
+    doppler:
+      auth:
+        secretRef:
+          dopplerToken: # Note: be sure to run `task eso:connect-doppler-branch name=teslamate` to create this secret
+            name: doppler-token-teslamate
+            namespace: external-secrets
+            key: dopplerToken
