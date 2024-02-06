@@ -119,6 +119,9 @@ tasks:
         task apps:overlay:render project=system namespace=kube-system app=volsync cluster=_all
     silent: true
     interactive: true
+    sources:
+      - "{{.overlayPath}}/*.yaml"
+      - "{{.overlayPath}}/**/*.yaml"
     cmds:
       - kustomize build --enable-helm "{{.overlayPath}}"
     preconditions:
