@@ -58,7 +58,7 @@ jobs:
       
       - name: Load Tailscale Secrets
         if: inputs.tailscale
-        uses: 1password/load-secrets-action@v1.0.1
+        uses: 1password/load-secrets-action@v1.3.1
         env:
           TAILSCALE_AUTHKEY: op://jtcressy-net-infra/tailscale-key-ghactions/password
 
