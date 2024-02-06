@@ -27,6 +27,21 @@ helmCharts:
               MQTT_HOST: "nats.nats.svc.cluster.local"
               MQTT_USERNAME: "mqtt"
               DATABASE_HOST: "teslamate-db-rw.teslamate.svc.cluster.local"
+              DATABASE_NAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: teslamate-db-app
+                    key: dbname
+              DATABASE_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: teslamate-db-app
+                    key: username
+              DATABASE_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: teslamate-db-app
+                    key: password
             envFrom:
             - secretRef:
                 name: teslamate-secret
