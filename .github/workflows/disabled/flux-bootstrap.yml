@@ -70,7 +70,7 @@ jobs:
       
       - name: Vault Login
         id: vault
-        uses: hashicorp/vault-action@v2.4.2
+        uses: hashicorp/vault-action@v2.8.0
         with:
           url: https://vault.jtcressy.net
           method: jwt
