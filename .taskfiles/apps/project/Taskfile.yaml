@@ -9,10 +9,6 @@ vars:
       {{- else -}}
       echo "{{.project}}"
       {{- end -}}
-  app: ""
-  namespace: >-
-    {{.namespace | default ""}}
-  cluster: ""
   description: >
     {{.description | default (list .project "project" | join " ")}}
   projectPath: "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
