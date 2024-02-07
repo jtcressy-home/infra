@@ -33,6 +33,9 @@ spec:
     - namespace: tailscale
       name: '*'
       server: '*'
+    - name: '*'
+      namespace: system-upgrade
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
