@@ -22,3 +22,4 @@ machine:
     nameservers:
       - 100.100.100.100 # relying on tailscale bootstrap dns
         # magic dns must be configured with a global nameserver and override dns enabled
+      - 1.1.1.1

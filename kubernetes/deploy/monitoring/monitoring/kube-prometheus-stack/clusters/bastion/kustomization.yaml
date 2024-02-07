@@ -214,6 +214,8 @@ helmCharts:
           gnetId: 15760
           datasource: Prometheus
       teslamate:
+        battery-health:
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.27.4/grafana/dashboards/battery-health.json
         charge-level:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charge-level.json
           # datasource: TeslaMate
@@ -289,15 +291,14 @@ helmCharts:
           access: proxy
           url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
           isDefault: true
-        # TODO: install teslamate db
-        # - name: TeslaMate
-        #   type: postgres
-        #   access: proxy
-        #   url: teslamate-db-rw.teslamate.svc.cluster.local
-        #   database: teslamate
-        #   user: postgres
-        #   secureJsonData:
-        #     password: "$TESLAMATE_DB_PASSWORD"
-        #   jsonData:
-        #     postgresVersion: 1000
-        #     sslmode: disable
+        - name: TeslaMate
+          type: postgres
+          access: proxy
+          url: teslamate-db-rw.teslamate.svc.cluster.local
+          database: app
+          user: postgres
+          secureJsonData:
+            password: "$TESLAMATE_DB_PASSWORD"
+          jsonData:
+            postgresVersion: 1000
+            sslmode: disable
