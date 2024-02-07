@@ -24,6 +24,7 @@ helmCharts:
         backupTargetCredentialSecret: longhorn-backup-target
         defaultDataPath: /var/lib/longhorn
         storageNetwork: ~
+        nodeDrainPolicy: allow-if-replica-is-stopped
 
       metrics:
         serviceMonitor:
