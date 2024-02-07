@@ -12,4 +12,6 @@ helmCharts:
     valuesInline:
       apiServerProxyConfig:
         mode: "true"
+      operatorConfig:
+        hostname: k8s-bastion
     
