@@ -51,7 +51,8 @@ helmCharts:
           domain: nats
         fileStore:
           pvc:
-            storageClassName: rainbowbox-iscsi
+            # storageClassName: rainbowbox-iscsi
+            storageClassName: longhorn-strict-local-standalone-wait
             size: 10Gi
       mqtt:
         enabled: true
