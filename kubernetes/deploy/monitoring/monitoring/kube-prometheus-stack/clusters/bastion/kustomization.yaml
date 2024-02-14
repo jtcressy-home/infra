@@ -82,7 +82,23 @@ helmCharts:
     envFromSecrets:
     - name: grafana-secret
     ingress:
-      enabled: false # i'm using cloudflared-tunnel which requires separate out-of-band config for ingresses
+      enabled: true
+      ingressClassName: tailscale
+      hosts:
+      - grafana
+      tls:
+      - hosts:
+        - grafana
+    grafana.ini:
+      users:
+        allow_sign_up: false
+        auto_assign_org: true
+        auto_assign_org_role: Editor
+      auth.proxy:
+        enabled: true
+        header_name: Tailscale-User-Login
+        header_property: email
+        auto_sign_up: true
     plugins:
     - pr0ps-trackmap-panel
     - natel-plotly-panel
