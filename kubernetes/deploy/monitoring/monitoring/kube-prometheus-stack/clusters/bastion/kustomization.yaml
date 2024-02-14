@@ -96,8 +96,7 @@ helmCharts:
         auto_assign_org_role: Editor
       auth.proxy:
         enabled: true
-        header_name: Tailscale-User-Login
-        header_property: email
+        header_name: "Name:Tailscale-User-Name Email:Tailscale-User-Login"
         auto_sign_up: true
     plugins:
     - pr0ps-trackmap-panel
