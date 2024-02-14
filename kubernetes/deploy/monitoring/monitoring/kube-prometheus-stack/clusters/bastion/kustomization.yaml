@@ -137,26 +137,31 @@ helmCharts:
             path: /var/lib/grafana/dashboards/teslamate
     dashboards:
       default:
-        cloudnative-pg:
-          url: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/samples/monitoring/grafana-dashboard.json
-          datasource: Prometheus
         home-assistant:
           url: https://raw.githubusercontent.com/billimek/k8s-gitops/master/monitoring/grafana/dashboards/home_assistant.json
           datasource: home_assistant
       infra:
+        cloudnative-pg:
+          url: https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/docs/src/samples/monitoring/grafana-dashboard.json
+          datasource: Prometheus
         cert-manager:
           url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
           datasource: Prometheus
-        linstor:
-          url: https://raw.githubusercontent.com/invertedorigin/home-infra/main/apps/monitoring/linstor_dashboard.json
+        argocd-app-overview:
+          gnetId: 19974
+          revision: 1
           datasource: Prometheus
-        argocd:
-          gnetId: 14584
+        argocd-ops-overview:
+          gnetId: 19993
+          revision: 1
+          datasource: Prometheus
+        argocd-notifications-overview:
+          gnetId: 19975
           revision: 1
           datasource: Prometheus
         node-exporter-full:
           gnetId: 1860
-          revision: 31
+          revision: 33
           datasource: Prometheus
         nats-server-dashboard:
           gnetId: 2279
@@ -165,31 +170,31 @@ helmCharts:
           gnetId: 14862
           datasource: Prometheus
         nats-clients:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/clients-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/clients-dashboard.json
           datasource: Prometheus
         nats-clusters:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/clusters-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/clusters-dashboard.json
           datasource: Prometheus
         nats-jetstream-state-metrics:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/jetstream-state-metrics-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/jetstream-state-metrics-dashboard.json
           datasource: Prometheus
         nats-nats-surveyor:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/nats-surveyor-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/nats-surveyor-dashboard.json
           datasource: Prometheus
         nats-overview:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/natsoverview-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/natsoverview-dashboard.json
           datasource: Prometheus
         nats-network:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/network-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/network-dashboard.json
           datasource: Prometheus
         nats-noderesource:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/noderesource-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/noderesource-dashboard.json
           datasource: Prometheus
         nats-observations:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/observations-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/observations-dashboard.json
           datasource: Prometheus
         nats-supercluster:
-          url: https://github.com/nats-io/nats-surveyor/raw/main/docker-compose/grafana/provisioning/dashboards/supercluster-dashboard.json
+          url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/supercluster-dashboard.json
           datasource: Prometheus
       kubernetes:
         addons-prometheus:
@@ -215,62 +220,62 @@ helmCharts:
           datasource: Prometheus
       teslamate:
         battery-health:
-          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.27.4/grafana/dashboards/battery-health.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/battery-health.json
         charge-level:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charge-level.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/charge-level.json
           # datasource: TeslaMate
         charges:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charges.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/charges.json
           # datasource: TeslaMate
         charging-stats:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charging-stats.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/charging-stats.json
           # datasource: TeslaMate
         drive-stats:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/drive-stats.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/drive-stats.json
           # datasource: TeslaMate
         drives:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/drives.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/drives.json
           # datasource: TeslaMate
         efficiency:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/efficiency.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/efficiency.json
           # datasource: TeslaMate
         locations:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/locations.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/locations.json
           # datasource: TeslaMate
         mileage:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/mileage.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/mileage.json
           # datasource: TeslaMate
         overview:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/overview.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/overview.json
           # datasource: TeslaMate
         projected-range:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/projected-range.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/projected-range.json
           # datasource: TeslaMate
         states:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/states.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/states.json
           # datasource: TeslaMate
         statistics:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/statistics.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/statistics.json
           # datasource: TeslaMate
         timeline:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/timeline.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/timeline.json
           # datasource: TeslaMate
         trip:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/trip.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/trip.json
           # datasource: TeslaMate
         updates:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/updates.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/updates.json
           datasource: TeslaMate
         vampire-drain:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/vampire-drain.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/vampire-drain.json
           # datasource: TeslaMate
         visited:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/visited.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/visited.json
           # datasource: TeslaMate
         charge-details:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/internal/charge-details.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/internal/charge-details.json
         drive-details:
-          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/internal/drive-details.json
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/internal/drive-details.json
     sidecar:
       datasources:
         enabled: true
