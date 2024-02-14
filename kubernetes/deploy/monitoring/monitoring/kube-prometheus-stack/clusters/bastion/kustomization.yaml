@@ -100,6 +100,7 @@ helmCharts:
         header_property: email
         headers: "Name:Tailscale-User-Name Email:Tailscale-User-Login"
         auto_sign_up: true
+        whitelist: 100.64.0.0/10
     plugins:
     - pr0ps-trackmap-panel
     - natel-plotly-panel
