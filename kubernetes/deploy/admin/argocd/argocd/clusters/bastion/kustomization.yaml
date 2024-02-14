@@ -9,7 +9,8 @@ resources:
 # But argocd still works without it, so once it deploys external secrets, it will reconcile.
 - github-oauth-client.yaml
 
-# components:
+components:
+- ../../components/prometheus-operator
 # - ../../components/github-app-repo-creds
 
 patchesStrategicMerge:
