@@ -3,7 +3,7 @@ kind: Kustomization
 helmCharts:
 - name: rook-ceph
   repo: https://charts.rook.io/release
-  version: v1.13.3
+  version: v1.13.4
   releaseName: rook-ceph-operator
   namespace: rook-ceph
   valuesInline:
