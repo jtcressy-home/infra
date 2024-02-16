@@ -75,6 +75,7 @@ helmCharts:
           http:
             port: 4000
       api:
+        controller: main
         type: ClusterIP
         ports:
           http:
