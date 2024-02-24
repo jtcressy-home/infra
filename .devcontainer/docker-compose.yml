@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        ARGOCD_VERSION: "v2.8.4"
+        ARGOCD_VERSION: "v2.10.0"
         K9S_VERSION: "latest"
-        CLOUDFLARED_VERSION: "2023.8.2"
-        TAILSCALE_VERSION: v1.50.1
+        CLOUDFLARED_VERSION: "2024.2.0"
+        TAILSCALE_VERSION: v1.58.2
     privileged: true
     volumes:
       - /dev:/dev

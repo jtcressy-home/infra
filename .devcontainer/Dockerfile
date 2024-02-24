@@ -12,7 +12,14 @@ FROM docker.io/cloudflare/cloudflared:${CLOUDFLARED_VERSION} as cloudflared
 FROM ghcr.io/siderolabs/talosctl:${TALOSCTL_VERSION} as talosctl
 FROM docker.io/mikefarah/yq:latest as yq
 
-FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
+FROM golang:1.21 as gomod-builder
+
+# Install taskfile CLI
+RUN GOBIN=/usr/local/bin go install github.com/go-task/task/v3/cmd/task@latest
+
+############################################
+
+FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu
 
 # Add google cloud sdk repo
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.asc] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
@@ -34,7 +41,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 RUN restic self-update
 
 # Install taskfile CLI
-RUN GOBIN=/usr/local/bin go install github.com/go-task/task/v3/cmd/task@latest
+COPY --from=gomod-builder /usr/local/bin/task /usr/local/bin/task
+
 # Install talhelper
 RUN curl https://i.jpillora.com/budimanjojo/talhelper! | sudo bash
 
