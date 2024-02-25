@@ -1,6 +1,14 @@
 ---
 version: "3"
 
+x-task-vars:
+  namespace: &namespace-var # depends on .project
+    sh: |
+      {{- if eq .namespace "" -}}
+      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select or enter Namespace: " --print-query | tail -1
+      {{- else -}}
+      echo "{{.namespace}}"
+      {{- end -}}
 vars:
   project:
     sh: |
@@ -47,6 +55,14 @@ tasks:
         msg: "Project already exists"
       - sh: test -n "{{.project}}"
         msg: "Project name is required"
+
+  list:
+    desc: "List ArgoCD App Projects"
+    summary: |
+      This task will list all ArgoCD App Projects.
+    silent: true
+    cmds:
+      - ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | column -t
   
   show:
     desc: "Show an ArgoCD App Project"
@@ -71,13 +87,30 @@ tasks:
       - sh: test -f "{{.projectPath}}"
         msg: "Project does not exist"
 
+  dest:list:
+    desc: "List destinations for an ArgoCD App Project"
+    summary: |
+      This task will list all allowed destinations for an ArgoCD App Project
+      <project> (required) can be explicitly provided or interactively selected.
+      
+      Example: List destinations for the 'system' project.
+        task apps:project:dest:list project=system
+    silent: true
+    requires:
+      vars: [project]
+    cmds: # print results as a table, with headers "Namespace", "Server Name", "Server Address"
+      - yq eval '.spec.destinations' "{{.projectPath}}" -o=json | jq -r '["NAMESPACE", "SERVER\u00A0NAME", "SERVER\u00A0ADDRESS"], (.[] | [.namespace, .name, .server]) | @tsv' | column -t
+    preconditions:
+      - sh: test -f "{{.projectPath}}"
+        msg: "Project does not exist"
+
   dest:add:
     desc: "Add a new destination to an ArgoCD App Project"
     summary: |
       This task will add a new destination to an ArgoCD App Project. 
       <project> can be explicitly provided or interactively selected.
       <namespace> is required.
-      <server> and <name> are optional.
+      <server> and <name> are optional, default to '*'.
 
       Example: Add a new destination to the 'system' project targeting the 'kube-system' namespace in the 'in-cluster' cluster.
         task apps:project:dest:add project=system namespace=kube-system server=https://kubernetes.default.svc name=in-cluster
@@ -90,9 +123,10 @@ tasks:
       vars: [project, namespace]
     vars:
       name: >-
-        {{.name | default "" }}
+        {{.name | default "*" }}
       server: >-
-        {{.server | default "" }}
+        {{.server | default "*" }}
+      namespace: *namespace-var
     cmds:
       - |
         yq eval '.spec.destinations += [{ {{if eq .name ""}}{{else}}"name": "{{.name}}", {{end}}"namespace": "{{.namespace}}"{{if eq .server ""}}{{else}}, "server": "{{.server}}"{{end}} }]' -i "{{.projectPath}}"
@@ -129,6 +163,7 @@ tasks:
         {{.name | default "" }}
       server: >-
         {{.server | default "" }}
+      namespace: *namespace-var
     cmds:
       - |
         yq eval 'del(.spec.destinations[] | select(.namespace == "{{.namespace}}") {{if eq .name ""}}{{else}}| select(.name == "{{.name}}"){{end}} {{if eq .server ""}}{{else}}| select(.server == "{{.server}}"){{end}})' -i "{{.projectPath}}"

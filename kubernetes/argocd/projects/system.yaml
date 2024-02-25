@@ -36,6 +36,9 @@ spec:
     - name: '*'
       namespace: system-upgrade
       server: '*'
+    - name: '*'
+      namespace: minio-operator
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
