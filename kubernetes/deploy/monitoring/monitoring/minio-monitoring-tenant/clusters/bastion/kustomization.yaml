@@ -21,7 +21,7 @@ helmCharts:
         - servers: 4
           name: pool-0
           volumesPerServer: 4
-          size: 64Gi # should end up with 1TiB total
+          size: 32Gi # should end up with 512GiB raw, 256GiB usable
           storageClassName: longhorn-strict-local-standalone
           ###
           # 
