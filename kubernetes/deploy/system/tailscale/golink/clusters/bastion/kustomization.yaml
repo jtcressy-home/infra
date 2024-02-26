@@ -1,6 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+resources:
+  - external-secret.yaml
+
 helmCharts:
 - name: app-template
   repo: https://bjw-s.github.io/helm-charts/
@@ -22,8 +25,8 @@ helmCharts:
               TS_AUTHKEY:
                 valueFrom:
                   secretKeyRef:
-                    name: operator-oauth
-                    key: client_secret
+                    name: golink-authkey
+                    key: authkey
             command:
               - "/golink"
             args:
