@@ -41,6 +41,14 @@ helmCharts:
         createAggregateClusterRoles: true
     prometheus:
       enabled: true
+      ingress:
+        enabled: true
+        ingressClassName: tailscale
+        hosts:
+        - prometheus
+        tls:
+          - hosts:
+            - prometheus
       prometheusSpec:
         podMonitorNamespaceSelector: {}
         podMonitorSelector: {}
