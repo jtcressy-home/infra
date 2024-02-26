@@ -20,8 +20,8 @@ data:
       name: tailscale
       config:
         userHeader: Tailscale-User-Login
-        staticGroups:
-        - default
+        # staticGroups:
+        # - default
   resource.customizations.ignoreDifferences._CSIDriver: |
     jqPathExpressions:
     - .spec.seLinuxMount
