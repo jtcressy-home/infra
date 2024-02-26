@@ -33,9 +33,10 @@ helmCharts:
     persistence:
       data:
         enabled: true
-        storageClass: longhorn
         type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
         size: 1Gi
+        storageClass: longhorn
         globalMounts:
           - path: /home/nonroot
             readOnly: false
