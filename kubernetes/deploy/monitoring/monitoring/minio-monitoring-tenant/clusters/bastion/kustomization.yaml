@@ -22,7 +22,7 @@ helmCharts:
           name: pool-0
           volumesPerServer: 4
           size: 64Gi # should end up with 1TiB total
-          storageClassName: longhorn-strict-local-standalone-wait
+          storageClassName: longhorn-strict-local-standalone
           ###
           # 
           # The `Requests or Limits <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/>`__ for resources to associate to Tenant pods.
