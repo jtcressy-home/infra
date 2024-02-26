@@ -140,10 +140,6 @@ helmCharts:
 
     service:
       main:
-        type: LoadBalancer
-        annotations:
-          tailscale.com/expose: "true"
-          tailscale.com/hostname: wyze-bridge
         ports:
           http:
             enabled: true
@@ -170,4 +166,17 @@ helmCharts:
     #     enabled: true
     #     type: secret
     #     name: unifi-cam-proxy
-            
+
+patches:
+- target:
+    group: ""
+    version: v1
+    kind: Service
+    name: wyze-bridge
+  patch: |-
+    - op: add
+      path: /spec/loadBalancerClass
+      value: "tailscale"
+    - op: replace
+      path: /spec/type
+      value: LoadBalancer
