@@ -5,21 +5,21 @@ vars:
   project:
     sh: |
       {{- if eq .project "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select ArgoCD App Project: "
+      ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select or enter ArgoCD App Project: " --print-query | tail -1
       {{- else -}}
       echo "{{.project}}"
       {{- end -}}
   namespace:
     sh: |
       {{- if eq .namespace "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select Namespace: "
+      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select or enter Namespace: " --print-query | tail -1
       {{- else -}}
       echo "{{.namespace}}"
       {{- end -}}
   app:
     sh: |
       {{- if eq .app "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/ | fzf --height=~10 --prompt="Select App: "
+      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/ | fzf --height=~10 --prompt="Select or enter App: " --print-query | tail -1
       {{- else -}}
       echo "{{.app}}"
       {{- end -}}
