@@ -186,3 +186,6 @@ patches:
     - op: replace
       path: /spec/type
       value: LoadBalancer
+    - op: replace
+      path: /spec/allocateLoadBalancerNodePorts
+      value: false
