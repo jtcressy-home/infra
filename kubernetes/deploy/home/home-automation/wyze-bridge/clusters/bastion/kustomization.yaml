@@ -54,6 +54,20 @@ helmCharts:
               MQTT_HOST: nats.nats.svc.cluster.local:1883
               MQTT_TOPIC: wyzebridge
               MQTT_DTOPIC: homeassistant
+            ports:
+              - name: http
+                containerPort: 5000
+              - name: rtmp
+                containerPort: 1935
+              - name: rtsp
+                containerPort: 8554
+              - name: hls
+                containerPort: 8888
+              - name: webrtc
+                containerPort: 8889
+              - name: webrtc-udp
+                containerPort: 8189
+                protocol: UDP
             probes:
               liveness:
                 enabled: false
