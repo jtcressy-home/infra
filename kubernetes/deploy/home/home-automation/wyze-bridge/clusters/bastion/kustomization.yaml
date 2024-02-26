@@ -140,6 +140,10 @@ helmCharts:
 
     service:
       main:
+        type: LoadBalancer
+        annotations:
+          tailscale.com/expose: "true"
+          tailscale.com/hostname: wyze-bridge
         ports:
           http:
             enabled: true

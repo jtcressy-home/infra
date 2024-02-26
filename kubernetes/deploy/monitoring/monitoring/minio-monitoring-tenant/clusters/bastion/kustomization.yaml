@@ -24,12 +24,50 @@ helmCharts:
           size: 32Gi # should end up with 512GiB raw, 256GiB usable
           storageClassName: longhorn-strict-local-standalone
           ###
+          #
+          # The `affinity <https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/>`__ or anti-affinity settings to apply to Tenant pods.
+          #
+          # These settings determine the distribution of pods across worker nodes and can help prevent or allow colocating pods onto the same worker nodes.
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: "v1.min.io/tenant"
+                        operator: In
+                        values:
+                          - monitoring
+                      - key: "v1.min.io/pool"
+                        operator: In
+                        values:
+                          - pool-0
+                  topologyKey: "kubernetes.io/hostname"
+          ###
           # 
           # The `Requests or Limits <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/>`__ for resources to associate to Tenant pods.
           #
           # These settings can control the minimum and maximum resources requested for each pod.
           # If no worker nodes can meet the specified requests, the Operator may fail to deploy.
           resources: {}
+          ###
+          # The Kubernetes `SecurityContext <https://kubernetes.io/docs/tasks/configure-pod-container/security-context/>`__ to use for deploying Tenant resources.
+          #
+          # You may need to modify these values to meet your cluster's security and access settings.
+          #
+          # We recommend disabling recursive permission changes by setting ``fsGroupChangePolicy`` to ``OnRootMismatch`` as those operations can be expensive for certain workloads (e.g. large volumes with many small files).
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+            runAsNonRoot: true
+          ###
+          # The Kubernetes `SecurityContext <https://kubernetes.io/docs/tasks/configure-pod-container/security-context/>`__ to use for deploying Tenant containers.
+          # You may need to modify these values to meet your cluster's security and access settings.
+          containerSecurityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
       metrics:
         enabled: true
         port: 9000
