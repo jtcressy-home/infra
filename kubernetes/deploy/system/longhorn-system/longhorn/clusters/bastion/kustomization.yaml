@@ -29,4 +29,12 @@ helmCharts:
       metrics:
         serviceMonitor:
           enabled: true
+
+      ingress:
+        enabled: true
+        ingressClassName: tailscale
+        host: longhorn
+        tls: true
+        secureBackends: false
+        tlsSecret: ""
         

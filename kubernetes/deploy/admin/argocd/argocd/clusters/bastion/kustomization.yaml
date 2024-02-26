@@ -11,6 +11,7 @@ resources:
 
 components:
 - ../../components/prometheus-operator
+- ../../components/tailscale-ingress
 # - ../../components/github-app-repo-creds
 
 patchesStrategicMerge:
@@ -19,18 +20,18 @@ patchesStrategicMerge:
 - patch-resources.yaml
 
 
-patches:
-- target:
-    kind: "Service"
-    name: "argocd-server"
-  patch: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: argocd-server
-      annotations:
-        tailscale.com/expose: "true"
-        tailscale.com/hostname: "argocd"
+patches: []
+# - target:
+#     kind: "Service"
+#     name: "argocd-server"
+#   patch: |
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: argocd-server
+#       annotations:
+#         tailscale.com/expose: "true"
+#         tailscale.com/hostname: "argocd"
 # - target:
 #     kind: Service
 #     name: argocd-metrics
