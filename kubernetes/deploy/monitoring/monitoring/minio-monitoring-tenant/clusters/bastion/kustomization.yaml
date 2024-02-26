@@ -1,6 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+resources:
+  - servicemonitor.yaml
+
 helmCharts:
 - name: tenant
   repo: https://operator.min.io/
@@ -17,6 +20,15 @@ helmCharts:
       # The secret is expected to have a key named config.env containing environment variables exports.
       configuration:
         name: myminio-env-configuration
+      env:
+        - name: MINIO_PROMETHEUS_AUTH_TYPE
+          value: "public"
+        - name: MINIO_PROMETHEUS_JOB_ID
+          value: "minio"
+        - name: MINIO_PROMETHEUS_URL
+          value: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
+        - name: CONSOLE_PROMETHEUS_URL
+          value: "http://kube-prometheus-stack-prometehus.monitoring.svc.cluster.local:9090"
       pools:
         - servers: 4
           name: pool-0
