@@ -30,6 +30,12 @@ helmCharts:
               - "-sqlitedb"
               - "/home/nonroot/golink.db"
               - "-verbose"
+    service:
+      main:
+        ports:
+          http:
+            port: 80
+            targetPort: 80
     persistence:
       data:
         enabled: true
