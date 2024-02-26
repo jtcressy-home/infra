@@ -24,7 +24,7 @@ helmCharts:
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
         - name: MINIO_PROMETHEUS_JOB_ID
-          value: "minio"
+          value: "monitoring-minio-job"
         - name: MINIO_PROMETHEUS_URL
           value: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
         - name: CONSOLE_PROMETHEUS_URL
