@@ -1,0 +1,74 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+- name: tenant
+  repo: https://operator.min.io/
+  version: 5.0.12
+  releaseName: monitoring
+  includeCRDs: true
+  valuesInline: # see more at <https://min.io/docs/minio/kubernetes/upstream/reference/operator-chart-values.html#minio-tenant-chart>
+    # existingSecret:
+    #   name: myminio-env-configuration
+    tenant:
+      name: monitoring
+      ###
+      # The Kubernetes secret name that contains MinIO environment variable configurations.
+      # The secret is expected to have a key named config.env containing environment variables exports.
+      configuration:
+        name: myminio-env-configuration
+      pools:
+        - servers: 4
+          name: pool-0
+          volumesPerServer: 4
+          size: 64Gi # should end up with 1TiB total
+          storageClassName: longhorn-strict-local-standalone-wait
+          ###
+          # 
+          # The `Requests or Limits <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/>`__ for resources to associate to Tenant pods.
+          #
+          # These settings can control the minimum and maximum resources requested for each pod.
+          # If no worker nodes can meet the specified requests, the Operator may fail to deploy.
+          resources: {}
+      metrics:
+        enabled: true
+        port: 9000
+        protocol: http
+      prometheusOperator: true
+      ###
+      # MinIO features to enable or disable in the MinIO Tenant
+      # See `Operator CRD: Features <https://min.io/docs/minio/kubernetes/upstream/reference/operator-crd.html#features>`__.
+      features:
+        bucketDNS: false
+        domains: {}
+        enableSFTP: false
+      ###
+      # Array of objects describing one or more buckets to create during tenant provisioning.
+      # Example:
+      # 
+      # .. code-block:: yaml
+      #
+      #    - name: my-minio-bucket
+      #      objectLock: false        # optional
+      #      region: us-east-1        # optional
+      buckets: [ ]
+      ###
+      # Array of Kubernetes secrets from which the Operator generates MinIO users during tenant provisioning.
+      #
+      # Each secret should specify the ``CONSOLE_ACCESS_KEY`` and ``CONSOLE_SECRET_KEY`` as the access key and secret key for that user.
+      users: [ ]
+    ingress:
+      api:
+        enabled: true
+        ingressClassName: tailscale
+        host: monitoring-s3-api
+        tls:
+          - hosts:
+              - monitoring-s3-api
+      console:
+        enabled: true
+        ingressClassName: tailscale
+        host: monitoring-s3-console
+        tls:
+          - hosts:
+              - monitoring-s3-console
