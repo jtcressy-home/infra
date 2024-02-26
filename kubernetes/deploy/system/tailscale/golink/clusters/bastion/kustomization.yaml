@@ -33,6 +33,13 @@ helmCharts:
               - "-sqlitedb"
               - "/home/nonroot/golink.db"
               - "-verbose"
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
     service:
       main:
         ports:
