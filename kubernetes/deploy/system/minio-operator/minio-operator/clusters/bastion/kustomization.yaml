@@ -7,6 +7,12 @@ helmCharts:
     repo: https://operator.min.io
     releaseName: operator
     valuesInline:
+      operator:
+        env:
+          - name: PROMETHEUS_NAMESPACE
+            value: monitoring
+          - name: PROMETHEUS_NAME
+            value: kube-prometheus-stack-prometheus
       console:
         ingress:
           enabled: true
