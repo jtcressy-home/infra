@@ -15,7 +15,7 @@ spec:
           service:
             name: argocd-server
             port:
-              number: 80
+              name: https
   tls:
   - hosts:
     - argocd
