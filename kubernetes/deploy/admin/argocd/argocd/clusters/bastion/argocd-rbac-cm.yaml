@@ -4,6 +4,8 @@ data:
     g, argocd-admin, role:admin
     g, jtcressy-home:infra-admins, role:admin
     g, argocd-ro, role:readonly
+    g, jtcressy@github, role:admin
+    g, joel@jtcressy.net, role:admin
 kind: ConfigMap
 metadata:
   name: argocd-rbac-cm
