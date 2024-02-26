@@ -3,18 +3,18 @@ data:
   application.resourceTrackingMethod: annotation
   admin.enabled: 'false'
   statusbadge.enabled: 'true'
-  url: https://argocd.infra.jtcressy.net
+  url: https://argocd.tailnet-4d89.ts.net
   kustomize.buildOptions: --enable-helm
   dex.config: |
     connectors:
-    - type: github
-      id: github
-      name: github
-      config:
-        clientID: $github-oauth-client:dex.github.clientId
-        clientSecret: $github-oauth-client:dex.github.clientSecret
-        orgs:
-        - name: jtcressy-home
+    # - type: github
+    #   id: github
+    #   name: github
+    #   config:
+    #     clientID: $github-oauth-client:dex.github.clientId
+    #     clientSecret: $github-oauth-client:dex.github.clientSecret
+    #     orgs:
+    #     - name: jtcressy-home
     - type: authproxy
       id: tailscale
       name: tailscale
