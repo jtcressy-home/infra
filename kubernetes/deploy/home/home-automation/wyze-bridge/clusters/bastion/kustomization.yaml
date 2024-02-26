@@ -6,7 +6,7 @@ resources:
 helmCharts:
 - name: app-template
   repo: https://bjw-s.github.io/helm-charts/
-  version: 2.2.0
+  version: 2.5.0
   releaseName: wyze-bridge
   valuesInline:
     controllers:
@@ -144,21 +144,27 @@ helmCharts:
           http:
             enabled: true
             port: 5000
+            targetPort: 5000
           rtmp:
             enabled: true
             port: 1935
+            targetPort: 1935
           rtsp:
             enabled: true
             port: 8554
+            targetPort: 8554
           hls:
             enabled: true
             port: 8888
+            targetPort: 8888
           webrtc:
             enabled: true
             port: 8889
+            targetPort: 8889
           webrtc-udp:
             enabled: True
             port: 8189
+            targetPort: 8189
             protocol: UDP
     
     # persistence:
