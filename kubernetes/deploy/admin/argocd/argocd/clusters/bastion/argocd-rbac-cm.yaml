@@ -6,6 +6,7 @@ data:
     g, argocd-ro, role:readonly
     g, jtcressy@github, role:admin
     g, joel@jtcressy.net, role:admin
+  scopes: "[email, group]"
 kind: ConfigMap
 metadata:
   name: argocd-rbac-cm
