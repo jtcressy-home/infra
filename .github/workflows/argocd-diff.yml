@@ -53,7 +53,13 @@ jobs:
             // and store the diff output in a string array
             const diffOutputs = {};
             appNames.forEach(appName => {
-              diffOutputs[appName] = runArgocdDiff(appName, prBranch);
+              output = runArgocdDiff(appName, prBranch);
+              diffOutputs[appName] = `<details>
+                <summary>${appName}</summary>
+                \`\`\`diff
+                ${output}
+                \`\`\`
+              </details>`;
             });
 
             // Helper function to run argocd diff and return the output
@@ -77,22 +83,6 @@ jobs:
                   return '';
                 });
             }
-
-            // Helper function to format each diff output with markdown
-            function formatDiffOutputs(diffOutputs) {
-              diffOutputs.forEach((diffOutput, appName) => {
-                // wrap diffOutput with <details> and <summary> tags
-                diffOutputs[appName] = `<details>
-                  <summary>${appName}</summary>
-                  \`\`\`diff
-                  ${diffOutput}
-                  \`\`\`
-                </details>`;
-              });
-              return diffOutputs;
-            }
-
-            diffOutputs = formatDiffOutputs(diffOutputs);
 
             // Return diffOutputs as a plain string, with each entry separated by two newlines
             return Object.values(diffOutputs).join('\n\n');
