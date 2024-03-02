@@ -77,7 +77,7 @@ jobs:
                 }
               };
 
-              const args = ['app', 'diff', appName, '--revision', revision];
+              const args = ['app', 'diff', appName, '--revision', revision, '--exit-code=false', '--refresh'];
 
               return exec.exec('argocd', args, options)
                 .then(() => diffOutput)
