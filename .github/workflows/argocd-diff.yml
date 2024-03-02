@@ -19,6 +19,12 @@ jobs:
           # renovate: datasource=github-releases depName=tailscale/tailscale
           version: 1.60.1
 
+      - run: |
+          tailscale status
+          curl -vvL http://go/argocd
+          curl -vvL https://argocd.tailnet-4d89.ts.net
+          curl -vvL https://argocd.tailnet-4d89.ts.net/api/v1/applications
+
       - uses: clowdhaus/argo-cd-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
