@@ -27,6 +27,7 @@ data:
     - .spec.seLinuxMount
     jsonPointers:
     - /spec/seLinuxMount
+  accounts.gh_actions: apiKey
 
 kind: ConfigMap
 metadata:
