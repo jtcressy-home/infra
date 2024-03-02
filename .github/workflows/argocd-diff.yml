@@ -36,8 +36,6 @@ jobs:
           ARGOCD_OPTS: --grpc-web
         with:
           script: |
-            
-            const exec = require('@actions/exec');
             let APPS = '';
 
             function runArgocdAppList() {
