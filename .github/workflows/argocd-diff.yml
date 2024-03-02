@@ -30,7 +30,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # renovate: datasource=github-releases depName=argoproj/argo-cd
-          version: v2.10.0
+          version: 2.10.2
           command: app list -o wide
           options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server https://argocd.tailnet-4d89.ts.net
 
