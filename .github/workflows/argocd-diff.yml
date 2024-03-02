@@ -71,6 +71,9 @@ jobs:
                   stdout: (data) => {
                     diffOutput += data.toString();
                   }
+                  stderr: (data) => {
+                    console.error(data.toString());
+                  }
                 }
               };
 
