@@ -19,11 +19,21 @@ jobs:
           # renovate: datasource=github-releases depName=tailscale/tailscale
           version: 1.60.1
 
-      - uses: argocd-diff-action/argocd-diff-action@main
+      - uses: clowdhaus/argo-cd-action@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          argocd-server-fqdn: argocd.tailnet-4d89.ts.net
           # renovate: datasource=github-releases depName=argoproj/argo-cd
-          argocd-version: v2.10.0
-          argocd-token: ${{ secrets.ARGOCD_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          argocd-extra-cli-args: --grpc-web
+          version: v2.10.0
+          command: app list -o wide
+          options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server https://argocd.tailnet-4d89.ts.net
+
+
+      # - uses: argocd-diff-action/argocd-diff-action@main
+      #   with:
+      #     argocd-server-fqdn: argocd.tailnet-4d89.ts.net
+      #     # renovate: datasource=github-releases depName=argoproj/argo-cd
+      #     argocd-version: v2.10.0
+      #     argocd-token: ${{ secrets.ARGOCD_TOKEN }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     argocd-extra-cli-args: --grpc-web
