@@ -19,6 +19,11 @@ jobs:
           # renovate: datasource=github-releases depName=tailscale/tailscale
           version: 1.60.1
 
+      - uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: clowdhaus/argo-cd-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,80 +33,14 @@ jobs:
           command: version
           options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server argocd.tailnet-4d89.ts.net
 
-      - uses: actions/github-script@v7
-        id: diffs
+      - run: task apps:overlays:diff-pr-all -- --grpc-web --revision ${{ github.event.pull_request.head.ref }}
         env:
           ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
-          ARGOCD_OPTS: --grpc-web
-        with:
-          script: |
-            let APPS = '';
-            const options = {
-              listeners: {
-                stdout: (data) => {
-                  APPS += data.toString();
-                }
-              }
-            };
-            await exec.exec('argocd', ['app', 'list', '-o', 'name'], options);
-            
-            const appNames = APPS.split('\n').filter(Boolean);
-            console.log(`Found ${appNames.length} apps: ${appNames.join(', ')}`);
-            const prBranch = process.env.GITHUB_REF.replace('refs/heads/', '');
-            // For each appName, run argocd diff with current PR branch as the --revision
-            // and store the diff output in a string array
-            const diffOutputs = {};
-            const promises = [];
-            appNames.forEach((appName) => {
-              let diffOutput = '';
-              const options = {
-                listeners: {
-                  stdout: (data) => {
-                    diffOutput += data.toString();
-                  },
-                  stderr: (data) => {
-                    console.error(data.toString());
-                  }
-                },
-                ignoreReturnCode: true
-              };
+          outputFile: "${{ github.workspace }}/.local/diff-pr-all.md"
 
-              const args = ['app', 'diff', appName, '--revision', prBranch, '--exit-code=true'];
-
-              promises.push(exec.exec('argocd', args, options)
-                .then(res => {
-                  if (res != 0) { // found a diff!
-                    diffOutputs[appName] = `<details>
-            <summary>${appName}</summary>
-            
-            \`\`\`diff
-            ${diffOutput}
-            \`\`\`
-            </details>`;
-                  }
-                })
-                .catch(err => {
-                  if (err.exitCode === 1) {
-                    console.log('Exit code 1 treated as non-error');
-                  } else {
-                    console.error(err);
-                  }
-                })
-              );
-            });
-
-            await Promise.all(promises);
-            
-            console.log(`Found ${Object.keys(diffOutputs).length} diffs`);
-            // Return diffOutputs as a plain string, with each entry separated by two newlines
-            return Object.values(diffOutputs).join('\n\n');
-          result-encoding: string
       - name: Post diff in comment
         uses: mshick/add-pr-comment@v2
         with:
           message-id: argocd-diff
-          message: |
-            ## ArgoCD Diff
-            
-            ${{ steps.diffs.outputs.result }}
+          message-path: "${{ github.workspace }}/.local/diff-pr-all.md"

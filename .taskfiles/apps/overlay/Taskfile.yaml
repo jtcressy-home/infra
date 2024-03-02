@@ -149,6 +149,135 @@ tasks:
     preconditions:
       - sh: test -f "{{.overlayPath}}/kustomization.yaml"
         msg: "App overlay doesn't exist."
+  status:
+    desc: "Get the status of an app overlay from ArgoCD"
+    summary: |
+      This task will get the status of an existing app overlay targeting a specific cluster from ArgoCD.
+
+      Common arguments (project, namespace, app, cluster) can be explicitly provided or interactively selected.
+
+      Example: get the status for the 'multus' app overlay in the 'kube-system' namespace targeting the 'cluster1' cluster.
+        task apps:overlay:status project=system namespace=kube-system app=multus cluster=cluster1
+
+      Example: get the status for a cluster addon that targets all clusters.
+        task apps:overlay:status project=system namespace=kube-system app=volsync cluster=_all
+    silent: true
+    interactive: true
+    vars: *allvars
+    cmds:
+      - argocd app get "argocd/{{.app}}-{{.cluster}}" -o tree
+    preconditions:
+      - sh: test -f "{{.overlayPath}}/kustomization.yaml"
+        msg: "App overlay doesn't exist."
+  diff:
+    desc: "Run ArgoCD App Diff for an app overlay"
+    summary: |
+      This task will run the ArgoCD App Diff for an existing app overlay targeting a specific cluster.
+
+      Common arguments (project, namespace, app, cluster) can be explicitly provided or interactively selected.
+
+      Extra Arguments for `argocd app diff` can be appended to the task command after a `--` separator.
+      e.g. `task apps:overlays:diff -- --refresh --local`
+
+      Example: run the diff for the 'multus' app overlay in the 'kube-system' namespace targeting the 'cluster1' cluster.
+        task apps:overlay:diff project=system namespace=kube-system app=multus cluster=cluster1
+
+      Example: run the diff for a cluster addon that targets all clusters.
+        task apps:overlay:diff project=system namespace=kube-system app=volsync cluster=_all
+    silent: true
+    interactive: true
+    vars:
+      project: *projectvar
+      namespace: *namespacevar
+      app: *appvar
+      cluster: *clustervar
+      projectPath: *projectPath
+      enabledPath: *enabledPath
+      disabledPath: *disabledPath
+      overlayPath: *overlayPath
+      isDisabled: *isDisabled
+      outputFile: "{{.PROJECT_DIR}}/.local/diff-{{.app}}-{{.cluster}}.md"
+    # env:
+    #   KUBECTL_EXTERNAL_DIFF: ""
+    cmds:
+      - task: diff-internal
+        silent: true
+        vars:
+          appName: "argocd/{{.app}}-{{.cluster}}"
+          outputFile: "{{.outputFile}}"
+    preconditions:
+      - sh: test -f "{{.overlayPath}}/kustomization.yaml"
+        msg: "App overlay doesn't exist."
+  diff-internal:
+    internal: true
+    requires:
+      vars:
+        - appName
+        - outputFile
+    cmds:
+      - mkdir -p "{{.outputFile | dir}}"
+      - |
+        argocd app diff "{{.appName}}" {{.CLI_ARGS}} | tee "{{.outputFile}}"
+        exitCode=$?
+        if [ $exitCode -eq 0 ]; then
+          echo "No diff detected for '{{.appName}}'"
+        elif [ $exitCode -eq 1 ]; then
+          echo "Diff detected for '{{.appName}}', output to {{.outputFile}}"
+        else
+          echo "Error running diff for '{{.appName}}', exit code: $exitCode"
+          exit $exitCode
+        fi
+    preconditions:
+      - sh: argocd app get "{{.appName}}"
+        msg: "App '{{.appName}}' not found in ArgoCD Server or not authorized. Check credentials or whether the app exists in ArgoCD."
+  diff-pr:
+    desc: "Run ArgoCD App Diff for multiple apps and generate markdown output for use in a PR comment"
+    silent: true
+    requires:
+      vars:
+        - apps # comma-separated list of apps to diff
+    vars:
+      outputFile: "{{.PROJECT_DIR}}/.local/diff-pr.md"
+    cmds:
+      - cmd: mkdir -p "{{.outputFile | dir}}"
+      - cmd: echo "## Argocd App Diff" > "{{.outputFile}}"
+      - for:
+          var: apps
+          split: ','
+        task: diff-internal
+        silent: true
+        vars:
+          appName: "{{.ITEM}}"
+          outputFile: "{{.PROJECT_DIR}}/.local/diff-{{.ITEM}}.md"
+      - for:
+          var: apps
+          split: ','
+        cmd: |
+          contents=$(cat "{{.PROJECT_DIR}}/.local/diff-{{.ITEM}}.md")
+          if [ -z "$contents" ]; then
+            exit 0
+          fi
+          cat <<EOF >> "{{.outputFile}}"
+          <details><summary>{{.ITEM}}</summary>
+
+          \`\`\`diff
+          $(cat "{{.PROJECT_DIR}}/.local/diff-{{.ITEM}}.md")
+          \`\`\`
+          </details>
+          EOF
+      - cmd: echo "Diff markdown comment output saved to {{.outputFile}}"
+  diff-pr-all:
+    desc: "Run ArgoCD App Diff for all apps and generate markdown output for use in a PR comment"
+    silent: true
+    vars:
+      apps:
+        sh: argocd app list -o name
+      outputFile: "{{.PROJECT_DIR}}/.local/diff-pr-all.md"
+    cmds:
+      - task: diff-pr
+        vars:
+          apps: '{{.apps | splitLines | join ","}}'
+          outputFile: "{{.outputFile}}"
   edit:
     desc: "Opens the kustomization.yaml for an app overlay in your default editor"
     silent: true
