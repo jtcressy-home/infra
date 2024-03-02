@@ -86,7 +86,7 @@ jobs:
                   return '';
                 });
             }
-
+            console.log(`Found ${Object.keys(diffOutputs).length} diffs`);
             // Return diffOutputs as a plain string, with each entry separated by two newlines
             return Object.values(diffOutputs).join('\n\n');
           result-encoding: string
