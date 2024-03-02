@@ -20,13 +20,12 @@ jobs:
           version: 1.60.1
 
       - uses: clowdhaus/argo-cd-action@main
-        id: app_list
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # renovate: datasource=github-releases depName=argoproj/argo-cd
           version: 2.10.2
-          command: app list -o json
+          command: app version
           options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server argocd.tailnet-4d89.ts.net
 
       - uses: actions/github-script@v7
@@ -35,10 +34,24 @@ jobs:
           ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
           ARGOCD_OPTS: --grpc-web
-          APPS: ${{ steps.app_list.outputs.output }}
         with:
           script: |
-            const { APPS } = process.env;
+            
+            const exec = require('@actions/exec');
+            let APPS = '';
+
+            function runArgocdAppList() {
+              const options = {
+                listeners: {
+                  stdout: (data) => {
+                    APPS += data.toString();
+                  }
+                }
+              };
+              return exec.exec('argocd', ['app', 'list', '-o', 'json'], options);
+            }
+            await runArgocdAppList();
+            
             const apps = JSON.parse(APPS);
             const appNames = apps.items.map(app => app.metadata.name);
             console.log(`Found ${appNames.length} apps: ${appNames.join(', ')}`);
@@ -47,12 +60,11 @@ jobs:
             // and store the diff output in a string array
             const diffOutputs = {};
             appNames.forEach(appName => {
-              diffOutputs[appName] = runArgocdDiff(appName, prBranch);
+              diffOutputs[appName] = await runArgocdDiff(appName, prBranch);
             });
 
             // Helper function to run argocd diff and return the output
             function runArgocdDiff(appName, revision) {
-              const exec = require('@actions/exec');
 
               let diffOutput = '';
               const options = {
