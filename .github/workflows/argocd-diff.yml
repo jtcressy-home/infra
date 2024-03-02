@@ -44,11 +44,9 @@ jobs:
                 }
               }
             };
-            await exec.exec('argocd', ['app', 'list', '-o', 'json'], options);
+            await exec.exec('argocd', ['app', 'list', '-o', 'name'], options);
             
-            
-            const apps = JSON.parse(APPS);
-            const appNames = apps.items.map(app => app.metadata.name);
+            const appNames = APPS.split('\n').filter(Boolean);
             console.log(`Found ${appNames.length} apps: ${appNames.join(', ')}`);
             const prBranch = process.env.GITHUB_REF.replace('refs/heads/', '');
             // For each appName, run argocd diff with current PR branch as the --revision
