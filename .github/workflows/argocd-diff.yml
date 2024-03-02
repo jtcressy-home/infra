@@ -48,7 +48,7 @@ jobs:
               };
               return exec.exec('argocd', ['app', 'list', '-o', 'json'], options);
             }
-            await runArgocdAppList();
+            runArgocdAppList();
             
             const apps = JSON.parse(APPS);
             const appNames = apps.items.map(app => app.metadata.name);
@@ -58,7 +58,7 @@ jobs:
             // and store the diff output in a string array
             const diffOutputs = {};
             appNames.forEach(appName => {
-              diffOutputs[appName] = await runArgocdDiff(appName, prBranch);
+              diffOutputs[appName] = runArgocdDiff(appName, prBranch);
             });
 
             // Helper function to run argocd diff and return the output
