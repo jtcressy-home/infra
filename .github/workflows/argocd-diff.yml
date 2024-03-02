@@ -53,7 +53,7 @@ jobs:
             // and store the diff output in a string array
             const diffOutputs = {};
             appNames.forEach(appName => {
-              output = runArgocdDiff(appName, prBranch);
+              output = await runArgocdDiff(appName, prBranch);
               diffOutputs[appName] = `<details>
                 <summary>${appName}</summary>
                 \`\`\`diff
