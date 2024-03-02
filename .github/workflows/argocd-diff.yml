@@ -27,4 +27,3 @@ jobs:
           argocd-token: ""
           github-token: ${{ secrets.GITHUB_TOKEN }}
           argocd-extra-cli-args: --grpc-web
-          argocd-exclude-paths: ""
