@@ -37,18 +37,15 @@ jobs:
         with:
           script: |
             let APPS = '';
-
-            function runArgocdAppList() {
-              const options = {
-                listeners: {
-                  stdout: (data) => {
-                    APPS += data.toString();
-                  }
+            const options = {
+              listeners: {
+                stdout: (data) => {
+                  APPS += data.toString();
                 }
-              };
-              return await exec.exec('argocd', ['app', 'list', '-o', 'json'], options);
-            }
-            runArgocdAppList();
+              }
+            };
+            await exec.exec('argocd', ['app', 'list', '-o', 'json'], options);
+            
             
             const apps = JSON.parse(APPS);
             const appNames = apps.items.map(app => app.metadata.name);
