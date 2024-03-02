@@ -79,6 +79,13 @@ jobs:
                     </details>`;
                   }
                 })
+                .catch(err => {
+                  if (err.exitCode === 1) {
+                    console.log('Exit code 1 treated as non-error');
+                  } else {
+                    console.error(err);
+                  }
+                })
               );
             });
 
