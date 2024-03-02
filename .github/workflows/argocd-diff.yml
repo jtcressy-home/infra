@@ -52,7 +52,8 @@ jobs:
             // For each appName, run argocd diff with current PR branch as the --revision
             // and store the diff output in a string array
             const diffOutputs = {};
-            for (let appName of appNames) {
+            const promises = [];
+            appNames.forEach((appName) => {
               let diffOutput = '';
               const options = {
                 listeners: {
@@ -65,21 +66,24 @@ jobs:
                 }
               };
 
-              const args = ['app', 'diff', appName, '--revision', prBranch, '--exit-code=false', '--refresh'];
+              const args = ['app', 'diff', appName, '--revision', prBranch, '--exit-code=true', '--refresh'];
 
-              await exec.exec('argocd', args, options)
-                .catch((error) => {
-                  console.error(`Failed to run argocd diff for ${appName}: ${error}`);
-                  return '';
-                });
-              diffOutputs[appName] = `<details>
-                <summary>${appName}</summary>
-                \`\`\`diff
-                ${diffOutput}
-                \`\`\`
-              </details>`;
-            }
+              promises.push(exec.exec('argocd', args, options)
+                .then(res => {
+                  if (res != 0) { // found a diff!
+                    diffOutputs[appName] = `<details>
+                      <summary>${appName}</summary>
+                      \`\`\`diff
+                      ${diffOutput}
+                      \`\`\`
+                    </details>`;
+                  }
+                })
+              );
+            });
 
+            await Promise.all(promises);
+            
             console.log(`Found ${Object.keys(diffOutputs).length} diffs`);
             // Return diffOutputs as a plain string, with each entry separated by two newlines
             return Object.values(diffOutputs).join('\n\n');
