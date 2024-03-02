@@ -52,8 +52,8 @@ jobs:
             // For each appName, run argocd diff with current PR branch as the --revision
             // and store the diff output in a string array
             const diffOutputs = {};
-            appNames.forEach(appName => {
-              output = await runArgocdDiff(appName, prBranch);
+            appNames.forEach(async (appName) => {
+              const output = await runArgocdDiff(appName, prBranch);
               diffOutputs[appName] = `<details>
                 <summary>${appName}</summary>
                 \`\`\`diff
