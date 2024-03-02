@@ -27,12 +27,12 @@ data:
     - .spec.seLinuxMount
     jsonPointers:
     - /spec/seLinuxMount
-  resource.customizations.ignoreDifferences._ValidatingWebhookConfiguration: |
+  resource.customizations.ignoreDifferences.admissionregistration.k8s.io_ValidatingWebhookConfiguration: |
     jqPathExpressions:
     - .webhooks[]?.clientConfig.caBundle
     jsonPointers:
     - /webhooks/*/clientConfig/caBundle
-  resource.customizations.ignoreDifferences._MutatingWebhookConfiguration: |
+  resource.customizations.ignoreDifferences.admissionregistration.k8s.io_MutatingWebhookConfiguration: |
     jqPathExpressions:
     - .webhooks[]?.clientConfig.caBundle
     jsonPointers:
