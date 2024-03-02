@@ -159,8 +159,6 @@ tasks:
     desc: "Opens the kustomization.yaml for an app overlay in your default editor"
     silent: true
     interactive: true
-    requires:
-      vars: [project, namespace, app, cluster]
     vars: *allvars
     cmds:
       - $EDITOR "{{.overlayPath}}/kustomization.yaml"
