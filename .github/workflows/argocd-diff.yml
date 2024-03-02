@@ -63,7 +63,8 @@ jobs:
                   stderr: (data) => {
                     console.error(data.toString());
                   }
-                }
+                },
+                ignoreReturnCode: true
               };
 
               const args = ['app', 'diff', appName, '--revision', prBranch, '--exit-code=true'];
