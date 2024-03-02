@@ -66,7 +66,7 @@ jobs:
                 }
               };
 
-              const args = ['app', 'diff', appName, '--revision', prBranch, '--exit-code=true', '--refresh'];
+              const args = ['app', 'diff', appName, '--revision', prBranch, '--exit-code=true'];
 
               promises.push(exec.exec('argocd', args, options)
                 .then(res => {
