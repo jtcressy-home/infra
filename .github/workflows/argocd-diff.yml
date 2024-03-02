@@ -74,6 +74,7 @@ jobs:
                   if (res != 0) { // found a diff!
                     diffOutputs[appName] = `<details>
             <summary>${appName}</summary>
+            
             \`\`\`diff
             ${diffOutput}
             \`\`\`
