@@ -14,7 +14,7 @@ jobs:
       - uses: tailscale/github-action@v2
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-client-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ghactions
           # renovate: datasource=github-releases depName=tailscale/tailscale
           version: 1.60.11
