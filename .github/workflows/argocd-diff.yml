@@ -1,0 +1,30 @@
+name: ArgoCD Diff
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  argocd-diff:
+    name: Generate ArgoCD Diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-client-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ghactions
+          # renovate: datasource=github-releases depName=tailscale/tailscale
+          version: 1.60.11
+
+      - uses: argocd-diff-action/argocd-diff-action@v0
+        with:
+          argocd-server-fqdn: argocd.tailnet-4d89.ts.net
+          # renovate: datasource=github-releases depName=argoproj/argo-cd
+          argocd-version: v2.10.0
+          argocd-token: ""
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          argocd-extra-cli-args: --grpc-web
+          argocd-exclude-paths: ""
