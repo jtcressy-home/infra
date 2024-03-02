@@ -33,7 +33,7 @@ jobs:
           command: version
           options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server argocd.tailnet-4d89.ts.net
 
-      - run: task apps:overlays:diff-pr-all -- --grpc-web --revision ${{ github.event.pull_request.head.ref }}
+      - run: task apps:overlays:diff-pr-all -- --grpc-web --revision ${{ github.event.pull_request.head.sha }}
         env:
           ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}

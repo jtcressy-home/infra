@@ -184,39 +184,46 @@ tasks:
 
       Example: run the diff for a cluster addon that targets all clusters.
         task apps:overlay:diff project=system namespace=kube-system app=volsync cluster=_all
-    silent: true
+    silent: false
     interactive: true
     vars:
-      project: *projectvar
-      namespace: *namespacevar
-      app: *appvar
-      cluster: *clustervar
-      projectPath: *projectPath
-      enabledPath: *enabledPath
-      disabledPath: *disabledPath
-      overlayPath: *overlayPath
-      isDisabled: *isDisabled
-      outputFile: "{{.PROJECT_DIR}}/.local/diff-{{.app}}-{{.cluster}}.md"
+      # project: *projectvar
+      # namespace: *namespacevar
+      # app: *appvar
+      # cluster: *clustervar
+      # projectPath: *projectPath
+      # enabledPath: *enabledPath
+      # disabledPath: *disabledPath
+      # overlayPath: *overlayPath
+      # isDisabled: *isDisabled
+      appName:
+        sh: |
+          {{- if eq (index . "appName") nil -}}
+          argocd app list -o name | fzf --height=~10 --prompt="Select or enter ArgoCD App: " --print-query | tail -1
+          {{- else -}}
+          echo {{index . "appName"}}
+          {{- end -}}
+      outputFile: "{{.PROJECT_DIR}}/.local/diff-{{.appName}}.md"
     # env:
     #   KUBECTL_EXTERNAL_DIFF: ""
     cmds:
       - task: diff-internal
-        silent: true
+        silent: false
         vars:
-          appName: "argocd/{{.app}}-{{.cluster}}"
+          appName: "{{.appName}}"
           outputFile: "{{.outputFile}}"
-    preconditions:
-      - sh: test -f "{{.overlayPath}}/kustomization.yaml"
-        msg: "App overlay doesn't exist."
   diff-internal:
     internal: true
     requires:
       vars:
         - appName
         - outputFile
+    set:
+      - pipefail
     cmds:
       - mkdir -p "{{.outputFile | dir}}"
       - |
+        echo "Running diff for '{{.appName}}'..."
         argocd app diff "{{.appName}}" {{.CLI_ARGS}} | tee "{{.outputFile}}"
         exitCode=$?
         if [ $exitCode -eq 0 ]; then
