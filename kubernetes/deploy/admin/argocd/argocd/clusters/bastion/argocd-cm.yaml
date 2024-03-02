@@ -30,9 +30,13 @@ data:
   resource.customizations.ignoreDifferences._ValidatingWebhookConfiguration: |
     jqPathExpressions:
     - .webhooks[]?.clientConfig.caBundle
+    jsonPointers:
+    - /webhooks/*/clientConfig/caBundle
   resource.customizations.ignoreDifferences._MutatingWebhookConfiguration: |
     jqPathExpressions:
     - .webhooks[]?.clientConfig.caBundle
+    jsonPointers:
+    - /webhooks/*/clientConfig/caBundle
   accounts.gh_actions: apiKey
 
 kind: ConfigMap
