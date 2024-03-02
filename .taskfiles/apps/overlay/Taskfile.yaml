@@ -237,7 +237,7 @@ tasks:
       vars:
         - apps # comma-separated list of apps to diff
     vars:
-      outputFile: "{{.PROJECT_DIR}}/.local/diff-pr.md"
+      outputFile: '{{ .outputFile | default (list .PROJECT_DIR ".local/diff-pr.md" | join "/") }}'
     cmds:
       - cmd: mkdir -p "{{.outputFile | dir}}"
       - cmd: echo "## Argocd App Diff" > "{{.outputFile}}"
@@ -248,12 +248,12 @@ tasks:
         silent: true
         vars:
           appName: "{{.ITEM}}"
-          outputFile: "{{.PROJECT_DIR}}/.local/diff-{{.ITEM}}.md"
+          outputFile: "{{.outputFile | dir}}/diff-{{.ITEM}}.md"
       - for:
           var: apps
           split: ','
         cmd: |
-          contents=$(cat "{{.PROJECT_DIR}}/.local/diff-{{.ITEM}}.md")
+          contents=$(cat "{{.outputFile | dir}}/diff-{{.ITEM}}.md")
           if [ -z "$contents" ]; then
             exit 0
           fi
@@ -261,7 +261,7 @@ tasks:
           <details><summary>{{.ITEM}}</summary>
 
           \`\`\`diff
-          $(cat "{{.PROJECT_DIR}}/.local/diff-{{.ITEM}}.md")
+          $(cat "{{.outputFile | dir}}/diff-{{.ITEM}}.md")
           \`\`\`
           </details>
           EOF
@@ -272,7 +272,7 @@ tasks:
     vars:
       apps:
         sh: argocd app list -o name
-      outputFile: "{{.PROJECT_DIR}}/.local/diff-pr-all.md"
+      outputFile: '{{ .outputFile | default (list .PROJECT_DIR ".local/diff-pr-all.md" | join "/") }}'
     cmds:
       - task: diff-pr
         vars:
