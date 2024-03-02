@@ -20,20 +20,80 @@ jobs:
           version: 1.60.1
 
       - uses: clowdhaus/argo-cd-action@main
+        id: app_list
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # renovate: datasource=github-releases depName=argoproj/argo-cd
           version: 2.10.2
-          command: app list -o wide
+          command: app list -o json
           options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server argocd.tailnet-4d89.ts.net
 
-
-      - uses: argocd-diff-action/argocd-diff-action@main
+      - uses: actions/github-script@v7
+        id: diffs
+        env:
+          ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+          ARGOCD_OPTS: --grpc-web
         with:
-          argocd-server-fqdn: argocd.tailnet-4d89.ts.net
-          # renovate: datasource=github-releases depName=argoproj/argo-cd
-          argocd-version: v2.10.2
-          argocd-token: ${{ secrets.ARGOCD_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          argocd-extra-cli-args: --grpc-web
+          script: |
+            const apps = JSON.parse('${{ steps.app_list.outputs.output }}');
+            const appNames = apps.items.map(app => app.metadata.name);
+            console.log(`Found ${appNames.length} apps: ${appNames.join(', ')}`);
+            // For each appName, run argocd diff with current PR branch as the --revision
+            // and store the diff output in a string array
+            const diffOutputs = {};
+            appNames.forEach(appName => {
+              diffOutputs[appName] = runArgocdDiff(appName, prBranch);
+            });
+
+            // Helper function to run argocd diff and return the output
+            function runArgocdDiff(appName, revision) {
+              const exec = require('@actions/exec');
+
+              let diffOutput = '';
+              const options = {
+                listeners: {
+                  stdout: (data) => {
+                    diffOutput += data.toString();
+                  }
+                }
+              };
+
+              const args = ['app', 'diff', appName, '--revision', revision];
+
+              return exec.exec('argocd', args, options)
+                .then(() => diffOutput)
+                .catch((error) => {
+                  console.error(`Failed to run argocd diff for ${appName}: ${error}`);
+                  return '';
+                });
+            }
+
+            // Helper function to format each diff output with markdown
+            function formatDiffOutputs(diffOutputs) {
+              diffOutputs.forEach((diffOutput, appName) => {
+                // wrap diffOutput with <details> and <summary> tags
+                diffOutputs[appName] = `<details>
+                  <summary>${appName}</summary>
+                  \`\`\`diff
+                  ${diffOutput}
+                  \`\`\`
+                </details>`;
+              });
+              return diffOutputs;
+            }
+
+            diffOutputs = formatDiffOutputs(diffOutputs);
+
+            // Return diffOutputs as a plain string, with each entry separated by two newlines
+            return Object.values(diffOutputs).join('\n\n');
+          result-encoding: string
+      - name: Post diff in comment
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: argocd-diff
+          message: |
+            ## ArgoCD Diff
+            
+            ${{ steps.diffs.outputs.result }}
