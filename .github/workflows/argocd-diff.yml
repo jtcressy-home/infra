@@ -46,7 +46,7 @@ jobs:
                   }
                 }
               };
-              return exec.exec('argocd', ['app', 'list', '-o', 'json'], options);
+              return await exec.exec('argocd', ['app', 'list', '-o', 'json'], options);
             }
             runArgocdAppList();
             
