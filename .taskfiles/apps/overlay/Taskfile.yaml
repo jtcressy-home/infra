@@ -96,8 +96,6 @@ tasks:
         task apps:overlay:enable project=system namespace=kube-system app=volsync cluster=_all
     interactive: true
     silent: true
-    requires:
-      vars: [project, namespace, app, cluster]
     vars: *allvars
     cmds:
       - mkdir -p "{{.enabledPath}}"
@@ -120,8 +118,6 @@ tasks:
         task apps:overlay:disable project=system namespace=kube-system app=volsync cluster=_all
     interactive: true
     silent: true
-    requires:
-      vars: [project, namespace, app, cluster]
     vars: *allvars
     cmds:
       - mkdir -p "{{.disabledPath}}"
@@ -144,8 +140,6 @@ tasks:
         task apps:overlay:render project=system namespace=kube-system app=volsync cluster=_all
     silent: true
     interactive: true
-    requires:
-      vars: [project, namespace, app, cluster]
     vars: *allvars
     sources:
       - "{{.overlayPath}}/*.yaml"
