@@ -35,11 +35,14 @@ jobs:
           ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
           ARGOCD_OPTS: --grpc-web
+          APPS: ${{ steps.app_list.outputs.output }}
         with:
           script: |
-            const apps = JSON.parse('${{ steps.app_list.outputs.output }}');
+            const { APPS } = process.env;
+            const apps = JSON.parse(APPS);
             const appNames = apps.items.map(app => app.metadata.name);
             console.log(`Found ${appNames.length} apps: ${appNames.join(', ')}`);
+            const prBranch = process.env.GITHUB_REF.replace('refs/heads/', '');
             // For each appName, run argocd diff with current PR branch as the --revision
             // and store the diff output in a string array
             const diffOutputs = {};
