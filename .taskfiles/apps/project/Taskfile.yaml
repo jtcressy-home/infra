@@ -1,48 +1,53 @@
 ---
 version: "3"
 
-x-task-vars:
-  namespace: &namespace-var # depends on .project
-    sh: |
-      {{- if eq .namespace "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select or enter Namespace: " --print-query | tail -1
-      {{- else -}}
-      echo "{{.namespace}}"
-      {{- end -}}
-vars:
-  project:
-    sh: |
-      {{- if eq .project "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select ArgoCD App Project: "
-      {{- else -}}
-      echo "{{.project}}"
-      {{- end -}}
-  description: >
-    {{.description | default (list .project "project" | join " ")}}
-  projectPath: "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
-  createProjectTemplate: |
-    apiVersion: argoproj.io/v1alpha1
-    kind: AppProject
-    metadata:
-      name: {{.project}}
-      namespace: argocd
-    spec:
-      clusterResourceWhitelist:
-        - group: "*"
-          kind: "*"
-      namespaceResourceWhitelist:
-        - group: "*"
-          kind: "*"
-      sourceRepos:
-        - 'https://github.com/jtcressy-home/infra'
-      description: {{.description}}
-
 tasks:
+  helpervars:
+    internal: true
+    vars: &helpervars
+      projectPath: &projectPath "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
+  corevars:
+    internal: true
+    vars: &corevars
+      project: &projectvar
+        sh: |
+          {{- if eq (index . "project") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select or enter ArgoCD App Project: " --print-query | tail -1
+          {{- else -}}
+          echo {{index . "project"}}
+          {{- end -}}
+      namespace: &namespacevar
+        sh: |
+          {{- if eq (index . "namespace") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select or enter Namespace: " --print-query | tail -1
+          {{- else -}}
+          echo {{index . "namespace"}}
+          {{- end -}}
+
   create:
     desc: "Create a new ArgoCD App Project"
     silent: true
-    requires:
-      vars: [project]
+    vars:
+      project: *projectvar
+      projectPath: *projectPath
+      description: &description >
+        {{.description | default (list .project "project" | join " ")}}
+      createProjectTemplate: &createProjectTemplate |
+        apiVersion: argoproj.io/v1alpha1
+        kind: AppProject
+        metadata:
+          name: {{.project}}
+          namespace: argocd
+        spec:
+          clusterResourceWhitelist:
+            - group: "*"
+              kind: "*"
+          namespaceResourceWhitelist:
+            - group: "*"
+              kind: "*"
+          sourceRepos:
+            - 'https://github.com/jtcressy-home/infra'
+          description: {{.description}}
     generates:
       - "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
     cmds:
@@ -56,20 +61,10 @@ tasks:
       - sh: test -n "{{.project}}"
         msg: "Project name is required"
 
-  list:
-    desc: "List ArgoCD App Projects"
-    summary: |
-      This task will list all ArgoCD App Projects.
-    silent: true
-    cmds:
-      - ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | column -t
-  
   show:
     desc: "Show an ArgoCD App Project"
     aliases:
-      - get
-      - desc
-      - describe
+      - view
     summary: |
       This task will display the contents of an ArgoCD App Project. 
       <project> can be explicitly provided or interactively selected.
@@ -77,8 +72,9 @@ tasks:
       Example: Show the 'system' project.
         task apps:project:show project=system
     silent: true
-    requires:
-      vars: [project]
+    vars:
+      project: *projectvar
+      projectPath: *projectPath
     sources:
       - "{{.projectPath}}"
     cmds:
@@ -87,7 +83,7 @@ tasks:
       - sh: test -f "{{.projectPath}}"
         msg: "Project does not exist"
 
-  dest:list:
+  dest:
     desc: "List destinations for an ArgoCD App Project"
     summary: |
       This task will list all allowed destinations for an ArgoCD App Project
@@ -96,9 +92,14 @@ tasks:
       Example: List destinations for the 'system' project.
         task apps:project:dest:list project=system
     silent: true
-    requires:
-      vars: [project]
+    aliases:
+      - dest:list
+    vars:
+      project: *projectvar
+      projectPath: *projectPath
     cmds: # print results as a table, with headers "Namespace", "Server Name", "Server Address"
+      - >
+        echo "Project: {{.project}}"
       - yq eval '.spec.destinations' "{{.projectPath}}" -o=json | jq -r '["NAMESPACE", "SERVER\u00A0NAME", "SERVER\u00A0ADDRESS"], (.[] | [.namespace, .name, .server]) | @tsv' | column -t
     preconditions:
       - sh: test -f "{{.projectPath}}"
@@ -117,16 +118,11 @@ tasks:
 
       Example: Add a new destination to the 'system' project targeting the 'kube-system' namespace in all clusters.
         task apps:project:dest:add project=system namespace=kube-system
-      
     silent: true
-    requires:
-      vars: [project, namespace]
     vars:
-      name: >-
-        {{.name | default "*" }}
-      server: >-
-        {{.server | default "*" }}
-      namespace: *namespace-var
+      project: *projectvar
+      namespace: *namespacevar
+      projectPath: *projectPath
     cmds:
       - |
         yq eval '.spec.destinations += [{ {{if eq .name ""}}{{else}}"name": "{{.name}}", {{end}}"namespace": "{{.namespace}}"{{if eq .server ""}}{{else}}, "server": "{{.server}}"{{end}} }]' -i "{{.projectPath}}"
@@ -153,17 +149,11 @@ tasks:
         task apps:project:dest:remove project=system namespace=kube-system
     aliases:
       - dest:rm
-      - dest:del
-      - dest:delete
     silent: true
-    requires:
-      vars: [project, namespace]
     vars:
-      name: >-
-        {{.name | default "" }}
-      server: >-
-        {{.server | default "" }}
-      namespace: *namespace-var
+      project: *projectvar
+      namespace: *namespacevar
+      projectPath: *projectPath
     cmds:
       - |
         yq eval 'del(.spec.destinations[] | select(.namespace == "{{.namespace}}") {{if eq .name ""}}{{else}}| select(.name == "{{.name}}"){{end}} {{if eq .server ""}}{{else}}| select(.server == "{{.server}}"){{end}})' -i "{{.projectPath}}"

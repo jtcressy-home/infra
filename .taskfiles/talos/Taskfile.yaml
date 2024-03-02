@@ -3,26 +3,39 @@ version: "3"
 
 vars:
   cluster:
-    sh: | # auto-selects (skip prompt) if there's only one cluster
-      ls kubernetes/clusters | fzf -1 --height=~5 --prompt="Choose a cluster: " | tr -d '\n\r'
-
-.commonenv: &commonenv
-  TALOSCONFIG: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
-  clusterName: "{{.cluster}}"
-
-# interactive fuzzy-find (fzf) node selection for dynamic variables
-.autonode: &autonode # select single node 
-  sh: |
-    ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/ | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g' | fzf --height=~10 --prompt="Choose node from cluster {{.cluster}}: "
-.autonodes: &autonodes # select multiple nodes with <TAB>
-  sh: |
-    ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/ | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g' | fzf -m --height=~10 --prompt="Choose nodes from cluster {{.cluster}}: " --print0 | tr '\0' ',' | sed 's/,$//'
+    sh: | # auto-selects (skip prompt) if there's only one cluster or cluster is already set in the environment or task args
+      {{- if eq (index . "cluster") nil -}}
+      ls {{.PROJECT_DIR}}/kubernetes/clusters | fzf -1 --height=~5 --prompt="Choose a cluster: " | tr -d '\n\r'
+      {{- else -}}
+      echo {{index . "cluster"}}
+      {{- end -}}
 
 tasks:
   default:
     silent: true
     cmds:
       - task -l
+
+  autovars:
+    internal: true
+    env: &commonenv
+      TALOSCONFIG: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
+      clusterName: "{{.cluster}}"
+    vars:
+      node: &nodevar
+        sh: |
+          {{- if eq (index . "node") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/ | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g' | fzf --height=~10 --prompt="Choose node from cluster {{.cluster}}: "
+          {{- else -}}
+          echo {{index . "node"}}
+          {{- end -}}
+      nodes: &nodesvar
+        sh: |
+          {{- if eq (index . "nodes") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/ | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g' | fzf -m --height=~10 --prompt="Choose nodes from cluster {{.cluster}}: " --print0 | tr '\0' ',' | sed 's/,$//'
+          {{- else -}}
+          echo {{index . "nodes"}}
+          {{- end -}}
 
   ctl:
     desc: Talosctl wrapper with automatic cluster/node selection (place args after --)
@@ -31,11 +44,15 @@ tasks:
       Use <TAB> to select multiple nodes.
       example:
         task talos:ctl -- disks
-    silent: false
+    silent: true
     interactive: true
+    requires:
+      vars: [cluster]
     vars:
-      nodes: *autonodes
+      nodes: *nodesvar
     env: *commonenv
+    deps:
+      - genconfig
     cmds:
       - talosctl -n {{.nodes}} {{.CLI_ARGS}}
 
@@ -46,11 +63,11 @@ tasks:
         storing them in a new doppler branch config that branches from "{{.dopplerConfig}}"
       
       This task also uses "{{.dopplerProject}}" for the doppler project.
+    prompt: '!!!WARNING!!! This will overwrite any existing secrets for cluster "{{.cluster}}". Continue?'
     interactive: false
     requires:
       vars: [cluster]
     env:
-      <<: *commonenv
       secretsJson:
         sh: talhelper gensecret | yq '. | tojson'
     vars:
@@ -81,16 +98,18 @@ tasks:
   genconfig:
     label: 'genconfig-{{.cluster}}'
     desc: Generate talos config
+    silent: true
     interactive: true
     dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
       vars: [cluster, dopplerProject, dopplerConfig]
     sources:
-      - kubernetes/clusters/*/talos/*.yaml
+      - talconfig.yaml
+      - '*.yaml'
     generates:
-      - kubernetes/clusters/{{.cluster}}/talos/clusterconfig/*.yaml
-      - kubernetes/clusters/{{.cluster}}/talos/talosconfig
+      - clusterconfig/*.yaml
+      - clusterconfig/talosconfig
     cmds:
       - talhelper -v
       - pwd
@@ -100,20 +119,26 @@ tasks:
   mergeclientconfig:
     desc: Merge cluster talos client config into home directory default talosconfig
     interactive: true
-    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
-    env: *commonenv
     requires:
       vars: [cluster]
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    deps:
+      - genconfig
     cmds:
       - talosctl config merge --context={{.cluster}} --talosconfig=$HOME/.talos/config "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
 
   bootstrap:
     desc: Bootstrap talos cluster
     interactive: true
+    requires:
+      vars: [cluster]
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
-    requires:
-      vars: [cluster, node]
+    vars:
+      node: *nodevar
+    deps:
+      - genconfig
     cmds:
       - talosctl bootstrap -n {{.node}}
 
@@ -122,6 +147,8 @@ tasks:
     interactive: true
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
+    deps:
+      - genconfig
     requires:
       vars: [cluster, ip]
     cmds:
@@ -135,7 +162,9 @@ tasks:
     requires:
       vars: [cluster]
     vars:
-      node: *autonode
+      node: *nodevar
+    deps:
+      - genconfig
     cmds:
       - talosctl -n {{.node}} get mc
 
@@ -147,7 +176,9 @@ tasks:
     requires:
       vars: [cluster, node, ip]
     vars:
-      node: *autonode
+      node: *nodevar
+    deps:
+      - genconfig
     cmds:
       - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
     
@@ -231,9 +262,9 @@ tasks:
     deps:
       - genconfig
     requires:
-      vars: [cluster, mode]
+      vars: [cluster]
     vars:
-      nodes: *autonodes
+      nodes: *nodesvar
       mode: '{{ .mode | default "auto" }}'
       dryrun: '{{ .dryrun | default "false" }}'
     cmds:
@@ -250,9 +281,9 @@ tasks:
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
-      vars: [cluster, node, image]
+      vars: [cluster, image]
     vars:
-      node: *autonode
+      node: *nodevar
       mode: '{{ .mode | default "default"}}' # default or powercycle
       configfile: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
       image:
@@ -267,11 +298,11 @@ tasks:
   upgrade-k8s:
     desc: Upgrade k8s on a node
     interactive: true
-    env: *commonenv
     requires:
       vars: [cluster]
+    env: *commonenv
     vars:
-      node: *autonode
+      node: *nodevar
       to:
         sh: yq -r '.kubernetesVersion' "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/talconfig.yaml"
     deps:

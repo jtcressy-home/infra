@@ -1,43 +1,60 @@
 ---
 version: "3"
 
-vars:
-  project:
-    sh: |
-      {{- if eq .project "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select or enter ArgoCD App Project: " --print-query | tail -1
-      {{- else -}}
-      echo "{{.project}}"
-      {{- end -}}
-  namespace:
-    sh: |
-      {{- if eq .namespace "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select or enter Namespace: " --print-query | tail -1
-      {{- else -}}
-      echo "{{.namespace}}"
-      {{- end -}}
-  app:
-    sh: |
-      {{- if eq .app "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/ | fzf --height=~10 --prompt="Select or enter App: " --print-query | tail -1
-      {{- else -}}
-      echo "{{.app}}"
-      {{- end -}}
-  cluster:
-    sh: |
-      {{- if eq .cluster "" -}}
-      ls {{.PROJECT_DIR}}/kubernetes/clusters | fzf -1 --height=~5 --prompt="Choose a cluster: " | tr -d '\n\r'
-      {{- else -}}
-      echo "{{.cluster}}"
-      {{- end -}}
-  projectPath: "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
-  enabledPath: "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/clusters"
-  disabledPath: "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/disabled"
-  isDisabled:
-    sh: "test -f {{.disabledPath}}/{{.cluster}}/kustomization.yaml && echo true || echo false"
-  overlayPath: "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/{{if eq .isDisabled \"true\"}}disabled{{else}}clusters{{end}}/{{.cluster}}"
-
 tasks:
+  corevars:
+    internal: true
+    vars: &corevars
+      project: &projectvar
+        sh: |
+          {{- if eq (index . "project") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select or enter ArgoCD App Project: " --print-query | tail -1
+          {{- else -}}
+          echo {{index . "project"}}
+          {{- end -}}
+      namespace: &namespacevar
+        sh: |
+          {{- if eq (index . "namespace") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select or enter Namespace: " --print-query | tail -1
+          {{- else -}}
+          echo {{index . "namespace"}}
+          {{- end -}}
+      app: &appvar
+        sh: |
+          {{- if eq (index . "app") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/ | fzf --height=~10 --prompt="Select or enter App: " --print-query | tail -1
+          {{- else -}}
+          echo {{index . "app"}}
+          {{- end -}}
+      cluster: &clustervar
+        sh: |
+          {{- if eq (index . "cluster") nil -}}
+          ls {{.PROJECT_DIR}}/kubernetes/clusters | fzf -1 --height=~5 --prompt="Choose a cluster: " | tr -d '\n\r'
+          {{- else -}}
+          echo {{index . "cluster"}}
+          {{- end -}}
+  helpervars:
+    internal: true
+    vars: &helpervars
+      projectPath: &projectPath "{{.PROJECT_DIR}}/kubernetes/argocd/projects/{{.project}}.yaml"
+      enabledPath: &enabledPath "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/clusters"
+      disabledPath: &disabledPath "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/disabled"
+      isDisabled: &isDisabled
+        sh: "test -f {{.disabledPath}}/{{.cluster}}/kustomization.yaml && echo true || echo false"
+      overlayPath: &overlayPath "{{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/{{if eq .isDisabled \"true\"}}disabled{{else}}clusters{{end}}/{{.cluster}}"
+  allvars:
+    internal: true
+    vars: &allvars
+      project: *projectvar
+      namespace: *namespacevar
+      app: *appvar
+      cluster: *clustervar
+      projectPath: *projectPath
+      enabledPath: *enabledPath
+      disabledPath: *disabledPath
+      overlayPath: *overlayPath
+      isDisabled: *isDisabled
+
   create:
     desc: "Create a new app overlay"
     summary: |
@@ -51,7 +68,8 @@ tasks:
       Example: create a new overlay for a cluster addon that should target all clusters.
         task apps:overlay:create project=system namespace=kube-system app=volsync cluster=_all
     interactive: true
-    silent: true
+    silent: false
+    vars: *allvars
     generates:
       - "{{.overlayPath}}/kustomization.yaml"
     cmds:
@@ -63,6 +81,7 @@ tasks:
         msg: "App overlay already exists at {{.overlayPath}}."
       - sh: test -f "{{.projectPath}}"
         msg: "ArgoCD App Project '{{.project}}' does not exist."
+
   enable:
     desc: "Enable an app overlay"
     summary: |
@@ -77,6 +96,9 @@ tasks:
         task apps:overlay:enable project=system namespace=kube-system app=volsync cluster=_all
     interactive: true
     silent: true
+    requires:
+      vars: [project, namespace, app, cluster]
+    vars: *allvars
     cmds:
       - mkdir -p "{{.enabledPath}}"
       - mv "{{.disabledPath}}/{{.cluster}}" "{{.enabledPath}}/"
@@ -98,6 +120,9 @@ tasks:
         task apps:overlay:disable project=system namespace=kube-system app=volsync cluster=_all
     interactive: true
     silent: true
+    requires:
+      vars: [project, namespace, app, cluster]
+    vars: *allvars
     cmds:
       - mkdir -p "{{.disabledPath}}"
       - mv "{{.enabledPath}}/{{.cluster}}" "{{.disabledPath}}/"
@@ -119,6 +144,9 @@ tasks:
         task apps:overlay:render project=system namespace=kube-system app=volsync cluster=_all
     silent: true
     interactive: true
+    requires:
+      vars: [project, namespace, app, cluster]
+    vars: *allvars
     sources:
       - "{{.overlayPath}}/*.yaml"
       - "{{.overlayPath}}/**/*.yaml"
@@ -131,6 +159,9 @@ tasks:
     desc: "Opens the kustomization.yaml for an app overlay in your default editor"
     silent: true
     interactive: true
+    requires:
+      vars: [project, namespace, app, cluster]
+    vars: *allvars
     cmds:
       - $EDITOR "{{.overlayPath}}/kustomization.yaml"
     preconditions:
