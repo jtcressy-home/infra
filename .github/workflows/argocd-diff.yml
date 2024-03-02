@@ -32,7 +32,7 @@ jobs:
           # renovate: datasource=github-releases depName=argoproj/argo-cd
           version: 2.10.2
           command: app list -o wide
-          options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server https://argocd.tailnet-4d89.ts.net
+          options: --grpc-web --auth-token ${{ secrets.ARGOCD_TOKEN }} --server argocd.tailnet-4d89.ts.net
 
 
       # - uses: argocd-diff-action/argocd-diff-action@main
