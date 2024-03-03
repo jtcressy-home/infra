@@ -17,6 +17,7 @@ components:
 patchesStrategicMerge:
 - argocd-cm.yaml
 - argocd-rbac-cm.yaml
+- argocd-cmd-params-cm.yaml
 - patch-resources.yaml
 
 
