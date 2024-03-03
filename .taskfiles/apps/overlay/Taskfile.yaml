@@ -222,18 +222,19 @@ tasks:
       - pipefail
     cmds:
       - mkdir -p "{{.outputFile | dir}}"
-      - |
-        echo "Running diff for '{{.appName}}'..."
-        argocd app diff "{{.appName}}" {{.CLI_ARGS}} | tee "{{.outputFile}}"
-        exitCode=$?
-        if [ $exitCode -eq 0 ]; then
-          echo "No diff detected for '{{.appName}}'"
-        elif [ $exitCode -eq 1 ]; then
-          echo "Diff detected for '{{.appName}}', output to {{.outputFile}}"
-        else
-          echo "Error running diff for '{{.appName}}', exit code: $exitCode"
-          exit $exitCode
-        fi
+      - ignore_error: true
+        cmd: |
+          echo "Running diff for '{{.appName}}'..."
+          {{ if .ACTIONS_STEP_DEBUG }}time {{end}}argocd app diff "{{.appName}}" {{.CLI_ARGS}} | tee "{{.outputFile}}"
+          exitCode=$?
+          if [ $exitCode -eq 0 ]; then
+            echo "No diff detected for '{{.appName}}'"
+          elif [ $exitCode -eq 1 ]; then
+            echo "Diff detected for '{{.appName}}', output to {{.outputFile}}"
+          else
+            echo "Error running diff for '{{.appName}}', exit code: $exitCode"
+            exit $exitCode
+          fi
     preconditions:
       - sh: argocd app get "{{.appName}}"
         msg: "App '{{.appName}}' not found in ArgoCD Server or not authorized. Check credentials or whether the app exists in ArgoCD."
