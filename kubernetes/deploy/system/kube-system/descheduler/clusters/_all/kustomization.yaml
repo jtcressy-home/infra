@@ -36,7 +36,10 @@ helmCharts:
             includingInitContainers: true
         - name: "RemovePodsViolatingTopologySpreadConstraint"
           args:
-            includeSoftConstraints: true
+            constraints:
+            - DoNotSchedule
+            # - ScheduleAnyway
+            topologyBalanceNodeFit: true
         - name: "RemovePodsViolatingNodeTaints"
           args:
             excludedTaints:
