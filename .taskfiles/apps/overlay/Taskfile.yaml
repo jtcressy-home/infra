@@ -141,9 +141,6 @@ tasks:
     silent: true
     interactive: true
     vars: *allvars
-    sources:
-      - "{{.overlayPath}}/*.yaml"
-      - "{{.overlayPath}}/**/*.yaml"
     cmds:
       - kustomize build --enable-helm "{{.overlayPath}}"
     preconditions:
