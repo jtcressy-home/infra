@@ -3,8 +3,8 @@ kind: ConfigMap
 metadata:
   name: argocd-cmd-params-cm
 data:
-  controller.log.level: "debug"
-  server.log.level: "debug"
-  reposerver.log.level: "debug"
+  controller.log.level: "info"
+  server.log.level: "info"
+  reposerver.log.level: "info"
   applicationsetcontroller.log.level: "info"
   notificationscontroller.log.level: "info"
