@@ -15,23 +15,20 @@ components:
 # - ../../components/github-app-repo-creds
 
 patches:
-- patch: |
-    apiVersion: networking.k8s.io/v1
+- target:
     kind: NetworkPolicy
-    metadata:
-      name: argocd-redis-ha-proxy-network-policy
-    spec:
-      ingress:
-      - from:
+    name: argocd-redis-ha-proxy-network-policy
+  patch: |
+    - op: add
+      path: /spec/ingress/-
+      value:
+        from:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: monitoring
         ports:
         - protocol: TCP
           port: 9101
-  target:
-    kind: NetworkPolicy
-    name: argocd-redis-ha-proxy-network-policy
 - path: argocd-cm.yaml
 - path: argocd-rbac-cm.yaml
 - path: argocd-cmd-params-cm.yaml
