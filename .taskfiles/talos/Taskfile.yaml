@@ -116,6 +116,27 @@ tasks:
       - ls
       - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper genconfig
 
+  checkcerts:
+    label: "checkcerts-{{.cluster}}"
+    desc: Check talos certs
+    interactive: true
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    vars:
+      script: |
+        echo "Checking Cluster Cert:"
+        echo $CLUSTERCERT | base64 -d | openssl x509 -noout -text
+        echo "Checking ETCD Cert:"
+        echo $ETCDCERT | base64 -d | openssl x509 -noout -text
+        echo "Checking Service Account Key:"
+        echo $K8SSERVICEACCOUNTKEY | base64 -d | openssl ec -noout -text
+        echo "Checking Machine Cert:"
+        echo $MACHINECERT | base64 -d | openssl x509 -noout -text
+    cmds:
+      - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- bash -c {{.script | shellQuote}}
+
   mergeclientconfig:
     desc: Merge cluster talos client config into home directory default talosconfig
     interactive: true
@@ -171,10 +192,10 @@ tasks:
   join-node:
     desc: Apply talos config on a new node in maintenance mode
     interactive: true
-    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
-      vars: [cluster, node, ip]
+      vars: [cluster, ip]
     vars:
       node: *nodevar
     deps:
