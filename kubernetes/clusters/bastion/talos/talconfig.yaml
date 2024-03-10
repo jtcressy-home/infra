@@ -7,7 +7,7 @@ talosVersion: v1.5.5
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
 kubernetesVersion: v1.28.2
 
-endpoint: https://k8s-bastion.tailnet-4d89.ts.net:6443 # points at the tailscale-operator pod in the cluster
+endpoint: https://hp-2ua7292pkz.tailnet-4d89.ts.net:6443
 
 allowSchedulingOnMasters: true
 allowSchedulingOnControlPlanes: true
