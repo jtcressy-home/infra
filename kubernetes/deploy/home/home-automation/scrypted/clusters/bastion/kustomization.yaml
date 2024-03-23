@@ -31,7 +31,7 @@ helmCharts:
           main:
             image:
               repository: koush/scrypted
-              tag: 18-jammy-full-v0.81.0
+              tag: 20-jammy-full.s6-v0.94.43
             env:
               TZ: America/Chicago
             probes:
