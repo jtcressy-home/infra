@@ -141,8 +141,8 @@ helmCharts:
               - sh
               - -c
               - |
-                curl -c cookies.txt -s -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$(NVR_USERNAME)\",\"password\":\"$(NVR_PASSWORD)\"}" https://$(NVR_HOST)/api/auth/login
-                curl -c cookies.txt -s -k -X GET -H "Content-Type: application/json" https://$(NVR_HOST)/proxy/protect/api/cameras/manage-paylaod | jq -r .token > /adoption-token/token
+                curl -b cookies.txt -c cookies.txt -s -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$(NVR_USERNAME)\",\"password\":\"$(NVR_PASSWORD)\"}" https://$(NVR_HOST)/api/auth/login
+                curl -b cookies.txt -c cookies.txt -s -k -X GET -H "Content-Type: application/json" https://$(NVR_HOST)/proxy/protect/api/cameras/manage-payload | jq -r .mgmt.token > /adoption-token/token
         containers:
           main: &unifi-cam-proxy
             env: # camera: The Dogagon
