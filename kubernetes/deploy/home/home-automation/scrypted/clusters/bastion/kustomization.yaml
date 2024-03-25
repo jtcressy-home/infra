@@ -31,7 +31,7 @@ helmCharts:
           main:
             image:
               repository: koush/scrypted
-              tag: 20-jammy-full.s6-v0.94.43
+              tag: 20-jammy-full.s6-v0.95.0
             env:
               TZ: America/Chicago
             probes:
@@ -56,8 +56,13 @@ helmCharts:
         ports:
           http:
             port: 11080
+            targetPort: 11080
+          https:
+            port: 10443
+            targetPort: 10443
           rebroadcast:
             port: 34135
+            targetPort: 34135
     persistence:
       config:
         enabled: true
