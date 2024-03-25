@@ -35,6 +35,13 @@ helmCharts:
               tag: 20-jammy-full.s6-v0.95.0
             env:
               TZ: America/Chicago
+            ports:
+              - name: http
+                containerPort: 11080
+              - name: https
+                containerPort: 11443
+              - name: rebroadcast
+                containerPort: 34135
             probes:
               liveness:
                 enabled: false
@@ -146,6 +153,8 @@ helmCharts:
         containers:
           main: &unifi-cam-proxy
             env: # camera: The Dogagon
+              - name: SCRYPTED_HOST
+                value: scrypted-0.private.home
               - name: SCRYPTED_PORT
                 value: "44305"
               - name: STREAM_ID
@@ -177,7 +186,7 @@ helmCharts:
               - sh
               - -c
               - |
-                unifi-cam-proxy --host=$(NVR_HOST) --mac="$(RANDOM_MAC)" --cert=$(CERT_PATH) --token=$(cat /adoption-token/token) rtsp -s rtsp://scrypted:$(SCRYPTED_PORT)/$(STREAM_ID) --ffmpeg-args=' -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p-codec:a aac '
+                unifi-cam-proxy --host=$(NVR_HOST) --mac="$(RANDOM_MAC)" --cert=$(CERT_PATH) --token=$(cat /adoption-token/token) rtsp -s rtsp://$(SCRYPTED_HOST):$(SCRYPTED_PORT)/$(STREAM_ID) --ffmpeg-args=' -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p-codec:a aac '
             image:
               # repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
               # tag: latest
