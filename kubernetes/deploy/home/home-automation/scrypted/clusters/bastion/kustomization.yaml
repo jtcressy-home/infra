@@ -155,10 +155,6 @@ helmCharts:
             env: # camera: The Dogagon
               - name: SCRYPTED_HOST
                 value: scrypted-0.private.home
-              - name: SCRYPTED_PORT
-                value: "44305"
-              - name: STREAM_ID
-                value: c4c84aec31cd4dba
               - name: RANDOM_MAC
                 value: C4:7E:66:9F:1A:2A
               - name: CERT_PATH
@@ -191,12 +187,17 @@ helmCharts:
               - -c
               - |
                 unifi-cam-proxy \
+                --name="IP8M-T2599E" \
+                --model="UVC G4 Bullet" \
                 --host=$(NVR_HOST) \
                 --mac="$(RANDOM_MAC)" \
                 --cert=$(CERT_PATH) \
                 --token=$(cat /adoption-token/token) \
-                rtsp -s rtsp://$(SCRYPTED_HOST):$(SCRYPTED_PORT)/$(STREAM_ID) \
+                rtsp \
+                -s rtsp://$(SCRYPTED_HOST):44305/c4c84aec31cd4dba \
+                -s rtsp://$(SCRYPTED_HOST):44305/9e2a0242167befe8 \
                 --ffmpeg-args='$(FFMPEG_ARGS)'
+
             image:
               # repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
               # tag: latest
