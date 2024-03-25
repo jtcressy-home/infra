@@ -115,57 +115,57 @@ helmCharts:
                   "mac": "fa:77:a4:fe:98:71"
                 }
               ]
-          containers:
-            main: &unifi-cam-proxy
-              env: # camera: The Dogagon
-                - name: SCRYPTED_PORT
-                  valeu: "44305"
-                - name: STREAM_ID
-                  value: c4c84aec31cd4dba
-                - name: RANDOM_MAC
-                  value: C4:7E:66:9F:1A:2A
-                - name: CERT_PATH
-                  value: /unifi-cam-proxy/client.pem
-                - name: TZ
-                  value: America/Chicago
-                - name: NVR_HOST
-                  valueFrom:
-                    secretKeyRef:
-                      name: unifi-cam-proxy
-                      key: NVR_HOST
-                - name: ADOPTION_TOKEN
-                  valueFrom:
-                    secretKeyRef:
-                      name: unifi-cam-proxy
-                      key: ADOPTION_TOKEN
-              securityContext:
-                privileged: true
-              probes:
-                liveness:
-                  enabled: false
-                readiness:
-                  enabled: false
-                startup:
-                  enabled: false
-              # resources:
-              #   limits:
-              #     gpu.intel.com/i915: 1
-              command:
-                - unifi-cam-proxy
-                - --host=$(NVR_HOST)
-                - --mac="$(RANDOM_MAC)"
-                - --cert=$(CERT_PATH)
-                - --token=$(ADOPTION_TOKEN)
-                - rtsp
-                - -s
-                - rtsp://scrypted:$(SCRYPTED_PORT)/$(STREAM_ID)
-                - --ffmpeg-args=' -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p-codec:a aac '
-              image:
-                # repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
-                # tag: latest
-                imagePullPolicy: Always
-                repository: keshavdv/unifi-cam-proxy
-                tag: latest
+        containers:
+          main: &unifi-cam-proxy
+            env: # camera: The Dogagon
+              - name: SCRYPTED_PORT
+                valeu: "44305"
+              - name: STREAM_ID
+                value: c4c84aec31cd4dba
+              - name: RANDOM_MAC
+                value: C4:7E:66:9F:1A:2A
+              - name: CERT_PATH
+                value: /unifi-cam-proxy/client.pem
+              - name: TZ
+                value: America/Chicago
+              - name: NVR_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-cam-proxy
+                    key: NVR_HOST
+              - name: ADOPTION_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-cam-proxy
+                    key: ADOPTION_TOKEN
+            securityContext:
+              privileged: true
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            # resources:
+            #   limits:
+            #     gpu.intel.com/i915: 1
+            command:
+              - unifi-cam-proxy
+              - --host=$(NVR_HOST)
+              - --mac="$(RANDOM_MAC)"
+              - --cert=$(CERT_PATH)
+              - --token=$(ADOPTION_TOKEN)
+              - rtsp
+              - -s
+              - rtsp://scrypted:$(SCRYPTED_PORT)/$(STREAM_ID)
+              - --ffmpeg-args=' -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p-codec:a aac '
+            image:
+              # repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
+              # tag: latest
+              imagePullPolicy: Always
+              repository: keshavdv/unifi-cam-proxy
+              tag: latest
           # proxy-office-cam:
           #   <<: *unifi-cam-proxy
           #   env:
