@@ -180,6 +180,9 @@ helmCharts:
           #       value: the-dogtagon
           #     - name: RANDOM_MAC
           #       value: C4:7E:66:9F:1A:2C
+    service:
+      main:
+        enabled: false
     persistence:
       unifi-cam-proxy:
         enabled: true
