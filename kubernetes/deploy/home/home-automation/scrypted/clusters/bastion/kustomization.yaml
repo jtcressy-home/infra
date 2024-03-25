@@ -112,7 +112,7 @@ helmCharts:
                   "name": "macvlan-conf-dhcp",
                   "namespace": "kube-system",
                   "interface": "eth1",
-                  "mac": "fa:77:a4:fe:98:92"
+                  "mac": "fa:77:a4:fe:98:71"
                 }
               ]
           containers:
