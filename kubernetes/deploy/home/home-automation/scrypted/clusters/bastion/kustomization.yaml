@@ -135,8 +135,8 @@ helmCharts:
                     name: unifi-cam-proxy
                     key: NVR_PASSWORD
             image:
-              repository: curlimages/curl
-              tag: 7.80.0
+              repository: ghcr.io/onedr0p/kubanetics
+              tag: 2024.3.6
             command:
               - sh
               - -c
