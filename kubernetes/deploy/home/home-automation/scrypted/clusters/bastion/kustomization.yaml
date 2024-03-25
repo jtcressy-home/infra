@@ -119,7 +119,7 @@ helmCharts:
           main: &unifi-cam-proxy
             env: # camera: The Dogagon
               - name: SCRYPTED_PORT
-                valeu: "44305"
+                value: "44305"
               - name: STREAM_ID
                 value: c4c84aec31cd4dba
               - name: RANDOM_MAC
