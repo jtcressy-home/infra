@@ -170,6 +170,9 @@ helmCharts:
                   secretKeyRef:
                     name: unifi-cam-proxy
                     key: NVR_HOST
+              - name: FFMPEG_ARGS
+                # value: -c:a copy -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p -codec:a aac
+                value: "-c:a copy -c:v copy -codec:a aac"
             securityContext:
               privileged: true
             probes:
@@ -186,7 +189,8 @@ helmCharts:
               - sh
               - -c
               - |
-                unifi-cam-proxy --host=$(NVR_HOST) --mac="$(RANDOM_MAC)" --cert=$(CERT_PATH) --token=$(cat /adoption-token/token) rtsp -s rtsp://$(SCRYPTED_HOST):$(SCRYPTED_PORT)/$(STREAM_ID) --ffmpeg-args='-c:a copy -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p -codec:a aac '
+                unifi-cam-proxy --host=$(NVR_HOST) --mac="$(RANDOM_MAC)" --cert=$(CERT_PATH) --token=$(cat /adoption-token/token) rtsp -s rtsp://$(SCRYPTED_HOST):$(SCRYPTED_PORT)/$(STREAM_ID) \
+                --ffmpeg-args='$(FFMPEG_ARGS)'
             image:
               # repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
               # tag: latest
