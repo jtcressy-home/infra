@@ -116,6 +116,33 @@ helmCharts:
                   "mac": "fa:77:a4:fe:98:71"
                 }
               ]
+        initContainers:
+          generate-adoption-token:
+            env:
+              - name: NVR_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-cam-proxy
+                    key: NVR_HOST
+              - name: NVR_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-cam-proxy
+                    key: NVR_USERNAME
+              - name: NVR_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-cam-proxy
+                    key: NVR_PASSWORD
+            image:
+              repository: curlimages/curl
+              tag: 7.80.0
+            command:
+              - sh
+              - -c
+              - |
+                curl -c cookies.txt -s -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$(NVR_USERNAME)\",\"password\":\"$(NVR_PASSWORD)\"}" https://$(NVR_HOST)/api/auth/login
+                curl -c cookies.txt -s -k -X GET -H "Content-Type: application/json" https://$(NVR_HOST)/proxy/protect/api/cameras/manage-paylaod | jq -r .token > /adoption-token/token
         containers:
           main: &unifi-cam-proxy
             env: # camera: The Dogagon
@@ -134,11 +161,6 @@ helmCharts:
                   secretKeyRef:
                     name: unifi-cam-proxy
                     key: NVR_HOST
-              - name: ADOPTION_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: unifi-cam-proxy
-                    key: ADOPTION_TOKEN
             securityContext:
               privileged: true
             probes:
@@ -156,7 +178,7 @@ helmCharts:
               - --host=$(NVR_HOST)
               - --mac="$(RANDOM_MAC)"
               - --cert=$(CERT_PATH)
-              - --token=$(ADOPTION_TOKEN)
+              - --token=$(cat /adoption-token/token)
               - rtsp
               - -s
               - rtsp://scrypted:$(SCRYPTED_PORT)/$(STREAM_ID)
@@ -189,3 +211,6 @@ helmCharts:
         enabled: true
         type: secret
         name: unifi-cam-proxy
+      adoption-token:
+        enabled: true
+        type: emptyDir
