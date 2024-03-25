@@ -116,8 +116,8 @@ helmCharts:
                 }
               ]
           containers:
-            proxy-dogagon: &unifi-cam-proxy
-              env:
+            main: &unifi-cam-proxy
+              env: # camera: The Dogagon
                 - name: SCRYPTED_PORT
                   valeu: "44305"
                 - name: STREAM_ID
