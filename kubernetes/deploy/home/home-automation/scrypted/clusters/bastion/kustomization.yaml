@@ -123,6 +123,9 @@ helmCharts:
                   "mac": "fa:77:a4:fe:98:71"
                 }
               ]
+          nodeSelector:
+            kubernetes.io/arch: amd64
+            intel.feature.node.kubernetes.io/gpu: "true"
         initContainers:
           generate-adoption-token:
             env:
@@ -169,7 +172,7 @@ helmCharts:
               - name: FFMPEG_ARGS
                 # value: -c:a copy -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p -codec:a aac
                 # value: '-c:a copy -c:v copy -codec:a aac -bsf:v "h264_metadata=tick_rate=30000/1001"'
-                value: "-c:a copy -c:v copy -codec:a aac"
+                value: "-c:a copy -c:v copy -codec:a aac -hwaccel qsv -hwaccel_device /dev/dri/renderD128"
             securityContext:
               privileged: true
             probes:
@@ -179,16 +182,16 @@ helmCharts:
                 enabled: false
               startup:
                 enabled: false
-            # resources:
-            #   limits:
-            #     gpu.intel.com/i915: 1
+            resources:
+              limits:
+                gpu.intel.com/i915: 1
             command:
               - sh
               - -c
               - |
                 unifi-cam-proxy \
                 --name="IP8M-T2599E" \
-                --model="UVC G4 Bullet" \
+                --model="UVC G4 Pro" \
                 --host=$(NVR_HOST) \
                 --mac="$(RANDOM_MAC)" \
                 --cert=$(CERT_PATH) \
