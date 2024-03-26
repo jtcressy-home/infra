@@ -203,7 +203,7 @@ helmCharts:
               # tag: latest
               imagePullPolicy: Always
               repository: keshavdv/unifi-cam-proxy
-              tag: latest
+              tag: dev
           # proxy-office-cam:
           #   <<: *unifi-cam-proxy
           #   env:
