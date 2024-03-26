@@ -172,7 +172,7 @@ helmCharts:
               - name: FFMPEG_ARGS
                 # value: -c:a copy -c:v copy -hwaccel qsv -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p -codec:a aac
                 # value: '-c:a copy -c:v copy -codec:a aac -bsf:v "h264_metadata=tick_rate=30000/1001"'
-                value: "-init_hw_device qsv=hw -filter_hw_device hw -vf hwupload=extra_hw_frames=64,format=qsv -c:a copy -c:v h264_qsv -b:v 5M -codec:a aac"
+                value: "-c:a copy -c:v h264 -b:v 5M -codec:a aac"
             securityContext:
               privileged: true
             probes:
