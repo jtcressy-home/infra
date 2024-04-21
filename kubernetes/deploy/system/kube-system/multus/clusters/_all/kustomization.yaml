@@ -108,7 +108,7 @@ patches:
               mountPath: /host/run/cni
           containers:
           - name: dhcp-daemon
-            image: ghcr.io/onedr0p/cni-plugins
+            image: ghcr.io/angelnu/cni-plugins:1.4.1
             command:
             - /plugins/dhcp
             args:
