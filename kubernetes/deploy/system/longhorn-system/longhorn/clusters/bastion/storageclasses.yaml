@@ -9,6 +9,7 @@ parameters:
   fsType: ext4
   numberOfReplicas: "3"
   staleReplicaTimeout: "30"
+allowVolumeExpansion: true
 provisioner: driver.longhorn.io
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
@@ -23,6 +24,7 @@ parameters:
   fsType: ext4
   numberOfReplicas: "3"
   staleReplicaTimeout: "30"
+allowVolumeExpansion: true
 provisioner: driver.longhorn.io
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
@@ -37,6 +39,7 @@ parameters:
   fsType: ext4
   numberOfReplicas: "1"
   staleReplicaTimeout: "30"
+allowVolumeExpansion: true
 provisioner: driver.longhorn.io
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
@@ -51,6 +54,7 @@ parameters:
   fsType: ext4
   numberOfReplicas: "1"
   staleReplicaTimeout: "30"
+allowVolumeExpansion: true
 provisioner: driver.longhorn.io
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
