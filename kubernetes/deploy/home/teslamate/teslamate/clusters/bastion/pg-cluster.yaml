@@ -44,6 +44,9 @@ spec:
   monitoring:
     enablePodMonitor: true
 
+  nodeMaintenanceWindow:
+    reusePVC: true
+
   affinity:
     enablePodAntiAffinity: true
     podAntiAffinityType: required
