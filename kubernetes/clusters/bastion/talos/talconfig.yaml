@@ -31,7 +31,7 @@ nodes:
   #   ## myw is a spare node so controlPlane can be set to true 
   #   ##  when performing extended maintenance on a control plane node
   #   ##  and we want to ensure we still have 3 active nodes in etcd
-  #   talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+  #   talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
   #   controlPlane: false 
   #   installDiskSelector:
   #     # model: SPCC M.2 PCIe SSD
@@ -62,7 +62,7 @@ nodes:
   #     - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+    talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -93,7 +93,7 @@ nodes:
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+    talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -124,7 +124,7 @@ nodes:
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+    talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -156,7 +156,7 @@ nodes:
 # ## LAPTOP NODES (internal battery backup) ##
 #   - hostname: lenovo-r9dwedy.tailnet-4d89.ts.net
 #     ipAddress: lenovo-r9dwedy.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDiskSelector:
 #       model: Inland SATA SSD
@@ -172,7 +172,7 @@ nodes:
 # ## EXTRA OFFICE NODES (non-battery-backup) ##
 #   - hostname: dell-inc-4nh5kn1.tailnet-4d89.ts.net
 #     ipAddress: dell-inc-4nh5kn1.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/260b3c1ffdf6354d1fa25f4eca2226d4520223cd9a5a7de7ece23d010370cff0
+#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDiskSelector:
 #       model: KingFast
@@ -187,7 +187,7 @@ nodes:
 #       topology.kubernetes.io/zone: home-office-extra
 #   - hostname: oldbessie.tailnet-4d89.ts.net
 #     ipAddress: oldbessie.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDiskSelector:
 #       size: <=513GB
@@ -203,7 +203,7 @@ nodes:
 # ## SBC'S ##
 #   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDisk: /dev/mmcblk0
 #     disableSearchDomain: false
@@ -216,7 +216,7 @@ nodes:
 #       topology.kubernetes.io/zone: home-sbc
 #   - hostname: raspberrypi-dca632210a61.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210a61.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDisk: /dev/mmcblk0
 #     disableSearchDomain: false
@@ -229,7 +229,7 @@ nodes:
 #       topology.kubernetes.io/zone: home-sbc
 #   - hostname: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDisk: /dev/mmcblk0
 #     disableSearchDomain: false
@@ -243,7 +243,7 @@ nodes:
 # ## CLOUD NODES ##
 #   - hostname: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
 #     ipAddress: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/a5d2ae41e0cdb95ea8c5c8ee2035e67e77aae60d33a4ece0cf04df354e169a16
+#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     installDiskSelector:
 #       size: ">= 32GiB"
 #     disableSearchDomain: false
