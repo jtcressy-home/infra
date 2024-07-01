@@ -44,7 +44,7 @@ tasks:
       Use <TAB> to select multiple nodes.
       example:
         task talos:ctl -- disks
-    silent: true
+    silent: false
     interactive: true
     requires:
       vars: [cluster]
@@ -299,7 +299,6 @@ tasks:
   upgrade-talos:
     desc: Upgrade talos on a node
     interactive: true
-    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
       vars: [cluster, image]

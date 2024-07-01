@@ -20,6 +20,8 @@ machine:
       port: 7445
   network:
     nameservers:
-      - 100.100.100.100 # relying on tailscale bootstrap dns
-        # magic dns must be configured with a global nameserver and override dns enabled
-      - 1.1.1.1
+      - 192.168.20.186 # pihole on truenas-purplebox
+    # nameservers:
+    #   - 100.100.100.100 # relying on tailscale bootstrap dns
+    #     # magic dns must be configured with a global nameserver and override dns enabled
+    #   - 1.1.1.1
