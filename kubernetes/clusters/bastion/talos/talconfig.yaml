@@ -2,7 +2,7 @@
 clusterName: ${clusterName}
 
 # renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: v1.6.7
+talosVersion: v1.7.5
 
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
 kubernetesVersion: v1.28.4
