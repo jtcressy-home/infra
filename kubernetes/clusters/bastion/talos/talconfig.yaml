@@ -62,7 +62,7 @@ nodes:
   #     - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
+    talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -93,7 +93,7 @@ nodes:
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
+    talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -124,7 +124,7 @@ nodes:
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
+    talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
       # model: SPCC M.2 PCIe SSD
@@ -276,6 +276,8 @@ controlPlane:
   patches:
     - |
       machine:
+        certSANs:
+          - 127.0.0.1
         features:
           kubernetesTalosAPIAccess:
             enabled: true
@@ -309,6 +311,8 @@ controlPlane:
             oidc-groups-prefix: "vault:"
             oidc-username-claim: username
             oidc-username-prefix: "vault:"
+          certSANs:
+            - 127.0.0.1
         controllerManager:
           extraArgs:
             bind-address: 0.0.0.0

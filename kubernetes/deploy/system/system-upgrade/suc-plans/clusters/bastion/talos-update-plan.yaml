@@ -6,7 +6,7 @@ metadata:
   namespace: system-upgrade
 spec:
   # renovate: datasource=github-releases depName=jtcressy-home/talos-boot-assets
-  version: v1.5.6
+  version: v1.6.7
   serviceAccountName: system-upgrade
   secrets:
     - name: talos
@@ -38,6 +38,6 @@ spec:
     args:
       - --nodes=$(NODE_IP)
       - upgrade
-      - "--image=factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)"
+      - "--image=factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)"
       - --preserve=true
       - --wait=false
