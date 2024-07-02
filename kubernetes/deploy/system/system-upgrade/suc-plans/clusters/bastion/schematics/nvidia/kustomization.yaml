@@ -11,6 +11,29 @@ patches:
     kind: Plan
     name: talos
   patch: |-
+    - op: replace
+      path: /metadata/name
+      value: talos-bm-hpmini
+    - op: add
+      path: /spec/upgrade/envs/-
+      value:
+        name: SCHEMATIC_ID
+        value: 50aa73cddb0d6050ce6ed5a9fc3b08c0b44ab345098152bc448ff467cd2aa7d7
+    - op: add
+      path: /spec/nodeSelector/matchExpressions/-
+      value:
+        key: factory.talos.dev/schematic-id.part-0
+        operator: In
+        values:
+          - 50aa73cddb0d6050ce6ed5a9fc3b08c0
+    - op: add
+      path: /spec/nodeSelector/matchExpressions/-
+      value:
+        key: factory.talos.dev/schematic-id.part-1
+        operator: In
+        values:
+          - b44ab345098152bc448ff467cd2aa7d7
+
     apiVersion: upgrade.cattle.io/v1
     kind: Plan
     metadata:
