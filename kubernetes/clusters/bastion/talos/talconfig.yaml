@@ -25,6 +25,49 @@ cniConfig:
   name: none
 
 nodes:
+## VMs
+  - hostname: talos-master-0
+    ipAddress: talos-master-0
+    schematic: &schematicNvidiaGPUVM
+      customization:
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/amd-ucode
+            - siderolabs/amdgpu-firmware
+            - siderolabs/binfmt-misc
+            - siderolabs/i915-ucode
+            - siderolabs/intel-ice-firmware
+            - siderolabs/intel-ucode
+            - siderolabs/iscsi-tools
+            - siderolabs/nonfree-kmod-nvidia
+            - siderolabs/nvidia-container-toolkit
+            - siderolabs/qemu-guest-agent
+            - siderolabs/qlogic-firmware
+            - siderolabs/realtek-firmware
+            - siderolabs/tailscale
+            - siderolabs/util-linux-tools
+    # talosImageURL: factory.talos.dev/installer/50aa73cddb0d6050ce6ed5a9fc3b08c0b44ab345098152bc448ff467cd2aa7d7 # nvidia gpu support, vm guest utils
+    controlPlane: true
+    installDiskSelector:
+      size: ">=250GB"
+    disableSearchDomain: false
+    networkInterfaces:
+      - interface: eno1
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+      factory.talos.dev/schematic-id.part-0: 50aa73cddb0d6050ce6ed5a9fc3b08c0
+      factory.talos.dev/schematic-id.part-1: b44ab345098152bc448ff467cd2aa7d7
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    patches:
+      - "@./patch-nvidia-gpu.yaml"
 ## CORE HOME OFFICE RACK (battery backup) ##
   # - hostname: hp-2ua7021myw.tailnet-4d89.ts.net
   #   ipAddress: hp-2ua7021myw.tailnet-4d89.ts.net
@@ -62,7 +105,17 @@ nodes:
   #     - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua72228tz.tailnet-4d89.ts.net
     ipAddress: hp-2ua72228tz.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
+    schematic: &schematicHPMini
+      customization:
+        systemExtensions:
+            officialExtensions:
+                - siderolabs/binfmt-misc
+                - siderolabs/i915-ucode
+                - siderolabs/intel-ice-firmware
+                - siderolabs/intel-ucode
+                - siderolabs/iscsi-tools
+                - siderolabs/tailscale
+    # talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
       model: INTEL SSDPEKNU010TZ
@@ -73,12 +126,14 @@ nodes:
           - mountpoint: /var/mnt/sata
     disableSearchDomain: false
     networkInterfaces:
-      - interface: eth0
+      - interface: eno1
         mtu: 0
         dhcp: true
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
+      factory.talos.dev/schematic-id.part-0: 4009d429688a7d9eac8015835a2ffff7
+      factory.talos.dev/schematic-id.part-1: 0f5075863c2428d7df9c6fbc2fb9c859
     extensionServices:
       - name: tailscale
         environment:
@@ -90,7 +145,8 @@ nodes:
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7292pkz.tailnet-4d89.ts.net
     ipAddress: hp-2ua7292pkz.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
+    schematic: *schematicHPMini
+    # talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
       model: INTEL SSDPEKNU010TZ
@@ -101,12 +157,14 @@ nodes:
           - mountpoint: /var/mnt/sata
     disableSearchDomain: false
     networkInterfaces:
-      - interface: eth0
+      - interface: eno1
         mtu: 0
         dhcp: true
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
+      factory.talos.dev/schematic-id.part-0: 4009d429688a7d9eac8015835a2ffff7
+      factory.talos.dev/schematic-id.part-1: 0f5075863c2428d7df9c6fbc2fb9c859
     extensionServices:
       - name: tailscale
         environment:
@@ -118,7 +176,8 @@ nodes:
       - "@./patch-intelgpu.yaml"
   - hostname: hp-2ua7212ndg.tailnet-4d89.ts.net
     ipAddress: hp-2ua7212ndg.tailnet-4d89.ts.net
-    talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
+    schematic: *schematicHPMini
+    # talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
       model: INTEL SSDPEKNU010TZ
@@ -129,12 +188,14 @@ nodes:
           - mountpoint: /var/mnt/sata
     disableSearchDomain: false
     networkInterfaces:
-      - interface: eth0
+      - interface: eno1
         mtu: 0
         dhcp: true
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
+      factory.talos.dev/schematic-id.part-0: 4009d429688a7d9eac8015835a2ffff7
+      factory.talos.dev/schematic-id.part-1: 0f5075863c2428d7df9c6fbc2fb9c859
     extensionServices:
       - name: tailscale
         environment:
@@ -147,7 +208,6 @@ nodes:
 # ## SBC'S ##
 #   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDisk: /dev/mmcblk0
 #     disableSearchDomain: false
@@ -160,7 +220,6 @@ nodes:
 #       topology.kubernetes.io/zone: home-sbc
 #   - hostname: raspberrypi-dca632210a61.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210a61.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDisk: /dev/mmcblk0
 #     disableSearchDomain: false
@@ -173,7 +232,6 @@ nodes:
 #       topology.kubernetes.io/zone: home-sbc
 #   - hostname: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210f4e.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
 #     controlPlane: false
 #     installDisk: /dev/mmcblk0
 #     disableSearchDomain: false
@@ -198,9 +256,23 @@ patches:
       disabled: false
       servers:
         - time.cloudflare.com
+    kubelet:
+      nodeIP:
+        validSubnets:
+          - 100.64.0.0/10
+    features:
+      kubePrism:
+        enabled: true
+        port: 7445
+      hostDNS:
+        enabled: true
+        forwardKubeDNSToHost: true
+        resolveMemberNames: true
+    # network:
+    #   nameservers:
+    #     - 192.168.20.186 # pihole on truenas-purplebox
 - '@./patch-longhorn.yaml'
 - '@./patch-global-sysctls.yaml'
-- '@./patch-tailscale-underlay.yaml'
 controlPlane:
   patches:
     - |
@@ -214,10 +286,6 @@ controlPlane:
               - os:admin
             allowedKubernetesNamespaces:
               - system-upgrade
-          hostDNS:
-            enabled: true
-            forwardKubeDNSToHost: true
-            resolveMemberNames: true
     - |
       cluster:
         allowSchedulingOnMasters: true

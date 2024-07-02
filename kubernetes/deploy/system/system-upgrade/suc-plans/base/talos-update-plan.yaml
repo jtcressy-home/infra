@@ -3,10 +3,11 @@ apiVersion: upgrade.cattle.io/v1
 kind: Plan
 metadata:
   name: talos
+  labels:
+    plan-type: talos
   namespace: system-upgrade
 spec:
-  # renovate: datasource=github-releases depName=jtcressy-home/talos-boot-assets
-  version: v1.7.5
+  version: ${TALOS_VERSION}
   serviceAccountName: system-upgrade
   secrets:
     - name: talos
@@ -22,6 +23,9 @@ spec:
   nodeSelector:
     matchExpressions:
       - { key: kubernetes.io/os, operator: In, values: [linux] }
+      - key: feature.node.kubernetes.io/system-os_release.ID
+        operator: In
+        values: ["talos"]
   prepare: &prepare
     image: ghcr.io/siderolabs/talosctl
     envs:
@@ -38,6 +42,6 @@ spec:
     args:
       - --nodes=$(NODE_IP)
       - upgrade
-      - "--image=factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)"
+      - "--image=factory.talos.dev/installer/$(SCHEMATIC_ID):$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)"
       - --preserve=true
       - --wait=false
