@@ -65,9 +65,6 @@ nodes:
     talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
-      # model: SPCC M.2 PCIe SSD
-      # serial: AA000000000000003334
-      # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223501R01P0B
     machineDisks:
@@ -82,12 +79,12 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-    # extensionServices:
-    #   - name: tailscale
-    #     environment:
-    #       - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-    #       - TS_ACCEPT_DNS=true
-    #       - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-hp-minis-sysfs.yaml"
       - "@./patch-intelgpu.yaml"
@@ -96,9 +93,6 @@ nodes:
     talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
-      # model: SPCC M.2 PCIe SSD
-      # serial: AA000000000000000214
-      # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223503D41P0B
     machineDisks:
@@ -113,12 +107,12 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-    # extensionServices:
-    #   - name: tailscale
-    #     environment:
-    #       - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-    #       - TS_ACCEPT_DNS=true
-    #       - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-hp-minis-sysfs.yaml"
       - "@./patch-intelgpu.yaml"
@@ -127,9 +121,6 @@ nodes:
     talosImageURL: factory.talos.dev/installer/b22fc6d376fcb780505e6729d5a1a7f60b33906c2789315e18c06203054a7084
     controlPlane: true
     installDiskSelector:
-      # model: SPCC M.2 PCIe SSD
-      # serial: AA000000000000001494
-      # size: <=257GiB
       model: INTEL SSDPEKNU010TZ
       serial: PHKA223504UX1P0B
     machineDisks:
@@ -144,62 +135,15 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-    # extensionServices:
-    #   - name: tailscale
-    #     environment:
-    #       - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-    #       - TS_ACCEPT_DNS=true
-    #       - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-hp-minis-sysfs.yaml"
       - "@./patch-intelgpu.yaml"
-# ## LAPTOP NODES (internal battery backup) ##
-#   - hostname: lenovo-r9dwedy.tailnet-4d89.ts.net
-#     ipAddress: lenovo-r9dwedy.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
-#     controlPlane: false
-#     installDiskSelector:
-#       model: Inland SATA SSD
-#       size: ">=258GiB"
-#     disableSearchDomain: false
-#     networkInterfaces:
-#       - interface: eno1
-#         mtu: 0
-#         dhcp: true
-#     nodeLabels:
-#       topology.kubernetes.io/region: home
-#       topology.kubernetes.io/zone: laptop
-# ## EXTRA OFFICE NODES (non-battery-backup) ##
-#   - hostname: dell-inc-4nh5kn1.tailnet-4d89.ts.net
-#     ipAddress: dell-inc-4nh5kn1.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
-#     controlPlane: false
-#     installDiskSelector:
-#       model: KingFast
-#       serial: CA0077Y000122
-#     disableSearchDomain: false
-#     networkInterfaces:
-#       - interface: eno1
-#         mtu: 0
-#         dhcp: true
-#     nodeLabels:
-#       topology.kubernetes.io/region: home
-#       topology.kubernetes.io/zone: home-office-extra
-#   - hostname: oldbessie.tailnet-4d89.ts.net
-#     ipAddress: oldbessie.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
-#     controlPlane: false
-#     installDiskSelector:
-#       size: <=513GB
-#       model: BTO SSD
-#     disableSearchDomain: false
-#     networkInterfaces:
-#       - interface: eno1
-#         mtu: 0
-#         dhcp: true
-#     nodeLabels:
-#       topology.kubernetes.io/region: home
-#       topology.kubernetes.io/zone: home-office-extra
 # ## SBC'S ##
 #   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
@@ -240,21 +184,6 @@ nodes:
 #     nodeLabels:
 #       topology.kubernetes.io/region: home
 #       topology.kubernetes.io/zone: home-sbc
-# ## CLOUD NODES ##
-#   - hostname: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
-#     ipAddress: oracle-free-arm-instance-phx.tailnet-4d89.ts.net
-#     talosImageURL: factory.talos.dev/installer/c787309c6bff349d5b903010476ffb10b877bee8316323e9caf89e9aee070724
-#     installDiskSelector:
-#       size: ">= 32GiB"
-#     disableSearchDomain: false
-#     nodeLabels:
-#       topology.kubernetes.io/region: us-phoenix-1
-#       topology.kubernetes.io/zone: phx-ad-1 # availability domain
-#       infra.jtcressy.net/oci-vcn: default
-#       infra.jtcressy.net/oci-shape: "VM.Standard.A1.Flex"
-#       infra.jtcressy.net/oci-cpus: "4"
-#       infra.jtcressy.net/oci-memory: "24"
-#       infra.jtcressy.net/oci-image: "talos-v1.5.3-tailscale-v1.50.0-arm64"
 patches:
 - |
   machine:
@@ -285,18 +214,10 @@ controlPlane:
               - os:admin
             allowedKubernetesNamespaces:
               - system-upgrade
-    # - |
-    #   machine:
-    #     install:
-    #       extensions:
-    #         - image: ghcr.io/jtcressy-home/cloudflared:2023.8.2
-    #     files:
-    #     - content: |
-    #         TUNNEL_TRANSPORT_PROTOCOL=auto
-    #         TUNNEL_TOKEN=${CLOUDFLARED_CLUSTER_TUNNEL_TOKEN}
-    #       permissions: 0o644
-    #       path: /var/etc/cloudflared/env
-    #       op: create
+          hostDNS:
+            enabled: true
+            forwardKubeDNSToHost: true
+            resolveMemberNames: true
     - |
       cluster:
         allowSchedulingOnMasters: true
