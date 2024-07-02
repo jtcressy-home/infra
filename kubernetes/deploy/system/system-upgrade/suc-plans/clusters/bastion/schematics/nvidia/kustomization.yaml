@@ -13,7 +13,7 @@ patches:
   patch: |-
     - op: replace
       path: /metadata/name
-      value: talos-bm-hpmini
+      value: talos-vm-nvidia
     - op: add
       path: /spec/upgrade/envs/-
       value:
