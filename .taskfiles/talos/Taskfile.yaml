@@ -192,17 +192,18 @@ tasks:
     interactive: true
     # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
+    deps:
+      - genconfig
     requires:
       vars: [cluster, ip, dopplerProject, dopplerConfig]
     vars:
       node: *nodevar
-      extraFlags: '--insecure -e {{.ip}}'
-    deps:
-      - genconfig
+      extraFlags: '--insecure -e {{.ip}} -n {{.ip}}'
     cmds:
-      - eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.node}} --extra-flags="{{.extraFlags}}")
-      # - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
-    
+      - |
+        cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
+        eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.node}} --extra-flags="{{.extraFlags}}")
+
   # launch-node-oci:
   #   desc: Launch an Oracle Cloud instance and join it to the cluster
   #   # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
@@ -290,10 +291,14 @@ tasks:
       dryrun: '{{ .dryrun | default "false" }}'
       extraFlags: '{{if eq .dryrun "true"}}--dry-run {{end}}-m {{.mode}}'
     cmds:
+      - cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
       - for:
           var: nodes
           split: ','
-        cmd: doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}}"
+        vars:
+          talosctlcmd: 
+            sh: doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}}"
+        cmd: eval {{.talosctlcmd}}
     preconditions:
       - talosctl -n {{.node}} get mc
 
