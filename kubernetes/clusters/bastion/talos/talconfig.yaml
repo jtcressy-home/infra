@@ -68,6 +68,38 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-nvidia-gpu.yaml"
+  - hostname: talos-master-1
+    ipAddress: talos-master-1
+    schematic: &schematicBasicVM
+      customization:
+        systemExtensions:
+            officialExtensions:
+                - siderolabs/iscsi-tools
+                - siderolabs/qemu-guest-agent
+                - siderolabs/tailscale
+                - siderolabs/util-linux-tools
+    # talosImageURL: factory.talos.dev/installer/077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2 # nvidia gpu support, vm guest utils
+    controlPlane: true
+    installDiskSelector:
+      size: ">=250GB"
+    disableSearchDomain: false
+    networkInterfaces:
+      - interface: eno1
+        mtu: 0
+        dhcp: true
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+      factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
+      factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    patches:
+      - "@./patch-nvidia-gpu.yaml"
 ## CORE HOME OFFICE RACK (battery backup) ##
   # - hostname: hp-2ua7021myw.tailnet-4d89.ts.net
   #   ipAddress: hp-2ua7021myw.tailnet-4d89.ts.net

@@ -3,7 +3,8 @@ kind: Kustomization
 
 resources:
 - service-account.yaml
-- schematics/nvidia
+- schematics/basicvm
+- schematics/nvidiavm
 - schematics/hpmini
 
 patches:
