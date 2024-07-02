@@ -187,33 +187,21 @@ tasks:
     cmds:
       - talosctl -n {{.ip}} disks --insecure
 
-  get-machine:
-    desc: Get machine
-    interactive: true
-    # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
-    env: *commonenv
-    requires:
-      vars: [cluster]
-    vars:
-      node: *nodevar
-    deps:
-      - genconfig
-    cmds:
-      - talosctl -n {{.node}} get mc
-
   join-node:
     desc: Apply talos config on a new node in maintenance mode
     interactive: true
     # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
-      vars: [cluster, ip]
+      vars: [cluster, ip, dopplerProject, dopplerConfig]
     vars:
       node: *nodevar
+      extraFlags: '--insecure -e {{.ip}}'
     deps:
       - genconfig
     cmds:
-      - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      - eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.node}} --extra-flags="{{.extraFlags}}")
+      # - talosctl apply-config --insecure -e {{.ip}} -n {{.ip}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
     
   # launch-node-oci:
   #   desc: Launch an Oracle Cloud instance and join it to the cluster
@@ -285,7 +273,7 @@ tasks:
   #   preconditions:
   #     - oci session validate --auth security_token
 
-  apply-config:
+  apply:
     desc: Apply talos config on a node
     summary: |
       args:
@@ -295,36 +283,40 @@ tasks:
     deps:
       - genconfig
     requires:
-      vars: [cluster]
+      vars: [cluster, dopplerProject, dopplerConfig]
     vars:
       nodes: *nodesvar
       mode: '{{ .mode | default "auto" }}'
       dryrun: '{{ .dryrun | default "false" }}'
+      extraFlags: '{{if eq .dryrun "true"}}--dry-run {{end}}-m {{.mode}}'
     cmds:
       - for:
           var: nodes
           split: ','
-        cmd: talosctl apply-config -n {{.ITEM}} {{if eq .dryrun "true"}}--dry-run {{end}}-m {{.mode}} -f "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.ITEM}}.yaml"
+        cmd: doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}}"
     preconditions:
       - talosctl -n {{.node}} get mc
 
   upgrade-talos:
+    label: 'upgrade-talos-{{.cluster}}-{{.node}}'
     desc: Upgrade talos on a node
+    silent: false
     interactive: true
     env: *commonenv
     requires:
-      vars: [cluster, image]
+      vars: [cluster, dopplerProject, dopplerConfig]
     vars:
       node: *nodevar
-      mode: '{{ .mode | default "default"}}' # default or powercycle
       configfile: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
-      image:
-        sh: yq -r '.machine.install.image' "{{.configfile}}"
+      # image:
+      #   sh: yq -r '.machine.install.image' "{{.configfile}}"
     deps:
       - genconfig
     cmds:
-      - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
+      # - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
+      - cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand upgrade -n {{.node}} --extra-flags="--preserve=true")
     preconditions:
+      - talosctl -n health
       - talosctl -n {{.node}} get mc
 
   upgrade-k8s:
