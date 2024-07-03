@@ -98,11 +98,7 @@ helmCharts:
     persistence:
       config:
         enabled: true
-        type: persistentVolumeClaim
-        accessMode: ReadWriteOnce
-        size: 10Gi
-        storageClass: rainbowbox-iscsi
-        # existingClaim: homeassistant-config
+        existingClaim: homeassistant-pvc
         globalMounts:
           - path: /config
             readOnly: false
@@ -116,7 +112,7 @@ helmCharts:
       media:
         enabled: true
         type: nfs
-        server: rainbowbox.private.home
+        server: rainbowbox.tailnet-4d89.ts.net
         path: /mnt/default/general/media
         globalMounts:
           - path: /config/media
