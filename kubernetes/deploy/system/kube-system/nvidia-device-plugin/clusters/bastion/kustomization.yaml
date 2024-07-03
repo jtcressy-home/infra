@@ -11,8 +11,8 @@ helmCharts:
   valuesInline:
     runtimeClassName: nvidia
     migStrategy: mixed
-    nfd:
-      enabled: false # we already have node-feature-discovery installed
+    # nfd:
+    #   enabled: false # we already have node-feature-discovery installed
     gfd:
       enabled: true
 
