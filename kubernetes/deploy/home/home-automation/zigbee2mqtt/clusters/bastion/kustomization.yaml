@@ -121,7 +121,8 @@ helmCharts:
             port: 9000
 
     persistence:
-      config:
+      data:
+        type: persistentVolumeClaim
         existingClaim: zigbee2mqtt-pvc
         globalMounts:
           - path: /data
