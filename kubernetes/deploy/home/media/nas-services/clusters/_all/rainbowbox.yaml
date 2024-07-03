@@ -5,5 +5,5 @@ metadata:
     tailscale.com/tailnet-fqdn: rainbowbox.tailnet-4d89.ts.net
   name: rainbowbox   # service name
 spec:
-  externalName: placeholder   # any value - will be overwritten by operator
+  # externalName: placeholder   # any value - will be overwritten by operator
   type: ExternalName
