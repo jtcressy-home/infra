@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: homeassistant-config
+  name: homeassistant-pvc
 spec:
   storageClassName: longhorn-sticky
   accessModes:
