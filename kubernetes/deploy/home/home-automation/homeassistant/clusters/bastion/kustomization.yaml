@@ -114,7 +114,7 @@ helmCharts:
       media:
         enabled: true
         type: nfs
-        server: rainbowbox.media.svc.cluster.local
+        server: rainbowbox.private.home
         path: /mnt/default/general/media
         globalMounts:
           - path: /config/media
