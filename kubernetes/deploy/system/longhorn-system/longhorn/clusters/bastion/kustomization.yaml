@@ -4,6 +4,7 @@ resources:
 - storageclasses.yaml
 - backup-target-secret.yaml
 - recurring-jobs.yaml
+- volumesnapshotclass.yaml
 helmCharts:
   - name: longhorn
     version: v1.6.0
