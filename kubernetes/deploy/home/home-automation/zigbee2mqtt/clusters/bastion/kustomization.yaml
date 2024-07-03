@@ -4,6 +4,7 @@ resources:
 - nfd-rule.yaml
 - externalsecret.yaml
 - backup.yaml
+- pvc.yaml
 
 replicas:
 - name: zigbee2mqtt
