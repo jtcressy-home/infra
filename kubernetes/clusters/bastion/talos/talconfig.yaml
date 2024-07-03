@@ -330,8 +330,9 @@ patches:
         enabled: true
         forwardKubeDNSToHost: true
         resolveMemberNames: true
-    # network:
-    #   nameservers:
+    network:
+      nameservers:
+        - 100.100.100.100
     #     - 192.168.20.186 # pihole on truenas-purplebox
 - '@./patch-longhorn.yaml'
 - '@./patch-global-sysctls.yaml'
