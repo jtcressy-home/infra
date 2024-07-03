@@ -2,6 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - externalsecret.yaml
+- pvc.yaml
 - backup.yaml
 
 helmCharts:
@@ -101,6 +102,7 @@ helmCharts:
         accessMode: ReadWriteOnce
         size: 10Gi
         storageClass: rainbowbox-iscsi
+        # existingClaim: homeassistant-config
         globalMounts:
           - path: /config
             readOnly: false
