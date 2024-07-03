@@ -7,7 +7,7 @@ resources:
 helmCharts:
 - name: app-template
   repo: https://bjw-s.github.io/helm-charts/
-  version: 2.2.0
+  version: 2.6.0
   releaseName: scrypted
   valuesInline:
     controllers:
@@ -27,7 +27,7 @@ helmCharts:
               ]
           nodeSelector:
             kubernetes.io/arch: amd64
-            intel.feature.node.kubernetes.io/gpu: "true"
+            # intel.feature.node.kubernetes.io/gpu: "true"
         containers:
           main:
             image:
@@ -51,11 +51,11 @@ helmCharts:
                 enabled: false
             resources:
               requests:
-                gpu.intel.com/i915: 1
+                # gpu.intel.com/i915: 1
                 cpu: 136m
                 memory: 1024Mi
               limits:
-                gpu.intel.com/i915: 1
+                # gpu.intel.com/i915: 1
                 memory: 6144Mi
             securityContext:
               privileged: true
@@ -99,8 +99,8 @@ helmCharts:
         hostPathType: Directory
       recordings:
         type: nfs
-        server: rainbowbox.tailnet-4d89.ts.net
-        path: /mnt/default/general/media/scrypted
+        server: truenas-purplebox.tailnet-4d89.ts.net
+        path: /mnt/purple/general/media/scrypted
         globalMounts:
           - path: /recordings
 # - name: app-template
