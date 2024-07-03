@@ -38,7 +38,7 @@ spec:
           encryption: AES256
 
   storage:
-    size: 160Gi
+    size: 40Gi
     storageClass: longhorn-strict-local-standalone
 
   monitoring:
