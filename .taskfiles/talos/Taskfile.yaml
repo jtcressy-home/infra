@@ -291,14 +291,12 @@ tasks:
       dryrun: '{{ .dryrun | default "false" }}'
       extraFlags: '{{if eq .dryrun "true"}}--dry-run {{end}}-m {{.mode}}'
     cmds:
-      - cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
       - for:
           var: nodes
           split: ','
-        vars:
-          talosctlcmd: 
-            sh: doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}}"
-        cmd: eval {{.talosctlcmd}}
+        cmd: |
+          cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
+          eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}}")
     preconditions:
       - talosctl -n {{.node}} get mc
 
