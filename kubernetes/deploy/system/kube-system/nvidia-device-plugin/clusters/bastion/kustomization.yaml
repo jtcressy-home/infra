@@ -4,12 +4,24 @@ kind: Kustomization
 helmCharts:
 - name: nvidia-device-plugin
   repo: https://nvidia.github.io/k8s-device-plugin
-  version: 0.13.0
+  version: 0.15.1
   releaseName: nvidia-device-plugin
   includeCRDs: true
   namespace: kube-system
   valuesInline:
     runtimeClassName: nvidia
+- name: nvidia-device-plugin
+  repo: https://nvidia.github.io/k8s-device-plugin
+  version: 0.15.1
+  releaseName: gpu-feature-discovery
+  includeCRDs: true
+  namespace: kube-system
+  valuesInline:
+    migStrategy: mixed
+    nfd:
+      enabled: false # we already have node-feature-discovery installed
+    devicePlugin:
+      enabled: false
 
 resources:
 - runtimeclass.yaml
