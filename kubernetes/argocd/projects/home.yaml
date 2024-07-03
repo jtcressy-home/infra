@@ -21,6 +21,9 @@ spec:
     - name: '*'
       namespace: teslamate
       server: '*'
+    - name: '*'
+      namespace: media
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
