@@ -13,18 +13,18 @@ spec:
     apiGroup: "volsync.backube"
     kind: "ReplicationDestination"
     name: "homeassistant-data-bootstrap"
----
-apiVersion: volsync.backube/v1alpha1
-kind: ReplicationDestination
-metadata:
-  name: "homeassistant-data-bootstrap"
-spec:
-  trigger:
-    manual: "restore-once-bootstrap"
-  restic:
-    repository: "homeassistant-restic-secret"
-    copyMethod: "Snapshot"
-    storageClassName: "longhorn-sticky"
-    volumeSnapshotClassName: longhorn
-    capacity: "10Gi"
-    accessModes: ["ReadWriteOnce"]
+# ---
+# apiVersion: volsync.backube/v1alpha1
+# kind: ReplicationDestination
+# metadata:
+#   name: "homeassistant-data-bootstrap"
+# spec:
+#   trigger:
+#     manual: "restore-once-bootstrap"
+#   restic:
+#     repository: "homeassistant-restic-secret"
+#     copyMethod: "Snapshot"
+#     storageClassName: "longhorn-sticky"
+#     volumeSnapshotClassName: longhorn
+#     capacity: "10Gi"
+#     accessModes: ["ReadWriteOnce"]
