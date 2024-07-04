@@ -79,10 +79,14 @@ helmCharts:
         globalMounts:
           - path: /usr/src/app/store
             readOnly: false
-      usb:
+      # usb:
+      #   type: hostPath
+      #   hostPath: /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_86f2e3788a94eb11984f3a703d98b6d1-if00-port0
+      #   hostPathType: CharDevice
+      #   globalMounts:
+      #     - path: /dev/zwave
+      #       readOnly: false
+      dev-serial:
         type: hostPath
-        hostPath: /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_86f2e3788a94eb11984f3a703d98b6d1-if00-port0
-        # hostPathType: CharDevice
-        globalMounts:
-          - path: /dev/zwave
-            readOnly: false
+        hostPath: /dev/serial
+        hostPathType: Directory
