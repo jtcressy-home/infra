@@ -76,13 +76,10 @@ helmCharts:
     persistence:
       config:
         enabled: true
-        storageClass: rainbowbox-iscsi
-        accessMode: ReadWriteOnce
-        size: 10Gi
-        advancedMounts:
-          main:
-            main:
-              - path: /server/volume
+        existingClaim: scrypted-pvc
+        globalMounts:
+          - path: /server/volume
+            readOnly: false
       cache:
         type: emptyDir
         globalMounts:
