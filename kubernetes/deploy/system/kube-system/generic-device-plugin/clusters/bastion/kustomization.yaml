@@ -28,7 +28,7 @@ helmCharts:
                   - paths:
                       - path: /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_a499044e2813ec119a3321c7bd930c07-if00-port0
               DEVICE_ZWAVE: |-
-                name: coral
+                name: zwave
                 groups:
                   - paths:
                       - path: /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_86f2e3788a94eb11984f3a703d98b6d1-if00-port0
