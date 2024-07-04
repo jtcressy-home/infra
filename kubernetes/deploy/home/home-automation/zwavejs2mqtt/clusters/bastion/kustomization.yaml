@@ -73,9 +73,7 @@ helmCharts:
     persistence:
       config:
         enabled: true
-        storageClass: rainbowbox-iscsi
-        accessMode: ReadWriteOnce
-        size: 1Gi
+        existingClaim: zwavejs2mqtt-pvc
         globalMounts:
           - path: /usr/src/app/store
             readOnly: false
