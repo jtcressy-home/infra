@@ -12,12 +12,15 @@ spec:
       labels:
         app: host-netshoot
     spec:
+      hostPID: true
       hostNetwork: true
       containers:
       - name: netshoot
         image: ghcr.io/nicolaka/netshoot:latest
         imagePullPolicy: Always
         command: ["sh", "-c", "sleep infinity"]
+        securityContext:
+          privileged: true
         resources:
           limits:
             cpu: 2000m
@@ -25,3 +28,10 @@ spec:
           requests:
             cpu: 10m
             memory: 128Mi
+        volumeMounts:
+        - name: host-root
+          mountPath: /host
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
