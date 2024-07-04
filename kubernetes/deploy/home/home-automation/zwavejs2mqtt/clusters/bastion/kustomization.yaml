@@ -60,6 +60,7 @@ helmCharts:
                 memory: 200Mi
                 cpu: 50m
               limits:
+                squat.ai/zwave: 1
                 memory: 500Mi
 
     service:
