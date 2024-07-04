@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: scrypted-pvc
+spec:
+  storageClassName: longhorn-sticky
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  dataSourceRef:
+    apiGroup: "volsync.backube"
+    kind: "ReplicationDestination"
+    name: "scrypted-data-bootstrap"
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: "scrypted-data-bootstrap"
+spec:
+  trigger:
+    manual: "restore-once-bootstrap"
+  restic:
+    repository: "scrypted-restic-secret"
+    copyMethod: "Snapshot"
+    storageClassName: "longhorn-sticky"
+    volumeSnapshotClassName: longhorn
+    capacity: "1Gi"
+    accessModes: ["ReadWriteOnce"]

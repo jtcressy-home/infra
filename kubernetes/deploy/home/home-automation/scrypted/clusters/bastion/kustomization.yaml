@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
 - backup.yaml
 - externalsecret.yaml
+- pvc.yaml
 
 helmCharts:
 - name: app-template
