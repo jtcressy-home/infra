@@ -44,6 +44,7 @@ spec:
     metadata:
       name: '{{ index .path.segments 4 }}-{{ .values.cluster }}'
       annotations:
+        argocd.argoproj.io/manifest-generate-paths: "../../" # relative to the kustomize.yaml, so this covers everything under kubernetes/deploy/<project>/<namespace>/<app>/*
         debug: '{{ . }}'
     spec:
       project: '{{ index .path.segments 2 }}'
