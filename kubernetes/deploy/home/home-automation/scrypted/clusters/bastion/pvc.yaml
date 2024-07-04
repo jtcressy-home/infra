@@ -9,7 +9,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 10Gi
   dataSourceRef:
     apiGroup: "volsync.backube"
     kind: "ReplicationDestination"
@@ -27,5 +27,5 @@ spec:
     copyMethod: "Snapshot"
     storageClassName: "longhorn-sticky"
     volumeSnapshotClassName: longhorn
-    capacity: "1Gi"
+    capacity: "10Gi"
     accessModes: ["ReadWriteOnce"]
