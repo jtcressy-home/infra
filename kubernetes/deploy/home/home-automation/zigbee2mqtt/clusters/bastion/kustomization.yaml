@@ -91,7 +91,8 @@ helmCharts:
               #       name: zigbee2mqtt-secret
               #       key: mqtt_password
               ZIGBEE2MQTT_CONFIG_PERMIT_JOIN: "false"
-              ZIGBEE2MQTT_CONFIG_SERIAL_PORT: /dev/zigbee
+              # ZIGBEE2MQTT_CONFIG_SERIAL_PORT: /dev/zigbee
+              ZIGBEE2MQTT_CONFIG_SERIAL_PORT: /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_a499044e2813ec119a3321c7bd930c07-if00-port0
               ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE: 115200
               ZIGBEE2MQTT_CONFIG_SERIAL_DISABLE_LED: false
               TZ: "America/Chicago"
