@@ -14,15 +14,15 @@ helmCharts:
     controllers:
       main:
         pod:
-          affinity:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                  - matchExpressions:
-                      - key: aeotec.feature.node.kubernetes.io/zwave
-                        operator: In
-                        values:
-                          - "true"
+          # affinity:
+          #   nodeAffinity:
+          #     requiredDuringSchedulingIgnoredDuringExecution:
+          #       nodeSelectorTerms:
+          #         - matchExpressions:
+          #             - key: aeotec.feature.node.kubernetes.io/zwave
+          #               operator: In
+          #               values:
+          #                 - "true"
           securityContext:
             fsGroup: 1000
         containers:
@@ -56,6 +56,7 @@ helmCharts:
               privileged: true
             resources:
               requests:
+                squat.ai/zwave: 1
                 memory: 200Mi
                 cpu: 50m
               limits:
@@ -80,7 +81,7 @@ helmCharts:
       usb:
         type: hostPath
         hostPath: /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_86f2e3788a94eb11984f3a703d98b6d1-if00-port0
-        hostPathType: CharDevice
+        # hostPathType: CharDevice
         globalMounts:
           - path: /dev/zwave
             readOnly: false
