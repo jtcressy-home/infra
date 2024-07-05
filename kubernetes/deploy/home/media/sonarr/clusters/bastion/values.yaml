@@ -11,6 +11,18 @@ controllers:
         envFrom: &envFrom
           - secretRef:
               name: sonarr-secret
+      pgloader:
+        image:
+          repository: ghcr.io/roxedus/pgloader
+          tag: latest
+        envFrom: *envFrom
+        args:
+          - --with
+          - "quote identifiers"
+          - --with
+          - "data only"
+          - /config/sonarr.db
+          - postgresql://$(SONARR__POSTGRES__USER):$(SONARR__POSTGRES__PASSWORD)@$(SONARR__POSTGRES__HOST)/$(SONARR__POSTGRES__MAINDB)
     containers:
       app: &appcontainer
         image:

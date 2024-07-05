@@ -50,18 +50,6 @@ controllers:
           capabilities:
             drop:
               - ALL
-      # pgloader: # temporary to support migration
-      #   <<: *appcontainer
-      #   image:
-      #     repository: ghcr.io/roxedus/pgloader
-      #     tag: latest
-      #   args:
-      #     - --with
-      #     - "quote identifiers"
-      #     - --with
-      #     - "data only"
-      #     - prowlarr.db
-      #     - postgresql://$(PROWLARR__POSTGRES__USER):$(PROWLARR__POSTGRES__PASSWORD)@$(PROWLARR__POSTGRES__HOST)/$(PROWLARR__POSTGRES__MAINDB)
 defaultPodOptions:
   securityContext:
     runAsNonRoot: true
