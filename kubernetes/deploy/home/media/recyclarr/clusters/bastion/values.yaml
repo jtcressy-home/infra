@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.2.0/charts/other/app-template/values.schema.json
+
+controllers:
+  recyclarr:
+    type: cronjob
+    cronjob:
+      schedule: "@daily"
+      timeZone: &timeZone America/Chicago
+      concurrencyPolicy: Forbid
+      successfulJobsHistory: 1
+      failedJobsHistory: 1
+    containers:
+      app:
+        image:
+          repository: ghcr.io/recyclarr/recyclarr
+          tag: 7.0.0@sha256:88d7ef8feb313398a98aafbc2966959f1689191864247f8be15572d5c67641d5
+        args:
+          - sync
+        env:
+          TZ: *timeZone
+        envFrom:
+          - secretRef:
+              name: recyclarr-secret
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 568
+    runAsGroup: 568
+    fsGroup: 568
+    fsGroupChangePolicy: OnRootMismatch
+persistence:
+  config:
+    existingClaim: &app recyclarr
+  config-file:
+    type: configMap
+    name: recyclarr-configmap
+    globalMounts:
+      - path: /config/recyclarr.yml
+        subPath: recyclarr.yml
+        readOnly: true
