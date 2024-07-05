@@ -16,6 +16,10 @@ controllers:
         image:
           repository: ghcr.io/buroa/prowlarr-develop
           tag: 1.20.0.4590@sha256:73aa0765131c3de84de8d87e258526dac9a44e6976f76fa49f46f9612c1c2b1e
+        command:
+          - /bin/sh
+          - -c
+          - sleep infinity
         env:
           PROWLARR__APP__INSTANCENAME: Prowlarr
           PROWLARR__APP__THEME: dark
@@ -55,10 +59,7 @@ controllers:
         image:
           repository: ghcr.io/roxedus/pgloader
           tag: latest
-        command:
-          - /bin/sh
-          - -c
-          - sleep infinity
+          # pgloader --with "quote identifiers" --with "data only" prowlarr.db 'postgresql://${PROWLARR__POSTGRES__USER}:${PROWLARR__POSTGRES__PASSWORD}@${PROWLARR__POSTGRES__HOST}/${PROWLARR__POSTGRES__MAINDB}'
 defaultPodOptions:
   securityContext:
     runAsNonRoot: true
