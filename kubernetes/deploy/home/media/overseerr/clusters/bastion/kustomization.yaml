@@ -55,21 +55,21 @@ helmCharts:
           runAsGroup: 568
           fsGroup: 568
           fsGroupChangePolicy: OnRootMismatch
-        persistence:
-          config:
-            existingClaim: *app
-            globalMounts:
-              - path: /app/config
-          config-cache:
-            existingClaim: overseerr-cache
-            globalMounts:
-              - path: /app/config/cache
-          logs:
-            type: emptyDir
-            globalMounts:
-              - path: /app/config/logs
-          tmp:
-            type: emptyDir
+      persistence:
+        config:
+          existingClaim: *app
+          globalMounts:
+            - path: /app/config
+        config-cache:
+          existingClaim: overseerr-cache
+          globalMounts:
+            - path: /app/config/cache
+        logs:
+          type: emptyDir
+          globalMounts:
+            - path: /app/config/logs
+        tmp:
+          type: emptyDir
       service:
         app:
           controller: *app
