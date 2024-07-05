@@ -58,3 +58,20 @@ allowVolumeExpansion: true
 provisioner: driver.longhorn.io
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-rwx
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+parameters:
+  numberOfReplicas: "3"
+  staleReplicaTimeout: "30"
+  dataLocality: "disabled"
+  fsType: "ext4"
+  fromBackup: ""
+  # RWX-specific parameter
+  accessMode: "ReadWriteMany"
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
