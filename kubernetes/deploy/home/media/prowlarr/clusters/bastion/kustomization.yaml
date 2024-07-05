@@ -16,7 +16,7 @@ helmCharts:
             init-db:
               image:
                 repository: ghcr.io/buroa/postgres-init
-                tag: 15
+                tag: 16
               envFrom: &envFrom
                 - secretRef:
                     name: prowlarr-secret
