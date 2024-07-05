@@ -26,7 +26,8 @@ helmCharts:
                 sabnzbd.media.svc,
                 sabnzbd.media.svc.cluster,
                 sabnzbd.media.svc.cluster.local,
-                downloads.media.cressy.family
+                downloads.media.cressy.family,
+                sabnzbd.tailnet-4d89.ts.net
               TZ: America/Chicago
             envFrom:
               - secretRef:
