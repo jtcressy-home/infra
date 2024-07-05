@@ -12,7 +12,7 @@ controllers:
           - secretRef:
               name: sonarr-secret
     containers:
-      app:
+      app: &appcontainer
         image:
           repository: ghcr.io/buroa/sonarr-develop
           tag: 4.0.5.1801@sha256:4d87712a4b59bedb65e6414b003a3003eadb68ea84620eb81639469469123463
@@ -50,6 +50,15 @@ controllers:
           capabilities:
             drop:
               - ALL
+      pgloader: # temporary to support migration
+        <<: *appcontainer
+        image:
+          repository: ghcr.io/roxedus/pgloader
+          tag: latest
+        command:
+          - /bin/sh
+          - -c
+          - sleep infinity
 defaultPodOptions:
   securityContext:
     runAsNonRoot: true
