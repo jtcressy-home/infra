@@ -1,0 +1,78 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - persistence.yaml
+
+helmCharts:
+  - name: app-template
+    repo: https://bjw-s.github.io/helm-charts/
+    version: 3.2.1
+    releaseName: &app overseerr
+    valuesInline:
+      controllers:
+        overseerr:
+          containers:
+            app:
+              image:
+                repository: ghcr.io/sct/overseerr
+                tag: 1.33.2@sha256:714ea6db2bc007a2262d112bef7eec74972eb33d9c72bddb9cbd98b8742de950
+              env:
+                LOG_LEVEL: info
+                PORT: &port 5055
+                TZ: America/Chicago
+              envFrom:
+                - secretRef:
+                    name: overseerr-secret
+              probes:
+                liveness: &probes
+                  enabled: true
+                  custom: true
+                  spec:
+                    httpGet:
+                      path: &path /api/v1/status
+                      port: *port
+                    initialDelaySeconds: 0
+                    periodSeconds: 10
+                    timeoutSeconds: 1
+                    failureThreshold: 3
+                readiness: *probes
+              resources:
+                requests:
+                  cpu: 10m
+                limits:
+                  memory: 2Gi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+      defaultPodOptions:
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 568
+          runAsGroup: 568
+          fsGroup: 568
+          fsGroupChangePolicy: OnRootMismatch
+        persistence:
+          config:
+            existingClaim: *app
+            globalMounts:
+              - path: /app/config
+          config-cache:
+            existingClaim: overseerr-cache
+            globalMounts:
+              - path: /app/config/cache
+          logs:
+            type: emptyDir
+            globalMounts:
+              - path: /app/config/logs
+          tmp:
+            type: emptyDir
+      service:
+        app:
+          controller: *app
+          ports:
+            http:
+              port: *port
