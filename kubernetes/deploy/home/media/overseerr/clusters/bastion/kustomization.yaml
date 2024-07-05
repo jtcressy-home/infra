@@ -67,6 +67,21 @@ helmCharts:
             - path: /app/config/logs
         tmp:
           type: emptyDir
+      ingress:
+        app:
+          enabled: true
+          className: tailscale
+          hosts:
+            - host: *app
+              paths:
+                - path: /
+                  pathType: Prefix
+                  service:
+                    identifier: app
+                    port: http
+          tls:
+            - hosts:
+                - *app
       service:
         app:
           controller: *app

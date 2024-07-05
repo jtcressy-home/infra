@@ -69,6 +69,21 @@ helmCharts:
           type: emptyDir
         tmp:
           type: emptyDir
+      ingress:
+        app:
+          enabled: true
+          className: tailscale
+          hosts:
+            - host: prowlarr
+              paths:
+                - path: /
+                  pathType: Prefix
+                  service:
+                    identifier: app
+                    port: http
+          tls:
+            - hosts:
+                - prowlarr
       service:
         app:
           controller: *app
