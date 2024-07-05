@@ -77,7 +77,7 @@ helmCharts:
         path: /mnt/purple/general/media
         globalMounts:
           - path: /media/downloads/nzbs
-            subPath: Downloads/nzbs
+            subPath: downloads/nzbs
       tmp:
         type: emptyDir
     service:
