@@ -21,9 +21,6 @@ helmCharts:
                 LOG_LEVEL: info
                 PORT: &port 5055
                 TZ: America/Chicago
-              envFrom:
-                - secretRef:
-                    name: overseerr-secret
               probes:
                 liveness: &probes
                   enabled: true
