@@ -62,15 +62,6 @@ controllers:
           capabilities:
             drop:
               - ALL
-      pgloader: # temporary to support migration
-        <<: *appcontainer
-        image:
-          repository: ghcr.io/roxedus/pgloader
-          tag: latest
-        command:
-          - /bin/sh
-          - -c
-          - sleep infinity
 defaultPodOptions:
   securityContext:
     runAsNonRoot: true
