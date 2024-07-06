@@ -15,6 +15,32 @@ helmCharts:
       enabled: false # we already have node-feature-discovery installed
     gfd:
       enabled: true
+- name: dcgm-exporter
+  repo: https://nvidia.github.io/dcgm-exporter/helm-charts
+  version: 3.4.2
+  releaseName: dcgm-exporter
+  includeCRDs: true
+  namespace: kube-system
+  valuesInline:
+    image:
+      repository: nvcr.io/nvidia/k8s/dcgm-exporter
+      tag: 3.3.6-3.4.2-ubuntu22.04
+    extraEnv:
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+    # nodeSelector:
+    #   nvidia.feature.node.kubernetes.io/gpu: "true"
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: nvidia.com/gpu.count
+              operator: Exists
+    runtimeClassName: nvidia
+    serviceMonitor:
+      interval: 15s
+      honorLabels: true
 
 resources:
 - runtimeclass.yaml
