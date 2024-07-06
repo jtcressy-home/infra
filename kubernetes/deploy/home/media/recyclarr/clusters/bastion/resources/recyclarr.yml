@@ -19,7 +19,7 @@ sonarr:
       type: series
 
     quality_profiles:
-      - name: Web 720p
+      - name: WEB-720p
         reset_unmatched_scores:
           enabled: true
         upgrade:
