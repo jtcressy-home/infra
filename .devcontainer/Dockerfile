@@ -12,7 +12,7 @@ FROM docker.io/cloudflare/cloudflared:${CLOUDFLARED_VERSION} as cloudflared
 FROM ghcr.io/siderolabs/talosctl:${TALOSCTL_VERSION} as talosctl
 FROM docker.io/mikefarah/yq:latest as yq
 
-FROM golang:1.21 as gomod-builder
+FROM golang:1.22 as gomod-builder
 
 ENV GOBIN /usr/local/bin
 
