@@ -6,7 +6,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/kastenhq/kubestr v0.4.41
 	github.com/magefile/mage v1.15.0
-	github.com/xuri/excelize/v2 v2.8.0
+	github.com/xuri/excelize/v2 v2.8.1
 	tailscale.com v1.60.1
 )
 
@@ -86,20 +86,20 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
-	github.com/xuri/efp v0.0.0-20230802181842-ad255f2331ca // indirect
-	github.com/xuri/nfp v0.0.0-20230819163627-dc951e3ffe1a // indirect
+	github.com/xuri/efp v0.0.0-20231025114914-d1ff6096ae53 // indirect
+	github.com/xuri/nfp v0.0.0-20230919160717-d98342af3f05 // indirect
 	go.mongodb.org/mongo-driver v1.11.3 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
 	go4.org/mem v0.0.0-20220726221520-4f986261bf13 // indirect
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba // indirect
-	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/term v0.16.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/term v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.17.0 // indirect
