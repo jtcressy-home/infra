@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: argocd
 
 resources:
-- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.11.2
+- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v2.11.4
 - default-project.yaml
 - infra-repo.yaml
 - bastion-cluster-config.yaml
