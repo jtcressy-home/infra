@@ -124,11 +124,12 @@ radarr:
     include:
       # Comment out any of the following includes to disable them
       - template: radarr-quality-definition-sqp-uhd
+      - template: radarr-quality-profile-sqp-2
+      - template: radarr-quality-profile-sqp-3
       - template: radarr-quality-profile-sqp-4
+      - template: radarr-custom-formats-sqp-2
+      - template: radarr-custom-formats-sqp-3
       - template: radarr-custom-formats-sqp-4
-
-    quality_definition:
-      type: movie
 
     custom_formats:
       # Movie Versions
@@ -137,6 +138,10 @@ radarr:
         quality_profiles:
           - name: SQP-4
             # score: 0 # Uncomment this line to disable prioritised IMAX Enhanced releases
+          - name: SQP-3
+            score: 0
+          - name: SQP-2
+            score: 0
 
       # Misc
       - trash_ids:
@@ -144,6 +149,10 @@ radarr:
         quality_profiles:
           - name: SQP-4
             score: 0 # Uncomment this line to enable x264 releases
+          - name: SQP-3
+            score: 0
+          - name: SQP-2
+            score: 0
 
       # Unwanted
       - trash_ids:
@@ -152,10 +161,16 @@ radarr:
         quality_profiles:
           - name: SQP-4
             score: 0
+          - name: SQP-3
+            score: 0
+          - name: SQP-2
+            score: 0
       - trash_ids:
           - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
         quality_profiles:
           - name: SQP-4
+          - name: SQP-3
+          - name: SQP-2
 
       # Optional
       - trash_ids:
@@ -169,13 +184,15 @@ radarr:
           # Uncomment any of the following if you want them to be added to the quality profile
           - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
           - 90cedc1fea7ea5d11298bebd3d1d3223 # EVO (no WEBDL)
-          - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+          # - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
           - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
           - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
           - f537cf427b64c38c8e36298f657e4828 # Scene
           - f700d29429c023a5734505e77daeaea7 # DV (Disk)
         quality_profiles:
           - name: SQP-4
+          - name: SQP-3
+          - name: SQP-2
 
       # Optional SDR
       # Only ever use ONE of the following custom formats:
@@ -186,3 +203,5 @@ radarr:
           - 25c12f78430a3a23413652cbd1d48d77 # SDR (no WEBDL)
         quality_profiles:
           - name: SQP-4
+          - name: SQP-3
+          - name: SQP-2
