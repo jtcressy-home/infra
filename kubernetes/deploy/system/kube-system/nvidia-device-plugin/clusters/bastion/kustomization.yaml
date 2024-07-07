@@ -26,8 +26,10 @@ helmCharts:
       repository: nvcr.io/nvidia/k8s/dcgm-exporter
       tag: 3.3.6-3.4.2-ubuntu22.04
     extraEnv:
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
+      - name: NVIDIA_DRIVER_CAPABILITIES
+        value: all
+      - name: NVIDIA_VISIBLE_DEVICES
+        value: all
     # nodeSelector:
     #   nvidia.feature.node.kubernetes.io/gpu: "true"
     affinity:
