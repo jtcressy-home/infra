@@ -107,8 +107,8 @@ helmCharts:
       media:
         enabled: true
         type: nfs
-        server: rainbowbox.tailnet-4d89.ts.net
-        path: /mnt/default/general/media
+        server: truenas-purplebox.tailnet-4d89.ts.net
+        path: /mnt/purple/general/media
         globalMounts:
           - path: /config/media
             readOnly: false
