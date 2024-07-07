@@ -59,16 +59,16 @@ helmCharts:
         serviceMonitorNamespaceSelector: {}
         serviceMonitorSelector: {}
         serviceMonitorSelectorNilUsesHelmValues: false
-        retention: 30d
+        retention: 15d
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: rainbowbox-iscsi
+              storageClassName: longhorn-sticky
               accessModes:
               - ReadWriteOnce
               resources:
                 requests:
-                  storage: 100Gi
+                  storage: 40Gi
 
 - name: grafana
   repo: https://grafana.github.io/helm-charts
@@ -97,6 +97,10 @@ helmCharts:
       tls:
       - hosts:
         - grafana
+    persistence:
+      enabled: true
+      storageClassName: longhorn-sticky
+      size: 10Gi
     grafana.ini:
       users:
         allow_sign_up: false
