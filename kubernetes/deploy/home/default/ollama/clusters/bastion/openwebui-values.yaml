@@ -8,3 +8,6 @@ ingress:
   class: "tailscale"
   host: "ollama"
   tls: true
+persistence:
+  enabled: true
+  existingClaim: "ollama"
