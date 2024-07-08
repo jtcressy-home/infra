@@ -1,4 +1,6 @@
 replicaCount: 1
+updateStrategy:
+  type: Recreate
 extraEnv: {}
 podLabels:
   app: ollama
@@ -19,6 +21,7 @@ ollama:
     enabled: true
     type: "nvidia"
     number: 1
+runtimeClassName: "nvidia"
 ingress:
   enabled: true
   className: tailscale
