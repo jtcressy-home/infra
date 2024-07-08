@@ -1,0 +1,32 @@
+replicaCount: 1
+extraEnv: {}
+podLabels:
+  app: ollama
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - ollama
+      topologyKey: "kubernetes.io/hostname"
+ollama:
+  models:
+    - llama3:8b
+  gpu:
+    enabled: true
+    type: "nvidia"
+    number: 1
+ingress:
+  enabled: true
+  className: tailscale
+  hosts:
+    - host: ollama-api
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - ollama-api
