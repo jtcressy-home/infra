@@ -48,7 +48,8 @@ spec:
     repository: sabnzbd-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: longhorn-sticky
+    storageClassName: longhorn-standalone
+    cacheStorageClassName: longhorn-standalone
     volumeSnapshotClassName: longhorn
     moverSecurityContext:
       runAsUser: 568
@@ -69,7 +70,8 @@ spec:
     repository: sabnzbd-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: longhorn-sticky
+    storageClassName: longhorn-standalone
+    cacheStorageClassName: longhorn-standalone
     volumeSnapshotClassName: longhorn
     moverSecurityContext:
       runAsUser: 568
