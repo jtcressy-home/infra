@@ -24,7 +24,8 @@ spec:
 #   restic:
 #     repository: "homeassistant-restic-secret"
 #     copyMethod: "Snapshot"
-#     storageClassName: "longhorn-sticky"
+#     storageClassName: "longhorn-standalone"
+#     cacheStorageClassName: "longhorn-standalone"
 #     volumeSnapshotClassName: longhorn
 #     capacity: "10Gi"
 #     accessModes: ["ReadWriteOnce"]

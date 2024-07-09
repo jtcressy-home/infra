@@ -45,5 +45,5 @@ spec:
       runAsUser: 568
       runAsGroup: 568
       fsGroup: 568
-    cacheStorageClassName: longhorn-sticky
-    storageClassName: longhorn-sticky
+    cacheStorageClassName: longhorn-standalone
+    storageClassName: longhorn-standalone

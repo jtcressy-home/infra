@@ -25,7 +25,8 @@ spec:
   restic:
     repository: "zwavejs2mqtt-restic-secret"
     copyMethod: "Snapshot"
-    storageClassName: "longhorn-sticky"
+    storageClassName: "longhorn-standalone"
+    cacheStorageClassName: "longhorn-standalone"
     volumeSnapshotClassName: longhorn
     capacity: "1Gi"
     accessModes: ["ReadWriteOnce"]
