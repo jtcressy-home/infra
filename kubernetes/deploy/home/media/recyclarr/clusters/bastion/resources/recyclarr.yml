@@ -218,22 +218,22 @@ radarr:
             score: 0
 
       # Unwanted
-      - trash_ids:
-          # Uncomment the next six lines to block all x265 HD releases
-          - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
-        quality_profiles:
-          - name: SQP-4
-            score: 0
-          - name: SQP-3
-            score: 0
-          - name: SQP-2
-            score: 0
-      - trash_ids:
-          - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
-        quality_profiles:
-          - name: SQP-4
-          - name: SQP-3
-          - name: SQP-2
+      # - trash_ids:
+      #     # Uncomment the next several lines to block all x265 HD releases
+      #     - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
+      #   quality_profiles:
+      #     - name: SQP-4
+      #       score: 0
+      #     - name: SQP-3
+      #       score: 0
+      #     - name: SQP-2
+      #       score: 0
+      # - trash_ids:
+      #     - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
+      #   quality_profiles:
+      #     - name: SQP-4
+      #     - name: SQP-3
+      #     - name: SQP-2
 
       # Optional
       - trash_ids:
