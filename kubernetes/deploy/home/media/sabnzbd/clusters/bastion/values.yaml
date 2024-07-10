@@ -4,6 +4,14 @@
 controllers:
   sabnzbd:
     containers:
+      temp:
+        image:
+          repository: alpine
+          tag: latest
+        command:
+          - /bin/sh
+          - -c
+          - sleep 3600;
       app:
         image:
           repository: ghcr.io/buroa/sabnzbd
@@ -40,20 +48,20 @@ controllers:
             cpu: 100m
           limits:
             memory: 8Gi
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-              - ALL
+        # securityContext:
+        #   allowPrivilegeEscalation: false
+        #   readOnlyRootFilesystem: true
+        #   capabilities:
+        #     drop:
+        #       - ALL
 defaultPodOptions:
   nodeSelector:
     kubernetes.io/hostname: talos-master-0
     # this node is always on the same proxmox host as truenas-purplebox,
     # which gives it more bandwidth until we upgrade to 10GbE networking
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 568
+    # runAsNonRoot: true
+    # runAsUser: 568
     runAsGroup: 568
     fsGroup: 568
     fsGroupChangePolicy: OnRootMismatch
