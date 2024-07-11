@@ -171,6 +171,9 @@ helmCharts:
           url: https://raw.githubusercontent.com/billimek/k8s-gitops/master/monitoring/grafana/dashboards/home_assistant.json
           datasource: home_assistant
       infra:
+        dcgm-exporter:
+          gnetId: 12239
+          datasource: Prometheus
         cloudnative-pg:
           url: https://raw.githubusercontent.com/cloudnative-pg/grafana-dashboards/main/charts/cluster/grafana-dashboard.json
           datasource: Prometheus
