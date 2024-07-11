@@ -15,8 +15,6 @@ affinity:
           - ollama
       topologyKey: "kubernetes.io/hostname"
 ollama:
-  models:
-    - llama3:8b
   gpu:
     enabled: true
     type: "nvidia"
