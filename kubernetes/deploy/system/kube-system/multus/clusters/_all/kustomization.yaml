@@ -3,7 +3,7 @@ kind: Kustomization
 
 images:
 - name: ghcr.io/angelnu/cni-plugins
-  newTag: 1.4.1
+  newTag: 1.5.1
 - name: ghcr.io/k8snetworkplumbingwg/multus-cni
   newTag: v4.0.2
 
@@ -108,7 +108,7 @@ patches:
               mountPath: /host/run/cni
           containers:
           - name: dhcp-daemon
-            image: ghcr.io/angelnu/cni-plugins:1.4.1
+            image: ghcr.io/angelnu/cni-plugins:1.5.1
             command:
             - /plugins/dhcp
             args:
