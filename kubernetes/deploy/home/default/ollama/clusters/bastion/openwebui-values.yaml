@@ -10,4 +10,7 @@ ingress:
   tls: true
 persistence:
   enabled: true
-  existingClaim: "ollama"
+  size: 10Gi
+  storageClass: longhorn-sticky
+  accessModes:
+    - ReadWriteOnce
