@@ -5,7 +5,7 @@ clusterName: ${clusterName}
 talosVersion: v1.7.5
 
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
-kubernetesVersion: v1.28.4
+kubernetesVersion: v1.30.2
 
 endpoint: https://talos-master-0.tailnet-4d89.ts.net:6443
 
