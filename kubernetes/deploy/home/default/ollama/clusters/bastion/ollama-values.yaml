@@ -1,4 +1,4 @@
-replicaCount: 0
+replicaCount: 1
 updateStrategy:
   type: Recreate
 extraEnv: {}
@@ -35,7 +35,7 @@ ingress:
         - ollama-api
 persistentVolume:
   enabled: true
-  size: 10Gi
+  size: 30Gi
   storageClass: longhorn-rwx
   accessModes:
     - ReadWriteMany
