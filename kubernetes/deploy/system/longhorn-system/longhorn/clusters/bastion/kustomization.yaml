@@ -21,8 +21,8 @@ helmCharts:
         kubeletRootDir: /var/lib/kubelet
 
       defaultSettings:
-        backupTarget: s3://longhorn-backups@us-east-1/bastion/
-        backupTargetCredentialSecret: longhorn-backup-target
+        # backupTarget: s3://longhorn-backups@us-east-1/bastion/
+        # backupTargetCredentialSecret: longhorn-backup-target
         defaultDataPath: /var/lib/longhorn
         storageNetwork: ~
         nodeDrainPolicy: allow-if-replica-is-stopped
