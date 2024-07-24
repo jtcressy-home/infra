@@ -15,7 +15,7 @@ controllers:
       app: &appcontainer
         image:
           repository: ghcr.io/buroa/prowlarr-develop
-          tag: 1.20.1.4603@sha256:0a32094618fe25b1223e6a84c924d2d960e5927b95bf3f91421520b2a462cde5
+          tag: 1.21.1.4631@sha256:97969e4391e8280afd0c2f0e6c11e520c2ee3a05444277797961a832d6fe6700
         env:
           PROWLARR__APP__INSTANCENAME: Prowlarr
           PROWLARR__APP__THEME: dark
