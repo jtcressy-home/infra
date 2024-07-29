@@ -150,6 +150,45 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-nvidia-gpu.yaml"
+  - hostname: talos-worker-gpu-1
+    ipAddress: talos-worker-gpu-1
+    schematic: &schematicNvidiaGPUVM
+      customization:
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/amd-ucode
+            - siderolabs/amdgpu-firmware
+            - siderolabs/binfmt-misc
+            - siderolabs/i915-ucode
+            - siderolabs/intel-ice-firmware
+            - siderolabs/intel-ucode
+            - siderolabs/iscsi-tools
+            - siderolabs/nonfree-kmod-nvidia
+            - siderolabs/nvidia-container-toolkit
+            - siderolabs/qemu-guest-agent
+            - siderolabs/qlogic-firmware
+            - siderolabs/realtek-firmware
+            - siderolabs/tailscale
+            - siderolabs/util-linux-tools
+    # talosImageURL: factory.talos.dev/installer/50aa73cddb0d6050ce6ed5a9fc3b08c0b44ab345098152bc448ff467cd2aa7d7 # nvidia gpu support, vm guest utils
+    controlPlane: false
+    installDiskSelector:
+      size: ">=32GB"
+    disableSearchDomain: false
+    nodeLabels:
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+      factory.talos.dev/schematic-id.part-0: 50aa73cddb0d6050ce6ed5a9fc3b08c0
+      factory.talos.dev/schematic-id.part-1: b44ab345098152bc448ff467cd2aa7d7
+      node.longhorn.io/create-default-disk: "false"
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    patches:
+      - "@./patch-nvidia-gpu.yaml"
 # ## SBC'S ##
 #   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net

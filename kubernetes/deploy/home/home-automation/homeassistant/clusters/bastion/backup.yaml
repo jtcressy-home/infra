@@ -46,4 +46,4 @@ spec:
       runAsGroup: 568
       fsGroup: 568
     cacheStorageClassName: longhorn-standalone
-    storageClassName: longhorn-standalone
+    storageClassName: longhorn-standalone 
