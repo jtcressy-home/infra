@@ -38,8 +38,9 @@ helmCharts:
         command:
           - "/bin/sh"
           - -c
-        args:
-          - envsubst < /configs/config.yml > /www/assets/config.yml;
+          - |
+            apk add envsubst;
+            envsubst < /configs/config.yml > /www/assets/config.yml;
         envFrom:
           - secretRef:
               name: homer-env-secrets
