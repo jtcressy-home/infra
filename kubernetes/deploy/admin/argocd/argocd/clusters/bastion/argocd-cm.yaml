@@ -26,14 +26,14 @@ data:
     apiextensions.k8s.io_CustomResourceDefinition:
       syncOptions:
         - ServerSideApply=true
-    PersistentVolume:
-      ignoreDifferences:
-        - jsonPointers:
-            - /spec/claimRef/resourceVersion
-            - /spec/claimRef/uid
-            - /status/lastPhaseTransitionTime
+    _PersistentVolume:
       syncOptions:
         - RespectIgnoreDifferences=True
+  resource.customizations.ignoreDifferences._PersistentVolume: |
+    jsonPointers:
+    - /spec/claimRef/resourceVersion
+    - /spec/claimRef/uid
+    - /status/lastPhaseTransitionTime
   resource.customizations.ignoreDifferences._CSIDriver: |
     jqPathExpressions:
     - .spec.seLinuxMount
