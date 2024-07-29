@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
 - purplebox-smb-media.yaml
 - smb-creds.yaml
+- purplebox-nfs-media.yaml
