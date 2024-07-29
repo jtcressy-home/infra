@@ -187,6 +187,23 @@ tasks:
     cmds:
       - talosctl -n {{.ip}} disks --insecure
 
+
+  get-iso-url:
+    desc: Get talos iso download URL for a node
+    interactive: true
+    silent: true
+    env: *commonenv
+    deps:
+      - genconfig
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    vars:
+      node: *nodevar
+    cmds:
+      - |
+        cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
+        doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper genurl iso -n {{.node}}
+
   join-node:
     desc: Apply talos config on a new node in maintenance mode
     interactive: true
@@ -319,7 +336,7 @@ tasks:
       # - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
       - cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand upgrade -n {{.node}} --extra-flags="--preserve=true")
     preconditions:
-      - talosctl -n health
+      - talosctl -n {{.node}} health
       - talosctl -n {{.node}} get mc
 
   upgrade-k8s:
@@ -337,4 +354,5 @@ tasks:
     cmds:
       - talosctl -n {{.node}} upgrade-k8s --to {{.to}}
     preconditions:
+      - talosctl -n {{.node}} health
       - talosctl -n {{.node}} get mc

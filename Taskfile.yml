@@ -31,3 +31,49 @@ tasks:
     silent: true
     cmds:
       - task -l
+
+  cuda:
+    summary: runs a kubernetes pod with nvidia-smi
+    vars:
+      podOverrides: | # pod override to include nvidia.com/gpu: 1 resources and nvidia runtime class
+        {
+          "spec": {
+            "containers": [
+              {
+                "name": "nvidia-smi",
+                "image": "nvcr.io/nvidia/cuda:12.1.0-base-ubuntu22.04",
+                "stdin": true,
+                "stdinOnce": true,
+                "tty": true,
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": ["ALL"]
+                  },
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                }
+              }
+            ],
+            "affinity": {
+              "nodeAffinity": {
+                "requiredDuringSchedulingIgnoredDuringExecution": {
+                  "nodeSelectorTerms": [
+                    {
+                      "matchExpressions": [
+                        {
+                          "key": "nvidia.com/gpu.count",
+                          "operator": "Exists"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "runtimeClassName": "nvidia"
+          }
+        }
+    cmds:
+      - kubectl run --rm -it --restart=Never nvidia-smi-{{ now | unixEpoch | sha256sum | trunc 10 }} --image=nvcr.io/nvidia/cuda:12.1.0-base-ubuntu22.04 --overrides '{{.podOverrides}}' -- bash -c '{{.CLI_ARGS}}'
