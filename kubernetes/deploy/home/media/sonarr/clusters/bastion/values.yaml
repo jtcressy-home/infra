@@ -27,7 +27,7 @@ controllers:
       app: &appcontainer
         image:
           repository: ghcr.io/buroa/sonarr-develop
-          tag: 4.0.8.1902@sha256:cecf7ef43c88a889b0ec5e7ea17753309c247ebdd3da16d3526f9d4373a3bc2e
+          tag: 4.0.8.1967@sha256:d834476522f2503cb1e1df307472a67d8fd6dd00e0cf1be5a32fe0b3005dde3c
         env:
           SONARR__APP__INSTANCE: Sonarr
           SONARR__APP__THEME: dark
