@@ -4,7 +4,7 @@ kind: Kustomization
 helmCharts:
 - name: nvidia-device-plugin
   repo: https://nvidia.github.io/k8s-device-plugin
-  version: 0.16.0
+  version: 0.16.1
   releaseName: nvidia-device-plugin
   includeCRDs: true
   namespace: kube-system
