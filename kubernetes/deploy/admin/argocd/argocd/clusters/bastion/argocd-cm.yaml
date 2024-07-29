@@ -28,10 +28,10 @@ data:
         - ServerSideApply=true
     PersistentVolume:
       ignoreDifferences:
-        jsonPointers:
-          - /spec/claimRef/resourceVersion
-          - /spec/claimRef/uid
-          - /status/lastPhaseTransitionTime
+        - jsonPointers:
+            - /spec/claimRef/resourceVersion
+            - /spec/claimRef/uid
+            - /status/lastPhaseTransitionTime
       syncOptions:
         - RespectIgnoreDifferences=True
   resource.customizations.ignoreDifferences._CSIDriver: |
