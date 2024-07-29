@@ -54,7 +54,7 @@ helmCharts:
           api:
             image:
               repository: tobiasehlert/teslamateapi
-              tag: 1.17.2
+              tag: 1.18.1
             env:
               <<: *env
               API_TOKEN_DISABLE: "true"
