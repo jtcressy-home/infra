@@ -4,7 +4,7 @@ metadata:
   name: purplebox-nfs-media
   namespace: media
 spec:
-  storageClassName: media
+  storageClassName: media-nfs
   capacity:
     storage: 1Mi
   accessModes:
@@ -29,7 +29,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: media
+  storageClassName: media-nfs
   resources:
     requests:
       storage: 1Mi

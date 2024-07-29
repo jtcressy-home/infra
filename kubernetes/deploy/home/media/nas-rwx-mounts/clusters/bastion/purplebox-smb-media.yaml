@@ -4,7 +4,7 @@ kind: PersistentVolume
 metadata:
   name: purplebox-smb-media
 spec:
-  storageClassName: media
+  storageClassName: media-smb
   capacity:
     storage: 1Mi
   accessModes:
@@ -32,7 +32,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: media
+  storageClassName: media-smb
   volumeName: purplebox-smb-media
   resources:
     requests:
