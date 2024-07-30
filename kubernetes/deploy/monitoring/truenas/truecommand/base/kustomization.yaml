@@ -4,7 +4,7 @@ namespace: truenas
 helmCharts:
 - name: app-template
   repo: https://bjw-s.github.io/helm-charts
-  version: 2.6.0
+  version: 3.3.1
   releaseName: truecommand
   namespace: truenas
   valuesInline:
