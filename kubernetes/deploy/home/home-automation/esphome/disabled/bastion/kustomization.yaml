@@ -29,7 +29,7 @@ helmCharts:
           main:
             image:
               repository: ghcr.io/esphome/esphome
-              tag: 2024.6.6
+              tag: 2024.7.3
             ports:
               - name: http
                 containerPort: 6052
