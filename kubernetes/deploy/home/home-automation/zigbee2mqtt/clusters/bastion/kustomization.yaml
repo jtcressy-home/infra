@@ -40,7 +40,7 @@ helmCharts:
           main:
             image:
               repository: ghcr.io/koenkk/zigbee2mqtt
-              tag: 1.39.0
+              tag: 1.39.1
             env:
               ZIGBEE2MQTT_CONFIG_ADVANCED_HOMEASSISTANT_DISCOVERY_TOPIC: homeassistant
               ZIGBEE2MQTT_CONFIG_ADVANCED_HOMEASSISTANT_LEGACY_ENTITY_ATTRIBUTES: "false"
