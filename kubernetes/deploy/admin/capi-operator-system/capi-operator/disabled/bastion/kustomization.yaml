@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- github.com/kubernetes-sigs/cluster-api-operator//config/default?ref=v0.11.0
+- github.com/kubernetes-sigs/cluster-api-operator//config/default?ref=v0.12.0
 
 images:
   - name: gcr.io/k8s-staging-capi-operator/cluster-api-operator
