@@ -30,7 +30,7 @@ metadata:
 spec:
   sourcePVC: homeassistant-pvc
   trigger:
-    schedule: "0 */12 * * *" # every 12 hours
+    schedule: "0 0 * * *" # every 24 hours
   restic:
     copyMethod: Clone
     pruneIntervalDays: 14
@@ -46,4 +46,4 @@ spec:
       runAsGroup: 568
       fsGroup: 568
     cacheStorageClassName: longhorn-standalone
-    storageClassName: longhorn-standalone 
+    storageClassName: longhorn-standalone
