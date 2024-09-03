@@ -49,6 +49,7 @@ nodes:
       topology.kubernetes.io/zone: home-office-rack
       factory.talos.dev/schematic-id.part-0: 50aa73cddb0d6050ce6ed5a9fc3b08c0
       factory.talos.dev/schematic-id.part-1: b44ab345098152bc448ff467cd2aa7d7
+      node.longhorn.io/create-default-disk: "true"
     extensionServices:
       - name: tailscale
         environment:
@@ -79,13 +80,13 @@ nodes:
       topology.kubernetes.io/zone: home-office-rack
       factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
       factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
+      node.longhorn.io/create-default-disk: "true"
     extensionServices:
       - name: tailscale
         environment:
           - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
           - TS_ACCEPT_DNS=true
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
-    patches: []
   - hostname: talos-master-2
     ipAddress: talos-master-2
     schematic: &schematicBasicVM
@@ -110,7 +111,13 @@ nodes:
       topology.kubernetes.io/zone: home-office-rack
       factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
       factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
-    patches: []
+      node.longhorn.io/create-default-disk: "true"
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
   - hostname: talos-worker-gpu-0
     ipAddress: talos-worker-gpu-0
     schematic: &schematicNvidiaGPUVM
