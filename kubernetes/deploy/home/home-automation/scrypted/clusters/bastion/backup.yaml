@@ -28,7 +28,7 @@ metadata:
   name: scrypted
   namespace: home-automation
 spec:
-  sourcePVC: scrypted-config
+  sourcePVC: scrypted-pvc
   trigger:
     schedule: "0 */12 * * *" # every 12 hours
   restic:
