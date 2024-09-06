@@ -35,7 +35,7 @@ ingress:
         - ollama-api
 persistentVolume:
   enabled: true
-  size: 40Gi
-  storageClass: longhorn-sticky
+  size: 100Gi
+  storageClass: cephfs
   accessModes:
     - ReadWriteMany
