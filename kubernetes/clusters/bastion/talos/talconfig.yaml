@@ -86,7 +86,7 @@ nodes:
         environment:
           - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
           - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion --reset
   - hostname: talos-master-2
     ipAddress: talos-master-2
     schematic: &schematicBasicVM

@@ -313,7 +313,7 @@ tasks:
           split: ','
         cmd: |
           cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
-          eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}}")
+          eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}} {{.CLI_ARGS}}")
     preconditions:
       - talosctl -n {{.node}} get mc
 
