@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  data: dell-53snv52=192.168.20.241:6789,purplebox=192.168.20.242:6789,rainbowbox=192.168.20.247:6789
+  mapping: '{}'
+  maxMonId: "2"
+kind: ConfigMap
+metadata:
+  name: rook-ceph-mon-endpoints
+  namespace: rook-ceph
+---
+apiVersion: v1
+data:
+  args: ""
+  command: ""
+kind: ConfigMap
+metadata:
+  name: external-cluster-user-command
+  namespace: rook-ceph

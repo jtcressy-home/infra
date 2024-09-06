@@ -3,7 +3,7 @@ kind: Kustomization
 helmCharts:
 - name: rook-ceph
   repo: https://charts.rook.io/release
-  version: v1.14.9
+  version: v1.15.1
   releaseName: rook-ceph-operator
   namespace: rook-ceph
   valuesInline:
@@ -13,10 +13,12 @@ helmCharts:
       kubeletDirPath: /var/lib/kubelet
       enableCSIHostNetwork: true
       enableGrpcMetrics: true
+      enableCSIEncryption: false
+      cephFSKernelMountOptions: ms_mode=secure # Necessary, otherwise PVC won't be able to be mounted to Pod. You'll see errors like stderr: unable to get monitor info from DNS SRV with service name: ceph-mon, failed for service _ceph-mon._tcp
       csiAddons:
-        enabled: true
+        enabled: false
       serviceMonitor:
-        enabled: false # TODO
+        enabled: true
     monitoring:
       enabled: true
     resources:

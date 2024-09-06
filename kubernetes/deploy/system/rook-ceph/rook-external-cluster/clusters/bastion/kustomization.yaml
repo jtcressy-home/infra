@@ -1,0 +1,47 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+helmCharts:
+- name: rook-ceph-cluster
+  repo: https://charts.rook.io/release
+  version: v1.15.1
+  releaseName: rook-ceph-operator
+  namespace: rook-ceph
+  valuesInline:
+    operatorNamespace: rook-ceph
+    cephClusterSpec:
+      external:
+        enable: true
+      crashCollector:
+        disable: true
+      healthCheck:
+        daemonHealth:
+          mon:
+            disabled: false
+            interval: 45s
+    monitoring:
+      enabled: true
+      createPrometheusRules: true
+      externalMgrEndpoints:
+        - ip: 192.168.20.241
+        - ip: 192.168.20.242
+        - ip: 192.168.20.247
+      externalMgrPrometheusPort: 9283
+      interval: 15s
+    cephBlockPoolsVolumeSnapshotClass:
+      enabled: true
+      name: ceph-rbd-snapshot
+      isDefault: false
+      deletionPolicy: Delete
+      parameters:
+        pool: talos-bastion-pv
+    cephFileSystemVolumeSnapshotClass:
+      enabled: true
+      name: cephfs-snapshot
+      isDefault: true
+      deletionPolicy: Delete
+      parameters:
+        pool: talos-bastion-fs_data
+        fsName: talos-bastion-fs
+    cephBlockPools: {}
+    cephFileSystems: {}
+    cephObjectStores: {}
