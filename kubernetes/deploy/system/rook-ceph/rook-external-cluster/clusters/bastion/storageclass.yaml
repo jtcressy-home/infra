@@ -15,7 +15,7 @@ parameters:
   imageFeatures: layering
   imageFormat: "2"
   pool: talos-bastion-pv
-provisioner: rook-ceph-external.rbd.csi.ceph.com
+provisioner: rook-ceph.rbd.csi.ceph.com
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 ---
@@ -34,7 +34,7 @@ parameters:
   csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
   fsName: talos-bastion-fs
   pool: talos-bastion-fs_data
-provisioner: rook-ceph-external.cephfs.csi.ceph.com
+provisioner: rook-ceph.cephfs.csi.ceph.com
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 ---
