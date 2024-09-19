@@ -24,6 +24,8 @@ loadBalancer:
   l7:
     algorithm: round_robin
     backend: envoy
+externalIPs:
+  enabled: true
 l2announcements:
   enabled: true
 nodePort:
