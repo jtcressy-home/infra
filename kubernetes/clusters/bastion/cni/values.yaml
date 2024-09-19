@@ -8,19 +8,24 @@ containerRuntime:
 endpointRoutes:
   enabled: true
 hubble:
-  enabled: false
+  relay:
+    enabled: true
+  ui:
+    enabled: true
 ipam:
   mode: kubernetes
 # ipv4NativeRoutingCIDR: 10.244.0.0/16
 k8sServiceHost: localhost
 k8sServicePort: 7445
-kubeProxyReplacement: strict
+kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 loadBalancer:
   algorithm: maglev
   l7:
     algorithm: round_robin
     backend: envoy
+l2announcements:
+  enabled: true
 nodePort:
   enabled: true
 localRedirectPolicy: true

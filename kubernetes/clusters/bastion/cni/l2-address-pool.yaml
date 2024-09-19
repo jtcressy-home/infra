@@ -1,0 +1,23 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "pool"
+  namespace: kube-system
+spec:
+  blocks:
+    - cidr: "192.168.20.2/32"
+    - cidr: "192.168.20.5/32"
+    - cidr: "192.168.20.6/32"
+    - cidr: "192.168.20.7/32"
+    - cidr: "192.168.20.8/32"
+    - cidr: "192.168.20.9/32"
+    - cidr: "192.168.20.10/32"
+---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2policy
+spec:
+  loadBalancerIPs: true
+  interfaces:
+    - eno1
