@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ts-route-setter
-        image: golang:1.22
+        image: golang:1.23
         command:
         - sh
         - -c
