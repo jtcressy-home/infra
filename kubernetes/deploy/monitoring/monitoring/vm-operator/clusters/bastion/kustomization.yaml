@@ -1,0 +1,40 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: victoria-metrics-operator
+    repo: https://victoriametrics.github.io/helm-charts/
+    version: 0.35.2
+    releaseName: victoria-metrics-operator
+    includeCRDs: true
+    valuesInline:
+      # -- use crd dir
+      createCRD: true
+      operator:
+        enable_converter_ownership: true
+        useCustomConfigReloader: true
+        # say NO to PSPs kids!
+        psp_auto_creation_enabled: false
+      env:
+        - name: VM_VMALERTDEFAULT_CONFIGRELOADERCPU
+          value: 10m
+        - name: VM_VMAGENTDEFAULT_CONFIGRELOADERCPU
+          value: 10m
+      rbac:
+        pspEnabled: false
+      resources:
+        requests:
+          cpu: 20m
+        limits:
+          cpu: 100m
+          memory: 200Mi
+
+patches:
+  - target:
+      group: apiextensions.k8s.io
+      version: v1
+      kind: CustomResourceDefinition
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-options
+        value: ServerSideApply=true
