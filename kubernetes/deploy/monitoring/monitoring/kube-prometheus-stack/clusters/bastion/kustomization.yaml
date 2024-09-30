@@ -14,61 +14,183 @@ patches:
     - op: add
       path: /metadata/annotations/argocd.argoproj.io~1sync-options
       value: ServerSideApply=true
+- target:
+    version: v1
+    kind: ConfigMap
+    labelSelector: grafana_dashboard in (1)
+  patch: |-
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: not-used
+      namespace: not-used
+      annotations:
+        grafana_folder: Kubernetes
 
 helmCharts:
 - name: kube-prometheus-stack
   repo: https://prometheus-community.github.io/helm-charts
-  version: 56.21.4
+  version: 62.7.0
   releaseName: kube-prometheus-stack
   includeCRDs: true
   valuesInline:
+    crds:
+      enabled: false
+    fullnameOverride: "kps"
+    cleanPrometheusOperatorObjectNames: true
     namespaceOverride: monitoring
     alertmanager:
       enabled: false
     grafana:
       enabled: false
+      forceDeployDashboards: true
+      sidecar: # TODO: who did I yoink this from and why is this needed?
+        dashboards:
+          multicluster:
+            etcd:
+              enabled: true
     prometheusOperator:
       enabled: true
+      resources:
+        requests:
+          cpu: 35m
+          memory: 273M
+        limits:
+          memory: 326M
+      prometheusConfigReloader:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 32M
+          limits:
+            memory: 32M
       # admissionWebhooks:
       #   certManager:
       #     enabled: true
       #     issuerRef:
       #       name: "issuer"
       #       kind: "ClusterIssuer"
-    global:
-      rbac:
-        create: true
-        createAggregateClusterRoles: true
+    # global:
+    #   rbac:
+    #     create: true
+    #     createAggregateClusterRoles: true
     prometheus:
-      enabled: true
+      enabled: false
       ingress:
-        enabled: true
-        ingressClassName: tailscale
-        hosts:
-        - prometheus
-        tls:
-          - hosts:
-            - prometheus
-      prometheusSpec:
-        podMonitorNamespaceSelector: {}
-        podMonitorSelector: {}
-        podMonitorSelectorNilUsesHelmValues: false
-        ruleNamespaceSelector: {}
-        ruleSelector: {}
-        ruleSelectorNilUsesHelmValues: false
-        serviceMonitorNamespaceSelector: {}
-        serviceMonitorSelector: {}
-        serviceMonitorSelectorNilUsesHelmValues: false
-        retention: 15d
-        storageSpec:
-          volumeClaimTemplate:
-            spec:
-              storageClassName: longhorn-sticky
-              accessModes:
-              - ReadWriteOnce
-              resources:
-                requests:
-                  storage: 80Gi
+        enabled: false
+      #   ingressClassName: tailscale
+      #   hosts:
+      #   - prometheus
+      #   tls:
+      #     - hosts:
+      #       - prometheus
+      # prometheusSpec:
+      #   podMonitorNamespaceSelector: {}
+      #   podMonitorSelector: {}
+      #   podMonitorSelectorNilUsesHelmValues: false
+      #   ruleNamespaceSelector: {}
+      #   ruleSelector: {}
+      #   ruleSelectorNilUsesHelmValues: false
+      #   serviceMonitorNamespaceSelector: {}
+      #   serviceMonitorSelector: {}
+      #   serviceMonitorSelectorNilUsesHelmValues: false
+      #   retention: 15d
+      #   storageSpec:
+      #     volumeClaimTemplate:
+      #       spec:
+      #         storageClassName: longhorn-sticky
+      #         accessModes:
+      #         - ReadWriteOnce
+      #         resources:
+      #           requests:
+      #             storage: 80Gi
+    
+
+    kubeApiServer:
+      enabled: true
+      serviceMonitor:
+        metricRelabelings:
+          # Drop high cardinality labels
+          - &dropDuration
+            action: drop
+            sourceLabels: ["__name__"]
+            regex: (apiserver|etcd|rest_client)_request(|_sli|_slo)_duration_seconds_bucket
+          - action: drop
+            sourceLabels: ["__name__"]
+            regex: (apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket|apiserver_request_body_size_bytes_bucket)
+    kubeScheduler:
+      enabled: true
+      service:
+        selector:
+          k8s-app: kube-scheduler
+          tier: control-plane
+    kubeControllerManager:
+      enabled: true
+      service:
+        selector:
+          k8s-app: kube-controller-manager
+          tier: control-plane
+    kubeEtcd:
+      enabled: true
+      service:
+        port: 2381
+        targetPort: 2381
+        selector:
+          k8s-app: kube-apiserver
+          tier: control-plane
+      serviceMonitor:
+        metricRelabelings:
+          - *dropDuration
+    kubelet:
+      enabled: true
+      serviceMonitor:
+        #interval: "10s"
+        #scrapeTimeout: "5s"
+        attachMetadata:
+          node: true
+        metricRelabelings:
+          # replaces other node identifiers with hostname
+          - sourceLabels: ["node"]
+            targetLabel: instance
+            action: replace
+          # Drop high cardinality labels
+          - action: labeldrop
+            regex: (uid)
+          - action: labeldrop
+            regex: (id|name)
+          - action: drop
+            sourceLabels: ["__name__"]
+            regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count|apiserver_request_body_size_bytes_bucket)
+          - *dropDuration
+    kubeProxy:
+      enabled: false # Disabled due to eBPF
+
+    
+    kubeStateMetrics:
+      enabled: true
+    kube-state-metrics:
+      metricLabelsAllowlist:
+        - "deployments=[*]"
+        - "persistentvolumeclaims=[*]"
+        - "pods=[*]"
+      prometheus:
+        monitor:
+          enabled: true
+          #interval: "10s"
+          #scrapeTimeout: "5s"
+          relabelings:
+            # replaces other node identifiers with hostname
+            - action: replace
+              sourceLabels: ["__meta_kubernetes_pod_node_name"]
+              regex: ^(.*)$
+              replacement: $1
+              targetLabel: kubernetes_node
+      resources:
+        requests:
+          cpu: 15m
+          memory: 128Mi
+        limits:
+          memory: 500Mi
 
 - name: grafana
   repo: https://grafana.github.io/helm-charts
@@ -87,6 +209,13 @@ helmCharts:
     env:
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
       GF_SERVER_ROOT_URL: https://grafana.infra.jtcressy.net
+      GF_EXPLORE_ENABLED: true
+      GF_LOG_MODE: console
+      GF_LOG_FILTERS: rendering:debug
+      GF_SECURITY_ALLOW_EMBEDDING: true
+      GF_SECURITY_COOKIE_SAMESITE: grafana
+      GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
+      GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP: true # needed for enabling both proxy and OIDC auth methods, https://github.com/grafana/grafana/issues/70203#issuecomment-1609850174
     envFromSecrets:
     - name: grafana-secret
     ingress:
@@ -99,20 +228,43 @@ helmCharts:
         - grafana
     persistence:
       enabled: true
-      storageClassName: longhorn-sticky
+      storageClassName: cephfs
       size: 10Gi
     grafana.ini:
-      users:
-        allow_sign_up: false
-        auto_assign_org: true
-        auto_assign_org_role: Editor
-      auth.proxy:
+      analytics:
+        check_for_updates: false
+        check_for_plugin_updates: false
+        reporting_enabled: false
+      auth:
+        oauth_auto_login: true
+      auth.generic_oauth:
         enabled: true
-        header_name: Tailscale-User-Login
-        header_property: email
-        headers: "Name:Tailscale-User-Name Email:Tailscale-User-Login"
+        name: "Cloudflare Auth"
+        scopes: "openid profile email groups"
+        empty_scopes: false
+        login_attribute_path: preferred_username
+        groups_attribute_path: groups
+        name_attribute_path: name
+        # use_pkce: true # not sure if Authentik supports it
+      auth.generic_oauth.group_mapping:
+        org_id: 1
+        role_attribute_path: |
+          contains(groups[*], 'Role-Grafana-Admin') && 'GrafanaAdmin' || contains(groups[*], 'Role-Grafana-Viewer') && 'Viewer'
+      auth.proxy: # if Tailscale headers exist, it'll be used first, else use OIDC
+        enabled: true
         auto_sign_up: true
-        # whitelist: 100.64.0.0/10 # does not work yet
+        whitelist: "10.244.0.0/16"
+        header_name: Tailscale-User-Login # email is immutable to account for Tailscale, used for person identity
+        header_property: username
+        headers: "Name:Tailscale-User-Name Email:Tailscale-User-Login"
+        # defaults to viewer role, privileged access needs OIDC
+      auth.basic:
+        enabled: false
+        disable_login_form: true
+      auth.anonymous:
+        enabled: false
+      grafana_net:
+        url: "https://grafana.net"
     plugins:
     - pr0ps-trackmap-panel
     - natel-plotly-panel
@@ -138,31 +290,69 @@ helmCharts:
           allowUiUpdates: true
           options:
             path: /var/lib/grafana/dashboards/default
-        - name: 'infra'
+        - name: ceph
           orgId: 1
-          folder: Infra
+          folder: Ceph
           type: file
           disableDeletion: false
-          # updateIntervalSeconds: -1
-          allowUiUpdates: true
+          editable: true
           options:
-            path: /var/lib/grafana/dashboards/infra
-        - name: 'kubernetes'
+            path: /var/lib/grafana/dashboards/ceph
+        - name: cilium
+          orgId: 1
+          folder: Cilium
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/cilium
+        - name: argocd
+          orgId: 1
+          folder: ArgoCD
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/argocd
+        - name: kubernetes
           orgId: 1
           folder: Kubernetes
           type: file
           disableDeletion: false
-          # updateIntervalSeconds: -1
-          allowUiUpdates: true
+          editable: true
           options:
             path: /var/lib/grafana/dashboards/kubernetes
+        - name: postgres
+          orgId: 1
+          folder: Postgres
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboard/postgres
+        - name: victoriametrics
+          orgId: 1
+          folder: VictoriaMetrics
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboard/VictoriaMetrics
+        - name: nats
+          orgId: 1
+          folder: NATS
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboard/nats
         - name: 'teslamate'
           orgId: 1
           folder: Teslamate
           type: file
           disableDeletion: false
           # updateIntervalSeconds: -1
-          allowUiUpdates: true
+          allowUiUpdates: false
           options:
             path: /var/lib/grafana/dashboards/teslamate
     dashboards:
@@ -170,16 +360,30 @@ helmCharts:
         home-assistant:
           url: https://raw.githubusercontent.com/billimek/k8s-gitops/master/monitoring/grafana/dashboards/home_assistant.json
           datasource: home_assistant
-      infra:
-        dcgm-exporter:
-          url: https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/main/grafana/dcgm-exporter-dashboard.json
-          datasource: Prometheus
-        cloudnative-pg:
-          url: https://raw.githubusercontent.com/cloudnative-pg/grafana-dashboards/main/charts/cluster/grafana-dashboard.json
+        cloudflared:
+          gnetId: 17457 # https://grafana.com/grafana/dashboards/17457?tab=revisions
+          revision: 6
+          datasource:
+            - { name: DS_PROMETHEUS, value: Prometheus }
+        external-dns:
+          gnetId: 15038 # https://grafana.com/grafana/dashboards/15038?tab=revisions
+          revision: 1
           datasource: Prometheus
         cert-manager:
           url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
           datasource: Prometheus
+        node-exporter-full:
+          gnetId: 1860 # https://grafana.com/grafana/dashboards/1860?tab=revisions
+          revision: 31
+          datasource: Prometheus
+        golang:
+          gnetId: 14061
+          revision: 1
+          datasource: Prometheus
+        dcgm-exporter:
+          url: https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/main/grafana/dcgm-exporter-dashboard.json
+          datasource: Prometheus
+      argocd:
         argocd-app-overview:
           gnetId: 19974
           revision: 1
@@ -192,10 +396,7 @@ helmCharts:
           gnetId: 19975
           revision: 1
           datasource: Prometheus
-        node-exporter-full:
-          gnetId: 1860
-          revision: 33
-          datasource: Prometheus
+      nats:
         nats-server-dashboard:
           gnetId: 2279
           datasource: Prometheus
@@ -229,27 +430,77 @@ helmCharts:
         nats-supercluster:
           url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/supercluster-dashboard.json
           datasource: Prometheus
+      ceph:
+        ceph-cluster-galexrt:
+          gnetId: 2842
+          revision: 17
+          datasource: Prometheus
+        ceph-pools-galexrt:
+          gnetId: 5342
+          revision: 9
+          datasource: Prometheus
+        ceph-osd-galexrt:
+          gnetId: 5336
+          revision: 9
+          datasource: Prometheus
+      cilium:
+        hubble-dashboard:
+          url: https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/files/hubble/dashboards/hubble-dashboard.json
+          datasource: Prometheus
+        hubble-l7:
+          url: https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/files/hubble/dashboards/hubble-l7-http-metrics-by-workload.json
+          datasource: Prometheus
+        hubble-dns-namespace:
+          url: https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/files/hubble/dashboards/hubble-dns-namespace.json
+          datasource:
+            - { name: DS_PROMETHEUS, value: Prometheus }
+        hubble-network-overview-namespace:
+          url: https://raw.githubusercontent.com/cilium/cilium/main/install/kubernetes/cilium/files/hubble/dashboards/hubble-network-overview-namespace.json
+          datasource:
+            - { name: DS_PROMETHEUS, value: Prometheus }
       kubernetes:
-        addons-prometheus:
-          gnetId: 19105
+        kubernetes-api-server:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
           datasource: Prometheus
-        system-api-server:
-          gnetId: 15761
+        kubernetes-coredns:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
           datasource: Prometheus
-        system-coredns:
-          gnetId: 15762
+        kubernetes-global:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
           datasource: Prometheus
-        views-global:
-          gnetId: 15757
+        kubernetes-namespaces:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
           datasource: Prometheus
-        views-namespaces:
-          gnetId: 15758
+        kubernetes-nodes:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
           datasource: Prometheus
-        views-nodes:
-          gnetId: 15759
+        kubernetes-pods:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
           datasource: Prometheus
-        views-pods:
-          gnetId: 15760
+      postgres:
+        cloudnative-pg:
+          url: https://raw.githubusercontent.com/cloudnative-pg/grafana-dashboards/main/charts/cluster/grafana-dashboard.json
+          datasource: Prometheus
+        crunchy-pgbackrest:
+          url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/pgbackrest.json
+          datasource: Prometheus
+        crunchy-pod-details:
+          url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/pod_details.json
+          datasource: Prometheus
+        crunchy-postgresql-details:
+          url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/postgresql_details.json
+          datasource: Prometheus
+        crunchy-postgresql-overview:
+          url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/postgresql_overview.json
+          datasource: Prometheus
+        crunchy-postgresql-service_health:
+          url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/postgresql_service_health.json
+          datasource: Prometheus
+        crunchy-prometheus-alerts:
+          url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/prometheus_alerts.json
+          datasource: Prometheus
+        crunchy-query-statistics:
+          url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/query_statistics.json
           datasource: Prometheus
       teslamate:
         battery-health:
@@ -310,25 +561,45 @@ helmCharts:
         drive-details:
           url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/internal/drive-details.json
     sidecar:
-      datasources:
-        enabled: true
-        searchNamespace: ALL
-        # defaultDatasourceEnabled: false
       dashboards:
         enabled: true
         searchNamespace: ALL
+        labelValue: ""
+        label: grafana_dashboard
+        folderAnnotation: grafana_folder
+        provider:
+          disableDelete: true
+          foldersFromFilesStructure: true
+      datasources:
+        enabled: true
+        searchNamespace: ALL
+        labelValue: ""
     datasources:
       datasources.yaml:
         apiVersion: 1
         deleteDatasources:
+        - { name: Prometheus, orgId: 1 }
+        - { name: AlertManager, orgId: 1 }
         - name: Loki
           orgId: 1
         datasources:
         - name: Prometheus
-          type: prometheus
-          access: proxy
-          url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          type: prometheus # VictoriaMetrics datasource is wonky and doesn't work, this at least works
+          uid: prometheus
           isDefault: true
+          access: proxy
+          url: http://vmsingle-victoria.monitoring.svc.cluster.local:8429
+          #url: http://kps-prometheus.monitoring.svc.cluster.local:9090
+          jsonData:
+            prometheusType: Prometheus
+        # - name: AlertManager
+        #   type: alertmanager
+        #   uid: alertmanager
+        #   isDefault: false
+        #   access: proxy
+        #   url: http://alertmanager-local.monitoring.svc.cluster.local:9093
+        #   jsonData:
+        #     implementation: prometheus
         - name: TeslaMate
           type: postgres
           access: proxy

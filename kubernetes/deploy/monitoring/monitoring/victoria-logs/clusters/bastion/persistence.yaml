@@ -1,0 +1,86 @@
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: victoria-logs-data-restic
+  namespace: home-automation
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: victoria-logs-data-restic-secret
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/victoria-logs-data"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: volsync-restic-template
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: victoria-logs-data
+spec:
+  accessModes: ["ReadWriteMany"]
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: victoria-logs-data-rdst
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: cephfs
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: victoria-logs-data-rdst
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: victoria-logs-data-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteMany"]
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    moverSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+      seccompProfile: {type: "RuntimeDefault"}
+    capacity: 20Gi # must match the PersistentVolumeClaim `.resources.requests.storage` size above
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: victoria-logs-data-rsrc
+spec:
+  sourcePVC: victoria-logs-data
+  trigger:
+    schedule: "0 */12 * * *" # 7am and 7pm UTC-5
+  restic:
+    repository: victoria-logs-data-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteMany"]
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    moverSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+      seccompProfile: {type: "RuntimeDefault"}
+    pruneIntervalDays: 14
+    retain: # keep all backups within 1 week (7 days), keep latest snapshot from each day within 2 weeks
+      daily: 14
+      within: 7d
