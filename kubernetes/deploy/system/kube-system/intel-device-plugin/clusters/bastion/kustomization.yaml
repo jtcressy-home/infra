@@ -27,10 +27,10 @@ patches:
   patch: |-
     - op: add
       path: /spec/dnsNames/-
-      value: inteldeviceplugins-serving.kube-system.svc
+      value: inteldeviceplugins-webhook-service.kube-system.svc
     - op: add
       path: /spec/dnsNames/-
-      value: inteldeviceplugins-serving.kube-system.svc.cluster.local
+      value: inteldeviceplugins-webhook-service.kube-system.svc
 - target:
     group: nfd.k8s-sigs.io
     version: v1alpha1
