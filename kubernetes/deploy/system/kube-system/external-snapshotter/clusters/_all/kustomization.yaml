@@ -24,4 +24,4 @@ patches:
     - op: add
       path: /metadata/annotations
       value:
-      argocd.argoproj.io/sync-options: "Replace=true"
+        argocd.argoproj.io/sync-options: "Replace=true"
