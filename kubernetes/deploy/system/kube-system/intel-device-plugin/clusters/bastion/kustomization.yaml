@@ -20,6 +20,18 @@ helmCharts:
 
 patches:
 - target:
+    group: cert-manager.io
+    version: v1
+    kind: Certificate
+    name: inteldeviceplugins-serving-cert
+  patch: |-
+    - op: add
+      path: /spec/dnsNames/-
+      value: inteldeviceplugins-serving.kube-system.svc
+    - op: add
+      path: /spec/dnsNames/-
+      value: inteldeviceplugins-serving.kube-system.svc.cluster.local
+- target:
     group: nfd.k8s-sigs.io
     version: v1alpha1
     kind: NodeFeatureRule
