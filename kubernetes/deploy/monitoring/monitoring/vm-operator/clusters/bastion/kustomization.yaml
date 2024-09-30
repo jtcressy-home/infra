@@ -9,7 +9,8 @@ helmCharts:
     includeCRDs: true
     valuesInline:
       # -- use crd dir
-      createCRD: true
+      crd:
+        create: true
       operator:
         enable_converter_ownership: true
         useCustomConfigReloader: true
