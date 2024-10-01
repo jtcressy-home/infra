@@ -9,6 +9,7 @@ helmCharts:
     repo: https://victoriametrics.github.io/helm-charts/
     version: 0.6.4
     releaseName: &app victoria-logs
+    namespace: monitoring
     includeCRDs: true
     valuesInline:
       server:

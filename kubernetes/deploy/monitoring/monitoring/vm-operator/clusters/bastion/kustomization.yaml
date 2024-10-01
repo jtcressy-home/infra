@@ -6,6 +6,7 @@ helmCharts:
     repo: https://victoriametrics.github.io/helm-charts/
     version: 0.35.2
     releaseName: victoria-metrics-operator
+    namespace: monitoring
     includeCRDs: true
     valuesInline:
       # -- use crd dir
