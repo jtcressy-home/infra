@@ -12,6 +12,7 @@ helmCharts:
   repo: https://intel.github.io/helm-charts
   version: 0.30.0
   releaseName: intel-device-plugins-gpu
+  namespace: kube-system
   includeCRDs: true
   valuesInline: 
     name: intel-device-plugin-gpu
@@ -19,18 +20,6 @@ helmCharts:
     nodeFeatureRule: true
 
 patches:
-- target:
-    group: cert-manager.io
-    version: v1
-    kind: Certificate
-    name: inteldeviceplugins-serving-cert
-  patch: |-
-    - op: add
-      path: /spec/dnsNames/-
-      value: inteldeviceplugins-webhook-service.kube-system.svc
-    - op: add
-      path: /spec/dnsNames/-
-      value: inteldeviceplugins-webhook-service.kube-system.svc
 - target:
     group: nfd.k8s-sigs.io
     version: v1alpha1
