@@ -6,7 +6,7 @@ metadata:
   name: victoria
   namespace: monitoring
 spec:
-  useStrictSecurity: true
+  # useStrictSecurity: true # enables apparmor, which we can only use after upgrading to talos 1.8.0+
   retentionPeriod: "6" # months if no unit specified
   extraArgs:
     dedup.minScrapeInterval: 60s
