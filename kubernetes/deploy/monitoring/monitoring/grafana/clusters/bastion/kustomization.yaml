@@ -43,6 +43,8 @@ helmCharts:
       storageClassName: cephfs
       size: 10Gi
     grafana.ini:
+      log:
+        level: debug
       analytics:
         check_for_updates: false
         check_for_plugin_updates: false
