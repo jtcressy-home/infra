@@ -29,7 +29,7 @@ helmCharts:
 - name: kube-prometheus-stack
   repo: https://prometheus-community.github.io/helm-charts
   version: 62.7.0
-  releaseName: kube-prometheus-stack
+  releaseName: kps
   includeCRDs: true
   valuesInline:
     crds:
