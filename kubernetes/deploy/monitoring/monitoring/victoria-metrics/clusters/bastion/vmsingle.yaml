@@ -40,7 +40,7 @@ metadata:
   annotations:
     description: "VMSingle that can schedule on any node in RollingUpdate fashion to have the highest availability for VMAlerts to process"
 spec:
-  useStrictSecurity: true
+  # useStrictSecurity: true
   retentionPeriod: 2d
   extraArgs:
     dedup.minScrapeInterval: 60s
