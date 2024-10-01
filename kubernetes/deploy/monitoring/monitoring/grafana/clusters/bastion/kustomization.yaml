@@ -57,6 +57,8 @@ helmCharts:
         login_attribute_path: preferred_username
         groups_attribute_path: groups
         name_attribute_path: name
+        role_attribute_path: |
+          contains(groups[*], 'Role-Grafana-Admin') && 'GrafanaAdmin' || contains(groups[*], 'Role-Grafana-Viewer') && 'Viewer'
         # use_pkce: true # not sure if Authentik supports it
       auth.generic_oauth.group_mapping:
         org_id: 1
