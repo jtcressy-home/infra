@@ -23,7 +23,7 @@ spec:
     dataSourceRef:
       apiGroup: volsync.backube
       kind: ReplicationDestination
-      name: victoria-vmsingle-bootstrap
+      name: victoria-vmsingle-rdst
   resources:
     requests:
       cpu: 200m

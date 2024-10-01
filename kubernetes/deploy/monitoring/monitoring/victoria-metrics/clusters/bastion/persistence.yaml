@@ -21,21 +21,8 @@ spec:
   dataFrom:
     - extract:
         key: volsync-restic-template
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: victoria-vmsingle
-spec:
-  accessModes: ["ReadWriteOnce"]
-  dataSourceRef:
-    kind: ReplicationDestination
-    apiGroup: volsync.backube
-    name: victoria-vmsingle-rdst
-  resources:
-    requests:
-      storage: 100Gi
-  storageClassName: ceph-rbd
+
+# PVC managed by vm operator, see spec.storage on VMSingle
 ---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
