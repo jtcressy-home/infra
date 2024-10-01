@@ -28,7 +28,7 @@ helmCharts:
         requests:
           cpu: 20m
         limits:
-          cpu: 100m
+          cpu: 1000m
           memory: 200Mi
 
 patches:
