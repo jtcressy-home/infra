@@ -19,6 +19,5 @@ patches:
     kind: CustomResourceDefinition
   patch: |-
     - op: add
-      path: /metadata/annotations
-      value:
-        argocd.argoproj.io/sync-options: "Replace=true"
+      path: /metadata/annotations/argocd.argoproj.io~1sync-options
+      value: "Replace=true"
