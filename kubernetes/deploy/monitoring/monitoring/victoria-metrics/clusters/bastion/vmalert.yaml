@@ -11,7 +11,7 @@ spec:
   evaluationInterval: 1m
   selectAllByDefault: true
   externalLabels:
-    cluster: "${CLUSTER_NAME}"
+    cluster: "bastion"
   datasource: &vm
     url: http://vmsingle-alerts.monitoring.svc:8429
   remoteRead:
