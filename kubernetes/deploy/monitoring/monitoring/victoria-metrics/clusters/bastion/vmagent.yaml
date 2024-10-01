@@ -27,7 +27,7 @@ spec:
   statefulStorage:
     volumeClaimTemplate:
       spec:
-        storageClassName: longhorn-strict-local-standalone-wait # todo: switch to openebs hostpath or localpv
+        storageClassName: local # todo: switch to openebs hostpath or localpv
         resources:
           requests:
             storage: 35Gi
