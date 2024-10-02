@@ -87,3 +87,12 @@ securityContext:
 tunnel: geneve
 cni:
   exclusive: false
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    trustCRDsExist: true # for CI or local Helm builds, such as flux-local
+dashboards:
+  enabled: true
+  annotations:
+    grafana_folder: "Cilium"
