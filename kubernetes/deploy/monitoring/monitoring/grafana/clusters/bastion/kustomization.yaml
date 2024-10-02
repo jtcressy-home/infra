@@ -317,6 +317,23 @@ helmCharts:
         crunchy-query-statistics:
           url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/query_statistics.json
           datasource: Prometheus
+      victoriametrics:
+        vmsingle:
+          gnetId: 10229
+          revision: 35
+          datasource: Prometheus
+        vmagent:
+          gnetId: 12683
+          revision: 17
+          datasource: Prometheus
+        vmalert:
+          gnetId: 14950
+          revision: 10
+          datasource: Prometheus
+        operator:
+          gnetId: 17869
+          revision: 2
+          datasource: Prometheus
       teslamate:
         battery-health:
           url: https://raw.githubusercontent.com/teslamate-org/teslamate/v1.28.3/grafana/dashboards/battery-health.json
