@@ -82,7 +82,7 @@ helmCharts:
       grafana_net:
         url: "https://grafana.net"
     plugins:
-    - victorialogs-datasource
+    - https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v0.2.1/victorialogs-datasource-v0.2.1.zip;victorialogs-datasource
     - pr0ps-trackmap-panel
     - natel-plotly-panel
     - vonage-status-panel
