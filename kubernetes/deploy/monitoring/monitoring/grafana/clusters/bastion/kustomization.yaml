@@ -19,7 +19,7 @@ helmCharts:
     deploymentStrategy:
       type: Recreate
     env:
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel,victorialogs-datasource
       GF_SERVER_ROOT_URL: https://grafana.infra.jtcressy.net
       GF_EXPLORE_ENABLED: true
       GF_LOG_MODE: console
@@ -82,6 +82,7 @@ helmCharts:
       grafana_net:
         url: "https://grafana.net"
     plugins:
+    - victorialogs-datasource
     - pr0ps-trackmap-panel
     - natel-plotly-panel
     - vonage-status-panel
@@ -408,6 +409,18 @@ helmCharts:
           #url: http://kps-prometheus.monitoring.svc.cluster.local:9090
           jsonData:
             prometheusType: Prometheus
+        - name: VictoriaLogs
+          # <string, required> Sets the data source type.
+          type: victorialogs-datasource
+          # <string, required> Sets the access mode, either
+          # proxy or direct (Server or Browser in the UI).
+          access: proxy
+          # <string> Sets URL for sending queries to VictoriaLogs server.
+          # see https://docs.victoriametrics.com/victorialogs/querying/
+          url: http://victoria-logs.monitoring.svc.cluster.local:9428
+          # <string> Sets the pre-selected datasource for new panels.
+          # You can set only one default data source per organization.
+          isDefault: false
         # - name: AlertManager
         #   type: alertmanager
         #   uid: alertmanager
