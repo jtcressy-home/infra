@@ -8,10 +8,58 @@ containerRuntime:
 endpointRoutes:
   enabled: true
 hubble:
-  relay:
-    enabled: true
   ui:
-    enabled: true
+    ingress:
+      enabled: true
+      className: tailscale
+      hosts:
+        - hubble
+      tls:
+        - hosts:
+            - hubble
+  relay:
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+  metrics:
+    enabled:
+      - dns:query;labelsContext=source_pod,source_workload,source_namespace,destination_ip,destination_pod,destination_workload,destination_namespace,traffic_direction
+      - drop:labelsContext=source_pod,source_workload,source_namespace,destination_ip,destination_pod,destination_workload,destination_namespace,traffic_direction
+      - tcp:labelsContext=source_pod,source_workload,source_namespace,destination_ip,destination_pod,destination_workload,destination_namespace,traffic_direction
+      - flow:labelsContext=source_pod,source_workload,source_namespace,destination_ip,destination_pod,destination_workload,destination_namespace,traffic_direction
+      - flows-to-world:any-drop;port;labelsContext=source_pod,source_workload,source_namespace,destination_ip,destination_pod,destination_workload,destination_namespace,traffic_direction
+      - port-distribution:labelsContext=source_pod,source_workload,source_namespace,destination_ip,destination_pod,destination_workload,destination_namespace,traffic_direction
+      - httpV2:labelsContext=source_pod,source_workload,source_namespace,destination_ip,destination_pod,destination_workload,destination_namespace,traffic_direction
+    serviceMonitor:
+      enabled: true
+      interval: "60s"
+      relabelings:
+        # replaces other node identifiers with hostname
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          sourceLabels:
+            - __meta_kubernetes_pod_node_name
+          targetLabel: kubernetes_node
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          sourceLabels:
+            - __meta_kubernetes_pod_node_name
+          targetLabel: nodename
+        - action: replace
+          regex: (.*)
+          replacement: $1:9100
+          sourceLabels:
+            - kubernetes_node
+          targetLabel: instance
+    dashboards:
+      enabled: false # managed in Grafana HR to upgrade queries
+      #enabled: true
+      #annotations:
+      #  grafana_folder: "Cilium"
+  eventQueueSize: "50000" # default is 6144 which fills up
 ipam:
   mode: kubernetes
 # ipv4NativeRoutingCIDR: 10.244.0.0/16
