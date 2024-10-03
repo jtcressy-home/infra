@@ -57,8 +57,7 @@ helmCharts:
           address: 0.0.0.0:9090
         vlogs:
           type: "loki"
-          endpoints:
-            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
           inputs:
             - datadog_agent
             - fluent
