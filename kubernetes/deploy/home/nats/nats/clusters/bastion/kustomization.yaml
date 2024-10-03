@@ -59,13 +59,13 @@ helmCharts:
       ports:
         monitor:
           enabled: true
-      patch:
-      - op: add
-        path: /spec/type
-        value: LoadBalancer
-      - op: add
-        path: /spec/externalTrafficPolicy
-        value: Local
+      merge:
+        metadata:
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: "nats.home.arpa"
+        spec:
+          type: LoadBalancer
+          externalTrafficPolicy: Local
     promExporter:
       enabled: true
       port: 7777
