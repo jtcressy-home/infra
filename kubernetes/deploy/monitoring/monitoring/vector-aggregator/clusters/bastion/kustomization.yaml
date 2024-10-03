@@ -1,0 +1,74 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+- name: vector
+  repo: https://helm.vector.dev
+  version: 0.36.1
+  releaseName: &app vector-aggregator
+  namespace: monitoring
+  valuesInline:
+    role: Stateless-Aggregator
+    replicas: 2
+    service:
+      type: LoadBalancer
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "vector.home.arpa"
+      externalTrafficPolicy: Local
+    podMonitor:
+      enabled: true
+    customConfig:
+      data_dir: /vector-data-dir
+      api:
+        enabled: true
+        address: 0.0.0.0:8686
+        playground: true
+      sources:
+        datadog_agent:
+          address: 0.0.0.0:8282
+          type: datadog_agent
+        fluent:
+          address: 0.0.0.0:24224
+          type: fluent
+        internal_metrics:
+          type: internal_metrics
+        logstash:
+          address: 0.0.0.0:5044
+          type: logstash
+        splunk_hec:
+          address: 0.0.0.0:8080
+          type: splunk_hec
+        statsd:
+          address: 0.0.0.0:8125
+          mode: tcp
+          type: statsd
+        syslog:
+          address: 0.0.0.0:9000
+          mode: tcp
+          type: syslog
+        vector:
+          address: 0.0.0.0:6000
+          type: vector
+          version: "2"
+      sinks:
+        prom_exporter:
+          type: prometheus_exporter
+          inputs: [internal_metrics]
+          address: 0.0.0.0:9090
+        vlogs:
+          type: "loki"
+          endpoints:
+            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          inputs:
+            - datadog_agent
+            - fluent
+            - logstash
+            - splunk_hec
+            - syslog
+            - vector
+          compression: gzip
+          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
+          encoding:
+            codec: json
+          labels:
+            source: vector

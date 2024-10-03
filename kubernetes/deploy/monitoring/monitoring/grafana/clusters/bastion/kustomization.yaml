@@ -180,13 +180,6 @@ helmCharts:
           revision: 6
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
-        external-dns:
-          gnetId: 15038 # https://grafana.com/grafana/dashboards/15038?tab=revisions
-          revision: 1
-          datasource: Prometheus
-        cert-manager:
-          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
-          datasource: Prometheus
         node-exporter-full:
           gnetId: 1860 # https://grafana.com/grafana/dashboards/1860?tab=revisions
           revision: 31
@@ -197,6 +190,14 @@ helmCharts:
           datasource: Prometheus
         dcgm-exporter:
           url: https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/main/grafana/dcgm-exporter-dashboard.json
+          datasource: Prometheus
+        proxmox-ve:
+          gnetId: 13307
+          revision: 6
+          datasource: Prometheus
+        proxmox-metrics:
+          gnetId: 16060
+          revision: 6
           datasource: Prometheus
       argocd:
         argocd-app-overview:
@@ -274,6 +275,13 @@ helmCharts:
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
       kubernetes:
+        external-dns:
+          gnetId: 15038 # https://grafana.com/grafana/dashboards/15038?tab=revisions
+          revision: 1
+          datasource: Prometheus
+        cert-manager:
+          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
+          datasource: Prometheus
         kubernetes-api-server:
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
           datasource: Prometheus
