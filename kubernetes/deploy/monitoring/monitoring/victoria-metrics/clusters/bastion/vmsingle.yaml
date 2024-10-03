@@ -13,6 +13,13 @@ spec:
     maxLabelsPerTimeseries: "40"
     search.minStalenessInterval: 5m
     vmalert.proxyURL: http://vmalert-victoria.svc.cluster.local:8080
+  serviceSpec:
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "victoria.monitoring.home.arpa"
+    spec:
+      type: LoadBalancer
+      externalTrafficPolicy: Local
   storage:
     storageClassName: ceph-rbd
     accessModes: [ReadWriteOnce]
@@ -48,6 +55,13 @@ spec:
     search.minStalenessInterval: 5m
     storageDataPath: &path /vmdata
     vmalert.proxyURL: http://vmalert-victoria.svc.cluster.local:8080
+  serviceSpec:
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "victoria-alerts.monitoring.home.arpa"
+    spec:
+      type: LoadBalancer
+      externalTrafficPolicy: Local
   volumes:
     - name: &vol vmsingle-data
       emptyDir:
