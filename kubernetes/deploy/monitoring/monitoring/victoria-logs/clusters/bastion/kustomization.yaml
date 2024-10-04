@@ -25,7 +25,6 @@ helmCharts:
           subPath: data
         extraArgs:
           syslog.listenAddr.tcp: ":514"
-          syslog.listenAddr.udp: ":514"
         service:
           type: LoadBalancer
           externalTrafficPolicy: Local
