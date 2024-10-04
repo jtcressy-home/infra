@@ -23,6 +23,14 @@ helmCharts:
           enabled: true
           existingClaim: victoria-logs-data
           subPath: data
+        extraArgs:
+          syslog.listenAddr.tcp: ":514"
+          syslog.listenAddr.udp: ":514"
+        service:
+          type: LoadBalancer
+          externalTrafficPolicy: Local
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: "vmlogs.home.arpa"
         ingress:
           enabled: true
           ingressClassName: tailscale
