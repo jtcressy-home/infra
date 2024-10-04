@@ -12,8 +12,8 @@ helmCharts:
     replicas: 3
     service:
       type: LoadBalancer
-      annotations:
-        external-dns.alpha.kubernetes.io/hostname: "vector.home.arpa"
+      # annotations:
+      #   external-dns.alpha.kubernetes.io/hostname: "vector.home.arpa"
       externalTrafficPolicy: Local
     podMonitor:
       enabled: true
@@ -76,3 +76,14 @@ helmCharts:
             codec: json
           labels:
             source: vector
+
+patches: # apply hostname to LB service, NOT HEADLESS SERVICE.
+- target:
+    group: ""
+    version: v1
+    kind: Service
+    name: *app
+  patch: |-
+    - op: add
+      path: /metadata/annotations/external-dns.alpha.kubernetes.io~1hostname
+      value: "vector.home.arpa"
