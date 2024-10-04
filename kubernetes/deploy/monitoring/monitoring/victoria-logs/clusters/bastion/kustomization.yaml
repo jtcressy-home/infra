@@ -88,12 +88,6 @@ patches:
         containerPort: 514
         name: syslog
         protocol: TCP
-    - op: add
-      path: /spec/template/spec/containers/0/ports/-
-      value:
-        containerPort: 514
-        name: syslog-udp
-        protocol: UDP
 - target:
     group: ""
     version: v1
@@ -107,10 +101,3 @@ patches:
         port: 514
         protocol: TCP
         targetPort: syslog
-    - op: add
-      path: /spec/ports/-
-      value:
-        name: syslog-udp
-        port: 514
-        protocol: UDP
-        targetPort: syslog-udp
