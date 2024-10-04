@@ -24,7 +24,7 @@ helmCharts:
           existingClaim: victoria-logs-data
           subPath: data
         extraArgs:
-          syslog.listenAddr.tcp: ":514"
+          syslog.listenAddr.tcp: ":9514"
         service:
           type: LoadBalancer
           externalTrafficPolicy: Local
@@ -84,7 +84,7 @@ patches:
     - op: add
       path: /spec/template/spec/containers/0/ports/-
       value:
-        containerPort: 514
+        containerPort: 9514
         name: syslog
         protocol: TCP
 - target:
@@ -97,6 +97,6 @@ patches:
       path: /spec/ports/-
       value:
         name: syslog
-        port: 514
+        port: 9514
         protocol: TCP
         targetPort: syslog
