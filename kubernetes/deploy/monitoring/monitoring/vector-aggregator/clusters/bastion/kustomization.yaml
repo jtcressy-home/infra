@@ -9,7 +9,7 @@ helmCharts:
   namespace: monitoring
   valuesInline:
     role: Stateless-Aggregator
-    replicas: 2
+    replicas: 3
     service:
       type: LoadBalancer
       annotations:
@@ -55,6 +55,11 @@ helmCharts:
           type: prometheus_exporter
           inputs: [internal_metrics]
           address: 0.0.0.0:9090
+        stdout:
+          type: console
+          inputs: [datadog_agent, fluent, logstash, splunk_hec, statsd, syslog, vector]
+          encoding:
+            codec: json
         vlogs:
           type: "loki"
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
