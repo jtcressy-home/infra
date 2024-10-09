@@ -16,6 +16,7 @@ helmCharts:
         create: true
         annotations:
           k8s-sidecar-target-directory: /var/lib/grafana/dashboard/postgres
+          argocd.argoproj.io/sync-options: ServerSideApply=true
 
 
 patches:
