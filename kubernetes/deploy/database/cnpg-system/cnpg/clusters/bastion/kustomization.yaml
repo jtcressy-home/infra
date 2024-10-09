@@ -9,3 +9,10 @@ helmCharts:
   releaseName: cnpg
   namespace: cnpg-system
   includeCRDs: true
+  valuesInline:
+    monitoring:
+      podMonitorEnabled: true
+      grafanaDashboard:
+        create: true
+        annotations:
+          k8s-sidecar-target-directory: /var/lib/grafana/dashboard/postgres
