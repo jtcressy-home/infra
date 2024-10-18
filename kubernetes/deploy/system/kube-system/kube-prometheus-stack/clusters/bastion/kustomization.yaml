@@ -24,6 +24,15 @@ patches:
       namespace: not-used
       annotations:
         grafana_folder: Kubernetes
+- target:
+    group: monitoring.coreos.com
+    version: v1
+    kind: ServiceMonitor
+    name: kps-kube-etcd
+  patch: |-
+    - op: add
+      path: /spec/endpoints/0/interval
+      value: 5s
 
 helmCharts:
 - name: kube-prometheus-stack
