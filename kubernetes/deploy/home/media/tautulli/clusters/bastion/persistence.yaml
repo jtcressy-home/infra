@@ -35,7 +35,7 @@ spec:
   resources:
     requests:
       storage: 2Gi
-  storageClassName: longhorn-sticky
+  storageClassName: cephfs
 ---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
@@ -48,9 +48,9 @@ spec:
     repository: tautulli-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: longhorn-standalone
-    cacheStorageClassName: longhorn-standalone
-    volumeSnapshotClassName: longhorn
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -70,9 +70,9 @@ spec:
     repository: tautulli-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: longhorn-standalone
-    cacheStorageClassName: longhorn-standalone
-    volumeSnapshotClassName: longhorn
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568

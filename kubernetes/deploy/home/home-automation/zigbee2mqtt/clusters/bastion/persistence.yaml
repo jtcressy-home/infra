@@ -78,4 +78,5 @@ spec:
       runAsGroup: 568
       fsGroup: 568
     cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
     storageClassName: cephfs
