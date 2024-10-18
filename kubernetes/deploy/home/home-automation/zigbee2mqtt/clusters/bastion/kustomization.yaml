@@ -3,8 +3,7 @@ kind: Kustomization
 resources:
 - nfd-rule.yaml
 - externalsecret.yaml
-- backup.yaml
-- pvc.yaml
+- persistence.yaml
 
 # replicas:
 # - name: zigbee2mqtt
