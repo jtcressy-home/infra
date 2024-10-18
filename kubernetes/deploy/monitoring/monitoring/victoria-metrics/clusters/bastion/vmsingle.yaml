@@ -30,7 +30,7 @@ spec:
     dataSourceRef:
       apiGroup: volsync.backube
       kind: ReplicationDestination
-      name: victoria-vmsingle-rdst
+      name: vmsingle-victoria-rdst
   resources:
     requests:
       cpu: 200m
