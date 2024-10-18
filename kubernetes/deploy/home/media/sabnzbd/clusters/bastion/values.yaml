@@ -75,7 +75,7 @@ persistence:
     globalMounts:
       - path: /config/logs
   download-temp:
-    enabled: true
+    enabled: false
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
     size: 512Gi
