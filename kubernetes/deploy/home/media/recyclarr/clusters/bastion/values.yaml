@@ -16,7 +16,8 @@ controllers:
           repository: ghcr.io/recyclarr/recyclarr
           tag: 7.2.1@sha256:c293cc988c5123899ed4d42b31f227b986d36357688106effdb44e83a3bb9f5a
         args:
-          - sync radarr --preview # dry-run mode
+          - sync
+          - --preview # dry-run mode
         env:
           TZ: *timeZone
         envFrom:
