@@ -191,8 +191,8 @@ radarr:
         qualities:
           - name: TS
             qualities:
-              - name: TELESYNC
-              - name: TELECINE
+              - TELESYNC
+              - TELECINE
           - name: CAM
 
     include:
