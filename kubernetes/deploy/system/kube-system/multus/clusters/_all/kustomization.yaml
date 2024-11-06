@@ -25,9 +25,9 @@ helmCharts:
     resources:
       requests:
         cpu: 5m
-        memory: 128M
+        memory: 512M
       limits:
-        memory: 128M
+        memory: 512M
     hostPaths:
       netns: /var/run/netns
 
