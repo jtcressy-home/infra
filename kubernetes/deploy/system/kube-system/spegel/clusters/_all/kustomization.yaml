@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+- name: spegel
+  repo: oci://ghcr.io/xenitab/helm-charts
+  version: v0.0.24
+  releaseName: spegel
+  namespace: kube-system
+  valuesInline:
+    spegel:
+      appendMirrors: true
+      containerdSock: /run/containerd/containerd.sock
+      containerdRegistryConfigPath: /etc/cri/conf.d/hosts
+    serviceMonitor:
+      enabled: true
+    grafanaDashboard:
+      enabled: true
+    service:
+      registry:
+        hostPort: 29999
