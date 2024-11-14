@@ -66,9 +66,24 @@
         "patch"
       ],
       "groupName": "home media apps",
-      "groupSlug": "home-media-apps"
+      "groupSlug": "home-media-apps",
+      "automerge": true,
+      "addLabels": "renovate:automerge"
+    },
+    {
+      "matchFileNames": [
+        ".taskfiles/**"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "groupName": "taskfiles",
+      "groupSlug": "taskfiles",
+      "automerge": true,
+      "addLabels": "renovate:automerge"
     }
-  ]
-
-
+  ],
+  "autoApprove": true
 }
