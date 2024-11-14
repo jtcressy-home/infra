@@ -68,7 +68,7 @@
       "groupName": "home media apps",
       "groupSlug": "home-media-apps",
       "automerge": true,
-      "addLabels": "renovate:automerge"
+      "addLabels": ["renovate:automerge"]
     },
     {
       "matchFileNames": [
@@ -82,7 +82,7 @@
       "groupName": "taskfiles",
       "groupSlug": "taskfiles",
       "automerge": true,
-      "addLabels": "renovate:automerge"
+      "addLabels": ["renovate:automerge"]
     }
   ],
   "autoApprove": true
