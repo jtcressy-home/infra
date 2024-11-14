@@ -100,6 +100,34 @@
       "addLabels": [
         "renovate:automerge"
       ]
+    },
+    {
+      "matchFileNames": [
+        ".devcontainer/**"
+      ],
+      "groupName": "devcontainer",
+      "groupSlug": "devcontainer",
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "matchDatasources": [
+        "go"
+      ],
+      "groupName": "golang modules",
+      "groupSlug": "golang-modules",
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "matchFileNames": [
+        "kubernetes/deploy/*/*/*/disabled/**"
+      ],
+      "enabled": false
     }
   ],
   "autoApprove": true
