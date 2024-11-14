@@ -28,6 +28,9 @@
       "versioning": "regex:^18-jammy-full.s6-v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$"
     },
     {
+      "matchFileNames": [
+        "kubernetes/clusters/*/talos/*.yaml"
+      ],
       "matchPackageNames": [
         "siderolabs/talos",
         "ghcr.io/siderolabs/talosctl",
@@ -43,7 +46,7 @@
     },
     {
       "matchPackageNames": [
-        "talos/talconfig.yaml"
+        "siderolabs/kubelet"
       ],
       "matchUpdateTypes": [
         "major",
@@ -52,6 +55,18 @@
       ],
       "groupName": "all kube upgrades",
       "groupSlug": "all-k8s-upgrades"
+    },
+    {
+      "matchFileNames": [
+        "kubernetes/deploy/home/media/*/clusters/*/*.yaml"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "groupName": "home media apps",
+      "groupSlug": "home-media-apps"
     }
   ]
 
