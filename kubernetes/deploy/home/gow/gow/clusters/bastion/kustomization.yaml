@@ -86,10 +86,6 @@ helmCharts:
         pullPolicy: IfNotPresent
       refreshrate: 120
       resolution: 3840x2160
-      volumeMounts:
-        - name: nvidia-drv
-          mountPath: /nvidia/xorg
-          readOnly: true
     pulseaudio:
       image:
         repository: ghcr.io/games-on-whales/pulseaudio
@@ -166,3 +162,24 @@ helmCharts:
     #       mountPath: /tmp/pulse
     #     - name: xorg
     #       mountPath: /tmp/.X11-unix
+
+patches:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: gow-games-on-whales
+  patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: gow-games-on-whales
+    spec:
+      template:
+        spec:
+          containers:
+            - name: xorg
+              volumeMounts:
+                - name: nvidia-drv
+                  mountPath: /nvidia/xorg
+                  readOnly: true
