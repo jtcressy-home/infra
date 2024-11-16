@@ -15,6 +15,7 @@ data:
       Option         "AllowEmptyInitialConfiguration" "True"
       Option         "UseDisplayDevice" "DP-0"
       Option         "CustomEDID" "DP-0:/opt/config/edid.txt"
+      Option         "IgnoreEDID" "true"
       Option         "ConnectedMonitor" "DP-0"
       SubSection     "Display"
           Depth       24
