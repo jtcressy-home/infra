@@ -22,7 +22,7 @@ data:
         Driver "nvidia"
         VendorName "NVIDIA Corporation"
         Option "MetaModes" "3840x2160"
-        Option "ConnectedMonitor" "default"
+        Option "ConnectedMonitor" "DP-0"
         Option "ModeValidation" "NoDFPNativeResolutionCheck,NoVirtualSizeCheck,NoMaxPClkCheck,NoHorizSyncCheck,NoVertRefreshCheck,NoWidthAlignmentCheck"
     EndSection
 
