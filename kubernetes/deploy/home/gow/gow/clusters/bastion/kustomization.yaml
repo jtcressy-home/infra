@@ -84,8 +84,8 @@ helmCharts:
         repository: ghcr.io/games-on-whales/xorg
         tag: 1.0.0
         pullPolicy: IfNotPresent
-      refreshrate: 60
-      resolution: 1920x1080
+      refreshrate: 120
+      resolution: 3840x2160
     pulseaudio:
       image:
         repository: ghcr.io/games-on-whales/pulseaudio
