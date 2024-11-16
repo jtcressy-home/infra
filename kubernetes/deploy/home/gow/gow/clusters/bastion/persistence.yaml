@@ -1,0 +1,88 @@
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: games-on-whales-restic
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: games-on-whales-restic-secret
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/games-on-whales"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: volsync-restic-template
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: games-on-whales
+spec:
+  accessModes:
+  - ReadWriteOnce
+  - ReadOnlyMany
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: games-on-whales-rdst
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: cephfs
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: games-on-whales-rdst
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: games-on-whales-restic-secret
+    copyMethod: Snapshot
+    accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    moverSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+    capacity: 10Gi # must match the PersistentVolumeClaim `.resources.requests.storage` size above
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: games-on-whales-rsrc
+spec:
+  sourcePVC: games-on-whales
+  trigger:
+    schedule: "15 */8 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: games-on-whales-restic-secret
+    copyMethod: Snapshot
+    accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    moverSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+    retain:
+      hourly: 24
+      daily: 7
+      weekly: 5

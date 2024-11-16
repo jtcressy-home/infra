@@ -1,0 +1,176 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+- name: games-on-whales
+  repo: https://angelnu.github.io/helm-charts
+  version: 2.0.0
+  releaseName: gow
+  valuesInline:
+    controller:
+      replicas: 1
+
+    nodeSelector:
+      nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
+
+    graphic_resources:
+      nvidia.com/gpu: 1
+
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerClass: io.cilium/l2-announcer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: gow.home.arpa
+          # allows the service to share the same external IP address
+          lbipam.cilium.io/sharing-key: games-on-whales
+      udp:
+        type: LoadBalancer
+        loadBalancerClass: io.cilium/l2-announcer
+        annotations:
+          lbipam.cilium.io/sharing-key: games-on-whales
+
+    ingress:
+      # -- Enable and configure ingress settings for the chart under this key.
+      # @default -- See values.yaml
+      main:
+        enabled: true
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: controller
+          hajimari.io/info: Stream games
+          hajimari.io/group: games
+        ingressClassName: tailscale
+        hosts:
+        - host: gamestream
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - gamestream
+          
+    persistence:
+      home:
+        type: pvc
+        existingClaim: games-on-whales
+      software:
+        enabled: true
+        type: custom
+        subPath: software
+        volumeSpec:
+          nfs: 
+            server: truenas-purplebox.private.home
+            path: /mnt/purple/general/media
+      nvidia-drv:
+        enabled: true
+        type: hostPath
+        hostPathType: File
+        readOnly: true
+        mountPath: /nvidia/xorg/nvidia_drv.so
+        hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/nvidia_drv.so
+      libglxserver-nvidia:
+        enabled: true
+        type: hostPath
+        hostPathType: File
+        readOnly: true
+        mountPath: /nvidia/xorg/libglxserver_nvidia.so
+        hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/libglxserver_nvidia.so
+  
+    sunshine:
+      image:
+        repository: ghcr.io/angelnu/sunshine
+        tag: sha-f5e468f
+        pullPolicy: Always
+      user: admin
+      password: admin
+    xorg:
+      image:
+        repository: ghcr.io/games-on-whales/xorg
+        tag: 1.0.0
+        pullPolicy: IfNotPresent
+      refreshrate: 120
+      resolution: 3840x2160
+      volumeMounts:
+        - name: nvidia-drv
+          mountPath: /nvidia/xorg/nvidia_drv.so
+          readOnly: true
+        - name: libglxserver-nvidia
+          mountPath: /nvidia/xorg/libglxserver_nvidia.so
+          readOnly: true
+    pulseaudio:
+      image:
+        repository: ghcr.io/games-on-whales/pulseaudio
+        tag: 1.0.0
+        pullPolicy: IfNotPresent
+    retroarch:
+      enabled: false
+      image:
+        repository: ghcr.io/angelnu/retroarch
+        tag: sha-fc9d5ae
+        pullPolicy: IfNotPresent
+      logLevel: info
+      volumeMounts:
+        - name: software
+          mountPath: /home/retro/software
+          #readOnly: true
+    steam:
+      enabled: true
+      image:
+        repository: ghcr.io/angelnu/steam
+        tag: sha-c387cd3
+        pullPolicy: IfNotPresent
+      protonLog: 1
+    firefox:
+      enabled: false
+      image:
+        repository: andrewmackrodt/firefox-x11
+        tag: 1.0.0
+        pullPolicy: IfNotPresent
+      volumeMounts: []
+    mkhomeretrodirs:
+      image:
+        repository: busybox
+        tag: 1.37.0
+        pullPolicy: IfNotPresent
+
+    # securityContext:
+    #   runAsUser: 0
+    # command:
+    # - /bin/sh
+    # - -c
+    # - while true; do
+    #   sleep 600 &
+    #   wait $!;
+    #   done
+    # additionalContainers:
+    #   steam:
+    #     # Enable the following to debug retro arch
+    #     securityContext:
+    #       runAsUser: 0
+    #     command:
+    #     - /bin/sh
+    #     - -c
+    #     - while true; do
+    #       sleep 600 &
+    #       wait $!;
+    #       done
+    #   gnome:
+    #     image: x11docker/gnome:latest
+    #     imagePullPolicy: IfNotPresent
+    #     securityContext:
+    #       privileged: true
+    #     env:
+    #     - name: DISPLAY
+    #       value: ":99"
+    #     - name: PULSE_SERVER
+    #       value: "/tmp/pulse/pulse-socket"
+    #     - name: NVIDIA_DRIVER_CAPABILITIES
+    #       value: all
+    #     - name: NVIDIA_VISIBLE_DEVICES
+    #       value: all
+    #     volumeMounts:
+    #     - name: audio-socket
+    #       mountPath: /tmp/pulse
+    #     - name: xorg
+    #       mountPath: /tmp/.X11-unix
