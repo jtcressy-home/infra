@@ -2,6 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - persistence.yaml
+- xorg-conf.yaml
 
 helmCharts:
 - name: games-on-whales
@@ -71,7 +72,6 @@ helmCharts:
         readOnly: true
         mountPath: /nvidia/xorg
         hostPath: /usr/local/lib/nvidia/xorg
-  
     sunshine:
       image:
         repository: ghcr.io/angelnu/sunshine
@@ -183,3 +183,13 @@ patches:
                 - name: nvidia-drv
                   mountPath: /nvidia/xorg
                   readOnly: true
+                - name: xorg-conf
+                  mountPath: /etc/X11/xorg.conf.d/xorg-screen.conf
+                  subPath: xorg-screen.conf
+                - name: xorg-conf
+                  mountPath: /opt/config/edid.txt
+                  subPath: edid.txt
+          volumes:
+          - name: xorg-conf
+            configMap:
+              name: xorg-conf
