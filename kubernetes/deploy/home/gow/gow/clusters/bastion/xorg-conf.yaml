@@ -9,7 +9,8 @@ data:
   xorg-screen.conf: |-
     Section "Monitor"
         Identifier "VirtualMonitor"
-        Modeline "3840x2160_120.00"  1065.00  3840 4160 4576 5312  2160 2163 2168 2250 -hsync +vsync
+        # 3840x2160 119.98 Hz (CVT) hsync: 277.87 kHz; pclk: 1498.25 MHz
+        Modeline "3840x2160_120.00"  1498.25  3840 4192 4616 5392  2160 2163 2168 2316 -hsync +vsync
         Option "PreferredMode" "3840x2160_120.00"
     EndSection
 
