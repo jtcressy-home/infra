@@ -15,8 +15,8 @@ helmCharts:
     nodeSelector:
       nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
 
-    graphic_resources:
-      nvidia.com/gpu: 1
+    # graphic_resources:
+    #   nvidia.com/gpu: 1
 
     service:
       main:
