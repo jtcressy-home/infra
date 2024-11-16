@@ -50,7 +50,6 @@ spec:
     copyMethod: Snapshot
     accessModes:
     - ReadWriteOnce
-    - ReadOnlyMany
     storageClassName: cephfs
     cacheStorageClassName: cephfs
     volumeSnapshotClassName: cephfs-snapshot
@@ -74,7 +73,6 @@ spec:
     copyMethod: Snapshot
     accessModes:
     - ReadWriteOnce
-    - ReadOnlyMany
     storageClassName: cephfs
     cacheStorageClassName: cephfs
     volumeSnapshotClassName: cephfs-snapshot
