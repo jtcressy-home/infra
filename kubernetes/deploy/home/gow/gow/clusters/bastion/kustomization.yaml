@@ -67,7 +67,7 @@ helmCharts:
       nvidia-drv:
         enabled: true
         type: hostPath
-        hostPathType: Directory
+        # hostPathType: Directory
         readOnly: true
         mountPath: /nvidia/xorg
         hostPath: /usr/local/lib/nvidia/xorg
