@@ -18,5 +18,6 @@ data:
       Option         "ConnectedMonitor" "DP-0"
       SubSection     "Display"
           Depth       24
+          Modes       "3840x2160_120.00"
       EndSubSection
     EndSection
