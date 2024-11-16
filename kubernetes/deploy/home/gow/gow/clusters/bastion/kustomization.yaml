@@ -67,17 +67,19 @@ helmCharts:
       nvidia-drv:
         enabled: true
         type: hostPath
-        hostPathType: File
+        hostPathType: Directory
         readOnly: true
-        mountPath: /nvidia/xorg/nvidia_drv.so
-        hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/nvidia_drv.so
-      libglxserver-nvidia:
-        enabled: true
-        type: hostPath
-        hostPathType: File
-        readOnly: true
-        mountPath: /nvidia/xorg/libglxserver_nvidia.so
-        hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/libglxserver_nvidia.so
+        mountPath: /nvidia/xorg
+        hostPath: /usr/local/lib/nvidia/xorg
+        # mountPath: /nvidia/xorg/nvidia_drv.so
+        # hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/nvidia_drv.so
+      # libglxserver-nvidia:
+      #   enabled: true
+      #   type: hostPath
+      #   hostPathType: File
+      #   readOnly: true
+      #   mountPath: /nvidia/xorg/libglxserver_nvidia.so
+      #   hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/libglxserver_nvidia.so
   
     sunshine:
       image:
