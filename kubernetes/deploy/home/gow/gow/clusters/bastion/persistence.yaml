@@ -28,7 +28,7 @@ metadata:
 spec:
   accessModes:
   - ReadWriteOnce
-  - ReadOnlyMany
+  # - ReadOnlyMany
   dataSourceRef:
     kind: ReplicationDestination
     apiGroup: volsync.backube
