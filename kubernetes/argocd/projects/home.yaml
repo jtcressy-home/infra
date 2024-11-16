@@ -24,6 +24,9 @@ spec:
     - name: '*'
       namespace: media
       server: '*'
+    - name: '*'
+      namespace: gow
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
