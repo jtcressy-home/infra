@@ -67,19 +67,10 @@ helmCharts:
       nvidia-drv:
         enabled: true
         type: hostPath
-        # hostPathType: Directory
+        hostPathType: Directory
         readOnly: true
         mountPath: /nvidia/xorg
         hostPath: /usr/local/lib/nvidia/xorg
-        # mountPath: /nvidia/xorg/nvidia_drv.so
-        # hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/nvidia_drv.so
-      # libglxserver-nvidia:
-      #   enabled: true
-      #   type: hostPath
-      #   hostPathType: File
-      #   readOnly: true
-      #   mountPath: /nvidia/xorg/libglxserver_nvidia.so
-      #   hostPath: /usr/lib/x86_64-linux-gnu/nvidia/xorg/libglxserver_nvidia.so
   
     sunshine:
       image:
@@ -97,10 +88,7 @@ helmCharts:
       resolution: 3840x2160
       volumeMounts:
         - name: nvidia-drv
-          mountPath: /nvidia/xorg/nvidia_drv.so
-          readOnly: true
-        - name: libglxserver-nvidia
-          mountPath: /nvidia/xorg/libglxserver_nvidia.so
+          mountPath: /nvidia/xorg
           readOnly: true
     pulseaudio:
       image:
