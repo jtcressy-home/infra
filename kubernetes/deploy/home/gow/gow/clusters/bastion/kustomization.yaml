@@ -192,4 +192,4 @@ patches:
           volumes:
           - name: xorg-conf
             configMap:
-              name: xorg-conf
+              name: gow-games-on-whales-xorg-conf
