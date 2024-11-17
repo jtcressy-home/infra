@@ -76,7 +76,7 @@ externalIPs:
   enabled: true
 l2announcements:
   enabled: true
-devices: "enx+"
+devices: "^en+"
 nodePort:
   enabled: true
 localRedirectPolicy: true
