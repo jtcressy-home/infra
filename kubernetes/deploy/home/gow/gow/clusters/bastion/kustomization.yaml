@@ -71,7 +71,8 @@ helmCharts:
         # hostPathType: Directory
         readOnly: true
         mountPath: /nvidia/xorg
-        hostPath: /usr/local/lib/nvidia/xorg
+        # hostPath: /usr/local/lib/nvidia/xorg # for 535.x.x nvidia drivers (lts)
+        hostPath: /usr/local/glibc/lib/nvidia/xorg # for 550.x.x+ nvidia drivers (production)
     sunshine:
       image:
         repository: ghcr.io/angelnu/sunshine
