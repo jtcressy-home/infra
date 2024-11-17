@@ -22,8 +22,8 @@ patches:
         operator: NotIn
         values: 
           # renovate: datasource=github-releases depName=siderolabs/talos
-          - v1.7.5
+          - v1.8.3
     - op: replace
       path: /spec/version
       # renovate: datasource=github-releases depName=siderolabs/talos
-      value: v1.7.5
+      value: v1.8.3
