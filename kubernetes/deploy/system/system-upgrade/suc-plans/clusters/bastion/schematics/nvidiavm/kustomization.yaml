@@ -18,18 +18,18 @@ patches:
       path: /spec/upgrade/envs/-
       value:
         name: SCHEMATIC_ID
-        value: 4b2e62db151ee183c5d2ef59fe50d024acfd0f645e70758ac3b794d13cf8e376
+        value: 9b47751f999bba95b35e9dfa5c9e8f1ea09c0d67cae30f49ae8a3ba8fbb059ef
     - op: add
       path: /spec/nodeSelector/matchExpressions/-
       value:
         key: factory.talos.dev/schematic-id.part-0
         operator: In
         values:
-          - 4b2e62db151ee183c5d2ef59fe50d024
+          - 9b47751f999bba95b35e9dfa5c9e8f1e
     - op: add
       path: /spec/nodeSelector/matchExpressions/-
       value:
         key: factory.talos.dev/schematic-id.part-1
         operator: In
         values:
-          - acfd0f645e70758ac3b794d13cf8e376
+          - a09c0d67cae30f49ae8a3ba8fbb059ef
