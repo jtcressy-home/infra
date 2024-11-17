@@ -28,7 +28,7 @@ nodes:
 ## VMs
   - hostname: talos-master-0
     ipAddress: talos-master-0
-    schematic: &schematicBasicVM
+    schematic: &schematicBasicVM # 077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2
       customization:
         systemExtensions:
             officialExtensions:
@@ -47,8 +47,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 50aa73cddb0d6050ce6ed5a9fc3b08c0
-      factory.talos.dev/schematic-id.part-1: b44ab345098152bc448ff467cd2aa7d7
+      factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
+      factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
       node.longhorn.io/create-default-disk: "true"
     extensionServices:
       - name: tailscale
@@ -58,15 +58,7 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
   - hostname: talos-master-1
     ipAddress: talos-master-1
-    schematic: &schematicBasicVM
-      customization:
-        systemExtensions:
-            officialExtensions:
-                - siderolabs/iscsi-tools
-                - siderolabs/qemu-guest-agent
-                - siderolabs/tailscale
-                - siderolabs/util-linux-tools
-    # talosImageURL: factory.talos.dev/installer/077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2 # nvidia gpu support, vm guest utils
+    schematic: *schematicBasicVM
     controlPlane: true
     installDiskSelector:
       size: ">=250GB"
@@ -89,15 +81,7 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion --reset
   - hostname: talos-master-2
     ipAddress: talos-master-2
-    schematic: &schematicBasicVM
-      customization:
-        systemExtensions:
-            officialExtensions:
-                - siderolabs/iscsi-tools
-                - siderolabs/qemu-guest-agent
-                - siderolabs/tailscale
-                - siderolabs/util-linux-tools
-    # talosImageURL: factory.talos.dev/installer/077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2 # nvidia gpu support, vm guest utils
+    schematic: *schematicBasicVM
     controlPlane: true
     installDiskSelector:
       size: ">=250GB"
@@ -120,7 +104,7 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
   - hostname: talos-worker-gpu-0
     ipAddress: talos-worker-gpu-0
-    schematic: &schematicNvidiaGPUVM
+    schematic: &schematicNvidiaGPUVM # 4b2e62db151ee183c5d2ef59fe50d024acfd0f645e70758ac3b794d13cf8e376
       customization:
         systemExtensions:
           officialExtensions:
@@ -131,14 +115,15 @@ nodes:
             - siderolabs/intel-ice-firmware
             - siderolabs/intel-ucode
             - siderolabs/iscsi-tools
-            - siderolabs/nonfree-kmod-nvidia
-            - siderolabs/nvidia-container-toolkit
+            - siderolabs/nonfree-kmod-nvidia-production
+            - siderolabs/nvidia-container-toolkit-production
             - siderolabs/qemu-guest-agent
             - siderolabs/qlogic-firmware
             - siderolabs/realtek-firmware
             - siderolabs/tailscale
+            - siderolabs/uinput
             - siderolabs/util-linux-tools
-    # talosImageURL: factory.talos.dev/installer/50aa73cddb0d6050ce6ed5a9fc3b08c0b44ab345098152bc448ff467cd2aa7d7 # nvidia gpu support, vm guest utils
+            - siderolabs/vmtoolsd-guest-agent
     controlPlane: false
     installDiskSelector:
       size: ">=32GB"
@@ -146,8 +131,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 50aa73cddb0d6050ce6ed5a9fc3b08c0
-      factory.talos.dev/schematic-id.part-1: b44ab345098152bc448ff467cd2aa7d7
+      factory.talos.dev/schematic-id.part-0: 4b2e62db151ee183c5d2ef59fe50d024
+      factory.talos.dev/schematic-id.part-1: acfd0f645e70758ac3b794d13cf8e376
       node.longhorn.io/create-default-disk: "false"
     extensionServices:
       - name: tailscale
@@ -159,25 +144,7 @@ nodes:
       - "@./patch-nvidia-gpu.yaml"
   - hostname: talos-worker-gpu-1
     ipAddress: talos-worker-gpu-1
-    schematic: &schematicNvidiaGPUVM
-      customization:
-        systemExtensions:
-          officialExtensions:
-            - siderolabs/amd-ucode
-            - siderolabs/amdgpu-firmware
-            - siderolabs/binfmt-misc
-            - siderolabs/i915-ucode
-            - siderolabs/intel-ice-firmware
-            - siderolabs/intel-ucode
-            - siderolabs/iscsi-tools
-            - siderolabs/nonfree-kmod-nvidia
-            - siderolabs/nvidia-container-toolkit
-            - siderolabs/qemu-guest-agent
-            - siderolabs/qlogic-firmware
-            - siderolabs/realtek-firmware
-            - siderolabs/tailscale
-            - siderolabs/util-linux-tools
-    # talosImageURL: factory.talos.dev/installer/50aa73cddb0d6050ce6ed5a9fc3b08c0b44ab345098152bc448ff467cd2aa7d7 # nvidia gpu support, vm guest utils
+    schematic: *schematicNvidiaGPUVM
     controlPlane: false
     installDiskSelector:
       size: ">=32GB"
@@ -185,8 +152,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 50aa73cddb0d6050ce6ed5a9fc3b08c0
-      factory.talos.dev/schematic-id.part-1: b44ab345098152bc448ff467cd2aa7d7
+      factory.talos.dev/schematic-id.part-0: 4b2e62db151ee183c5d2ef59fe50d024
+      factory.talos.dev/schematic-id.part-1: acfd0f645e70758ac3b794d13cf8e376
       node.longhorn.io/create-default-disk: "false"
     extensionServices:
       - name: tailscale
