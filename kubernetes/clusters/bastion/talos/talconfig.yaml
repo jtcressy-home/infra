@@ -104,7 +104,7 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
   - hostname: talos-worker-gpu-0
     ipAddress: talos-worker-gpu-0
-    schematic: &schematicNvidiaGPUVM # 4b2e62db151ee183c5d2ef59fe50d024acfd0f645e70758ac3b794d13cf8e376
+    schematic: &schematicNvidiaGPUVM # 9b47751f999bba95b35e9dfa5c9e8f1ea09c0d67cae30f49ae8a3ba8fbb059ef
       customization:
         systemExtensions:
           officialExtensions:
@@ -123,7 +123,6 @@ nodes:
             - siderolabs/tailscale
             - siderolabs/uinput
             - siderolabs/util-linux-tools
-            - siderolabs/vmtoolsd-guest-agent
     controlPlane: false
     installDiskSelector:
       size: ">=32GB"
@@ -131,8 +130,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 4b2e62db151ee183c5d2ef59fe50d024
-      factory.talos.dev/schematic-id.part-1: acfd0f645e70758ac3b794d13cf8e376
+      factory.talos.dev/schematic-id.part-0: 9b47751f999bba95b35e9dfa5c9e8f1e
+      factory.talos.dev/schematic-id.part-1: a09c0d67cae30f49ae8a3ba8fbb059ef
       node.longhorn.io/create-default-disk: "false"
     extensionServices:
       - name: tailscale
@@ -152,8 +151,8 @@ nodes:
     nodeLabels:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 4b2e62db151ee183c5d2ef59fe50d024
-      factory.talos.dev/schematic-id.part-1: acfd0f645e70758ac3b794d13cf8e376
+      factory.talos.dev/schematic-id.part-0: 9b47751f999bba95b35e9dfa5c9e8f1e
+      factory.talos.dev/schematic-id.part-1: a09c0d67cae30f49ae8a3ba8fbb059ef
       node.longhorn.io/create-default-disk: "false"
     extensionServices:
       - name: tailscale
