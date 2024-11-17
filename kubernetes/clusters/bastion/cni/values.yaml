@@ -84,7 +84,8 @@ operator:
 rollOutCiliumPods: true
 securityContext:
   privileged: true
-tunnel: geneve
+routingMode: tunnel
+tunnelProtocol: geneve
 cni:
   exclusive: false
 prometheus:
