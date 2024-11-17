@@ -236,6 +236,7 @@ patches:
       template:
         spec:
           runtimeClassName: nvidia
+          hostNetwork: false
           containers:
             - name: xorg
               volumeMounts:
