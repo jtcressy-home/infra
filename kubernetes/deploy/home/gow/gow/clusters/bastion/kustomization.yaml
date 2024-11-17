@@ -189,6 +189,12 @@ patches:
                 - name: xorg-conf
                   mountPath: /opt/config/edid.txt
                   subPath: edid.txt
+            - name: gow-games-on-whales
+              resources:
+                limits:
+                  squat.ai/uinput: 1
+                requests:
+                  squat.ai/uinput: 1
           volumes:
           - name: xorg-conf
             configMap:
