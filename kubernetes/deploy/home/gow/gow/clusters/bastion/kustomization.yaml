@@ -166,6 +166,15 @@ helmCharts:
 
 patches:
 - target:
+    group: ""
+    version: v1
+    kind: Service
+    annotationSelector: lbipam.cilium.io/sharing-key=games-on-whales
+  patch: |
+    - op: replace
+      path: /spec/externalTrafficPolicy
+      value: Cluster
+- target:
     group: apps
     version: v1
     kind: Deployment
