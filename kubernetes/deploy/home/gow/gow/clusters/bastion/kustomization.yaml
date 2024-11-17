@@ -75,8 +75,8 @@ helmCharts:
         hostPath: /usr/local/glibc/lib/nvidia/xorg # for 550.x.x+ nvidia drivers (production)
     sunshine:
       image:
-        repository: ghcr.io/angelnu/sunshine
-        tag: sha-f5e468f
+        repository: ghcr.io/games-on-whales/sunshine
+        tag: sha-80c1a8e
         pullPolicy: Always
       user: admin
       password: admin
@@ -106,8 +106,8 @@ helmCharts:
     steam:
       enabled: true
       image:
-        repository: ghcr.io/angelnu/steam
-        tag: sha-c387cd3
+        repository: ghcr.io/games-on-whales/steam
+        tag: sha-80c1a8e
         pullPolicy: IfNotPresent
       protonLog: 1
     firefox:
