@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - persistence.yaml
-- xorg-conf.yaml
+# - xorg-conf.yaml
 
 helmCharts:
 - name: games-on-whales
@@ -164,6 +164,16 @@ helmCharts:
     #     - name: xorg
     #       mountPath: /tmp/.X11-unix
 
+configMapGenerator:
+  - name: gow-games-on-whales-xorg-conf
+    files:
+      - ./config/xorg/xorg-screen.conf
+      - ./config/xorg/edid.txt
+  - name: gow-games-on-whales-sunshine-conf
+    files:
+      - ./config/sunshine/sunshine.conf
+      - ./config/sunshine/apps.json
+
 patches:
 - target:
     group: ""
@@ -200,7 +210,10 @@ patches:
                 - name: xorg-conf
                   mountPath: /opt/config/edid.txt
                   subPath: edid.txt
-            - name: gow-games-on-whales
+            - name: gow-games-on-whales # sunshine container
+              volumeMounts:
+                - name: sunshine-conf
+                  mountPath: /cfg
               resources:
                 limits:
                   squat.ai/uinput: 1
@@ -210,3 +223,6 @@ patches:
           - name: xorg-conf
             configMap:
               name: gow-games-on-whales-xorg-conf
+          - name: sunshine-conf
+            configMap:
+              name: gow-games-on-whales-sunshine-conf
