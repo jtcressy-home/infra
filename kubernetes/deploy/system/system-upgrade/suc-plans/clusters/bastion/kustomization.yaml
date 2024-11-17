@@ -21,9 +21,9 @@ patches:
         key: feature.node.kubernetes.io/system-os_release.VERSION_ID
         operator: NotIn
         values: 
-          # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+          # renovate: datasource=github-releases depName=siderolabs/talos
           - v1.7.5
     - op: replace
       path: /spec/version
-      # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+      # renovate: datasource=github-releases depName=siderolabs/talos
       value: v1.7.5

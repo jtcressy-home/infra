@@ -54,8 +54,8 @@
         "minor",
         "patch"
       ],
-      "groupName": "all talos upgrades",
-      "groupSlug": "all-talos-upgrades"
+      "groupName": "talos",
+      "groupSlug": "talos"
     },
     {
       "matchPackageNames": [
@@ -66,8 +66,8 @@
         "minor",
         "patch"
       ],
-      "groupName": "all kube upgrades",
-      "groupSlug": "all-k8s-upgrades"
+      "groupName": "kubernetes",
+      "groupSlug": "kubernetes"
     },
     {
       "matchFileNames": [
