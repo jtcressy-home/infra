@@ -179,6 +179,44 @@ patches:
     group: ""
     version: v1
     kind: Service
+    name: gow-games-on-whales
+  patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: gow-games-on-whales
+    spec:
+      ports:
+        - name: https
+          port: 443
+          protocol: TCP
+          targetPort: sunshine-tcp7
+- target:
+    group: networking.k8s.io
+    version: v1
+    kind: Ingress
+    name: gow-games-on-whales
+  patch: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: gow-games-on-whales
+    spec:
+      rules:
+        - host: gamestream
+          http:
+            paths:
+            - backend:
+                service:
+                  name: gow-games-on-whales
+                  port:
+                    name: https
+              path: /
+              pathType: Prefix
+- target:
+    group: ""
+    version: v1
+    kind: Service
     annotationSelector: lbipam.cilium.io/sharing-key=games-on-whales
   patch: |
     - op: replace
