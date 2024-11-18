@@ -270,6 +270,11 @@ patches:
                   squat.ai/uinput: 1
                 requests:
                   squat.ai/uinput: 1
+            - name: steam
+              volumeMounts:
+                - name: dev-input
+                  mountPath: /dev/input
+                  readOnly: false
           volumes:
           - name: xorg-conf
             configMap:
