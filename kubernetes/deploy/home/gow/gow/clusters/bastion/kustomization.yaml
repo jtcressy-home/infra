@@ -106,8 +106,8 @@ helmCharts:
     steam:
       enabled: true
       image:
-        repository: ghcr.io/games-on-whales/steam
-        tag: sha-80c1a8e
+        repository: ghcr.io/angelnu/steam
+        tag: sha-c387cd3
         pullPolicy: IfNotPresent
       protonLog: 1
     firefox:
