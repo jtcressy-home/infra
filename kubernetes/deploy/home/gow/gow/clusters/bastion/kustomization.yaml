@@ -11,7 +11,7 @@ helmCharts:
   releaseName: gow
   valuesInline:
     controller:
-      replicas: 1
+      replicas: 0
 
     nodeSelector:
       nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
