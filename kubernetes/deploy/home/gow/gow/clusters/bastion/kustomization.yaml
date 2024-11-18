@@ -107,7 +107,7 @@ helmCharts:
       enabled: true
       image:
         repository: ghcr.io/games-on-whales/steam
-        tag: sha-80c1a8e
+        tag: sha-853cad4
         pullPolicy: IfNotPresent
       protonLog: 1
     firefox:
