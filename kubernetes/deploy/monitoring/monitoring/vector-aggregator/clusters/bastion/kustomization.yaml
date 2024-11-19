@@ -100,6 +100,8 @@ helmCharts:
           inputs:
             - kubernetes_transform
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          compression: gzip
+          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
           encoding:
             codec: json
           batch:
@@ -119,6 +121,8 @@ helmCharts:
             # - talos_kernel_transform
             - talos_kernel_logs
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          compression: gzip
+          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
           encoding:
             codec: json
             # except_fields:
@@ -137,6 +141,8 @@ helmCharts:
             # - talos_service_transform
             - talos_service_logs
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          compression: gzip
+          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
           encoding:
             codec: json
             # except_fields:
@@ -154,6 +160,8 @@ helmCharts:
           inputs:
             - unifi_kernel_transform
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          compression: gzip
+          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
           encoding:
             codec: json
           batch:
