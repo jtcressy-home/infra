@@ -29,6 +29,9 @@ data:
     _PersistentVolume:
       syncOptions:
         - RespectIgnoreDifferences=True
+  resource.customizations.ignoreDifferences.deviceplugin.intel.com_GpuDevicePlugin: |
+    jsonPointers:
+    - /spec/resourceManager
   resource.customizations.ignoreDifferences._PersistentVolume: |
     jsonPointers:
     - /spec/claimRef/resourceVersion
