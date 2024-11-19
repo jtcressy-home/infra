@@ -1,0 +1,228 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/instance: wolf
+    app.kubernetes.io/name: wolf
+  name: wolf
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  serviceName: wolf-headless
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: wolf
+      app.kubernetes.io/name: wolf
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Delete
+  template:
+    metadata:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |-
+          [
+            {
+              "name": "macvlan-conf-dhcp",
+              "namespace": "kube-system",
+              "interface": "eth1",
+              "mac": "4a:c1:8d:28:f4:98"
+            }
+          ]
+      labels:
+        app.kubernetes.io/instance: wolf
+        app.kubernetes.io/name: wolf
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - name: wolf
+        image: ghcr.io/games-on-whales/wolf:stable
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 47984
+            name: https
+            protocol: TCP
+          - containerPort: 47989
+            name: http
+            protocol: TCP
+          - containerPort: 47999
+            name: control
+            protocol: UDP
+          - containerPort: 48010
+            name: rtsp
+            protocol: TCP
+          - containerPort: 48100
+            name: video1
+            protocol: UDP
+          - containerPort: 48101
+            name: video2
+            protocol: UDP
+          - containerPort: 48102
+            name: video3
+            protocol: UDP
+          - containerPort: 48103
+            name: video4
+            protocol: UDP
+          - containerPort: 48104
+            name: video5
+            protocol: UDP
+          - containerPort: 48105
+            name: video6
+            protocol: UDP
+          - containerPort: 48106
+            name: video7
+            protocol: UDP
+          - containerPort: 48107
+            name: video8
+            protocol: UDP
+          - containerPort: 48108
+            name: video9
+            protocol: UDP
+          - containerPort: 48109
+            name: video10
+            protocol: UDP
+          - containerPort: 48200
+            name: audio1
+            protocol: UDP
+          - containerPort: 48201
+            name: audio2
+            protocol: UDP
+          - containerPort: 48202
+            name: audio3
+            protocol: UDP
+          - containerPort: 48203
+            name: audio4
+            protocol: UDP
+          - containerPort: 48204
+            name: audio5
+            protocol: UDP
+          - containerPort: 48205
+            name: audio6
+            protocol: UDP
+          - containerPort: 48206
+            name: audio7
+            protocol: UDP
+          - containerPort: 48207
+            name: audio8
+            protocol: UDP
+          - containerPort: 48208
+            name: audio9
+            protocol: UDP
+          - containerPort: 48209
+            name: audio10
+            protocol: UDP
+        resources:
+          limits:
+            squat.ai/dri: "1"
+            squat.ai/uinput: "1"
+          requests:
+            squat.ai/dri: "1"
+            squat.ai/uinput: "1"
+        env:
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: all
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
+        - name: WOLF_LOG_LEVEL
+          value: DEBUG
+        - name: XDG_RUNTIME_DIR
+          value: /tmp/sockets
+        - name: HOST_APPS_STATE_FOLDER
+          value: /etc/wolf
+        volumeMounts:
+        - mountPath: /var/run
+          name: var-run
+        - mountPath: /tmp/sockets
+          name: tmp-sockets
+        - mountPath: /etc/wolf
+          name: wolf-data
+        - mountPath: /usr/local/glibc/lib/nvidia/xorg
+          name: nvidia-drv
+        - mountPath: /dev
+          name: dev
+        - mountPath: /run/udev
+          name: udev
+      - name: dind
+        # image: docker:20.10.8-dind
+        image: ghcr.io/ehfd/nvidia-dind:latest
+        imagePullPolicy: Always
+        ports:
+        - name: docker
+          containerPort: 2376
+          hostPort: 2376
+          protocol: TCP
+        securityContext:
+          privileged: true
+        resources:
+          limits:
+            squat.ai/dri: "1"
+            squat.ai/uinput: "1"
+            # nvidia.com/gpu: "1"
+          requests:
+            squat.ai/dri: "1"
+            squat.ai/uinput: "1"
+        env:
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: all
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker
+        - mountPath: /var/run
+          name: var-run
+        - mountPath: /tmp/sockets
+          name: tmp-sockets
+        - mountPath: /dev
+          name: dev
+        - mountPath: /run/udev
+          name: udev
+        - mountPath: /usr/local/glibc/lib/nvidia/xorg
+          name: nvidia-drv
+        - mountPath: /etc/wolf
+          name: wolf-data
+      nodeSelector:
+        nvidia.com/gpu.count: "1"
+        nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
+      runtimeClassName: nvidia
+      volumes:
+      # - name: docker
+      #   emptyDir: {}
+      - name: var-run
+        emptyDir: {}
+      - name: tmp-sockets
+        emptyDir: {}
+      - name: dev
+        hostPath:
+          path: /dev
+      - name: udev
+        hostPath:
+          path: /run/udev
+      - name: nvidia-drv
+        hostPath:
+          path: /usr/local/glibc/lib/nvidia/xorg
+      # - name: software
+      #   nfs:
+      #     path: /mnt/purple/general/media
+      #     server: truenas-purplebox.private.home
+  volumeClaimTemplates:
+    - metadata:
+        name: wolf-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 30Gi
+        storageClassName: cephfs
+    - metadata:
+        name: docker
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 60Gi
+        storageClassName: ceph-rbd

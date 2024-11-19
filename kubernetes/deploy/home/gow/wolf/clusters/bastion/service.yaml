@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: wolf.home.arpa
+    lbipam.cilium.io/sharing-key: wolf
+  labels:
+    app.kubernetes.io/instance: wolf
+    app.kubernetes.io/name: wolf
+    app.kubernetes.io/service: wolf
+  name: wolf
+spec:
+  selector:
+    app.kubernetes.io/instance: wolf
+    app.kubernetes.io/name: wolf
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: https
+    port: 47984
+    protocol: TCP
+    targetPort: https
+  - name: http
+    port: 47989
+    protocol: TCP
+    targetPort: http
+  - name: control
+    port: 47999
+    protocol: UDP
+    targetPort: control
+  - name: rtsp
+    port: 48010
+    protocol: TCP
+    targetPort: rtsp
+  - name: video1
+    port: 48100
+    protocol: UDP
+    targetPort: video1
+  - name: video2
+    port: 48101
+    protocol: UDP
+    targetPort: video2
+  - name: video3
+    port: 48102
+    protocol: UDP
+    targetPort: video3
+  - name: video4
+    port: 48103
+    protocol: UDP
+    targetPort: video4
+  - name: video5
+    port: 48104
+    protocol: UDP
+    targetPort: video5
+  - name: video6
+    port: 48105
+    protocol: UDP
+    targetPort: video6
+  - name: video7
+    port: 48106
+    protocol: UDP
+    targetPort: video7
+  - name: video8
+    port: 48107
+    protocol: UDP
+    targetPort: video8
+  - name: video9
+    port: 48108
+    protocol: UDP
+    targetPort: video9
+  - name: video10
+    port: 48109
+    protocol: UDP
+    targetPort: video10
+  - name: audio1
+    port: 48200
+    protocol: UDP
+    targetPort: audio1
+  - name: audio2
+    port: 48201
+    protocol: UDP
+    targetPort: audio2
+  - name: audio3
+    port: 48202
+    protocol: UDP
+    targetPort: audio3
+  - name: audio4
+    port: 48203
+    protocol: UDP
+    targetPort: audio4
+  - name: audio5
+    port: 48204
+    protocol: UDP
+    targetPort: audio5
+  - name: audio6
+    port: 48205
+    protocol: UDP
+    targetPort: audio6
+  - name: audio7
+    port: 48206
+    protocol: UDP
+    targetPort: audio7
+  - name: audio8
+    port: 48207
+    protocol: UDP
+    targetPort: audio8
+  - name: audio9
+    port: 48208
+    protocol: UDP
+    targetPort: audio9
+  - name: audio10
+    port: 48209
+    protocol: UDP
+    targetPort: audio10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: wolf
+    app.kubernetes.io/name: wolf
+    app.kubernetes.io/service: wolf-headless
+  name: wolf-headless
+spec:
+  selector:
+    app.kubernetes.io/instance: wolf
+    app.kubernetes.io/name: wolf
+  clusterIP: None
+  ports:
+  - name: https
+    port: 47984
+    protocol: TCP
+    targetPort: https
+  - name: http
+    port: 47989
+    protocol: TCP
+    targetPort: http
+  - name: control
+    port: 47999
+    protocol: UDP
+    targetPort: control
+  - name: rtsp
+    port: 48010
+    protocol: TCP
+    targetPort: rtsp

@@ -4,6 +4,8 @@ machine:
       - name: nvidia
       - name: nvidia_uvm
       - name: nvidia_drm
+        parameters:
+        - modeset=1
       - name: nvidia_modeset
       - name: uinput
   sysctls:
