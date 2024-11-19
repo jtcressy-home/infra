@@ -21,7 +21,7 @@ affinity:
       topologyKey: "kubernetes.io/hostname"
 ollama:
   gpu:
-    enabled: true
+    enabled: false
     type: "nvidia"
     number: 1
 runtimeClassName: "nvidia"
@@ -49,3 +49,4 @@ resources:
   limits:
     cpu: 2000m
     memory: 4096Mi
+    nvidia.com/gpu: "1"
