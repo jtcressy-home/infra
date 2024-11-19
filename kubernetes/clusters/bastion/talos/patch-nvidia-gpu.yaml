@@ -8,5 +8,6 @@ machine:
         - modeset=1
       - name: nvidia_modeset
       - name: uinput
+      - name: fuse
   sysctls:
     net.core.bpf_jit_harden: 1

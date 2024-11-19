@@ -24,11 +24,13 @@ clusterSvcNets:
 cniConfig:
   name: none
 
-nodes:
-## VMs
-  - hostname: talos-master-0
-    ipAddress: talos-master-0
-    schematic: &schematicBasicVM # 077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2
+# yamllint disable
+.schematics:
+  basic-vm:
+    id-labels: &schematicBasicVMIDLabels
+      factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
+      factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
+    config: &schematicBasicVM
       customization:
         systemExtensions:
             officialExtensions:
@@ -36,81 +38,18 @@ nodes:
                 - siderolabs/qemu-guest-agent
                 - siderolabs/tailscale
                 - siderolabs/util-linux-tools
-    controlPlane: true
-    installDiskSelector:
-      size: ">=250GB"
-    disableSearchDomain: false
-    networkInterfaces:
-      - interface: eno1
-        mtu: 0
-        dhcp: true
-    nodeLabels:
-      topology.kubernetes.io/region: home
-      topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
-      factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
-      node.longhorn.io/create-default-disk: "true"
-    extensionServices:
-      - name: tailscale
-        environment:
-          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-          - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
-  - hostname: talos-master-1
-    ipAddress: talos-master-1
-    schematic: *schematicBasicVM
-    controlPlane: true
-    installDiskSelector:
-      size: ">=250GB"
-    disableSearchDomain: false
-    networkInterfaces:
-      - interface: eno1
-        mtu: 0
-        dhcp: true
-    nodeLabels:
-      topology.kubernetes.io/region: home
-      topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
-      factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
-      node.longhorn.io/create-default-disk: "true"
-    extensionServices:
-      - name: tailscale
-        environment:
-          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-          - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion --reset
-  - hostname: talos-master-2
-    ipAddress: talos-master-2
-    schematic: *schematicBasicVM
-    controlPlane: true
-    installDiskSelector:
-      size: ">=250GB"
-    disableSearchDomain: false
-    networkInterfaces:
-      - interface: eno1
-        mtu: 0
-        dhcp: true
-    nodeLabels:
-      topology.kubernetes.io/region: home
-      topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 077514df2c1b6436460bc60faabc9766
-      factory.talos.dev/schematic-id.part-1: 87b16193b8a1290fda4366c69024fec2
-      node.longhorn.io/create-default-disk: "true"
-    extensionServices:
-      - name: tailscale
-        environment:
-          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-          - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
-  - hostname: talos-worker-gpu-0
-    ipAddress: talos-worker-gpu-0
-    schematic: &schematicNvidiaGPUVM # 9b47751f999bba95b35e9dfa5c9e8f1ea09c0d67cae30f49ae8a3ba8fbb059ef
+  nvidia-gpu-vm:
+    id-labels: &schematicNvidiaGPUVMIDLabels
+      factory.talos.dev/schematic-id.part-0: 83991e32a1680c85e556346bacabc925
+      factory.talos.dev/schematic-id.part-1: daea93d93a43169977c9eb930bb73d75
+    config: &schematicNvidiaGPUVM
       customization:
         systemExtensions:
           officialExtensions:
             - siderolabs/amd-ucode
             - siderolabs/amdgpu-firmware
             - siderolabs/binfmt-misc
+            - siderolabs/fuse3
             - siderolabs/i915-ucode
             - siderolabs/intel-ice-firmware
             - siderolabs/intel-ucode
@@ -123,15 +62,87 @@ nodes:
             - siderolabs/tailscale
             - siderolabs/uinput
             - siderolabs/util-linux-tools
+
+
+nodes:
+## VMs
+  - hostname: talos-master-0
+    ipAddress: talos-master-0
+    controlPlane: true
+    installDiskSelector:
+      size: ">=250GB"
+    disableSearchDomain: false
+    networkInterfaces:
+      - interface: eno1
+        mtu: 0
+        dhcp: true
+    schematic: *schematicBasicVM
+    nodeLabels:
+      <<: *schematicBasicVMIDLabels
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+      node.longhorn.io/create-default-disk: "true"
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+  - hostname: talos-master-1
+    ipAddress: talos-master-1
+    controlPlane: true
+    installDiskSelector:
+      size: ">=250GB"
+    disableSearchDomain: false
+    networkInterfaces:
+      - interface: eno1
+        mtu: 0
+        dhcp: true
+    schematic: *schematicBasicVM
+    nodeLabels:
+      <<: *schematicBasicVMIDLabels
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+      node.longhorn.io/create-default-disk: "true"
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion --reset
+  - hostname: talos-master-2
+    ipAddress: talos-master-2
+    controlPlane: true
+    installDiskSelector:
+      size: ">=250GB"
+    disableSearchDomain: false
+    networkInterfaces:
+      - interface: eno1
+        mtu: 0
+        dhcp: true
+    schematic: *schematicBasicVM
+    nodeLabels:
+      <<: *schematicBasicVMIDLabels
+      topology.kubernetes.io/region: home
+      topology.kubernetes.io/zone: home-office-rack
+      node.longhorn.io/create-default-disk: "true"
+    extensionServices:
+      - name: tailscale
+        environment:
+          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+          - TS_ACCEPT_DNS=true
+          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+  - hostname: talos-worker-gpu-0
+    ipAddress: talos-worker-gpu-0
     controlPlane: false
     installDiskSelector:
       size: ">=32GB"
     disableSearchDomain: false
+    schematic: *schematicNvidiaGPUVM
     nodeLabels:
+      <<: *schematicNvidiaGPUVMIDLabels
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 9b47751f999bba95b35e9dfa5c9e8f1e
-      factory.talos.dev/schematic-id.part-1: a09c0d67cae30f49ae8a3ba8fbb059ef
       node.longhorn.io/create-default-disk: "false"
     extensionServices:
       - name: tailscale
@@ -143,16 +154,15 @@ nodes:
       - "@./patch-nvidia-gpu.yaml"
   - hostname: talos-worker-gpu-1
     ipAddress: talos-worker-gpu-1
-    schematic: *schematicNvidiaGPUVM
     controlPlane: false
     installDiskSelector:
       size: ">=32GB"
     disableSearchDomain: false
+    schematic: *schematicNvidiaGPUVM
     nodeLabels:
+      <<: *schematicNvidiaGPUVMIDLabels
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
-      factory.talos.dev/schematic-id.part-0: 9b47751f999bba95b35e9dfa5c9e8f1e
-      factory.talos.dev/schematic-id.part-1: a09c0d67cae30f49ae8a3ba8fbb059ef
       node.longhorn.io/create-default-disk: "false"
     extensionServices:
       - name: tailscale
