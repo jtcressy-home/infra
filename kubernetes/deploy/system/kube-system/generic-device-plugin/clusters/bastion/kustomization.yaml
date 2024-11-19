@@ -30,11 +30,25 @@ helmCharts:
                       - path: /dev/net/tun
               - --device
               - |
+                name: dri
+                groups:
+                  - count: 1000
+                    paths:
+                      - path: /dev/dri
+              - --device
+              - |
                 name: uinput
                 groups:
                   - count: 1000
                     paths:
                       - path: /dev/uinput
+              - --device
+              - |
+                name: uhid
+                groups:
+                  - count: 1000
+                    paths:
+                      - path: /dev/uhid
             env:
               DEVICE_ZIGBEE: |-
                 name: zigbee
