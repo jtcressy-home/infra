@@ -24,6 +24,9 @@ helmCharts:
         address: 0.0.0.0:8686
         playground: true
       sources:
+        internal_metrics:
+          type: internal_metrics
+          
         kubernetes_logs:
           address: 0.0.0.0:6000
           type: vector
@@ -113,7 +116,8 @@ helmCharts:
         talos_kernel:
           type: loki
           inputs:
-            - talos_kernel_transform
+            # - talos_kernel_transform
+            - talos_kernel_logs
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
           encoding:
             codec: json
@@ -130,7 +134,8 @@ helmCharts:
         talos_service:
           type: loki
           inputs:
-            - talos_service_transform
+            # - talos_service_transform
+            - talos_service_logs
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
           encoding:
             codec: json
