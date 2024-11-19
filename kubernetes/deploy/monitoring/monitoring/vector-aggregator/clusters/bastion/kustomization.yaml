@@ -14,7 +14,7 @@ helmCharts:
       type: LoadBalancer
       # annotations:
       #   external-dns.alpha.kubernetes.io/hostname: "vector.home.arpa"
-      externalTrafficPolicy: Local
+      externalTrafficPolicy: Cluster
     podMonitor:
       enabled: true
     customConfig:
@@ -24,58 +24,140 @@ helmCharts:
         address: 0.0.0.0:8686
         playground: true
       sources:
-        datadog_agent:
-          address: 0.0.0.0:8282
-          type: datadog_agent
-        fluent:
-          address: 0.0.0.0:24224
-          type: fluent
-        internal_metrics:
-          type: internal_metrics
-        logstash:
-          address: 0.0.0.0:5044
-          type: logstash
-        splunk_hec:
-          address: 0.0.0.0:8080
-          type: splunk_hec
-        statsd:
-          address: 0.0.0.0:8125
-          mode: tcp
-          type: statsd
-        syslog:
-          address: 0.0.0.0:9000
-          mode: tcp
-          type: syslog
-        vector:
+        kubernetes_logs:
           address: 0.0.0.0:6000
           type: vector
           version: "2"
+
+        talos_kernel_logs:
+          address: 0.0.0.0:6001
+          type: socket
+          mode: udp
+          max_length: 102400
+          decoding:
+            codec: json
+          host_key: __host
+
+        talos_service_logs:
+          address: 0.0.0.0:6002
+          type: socket
+          mode: udp
+          max_length: 102400
+          decoding:
+            codec: json
+          host_key: __host
+
+        unifi_kernel_logs:
+          address: 0.0.0.0:6003
+          type: syslog
+          mode: udp
+          max_length: 102400
+      transforms:
+        kubernetes_transform:
+          type: remap
+          inputs:
+            - kubernetes_logs
+          source: |-
+            .custom_app_name = .pod_labels."app.kubernetes.io/name" || .pod_labels.app || .pod_labels."k8s-app" || "unknown"
+
+        # talos_kernel_transform:
+        #   type: remap
+        #   inputs:
+        #     - talos_kernel_logs
+        #   source: |-
+        #     r1 = replace!(.__host, "192.168.10.10", "m0")
+        #     r2 = replace(r1, "192.168.10.11", "m1")
+        #     r3 = replace(r2, "192.168.10.12", "m2")
+        #     .node = r3
+
+        # talos_service_transform:
+        #   type: remap
+        #   inputs:
+        #     - talos_service_logs
+        #   source: |-
+        #     r1 = replace!(.__host, "192.168.10.10", "m0")
+        #     r2 = replace(r1, "192.168.10.11", "m1")
+        #     r3 = replace(r2, "192.168.10.12", "m2")
+        #     .node = r3
+
+        unifi_kernel_transform:
+          type: remap
+          inputs:
+            - unifi_kernel_logs
+          source: |-
+            .timestamp = now()
       sinks:
         prom_exporter:
           type: prometheus_exporter
           inputs: [internal_metrics]
           address: 0.0.0.0:9090
-        stdout:
-          type: console
-          inputs: [datadog_agent, fluent, logstash, splunk_hec, statsd, syslog, vector]
-          encoding:
-            codec: json
-        vlogs:
-          type: "loki"
-          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+
+        kubernetes:
+          type: loki
           inputs:
-            - datadog_agent
-            - fluent
-            - logstash
-            - splunk_hec
-            - syslog
-            - vector
-          compression: gzip
-          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
+            - kubernetes_transform
+          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
           encoding:
             codec: json
+          batch:
+            max_bytes: 524288
+          out_of_order_action: rewrite_timestamp
+          remove_label_fields: true
+          remove_timestamp: true
           labels:
-            source: vector
+            app: "{{ custom_app_name }}"
+            container: "{{ container_name }}"
+            namespace: "{{ kubernetes.pod_namespace }}"
+            node: "{{ kubernetes.pod_node_name }}"
+
+        talos_kernel:
+          type: loki
+          inputs:
+            - talos_kernel_transform
+          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          encoding:
+            codec: json
+            # except_fields:
+            #   - __host
+          batch:
+            max_bytes: 524288
+          out_of_order_action: rewrite_timestamp
+          labels:
+            node: "{{ node }}"
+            facility: "{{ facility }}"
+            namespace: "talos:kernel"
+
+        talos_service:
+          type: loki
+          inputs:
+            - talos_service_transform
+          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          encoding:
+            codec: json
+            # except_fields:
+            #   - __host
+          batch:
+            max_bytes: 524288
+          out_of_order_action: rewrite_timestamp
+          labels:
+            node: "{{ node }}"
+            talos_service: '{{ "talos-service" }}'
+            namespace: "talos:service"
+
+        unifi_kernel:
+          type: loki
+          inputs:
+            - unifi_kernel_transform
+          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          encoding:
+            codec: json
+          batch:
+            max_bytes: 524288
+          out_of_order_action: rewrite_timestamp
+          labels:
+            node: "{{ host }}"
+            facility: "{{ facility }}"
+            namespace: "unifi:kernel"
 
 patches: # apply hostname to LB service, NOT HEADLESS SERVICE.
 - target:
