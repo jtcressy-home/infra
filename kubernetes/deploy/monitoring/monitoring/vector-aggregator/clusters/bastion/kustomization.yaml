@@ -71,7 +71,7 @@ helmCharts:
             - talos_kernel_logs
           source: |-
             .namespace = "talos:kernel"
-            map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
+            . = map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
 
         talos_service_transform:
           type: remap
@@ -79,7 +79,7 @@ helmCharts:
             - talos_service_logs
           source: |-
             .namespace = "talos:service"
-            map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
+            . = map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
 
         unifi_kernel_transform:
           type: remap
