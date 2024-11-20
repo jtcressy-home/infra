@@ -138,8 +138,9 @@ spec:
           name: tmp-sockets
         - mountPath: /etc/wolf
           name: wolf-data
-        - mountPath: /usr/local/glibc/lib/nvidia/xorg
-          name: nvidia-drv
+        - mountPath: /usr/nvidia
+          subPath: nvidia-drivers
+          name: wolf-data
         - mountPath: /dev
           name: dev
         - mountPath: /run/udev
@@ -189,14 +190,50 @@ spec:
           name: dev
         - mountPath: /run/udev
           name: udev
-        - mountPath: /usr/local/glibc/lib/nvidia/xorg
-          name: nvidia-drv
         - mountPath: /etc/wolf
+          name: wolf-data
+        - mountPath: /usr/nvidia
+          subPath: nvidia-drivers
           name: wolf-data
       nodeSelector:
         nvidia.com/gpu.count: "1"
         nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
       runtimeClassName: nvidia
+      initContainers:
+      - name: nvidia-installer
+        image: ubuntu:22.04
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+
+          NV_VERSION=$(cat /sys/module/nvidia/version)
+
+          if [ ! -f /usr/nvidia/bin/nvidia-smi ] || [ "$( /usr/nvidia/bin/nvidia-smi --version | awk '/^DRIVER version.*:/ {print $4}' )" != "$NV_VERSION" ]; then
+              echo "Either /usr/nvidia/bin/nvidia-smi not found or driver versions do not match!"
+              echo "Installing NVIDIA driver version $NV_VERSION"
+              apt-get update -y
+              apt-get install -y --no-install-recommends curl ca-certificates kmod pkg-config libglvnd-dev vulkan-tools
+              curl -LO https://download.nvidia.com/XFree86/Linux-x86_64/$NV_VERSION/NVIDIA-Linux-x86_64-$NV_VERSION.run
+              chmod +x NVIDIA-Linux-x86_64-$NV_VERSION.run
+              ./NVIDIA-Linux-x86_64-$NV_VERSION.run --silent -z --skip-depmod --skip-module-unload --no-nvidia-modprobe \
+              --no-kernel-modules --no-kernel-module-source --opengl-prefix=/usr/nvidia --wine-prefix=/usr/nvidia \
+              --utility-prefix=/usr/nvidia --utility-libdir=lib --compat32-prefix=/usr/nvidia --compat32-libdir=lib32 \
+              --egl-external-platform-config-path=/usr/nvidia/share/egl/egl_external_platform.d \
+              --glvnd-egl-config-path=/usr/nvidia/share/glvnd/egl_vendor.d --no-distro-scripts
+              echo -e "/usr/nvidia/lib\n/usr/nvidia/lib32" > /etc/ld.so.conf.d/nvidia.conf && ldconfig
+
+              tree /usr/nvidia
+          else
+              echo "NVIDIA driver version $NV_VERSION already installed"
+              nvidia-smi --version
+          fi
+        volumeMounts:
+        - mountPath: /usr/nvidia
+          subPath: nvidia-drivers
+          name: wolf-data
       volumes:
       # - name: docker
       #   emptyDir: {}
@@ -210,9 +247,8 @@ spec:
       - name: udev
         hostPath:
           path: /run/udev
-      - name: nvidia-drv
-        hostPath:
-          path: /usr/local/glibc/lib/nvidia/xorg
+        # hostPath:
+        #   path: /usr/local/glibc/lib/nvidia/xorg
       # - name: software
       #   nfs:
       #     path: /mnt/purple/general/media
