@@ -71,6 +71,7 @@ helmCharts:
             - talos_kernel_logs
           source: |-
             .namespace = "talos:kernel"
+            map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
 
         talos_service_transform:
           type: remap
@@ -78,6 +79,7 @@ helmCharts:
             - talos_service_logs
           source: |-
             .namespace = "talos:service"
+            map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
 
         unifi_kernel_transform:
           type: remap
@@ -121,8 +123,8 @@ helmCharts:
             enabled: false
           query:
             _msg_field: msg
-            _time_field: talos-time
-            _stream_fields: namespace,node,talos-service,talos-level
+            _time_field: talos_time
+            _stream_fields: namespace,node,talos_service,talos_level
 
         unifi_kernel:
           type: elasticsearch
