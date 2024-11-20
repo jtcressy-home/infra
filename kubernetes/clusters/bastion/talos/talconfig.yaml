@@ -63,7 +63,6 @@ cniConfig:
             - siderolabs/uinput
             - siderolabs/util-linux-tools
 
-
 nodes:
 ## VMs
   - hostname: talos-master-0
@@ -82,12 +81,12 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
       node.longhorn.io/create-default-disk: "true"
-    extensionServices:
-      - name: tailscale
-        environment:
-          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-          - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    patches:
+      - '@./patch-logging.yaml'
+      - |
+        - op: add
+          path: /machine/logging/destinations/0/extraTags/node
+          value: talos-master-0
   - hostname: talos-master-1
     ipAddress: talos-master-1
     controlPlane: true
@@ -104,12 +103,12 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
       node.longhorn.io/create-default-disk: "true"
-    extensionServices:
-      - name: tailscale
-        environment:
-          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-          - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion --reset
+    patches:
+      - '@./patch-logging.yaml'
+      - |
+        - op: add
+          path: /machine/logging/destinations/0/extraTags/node
+          value: talos-master-1
   - hostname: talos-master-2
     ipAddress: talos-master-2
     controlPlane: true
@@ -126,12 +125,12 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
       node.longhorn.io/create-default-disk: "true"
-    extensionServices:
-      - name: tailscale
-        environment:
-          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-          - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+    patches:
+      - '@./patch-logging.yaml'
+      - |
+        - op: add
+          path: /machine/logging/destinations/0/extraTags/node
+          value: talos-master-2
   - hostname: talos-worker-gpu-0
     ipAddress: talos-worker-gpu-0
     controlPlane: false
@@ -144,14 +143,13 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
       node.longhorn.io/create-default-disk: "false"
-    extensionServices:
-      - name: tailscale
-        environment:
-          - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
-          - TS_ACCEPT_DNS=true
-          - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-nvidia-gpu.yaml"
+      - '@./patch-logging.yaml'
+      - |
+        - op: add
+          path: /machine/logging/destinations/0/extraTags/node
+          value: talos-worker-gpu-0
   - hostname: talos-worker-gpu-1
     ipAddress: talos-worker-gpu-1
     controlPlane: false
@@ -172,6 +170,11 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-nvidia-gpu.yaml"
+      - '@./patch-logging.yaml'
+      - |
+        - op: add
+          path: /machine/logging/destinations/0/extraTags/node
+          value: talos-worker-gpu-1
 # ## SBC'S ##
 #   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
@@ -238,10 +241,17 @@ patches:
     network:
       nameservers:
         - 100.100.100.100
-    #     - 192.168.20.186 # pihole on truenas-purplebox
 - '@./patch-longhorn.yaml'
 - '@./patch-global-sysctls.yaml'
+worker:
+  extensionServices: &commonExtensionServices
+    - name: tailscale
+      environment:
+        - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+        - TS_ACCEPT_DNS=true
+        - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
 controlPlane:
+  extensionServices: *commonExtensionServices
   patches:
     - |
       machine:

@@ -12,8 +12,6 @@ helmCharts:
     replicas: 3
     service:
       type: LoadBalancer
-      # annotations:
-      #   external-dns.alpha.kubernetes.io/hostname: "vector.home.arpa"
       externalTrafficPolicy: Cluster
     podMonitor:
       enabled: true
@@ -61,27 +59,24 @@ helmCharts:
           inputs:
             - kubernetes_logs
           source: |-
-            .custom_app_name = .pod_labels."app.kubernetes.io/name" || .pod_labels.app || .pod_labels."k8s-app" || "unknown"
+            .app = .pod_labels."app.kubernetes.io/name" || .pod_labels.app || .pod_labels."k8s-app" || "unknown"
+            .container = del(.container_name)
+            .namespace = .kubernetes.pod_namespace
+            .node = .kubernetes.pod_node_name
 
-        # talos_kernel_transform:
-        #   type: remap
-        #   inputs:
-        #     - talos_kernel_logs
-        #   source: |-
-        #     r1 = replace!(.__host, "192.168.10.10", "m0")
-        #     r2 = replace(r1, "192.168.10.11", "m1")
-        #     r3 = replace(r2, "192.168.10.12", "m2")
-        #     .node = r3
+        talos_kernel_transform:
+          type: remap
+          inputs:
+            - talos_kernel_logs
+          source: |-
+            .namespace = "talos:kernel"
 
-        # talos_service_transform:
-        #   type: remap
-        #   inputs:
-        #     - talos_service_logs
-        #   source: |-
-        #     r1 = replace!(.__host, "192.168.10.10", "m0")
-        #     r2 = replace(r1, "192.168.10.11", "m1")
-        #     r3 = replace(r2, "192.168.10.12", "m2")
-        #     .node = r3
+        talos_service_transform:
+          type: remap
+          inputs:
+            - talos_service_logs
+          source: |-
+            .namespace = "talos:service"
 
         unifi_kernel_transform:
           type: remap
@@ -97,92 +92,10 @@ helmCharts:
           inputs: [internal_metrics]
           address: 0.0.0.0:9090
 
-        # console:
-        #   type: console
-        #   inputs:
-        #     - unifi_kernel_logs
-        #     # - unifi_kernel_transform
-        #   encoding:
-        #     codec: json
-        #     json:
-        #       pretty: true
-
         kubernetes:
-          type: loki
-          inputs:
-            - kubernetes_transform
-          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
-          compression: gzip
-          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
-          encoding:
-            codec: json
-          batch:
-            max_bytes: 524288
-          out_of_order_action: rewrite_timestamp
-          remove_label_fields: true
-          remove_timestamp: true
-          labels:
-            app: "{{`{{ custom_app_name }}`}}"
-            container: "{{`{{ container_name }}`}}"
-            namespace: "{{`{{ kubernetes.pod_namespace }}`}}"
-            node: "{{`{{ kubernetes.pod_node_name }}`}}"
-
-        talos_kernel:
-          type: loki
-          inputs:
-            # - talos_kernel_transform
-            - talos_kernel_logs
-          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
-          compression: gzip
-          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
-          encoding:
-            codec: json
-            # except_fields:
-            #   - __host
-          batch:
-            max_bytes: 524288
-          out_of_order_action: rewrite_timestamp
-          labels:
-            node: "{{`{{ node }}`}}"
-            facility: "{{`{{ facility }}`}}"
-            namespace: "talos:kernel"
-
-        talos_service:
-          type: loki
-          inputs:
-            # - talos_service_transform
-            - talos_service_logs
-          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
-          compression: gzip
-          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=source
-          encoding:
-            codec: json
-            # except_fields:
-            #   - __host
-          batch:
-            max_bytes: 524288
-          out_of_order_action: rewrite_timestamp
-          labels:
-            node: "{{`{{ node }}`}}"
-            talos_service: '{{`{{ "talos-service" }}`}}'
-            namespace: "talos:service"
-
-        unifi_kernel:
-          # type: loki
           type: elasticsearch
           inputs:
-            - unifi_kernel_transform
-          # endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
-          # compression: gzip
-          # path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=appname,facility,hostname
-          # encoding:
-          #   codec: json
-          # batch:
-          #   max_bytes: 524288
-          # out_of_order_action: rewrite_timestamp
-          # labels:
-          #   "*": "{{`{{ . }}`}}"
-          #   namespace: "unifi:kernel"
+            - kubernetes_transform
           endpoints:
             - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
           mode: bulk
@@ -192,7 +105,38 @@ helmCharts:
           query:
             _msg_field: message
             _time_field: timestamp
-            _stream_fields: appname,facility,hostname
+            _stream_fields: namespace,node,app,container
+
+        talos:
+          type: elasticsearch
+          inputs:
+            - talos_service_transform
+            - talos_kernel_transform
+          endpoints: 
+            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+          mode: bulk
+          api_version: v8
+          healthcheck:
+            enabled: false
+          query:
+            _msg_field: msg
+            _time_field: talos-time
+            _stream_fields: namespace,node,talos-service,talos-level
+
+        unifi_kernel:
+          type: elasticsearch
+          inputs:
+            - unifi_kernel_transform
+          endpoints:
+            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+          mode: bulk
+          api_version: v8
+          healthcheck:
+            enabled: false
+          query:
+            _msg_field: message
+            _time_field: timestamp
+            _stream_fields: namespace,appname,facility,hostname
 
 patches: # apply hostname to LB service, NOT HEADLESS SERVICE.
 - target:

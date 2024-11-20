@@ -1,0 +1,10 @@
+machine:
+  install:
+    extraKernelArgs:
+      - talos.logging.kernel=udp://vector.home.arpa:6001
+  logging:
+    destinations:
+      - endpoint: udp://vector.home.arpa:6002
+        format: json_lines
+        extraTags:
+          node: unknown
