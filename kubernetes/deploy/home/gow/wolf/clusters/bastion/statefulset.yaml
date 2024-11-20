@@ -229,8 +229,8 @@ spec:
               tree /usr/nvidia
           else
               echo "NVIDIA driver version $NV_VERSION already installed"
-              nvidia-smi --version
           fi
+          nvidia-smi --version
         volumeMounts:
         - mountPath: /usr/nvidia
           subPath: nvidia-drivers
