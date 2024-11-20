@@ -83,12 +83,12 @@ helmCharts:
         #     r3 = replace(r2, "192.168.10.12", "m2")
         #     .node = r3
 
-        unifi_kernel_transform:
-          type: remap
-          inputs:
-            - unifi_kernel_logs
-          source: |-
-            . |= parse_syslog!(.message)
+        # unifi_kernel_transform:
+        #   type: remap
+        #   inputs:
+        #     - unifi_kernel_logs
+        #   source: |-
+        #     . |= parse_syslog!(.message)
       sinks:
         prom_exporter:
           type: prometheus_exporter
@@ -99,7 +99,7 @@ helmCharts:
           type: console
           inputs:
             - unifi_kernel_logs
-            - unifi_kernel_transform
+            # - unifi_kernel_transform
           encoding:
             codec: json
             json:
@@ -168,18 +168,17 @@ helmCharts:
         unifi_kernel:
           type: loki
           inputs:
-            - unifi_kernel_transform
+            - unifi_kernel_logs
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
           compression: gzip
           path: /api/v1/push?_msg_field=message&_time_field=timestamp&_stream_fields=appname,facility,hostname
-          # encoding:
-          #   codec: json
+          encoding:
+            codec: json
           batch:
             max_bytes: 524288
           out_of_order_action: rewrite_timestamp
           labels:
-            node: "{{`{{ host }}`}}"
-            facility: "{{`{{ facility }}`}}"
+            "*": "{{`{{ . }}`}}"
             namespace: "unifi:kernel"
 
 patches: # apply hostname to LB service, NOT HEADLESS SERVICE.
