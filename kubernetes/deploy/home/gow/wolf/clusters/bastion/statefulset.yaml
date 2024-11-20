@@ -125,6 +125,8 @@ spec:
           value: all
         - name: NVIDIA_VISIBLE_DEVICES
           value: all
+        - name: NVIDIA_DRIVER_VOLUME_NAME
+          value: /usr/nvidia # should match where nvidia drivers are mounted in dind container
         - name: WOLF_LOG_LEVEL
           value: DEBUG
         - name: XDG_RUNTIME_DIR
