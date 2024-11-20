@@ -89,6 +89,7 @@ helmCharts:
             - unifi_kernel_logs
           source: |-
             .timestamp = now()
+            ._msg = .message
             
       sinks:
         prom_exporter:
