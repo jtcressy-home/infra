@@ -210,10 +210,25 @@ spec:
           #!/bin/bash
           set +x
 
+          install=true
+
           NV_VERSION=$(cat /sys/module/nvidia/version)
 
-          if [ ! -f /usr/nvidia/bin/nvidia-smi ] || [ "$( /usr/nvidia/bin/nvidia-smi --version | awk '/^DRIVER version.*:/ {print $4}' )" != "$NV_VERSION" ]; then
-              echo "Either /usr/nvidia/bin/nvidia-smi not found or driver versions do not match!"
+          if [ ! -f /usr/nvidia/bin/nvidia-smi ]; then
+              install=true
+              echo "NVIDIA driver not found!"
+          else
+              NV_SMI_VERSION=$(/usr/nvidia/bin/nvidia-smi --version | awk '/^DRIVER version.*:/ {print $4}')
+              echo "Found NVIDIA driver version $NV_SMI_VERSION"
+              if [ "$NV_SMI_VERSION" != "$NV_VERSION" ]; then
+                  echo "Driver versions do not match! Module version: $NV_VERSION, nvidia-smi version: $NV_SMI_VERSION"
+                  install=true
+              else
+                  install=false
+              fi
+          fi
+
+          if $install; then
               echo "Installing NVIDIA driver version $NV_VERSION"
               apt-get update -y
               apt-get install -y --no-install-recommends curl ca-certificates kmod pkg-config libglvnd-dev vulkan-tools tree
@@ -227,10 +242,8 @@ spec:
               echo -e "/usr/nvidia/lib\n/usr/nvidia/lib32" > /etc/ld.so.conf.d/nvidia.conf && ldconfig
 
               tree /usr/nvidia
-          else
-              echo "NVIDIA driver version $NV_VERSION already installed"
           fi
-          nvidia-smi --version
+          /usr/nvidia/bin/nvidia-smi --version
         volumeMounts:
         - mountPath: /usr/nvidia
           subPath: nvidia-drivers
