@@ -42,6 +42,7 @@ spec:
         imagePullPolicy: Always
         securityContext:
           readOnlyRootFilesystem: false
+          privileged: true
         ports:
           - containerPort: 47984
             name: https
@@ -159,6 +160,7 @@ spec:
           hostPort: 2376
           protocol: TCP
         securityContext:
+          readOnlyRootFilesystem: false
           privileged: true
           capabilities:
             add:
