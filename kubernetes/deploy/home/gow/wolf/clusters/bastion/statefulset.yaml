@@ -40,6 +40,8 @@ spec:
       - name: wolf
         image: ghcr.io/games-on-whales/wolf:stable
         imagePullPolicy: Always
+        securityContext:
+          readOnlyRootFilesystem: false
         ports:
           - containerPort: 47984
             name: https
@@ -210,7 +212,11 @@ spec:
         - -c
         - |
           #!/bin/bash
-          set +x
+          
+          echo "Setting up installer dependencies"
+          apt-get update -yqq
+          apt-get install -yqq --no-install-recommends \
+            curl ca-certificates kmod pkg-config libglvnd-dev vulkan-tools tree
 
           install=true
 
@@ -232,8 +238,6 @@ spec:
 
           if $install; then
               echo "Installing NVIDIA driver version $NV_VERSION"
-              apt-get update -y
-              apt-get install -y --no-install-recommends curl ca-certificates kmod pkg-config libglvnd-dev vulkan-tools tree
               curl -LO https://download.nvidia.com/XFree86/Linux-x86_64/$NV_VERSION/NVIDIA-Linux-x86_64-$NV_VERSION.run
               chmod +x NVIDIA-Linux-x86_64-$NV_VERSION.run
               ./NVIDIA-Linux-x86_64-$NV_VERSION.run --silent -z --skip-depmod --skip-module-unload --no-nvidia-modprobe \
