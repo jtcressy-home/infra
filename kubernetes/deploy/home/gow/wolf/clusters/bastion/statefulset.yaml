@@ -248,6 +248,8 @@ spec:
         - mountPath: /usr/nvidia
           subPath: nvidia-drivers
           name: wolf-data
+        - mountPath: /dev
+          name: dev
       volumes:
       # - name: docker
       #   emptyDir: {}
