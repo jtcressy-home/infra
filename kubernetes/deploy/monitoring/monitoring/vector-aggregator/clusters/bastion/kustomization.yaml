@@ -95,6 +95,16 @@ helmCharts:
           inputs: [internal_metrics]
           address: 0.0.0.0:9090
 
+        console:
+          type: console
+          inputs:
+            - unifi_kernel_logs
+            - unifi_kernel_transform
+          encoding:
+            code: json
+            json:
+              pretty: true
+
         kubernetes:
           type: loki
           inputs:
