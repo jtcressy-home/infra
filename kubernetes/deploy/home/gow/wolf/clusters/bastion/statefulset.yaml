@@ -208,6 +208,7 @@ spec:
         - -c
         - |
           #!/bin/bash
+          set +x
 
           NV_VERSION=$(cat /sys/module/nvidia/version)
 
@@ -215,7 +216,7 @@ spec:
               echo "Either /usr/nvidia/bin/nvidia-smi not found or driver versions do not match!"
               echo "Installing NVIDIA driver version $NV_VERSION"
               apt-get update -y
-              apt-get install -y --no-install-recommends curl ca-certificates kmod pkg-config libglvnd-dev vulkan-tools
+              apt-get install -y --no-install-recommends curl ca-certificates kmod pkg-config libglvnd-dev vulkan-tools tree
               curl -LO https://download.nvidia.com/XFree86/Linux-x86_64/$NV_VERSION/NVIDIA-Linux-x86_64-$NV_VERSION.run
               chmod +x NVIDIA-Linux-x86_64-$NV_VERSION.run
               ./NVIDIA-Linux-x86_64-$NV_VERSION.run --silent -z --skip-depmod --skip-module-unload --no-nvidia-modprobe \
