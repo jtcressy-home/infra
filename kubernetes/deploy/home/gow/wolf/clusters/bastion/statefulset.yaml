@@ -155,14 +155,21 @@ spec:
           protocol: TCP
         securityContext:
           privileged: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+            - NET_ADMIN
+            - NET_RAW
         resources:
           limits:
             squat.ai/dri: "1"
             squat.ai/uinput: "1"
+            squat.ai/fuse: "1"
             # nvidia.com/gpu: "1"
           requests:
             squat.ai/dri: "1"
             squat.ai/uinput: "1"
+            squat.ai/fuse: "1"
         env:
         - name: NVIDIA_DRIVER_CAPABILITIES
           value: all

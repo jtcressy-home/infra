@@ -49,6 +49,13 @@ helmCharts:
                   - count: 1000
                     paths:
                       - path: /dev/uhid
+              - --device
+              - |
+                name: fuse
+                groups:
+                  - count: 1000
+                    paths:
+                      - path: /dev/fuse
             env:
               DEVICE_ZIGBEE: |-
                 name: zigbee
