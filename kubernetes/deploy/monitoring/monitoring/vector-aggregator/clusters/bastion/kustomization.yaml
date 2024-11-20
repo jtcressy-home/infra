@@ -59,6 +59,7 @@ helmCharts:
           inputs:
             - kubernetes_logs
           source: |-
+            del(.kubernetes.node_labels)
             .app = .pod_labels."app.kubernetes.io/name" || .pod_labels.app || .pod_labels."k8s-app" || "unknown"
             .container = del(.container_name)
             .namespace = .kubernetes.pod_namespace
