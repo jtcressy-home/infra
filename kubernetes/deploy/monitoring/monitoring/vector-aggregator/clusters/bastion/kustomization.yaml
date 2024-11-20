@@ -101,7 +101,7 @@ helmCharts:
             - unifi_kernel_logs
             - unifi_kernel_transform
           encoding:
-            code: json
+            codec: json
             json:
               pretty: true
 
