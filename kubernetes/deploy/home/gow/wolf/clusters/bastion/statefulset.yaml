@@ -243,7 +243,7 @@ spec:
 
               tree /usr/nvidia
           fi
-          /usr/nvidia/bin/nvidia-smi --version
+          /usr/nvidia/bin/nvidia-smi --version || sleep 3600
         volumeMounts:
         - mountPath: /usr/nvidia
           subPath: nvidia-drivers
