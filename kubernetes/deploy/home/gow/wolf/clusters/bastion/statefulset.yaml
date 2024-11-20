@@ -214,14 +214,14 @@ spec:
 
           NV_VERSION=$(cat /sys/module/nvidia/version)
 
-          if [ ! -f /usr/nvidia/bin/nvidia-smi ]; then
+          if [ ! -f /usr/nvidia/bin/nvidia-settings ]; then
               install=true
               echo "NVIDIA driver not found!"
           else
-              NV_SMI_VERSION=$(/usr/nvidia/bin/nvidia-smi --version | awk '/^DRIVER version.*:/ {print $4}')
-              echo "Found NVIDIA driver version $NV_SMI_VERSION"
-              if [ "$NV_SMI_VERSION" != "$NV_VERSION" ]; then
-                  echo "Driver versions do not match! Module version: $NV_VERSION, nvidia-smi version: $NV_SMI_VERSION"
+              NV_DRV_VERSION=$(/usr/nvidia/bin/nvidia-settings --version | awk '/^nvidia-settings:.*version/ {print $3}')
+              echo "Found NVIDIA driver version $NV_DRV_VERSION"
+              if [ "$NV_DRV_VERSION" != "$NV_VERSION" ]; then
+                  echo "Driver versions do not match! Module version: $NV_VERSION, Driver version: $NV_DRV_VERSION"
                   install=true
               else
                   install=false
@@ -243,7 +243,7 @@ spec:
 
               tree /usr/nvidia
           fi
-          /usr/nvidia/bin/nvidia-smi --version || sleep 3600
+          /usr/nvidia/bin/nvidia-settings --version || sleep 3600
         volumeMounts:
         - mountPath: /usr/nvidia
           subPath: nvidia-drivers
