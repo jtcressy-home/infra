@@ -89,7 +89,6 @@ helmCharts:
             - unifi_kernel_logs
           source: |-
             .timestamp = now()
-            ._msg = .message
             
       sinks:
         prom_exporter:
@@ -168,20 +167,31 @@ helmCharts:
             namespace: "talos:service"
 
         unifi_kernel:
-          type: loki
+          # type: loki
+          type: elasticsearch
           inputs:
             - unifi_kernel_transform
-          endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
-          compression: gzip
-          path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=appname,facility,hostname
-          encoding:
-            codec: json
-          batch:
-            max_bytes: 524288
-          out_of_order_action: rewrite_timestamp
-          labels:
-            "*": "{{`{{ . }}`}}"
-            namespace: "unifi:kernel"
+          # endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
+          # compression: gzip
+          # path: /api/v1/push?_msg_field=message.message&_time_field=timestamp&_stream_fields=appname,facility,hostname
+          # encoding:
+          #   codec: json
+          # batch:
+          #   max_bytes: 524288
+          # out_of_order_action: rewrite_timestamp
+          # labels:
+          #   "*": "{{`{{ . }}`}}"
+          #   namespace: "unifi:kernel"
+          endpoints:
+            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+          mode: bulk
+          api_version: v8
+          healthcheck:
+            enabled: false
+          query:
+            _msg_field: message
+            _time_field: timestamp
+            _stream_fields: appname,facility,hostname
 
 patches: # apply hostname to LB service, NOT HEADLESS SERVICE.
 - target:
