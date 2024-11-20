@@ -83,12 +83,13 @@ helmCharts:
         #     r3 = replace(r2, "192.168.10.12", "m2")
         #     .node = r3
 
-        # unifi_kernel_transform:
-        #   type: remap
-        #   inputs:
-        #     - unifi_kernel_logs
-        #   source: |-
-        #     . |= parse_syslog!(.message)
+        unifi_kernel_transform:
+          type: remap
+          inputs:
+            - unifi_kernel_logs
+          source: |-
+            .timestamp = now()
+            
       sinks:
         prom_exporter:
           type: prometheus_exporter
@@ -168,7 +169,7 @@ helmCharts:
         unifi_kernel:
           type: loki
           inputs:
-            - unifi_kernel_logs
+            - unifi_kernel_transform
           endpoint: "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/loki/"
           compression: gzip
           path: /api/v1/push?_msg_field=message&_time_field=timestamp&_stream_fields=appname,facility,hostname
