@@ -132,10 +132,10 @@ spec:
             squat.ai/dri: "1"
             squat.ai/uinput: "1"
         env:
-        - name: NVIDIA_DRIVER_CAPABILITIES
-          value: all
-        - name: NVIDIA_VISIBLE_DEVICES
-          value: all
+        # - name: NVIDIA_DRIVER_CAPABILITIES
+        #   value: all
+        # - name: NVIDIA_VISIBLE_DEVICES
+        #   value: all
         - name: NVIDIA_DRIVER_VOLUME_NAME
           value: /usr/nvidia # should match where nvidia drivers are mounted in dind container
         - name: WOLF_LOG_LEVEL
@@ -145,13 +145,16 @@ spec:
         - name: HOST_APPS_STATE_FOLDER
           value: /etc/wolf
         volumeMounts:
+        - mountPath: /usr/nvidia
+          # name: nvidia-driver
+          subPath: nvidia-driver
+          name: wolf-data
         - mountPath: /var/run
           name: var-run
         - mountPath: /tmp/sockets
           name: tmp-sockets
         - mountPath: /etc/wolf
-          subPath: wolf
-          name: media
+          name: wolf-data
         - mountPath: /dev
           name: dev
         - mountPath: /run/udev
@@ -186,11 +189,11 @@ spec:
             squat.ai/dri: "1"
             squat.ai/uinput: "1"
             squat.ai/fuse: "1"
-        env:
-        - name: NVIDIA_DRIVER_CAPABILITIES
-          value: all
-        - name: NVIDIA_VISIBLE_DEVICES
-          value: all
+        # env:
+        # - name: NVIDIA_DRIVER_CAPABILITIES
+        #   value: all
+        # - name: NVIDIA_VISIBLE_DEVICES
+        #   value: all
         volumeMounts:
         - mountPath: /var/lib/docker
           name: docker
@@ -203,10 +206,11 @@ spec:
         - mountPath: /run/udev
           name: udev
         - mountPath: /etc/wolf
-          subPath: wolf
-          name: media
+          name: wolf-data
         - mountPath: /usr/nvidia
-          name: nvidia-driver
+          # name: nvidia-driver
+          subPath: nvidia-driver
+          name: wolf-data
       nodeSelector:
         nvidia.com/gpu.count: "1"
         nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
@@ -260,7 +264,9 @@ spec:
           /usr/nvidia/bin/nvidia-settings --version || sleep 3600
         volumeMounts:
         - mountPath: /usr/nvidia
-          name: nvidia-driver
+          # name: nvidia-driver
+          subPath: nvidia-driver
+          name: wolf-data
         - mountPath: /dev
           name: dev
       volumes:
@@ -270,29 +276,27 @@ spec:
         emptyDir: {}
       - name: tmp-sockets
         emptyDir: {}
-      - name: nvidia-driver
-        emptyDir: {}
+      # - name: nvidia-driver
+      #   emptyDir: {}
       - name: dev
         hostPath:
           path: /dev
       - name: udev
         hostPath:
           path: /run/udev
-        # hostPath:
-        #   path: /usr/local/glibc/lib/nvidia/xorg
-      - name: media
-        # nfs:
-        #   path: /mnt/purple/general/media
-        #   server: truenas-purplebox.private.home
-        persistentVolumeClaim:
-          claimName: purplebox-smb-media
-  # volumeClaimTemplates:
-  #   - metadata:
-  #       name: wolf-data
-  #     spec:
-  #       accessModes:
-  #         - ReadWriteOnce
-  #       resources:
-  #         requests:
-  #           storage: 60Gi
-  #       storageClassName: cephfs
+      # - name: media
+      #   # nfs:
+      #   #   path: /mnt/purple/general/media
+      #   #   server: truenas-purplebox.private.home
+      #   persistentVolumeClaim:
+      #     claimName: purplebox-smb-media
+  volumeClaimTemplates:
+    - metadata:
+        name: wolf-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: cephfs
