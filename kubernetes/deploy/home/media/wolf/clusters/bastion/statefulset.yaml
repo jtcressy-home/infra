@@ -51,6 +51,7 @@ spec:
             - NET_ADMIN
             - NET_RAW
             - MKNOD
+            - SETUID
         ports:
           - containerPort: 47984
             name: https
@@ -179,6 +180,7 @@ spec:
             - NET_ADMIN
             - NET_RAW
             - MKNOD
+            - SETUID
         resources:
           limits:
             squat.ai/dri: "1"
