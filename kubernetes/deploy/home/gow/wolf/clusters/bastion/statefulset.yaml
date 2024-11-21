@@ -293,8 +293,8 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 30Gi
-        storageClassName: cephfs
+            storage: 100Gi
+        storageClassName: local
     - metadata:
         name: docker
       spec:
@@ -303,4 +303,4 @@ spec:
         resources:
           requests:
             storage: 60Gi
-        storageClassName: ceph-rbd
+        storageClassName: local
