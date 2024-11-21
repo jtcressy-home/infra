@@ -294,5 +294,5 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 30Gi
-        storageClassName: local
+            storage: 60Gi
+        storageClassName: longhorn-standalone
