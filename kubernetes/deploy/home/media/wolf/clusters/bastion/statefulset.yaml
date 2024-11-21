@@ -206,8 +206,7 @@ spec:
           subPath: wolf
           name: media
         - mountPath: /usr/nvidia
-          subPath: wolf/nvidia-drivers
-          name: media
+          name: nvidia-driver
       nodeSelector:
         nvidia.com/gpu.count: "1"
         nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
@@ -261,8 +260,7 @@ spec:
           /usr/nvidia/bin/nvidia-settings --version || sleep 3600
         volumeMounts:
         - mountPath: /usr/nvidia
-          subPath: wolf/nvidia-drivers
-          name: media
+          name: nvidia-driver
         - mountPath: /dev
           name: dev
       volumes:
@@ -271,6 +269,8 @@ spec:
       - name: var-run
         emptyDir: {}
       - name: tmp-sockets
+        emptyDir: {}
+      - name: nvidia-driver
         emptyDir: {}
       - name: dev
         hostPath:
