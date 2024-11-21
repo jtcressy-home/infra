@@ -204,10 +204,10 @@ spec:
           name: udev
         - mountPath: /etc/wolf
           subPath: wolf
-          name: software
+          name: media
         - mountPath: /usr/nvidia
           subPath: wolf/nvidia-drivers
-          name: software
+          name: media
       nodeSelector:
         nvidia.com/gpu.count: "1"
         nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
@@ -262,7 +262,7 @@ spec:
         volumeMounts:
         - mountPath: /usr/nvidia
           subPath: wolf/nvidia-drivers
-          name: software
+          name: media
         - mountPath: /dev
           name: dev
       volumes:
@@ -280,10 +280,12 @@ spec:
           path: /run/udev
         # hostPath:
         #   path: /usr/local/glibc/lib/nvidia/xorg
-      - name: software
-        nfs:
-          path: /mnt/purple/general/media
-          server: truenas-purplebox.private.home
+      - name: media
+        # nfs:
+        #   path: /mnt/purple/general/media
+        #   server: truenas-purplebox.private.home
+        persistentVolumeClaim:
+          claimName: purplebox-smb-media
   # volumeClaimTemplates:
   #   - metadata:
   #       name: wolf-data
