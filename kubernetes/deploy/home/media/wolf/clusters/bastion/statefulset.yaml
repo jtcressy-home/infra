@@ -151,7 +151,7 @@ spec:
           name: tmp-sockets
         - mountPath: /etc/wolf
           subPath: wolf
-          name: software
+          name: media
         - mountPath: /dev
           name: dev
         - mountPath: /run/udev
