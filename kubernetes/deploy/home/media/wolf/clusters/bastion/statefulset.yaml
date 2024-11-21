@@ -132,10 +132,10 @@ spec:
             squat.ai/dri: "1"
             squat.ai/uinput: "1"
         env:
-        # - name: NVIDIA_DRIVER_CAPABILITIES
-        #   value: all
-        # - name: NVIDIA_VISIBLE_DEVICES
-        #   value: all
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: all
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
         - name: NVIDIA_DRIVER_VOLUME_NAME
           value: /usr/nvidia # should match where nvidia drivers are mounted in dind container
         - name: WOLF_LOG_LEVEL
@@ -145,10 +145,10 @@ spec:
         - name: HOST_APPS_STATE_FOLDER
           value: /etc/wolf
         volumeMounts:
-        - mountPath: /usr/nvidia
-          # name: nvidia-driver
-          subPath: nvidia-driver
-          name: wolf-data
+        # - mountPath: /usr/nvidia
+        #   # name: nvidia-driver
+        #   subPath: nvidia-driver
+        #   name: wolf-data
         - mountPath: /var/run
           name: var-run
         - mountPath: /tmp/sockets
@@ -189,11 +189,11 @@ spec:
             squat.ai/dri: "1"
             squat.ai/uinput: "1"
             squat.ai/fuse: "1"
-        # env:
-        # - name: NVIDIA_DRIVER_CAPABILITIES
-        #   value: all
-        # - name: NVIDIA_VISIBLE_DEVICES
-        #   value: all
+        env:
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: all
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
         volumeMounts:
         - mountPath: /var/lib/docker
           name: docker
