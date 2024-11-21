@@ -150,10 +150,8 @@ spec:
         - mountPath: /tmp/sockets
           name: tmp-sockets
         - mountPath: /etc/wolf
-          name: wolf-data
-        # - mountPath: /usr/nvidia
-        #   subPath: nvidia-drivers
-        #   name: wolf-data
+          subPath: wolf
+          name: software
         - mountPath: /dev
           name: dev
         - mountPath: /run/udev
@@ -195,8 +193,7 @@ spec:
           value: all
         volumeMounts:
         - mountPath: /var/lib/docker
-          subPath: docker
-          name: wolf-data
+          name: docker
         - mountPath: /var/run
           name: var-run
         - mountPath: /tmp/sockets
@@ -206,10 +203,11 @@ spec:
         - mountPath: /run/udev
           name: udev
         - mountPath: /etc/wolf
-          name: wolf-data
+          subPath: wolf
+          name: software
         - mountPath: /usr/nvidia
-          subPath: nvidia-drivers
-          name: wolf-data
+          subPath: wolf/nvidia-drivers
+          name: software
       nodeSelector:
         nvidia.com/gpu.count: "1"
         nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
@@ -263,13 +261,13 @@ spec:
           /usr/nvidia/bin/nvidia-settings --version || sleep 3600
         volumeMounts:
         - mountPath: /usr/nvidia
-          subPath: nvidia-drivers
-          name: wolf-data
+          subPath: wolf/nvidia-drivers
+          name: software
         - mountPath: /dev
           name: dev
       volumes:
-      # - name: docker
-      #   emptyDir: {}
+      - name: docker
+        emptyDir: {}
       - name: var-run
         emptyDir: {}
       - name: tmp-sockets
@@ -282,17 +280,17 @@ spec:
           path: /run/udev
         # hostPath:
         #   path: /usr/local/glibc/lib/nvidia/xorg
-      # - name: software
-      #   nfs:
-      #     path: /mnt/purple/general/media
-      #     server: truenas-purplebox.private.home
-  volumeClaimTemplates:
-    - metadata:
-        name: wolf-data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 60Gi
-        storageClassName: longhorn-standalone
+      - name: software
+        nfs:
+          path: /mnt/purple/general/media
+          server: truenas-purplebox.private.home
+  # volumeClaimTemplates:
+  #   - metadata:
+  #       name: wolf-data
+  #     spec:
+  #       accessModes:
+  #         - ReadWriteOnce
+  #       resources:
+  #         requests:
+  #           storage: 60Gi
+  #       storageClassName: cephfs
