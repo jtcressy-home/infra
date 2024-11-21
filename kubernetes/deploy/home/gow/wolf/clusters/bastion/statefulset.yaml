@@ -195,7 +195,8 @@ spec:
           value: all
         volumeMounts:
         - mountPath: /var/lib/docker
-          name: docker
+          subPath: docker
+          name: wolf-data
         - mountPath: /var/run
           name: var-run
         - mountPath: /tmp/sockets
@@ -294,13 +295,4 @@ spec:
         resources:
           requests:
             storage: 30Gi
-        storageClassName: local
-    - metadata:
-        name: docker
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 20Gi
         storageClassName: local
