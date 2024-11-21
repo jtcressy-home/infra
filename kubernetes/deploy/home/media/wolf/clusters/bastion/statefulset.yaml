@@ -43,6 +43,10 @@ spec:
         securityContext:
           readOnlyRootFilesystem: false
           privileged: true
+          seccompProfile:
+            type: Unconfined
+          appArmorProfile:
+            type: Unconfined
           capabilities:
             add:
             - SYS_ADMIN
@@ -172,6 +176,10 @@ spec:
         securityContext:
           readOnlyRootFilesystem: false
           privileged: true
+          seccompProfile:
+            type: Unconfined
+          appArmorProfile:
+            type: Unconfined
           capabilities:
             add:
             - SYS_ADMIN
