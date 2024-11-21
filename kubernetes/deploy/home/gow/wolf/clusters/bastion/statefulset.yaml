@@ -151,9 +151,9 @@ spec:
           name: tmp-sockets
         - mountPath: /etc/wolf
           name: wolf-data
-        - mountPath: /usr/nvidia
-          subPath: nvidia-drivers
-          name: wolf-data
+        # - mountPath: /usr/nvidia
+        #   subPath: nvidia-drivers
+        #   name: wolf-data
         - mountPath: /dev
           name: dev
         - mountPath: /run/udev
