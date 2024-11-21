@@ -43,6 +43,14 @@ spec:
         securityContext:
           readOnlyRootFilesystem: false
           privileged: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+            - SYS_NICE
+            - SYS_PTRACE
+            - NET_ADMIN
+            - NET_RAW
+            - MKNOD
         ports:
           - containerPort: 47984
             name: https
