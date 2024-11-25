@@ -33,7 +33,7 @@ helmCharts:
           main:
             image:
               repository: koush/scrypted
-              tag: 20-jammy-full.s6-v0.96.0
+              tag: v0.123.38-jammy-full
             env:
               TZ: America/Chicago
             ports:
