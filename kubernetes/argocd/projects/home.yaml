@@ -27,6 +27,9 @@ spec:
     - name: '*'
       namespace: gow
       server: '*'
+    - name: '*'
+      namespace: game-servers
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

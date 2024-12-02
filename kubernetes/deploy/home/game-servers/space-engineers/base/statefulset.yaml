@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: se-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: space-engineers
+  serviceName: se-server-headless
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: space-engineers
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 568
+      containers:
+      - name: server
+        image: devidian/spaceengineers:winestaging
+        imagePullPolicy: Always
+        env:
+        - name: WINEDEBUG
+          value: -all
+        - name: INSTANCE_NAME
+          value: DockerQuickStart
+        - name: PUBLIC_IP
+          value: "1.2.3.4"
+        securityContext:
+          allowPrivilegeEscalation: false
+        resources:
+          requests:
+            cpu: 1
+            memory: 2Gi
+          limits:
+            cpu: 4
+            memory: 6Gi
+        ports:
+        - containerPort: 27016
+          name: game
+          protocol: UDP
+        - containerPort: 8080
+          name: remote-api
+          protocol: TCP
+        volumeMounts:
+        - name: cache
+          subPath: steamcmd
+          mountPath: /home/wine/.steam
+        - name: cache
+          subPath: SpaceEngineersDedicated
+          mountPath: /appdata/space-engineers/SpaceEngineersDedicated
+        - name: media
+          subPath: game-servers/space-engineers/instances
+          mountPath: /appdata/space-engineers/instances
+        - name: media
+          subPath: game-servers/space-engineers/plugins
+          mountPath: /appdata/space-engineers/plugins
+      volumes:
+      - name: media
+        nfs:
+          path: /mnt/purple/general/media
+          server: truenas-purplebox.tailnet-4d89.ts.net
+  volumeClaimTemplates:
+  - metadata:
+      name: cache
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local
+      resources:
+        requests:
+          storage: 15Gi
