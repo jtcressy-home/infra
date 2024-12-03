@@ -68,7 +68,7 @@ spec:
       name: cache
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: cephrbd
+      storageClassName: ceph-rbd
       resources:
         requests:
           storage: 15Gi
