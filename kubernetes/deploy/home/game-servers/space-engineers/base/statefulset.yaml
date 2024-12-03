@@ -63,12 +63,14 @@ spec:
         nfs:
           path: /mnt/purple/general/media
           server: truenas-purplebox.tailnet-4d89.ts.net
-  volumeClaimTemplates:
-  - metadata:
-      name: cache
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: ceph-rbd
-      resources:
-        requests:
-          storage: 15Gi
+      - name: cache
+        emptyDir: {}
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: cache
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     storageClassName: ceph-rbd
+  #     resources:
+  #       requests:
+  #         storage: 15Gi
