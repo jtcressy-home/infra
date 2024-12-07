@@ -13,7 +13,7 @@ helmCharts:
       replicas: 3
     image:
       repository: ghcr.io/bastienwirtz/homer
-      tag: v24.05.1
+      tag: v24.12.1
       pullPolicy: IfNotPresent
     service:
       main:
