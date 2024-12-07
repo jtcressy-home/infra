@@ -16,7 +16,7 @@ helmCharts:
     operatorNamespace: rook-ceph
     cephClusterSpec:
       cephVersion:
-        image: 'quay.io/ceph/ceph:v18.2.2'
+        image: 'quay.io/ceph/ceph:v18.2.4'
       external:
         enable: true
       crashCollector:
