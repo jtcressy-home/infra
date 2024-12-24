@@ -12,6 +12,10 @@ spec:
     destinationPVC: "${claim}"
     copyMethod: Direct
     storageClassName: "${sc}"
+    moverSecurityContext:
+      fsGroup: 568
+      runAsGroup: 568
+      runAsUser: 568
     # IMPORTANT NOTE:
     #   Set to the last X number of snapshots to restore from
     previous: ${previous}
