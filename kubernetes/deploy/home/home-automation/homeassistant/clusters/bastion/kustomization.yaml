@@ -33,7 +33,7 @@ helmCharts:
           main:
             image:
               repository: homeassistant/home-assistant
-              tag: 2024.12.5
+              tag: 2025.1.4
             env:
               TZ: "America/Chicago"
             envFrom:
