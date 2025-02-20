@@ -9,8 +9,8 @@ resources:
 configMapGenerator:
   - name: searxng
     files:
-      - ./resources/limiter.toml
-      - ./resources/settings.yml
+      - ./config/limiter.toml
+      - ./config/settings.yml
 
 helmCharts:
   - name: valkey
