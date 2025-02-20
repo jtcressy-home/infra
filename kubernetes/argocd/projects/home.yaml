@@ -30,6 +30,9 @@ spec:
     - name: '*'
       namespace: game-servers
       server: '*'
+    - name: '*'
+      namespace: searxng
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: searxng
+  labels:
+    app.kubernetes.io/instance: searxng
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/service: searxng
+  namespace: searxng
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/component: searxng
+    app.kubernetes.io/instance: searxng
+    app.kubernetes.io/name: searxng
