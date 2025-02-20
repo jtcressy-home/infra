@@ -57,7 +57,7 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
-          livelinessProbe: &probe
+          livenessProbe: &probe
             httpGet:
               path: /stats
               port: 8080
