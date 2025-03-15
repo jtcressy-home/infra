@@ -44,12 +44,13 @@ patches:
     name: multus
   patch: |-
     apiVersion: apps/v1
-    kind: Daemonset
+    kind: DaemonSet
     metadata:
       name: multus
     spec:
       template:
         spec:
+          priorityClassName: system-node-critical
           initContainers:
           - name: dhcp-cleanup
             image: busybox
