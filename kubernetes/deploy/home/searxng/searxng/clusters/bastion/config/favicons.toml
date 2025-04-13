@@ -1,0 +1,3 @@
+cache_url = "/static/favicons/"
+files_path = "/usr/local/searxng/searx/static/favicons/"
+score_threshold = 75
