@@ -1,5 +1,53 @@
 ---
-use_default_settings: true
+use_default_settings:
+  engines:
+    keep_only:
+      - arch linux wiki
+      - google
+      - google images
+      - google news
+      - google videos
+      - google scholar
+      - google play apps
+      - duckduckgo
+      - brave
+      - startpage
+      - gitlab
+      - github
+      - codeberg
+      - sourcehut
+      - bitbucket
+      - apple app store
+      - wikipedia
+      - currency
+      - docker hub
+      - ddg definitions
+      - duckduckgo images
+      - bandcamp
+      - deviantart
+      - tineye
+      - apple maps
+      - fdroid
+      - flickr
+      - free software directory
+      - z-library
+      - lobste.rs
+      - openstreetmap
+      - npm
+      - pypi
+      - lib.rs
+      - nyaa
+      - reddit
+      - sepiasearch
+      - soundcloud
+      - stackoverflow
+      - askubuntu
+      - superuser
+      - searchcode code
+      - unsplash
+      - youtube
+      - wolframalpha
+      - mojeek
 
 
 server:
@@ -7,9 +55,15 @@ server:
   image_proxy: true
   method: GET
   public_instance: false
+  image_proxy: true
+  http_protocol_version: "1.1"
 
 search:
   autocomplete: duckduckgo
+  autocomplete_min: 2
+  default_lang: "all"
+  max_page: 0
+  safe_search: 0
   favicon_resolver: duckduckgo
   languages:
     - all
@@ -18,6 +72,10 @@ search:
 
 general:
   instance_name: Cressy Web Search
+  privacypolicy_url: false
+  donation_url: false
+  contact_url: false
+  enable_metrics: false
 
 ui:
   default_theme: simple
@@ -34,14 +92,17 @@ categories_as_tabs:
   videos:
   map:
 
+
 enabled_plugins:
+  - Search on category select
+  - Self Information
   - Basic Calculator
   - Hash plugin
   - Hostnames plugin
   - Open Access DOI rewrite
-  - Self Informations
   - Tracker URL remover
   - Unit converter plugin
+  - Vim-like hotkeys
 
 # Configure specific engines
 engines:
