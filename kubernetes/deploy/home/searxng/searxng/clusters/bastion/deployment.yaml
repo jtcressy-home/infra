@@ -68,10 +68,10 @@ spec:
           readinessProbe: *probe
           resources:
             limits:
-              memory: 2Gi
+              memory: 4Gi
             requests:
               cpu: 10m
-              memory: 256Mi
+              memory: 512Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
