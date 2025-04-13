@@ -92,6 +92,10 @@ spec:
             subPath: limiter.toml
             readOnly: true
             name: config
+          - mountPath: /etc/searxng/favicons.toml
+            subPath: favicons.toml
+            readOnly: true
+            name: config
           - mountPath: /etc/searxng
             name: cache
           - mountPath: /tmp
