@@ -1,3 +1,18 @@
+[favicons]
+cfg_schema = 1  # config's schema version no.
+
+# Set static paths for favicon handling
 cache_url = "/static/favicons/"
 files_path = "/usr/local/searxng/searx/static/favicons/"
 score_threshold = 75
+
+[favicons.cache]
+# Using default settings for the cache
+# No need to specify db_url as the default /tmp location is fine for containerized environments
+# Maintenance settings
+MAINTENANCE_MODE = "auto"  # default is "auto"
+
+[favicons.proxy]
+# Default resolver is DuckDuckGo
+[favicons.proxy.resolver_map]
+"duckduckgo" = "searx.favicons.resolvers.duckduckgo"
