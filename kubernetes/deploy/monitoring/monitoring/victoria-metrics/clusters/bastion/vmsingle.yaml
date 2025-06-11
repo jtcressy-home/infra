@@ -26,7 +26,7 @@ spec:
     volumeMode: Filesystem
     resources:
       requests:
-        storage: 100Gi
+        storage: 200Gi
     dataSourceRef:
       apiGroup: volsync.backube
       kind: ReplicationDestination
