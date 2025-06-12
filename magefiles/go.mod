@@ -2,7 +2,7 @@ module github.com/jtcressy-home/infra/magefiles
 
 go 1.23.1
 
-toolchain go1.23.3
+toolchain go1.24.4
 
 require (
 	github.com/charmbracelet/huh v0.6.0
