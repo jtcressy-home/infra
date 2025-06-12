@@ -227,7 +227,7 @@ spec:
       runtimeClassName: nvidia
       initContainers:
       - name: nvidia-installer
-        image: ubuntu:22.04
+        image: ubuntu:24.04
         imagePullPolicy: IfNotPresent
         command:
         - /bin/bash
