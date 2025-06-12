@@ -60,7 +60,7 @@ helmCharts:
             enabled: true
             image:
               repository: codercom/code-server
-              tag: 4.95.2
+              tag: 4.100.3
             ports:
               - name: http
                 containerPort: 12321
