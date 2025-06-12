@@ -6,7 +6,7 @@ controllers:
     initContainers:
       init-db:
         image:
-          repository: ghcr.io/buroa/postgres-init
+          repository: ghcr.io/home-operations/postgres-init
           tag: 16
         envFrom: &envFrom
           - secretRef:
@@ -26,7 +26,7 @@ controllers:
     containers:
       app: &appcontainer
         image:
-          repository: ghcr.io/buroa/sonarr-develop
+          repository: ghcr.io/home-operations/sonarr-develop
           tag: 4.0.10.2656@sha256:7cea62a575777c20beec2dee894a136c89f4b830c62f4985f2b8691979092f75
         env:
           SONARR__APP__INSTANCE: Sonarr

@@ -6,7 +6,7 @@ controllers:
     containers:
       app:
         image:
-          repository: ghcr.io/buroa/tautulli
+          repository: ghcr.io/home-operations/tautulli
           tag: 2.14.6@sha256:c845c7f14021fad644ae5890b2df71d6e475d89f9aad7e0c79645407c5e1be8e
         env:
           TZ: America/Chicago

@@ -14,7 +14,7 @@ controllers:
       #     - sleep 3600;
       app:
         image:
-          repository: ghcr.io/buroa/sabnzbd
+          repository: ghcr.io/home-operations/sabnzbd
           tag: 4.3.3@sha256:361b93d511e526b985920a5f3c51ea420cc5391d1131ba6c40ef0d92bbcc29fd
         env:
           SABNZBD__PORT: &port 8080
