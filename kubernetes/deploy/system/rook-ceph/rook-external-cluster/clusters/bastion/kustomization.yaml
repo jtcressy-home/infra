@@ -50,6 +50,6 @@ helmCharts:
       parameters:
         pool: talos-bastion-fs_data
         fsName: talos-bastion-fs
-    cephBlockPools: null
-    cephFileSystems: null
-    cephObjectStores: null
+    cephBlockPools: []
+    cephFileSystems: []
+    cephObjectStores: []
