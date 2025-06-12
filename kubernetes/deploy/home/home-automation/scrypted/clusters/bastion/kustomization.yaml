@@ -7,7 +7,7 @@ resources:
 
 helmCharts:
 - name: app-template
-  repo: https://bjw-s.github.io/helm-charts/
+  repo: https://bjw-s-labs.github.io/helm-charts/
   version: 2.6.0
   releaseName: scrypted
   valuesInline:
@@ -102,7 +102,7 @@ helmCharts:
         globalMounts:
           - path: /recordings
 # - name: app-template
-#   repo: https://bjw-s.github.io/helm-charts/
+#   repo: https://bjw-s-labs.github.io/helm-charts/
 #   version: 2.2.0
 #   releaseName: unifi-cam-proxy
 #   valuesInline:
