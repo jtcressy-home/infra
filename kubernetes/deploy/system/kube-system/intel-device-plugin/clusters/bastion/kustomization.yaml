@@ -11,7 +11,7 @@ helmCharts:
   valuesInline: {}
 - name: intel-device-plugins-gpu
   repo: https://intel.github.io/helm-charts
-  version: 0.30.0
+  version: 0.32.1
   releaseName: intel-device-plugins-gpu
   namespace: kube-system
   includeCRDs: true
