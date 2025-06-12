@@ -39,7 +39,7 @@ spec:
 
   storage:
     size: 80Gi
-    storageClass: longhorn-strict-local-standalone
+    storageClass: local
 
   monitoring:
     enablePodMonitor: true
