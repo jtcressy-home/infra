@@ -1,0 +1,79 @@
+controllers:
+  main:
+    pod:
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #         - matchExpressions:
+      #             - key: aeotec.feature.node.kubernetes.io/zwave
+      #               operator: In
+      #               values:
+      #                 - "true"
+      securityContext:
+        fsGroup: 1000
+    containers:
+      main:
+        image:
+          repository: ghcr.io/zwave-js/zwave-js-ui
+          tag: 10.6.1
+        env:
+          TZ: "America/Chicago"
+        ports:
+          - name: http
+            containerPort: &port 8091
+          - name: websocket
+            containerPort: &websocketport 3000
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: *port
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probes
+          startup:
+            enabled: false
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            squat.ai/zwave: 1
+            memory: 200Mi
+            cpu: 50m
+          limits:
+            squat.ai/zwave: 1
+            memory: 500Mi
+
+service:
+  main:
+    ports:
+      http:
+        port: *port
+      websocket:
+        enabled: true
+        port: *websocketport
+
+persistence:
+  config:
+    enabled: true
+    existingClaim: zwavejs2mqtt-pvc
+    globalMounts:
+      - path: /usr/src/app/store
+        readOnly: false
+  # usb:
+  #   type: hostPath
+  #   hostPath: /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_86f2e3788a94eb11984f3a703d98b6d1-if00-port0
+  #   hostPathType: CharDevice
+  #   globalMounts:
+  #     - path: /dev/zwave
+  #       readOnly: false
+  dev-serial:
+    type: hostPath
+    hostPath: /dev/serial
+    hostPathType: Directory
