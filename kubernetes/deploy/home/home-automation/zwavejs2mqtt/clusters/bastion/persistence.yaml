@@ -31,7 +31,7 @@ spec:
     capacity: "1Gi"
     accessModes: ["ReadWriteOnce"]
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: zwavejs2mqtt-restic
