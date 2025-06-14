@@ -122,6 +122,7 @@ zigbee2mqtt:
     # -- If the front end should be enabled, true by default. Pod health checks are based on this, so disabling
     # it will cause an error loop unless health checks are updated.
     enabled: true
+    package: zigbee2mqtt-frontend # OR zigbee2mqtt-windfront
     # -- Mandatory, default 8080
     port: 8080
     # -- Optional, empty by default to listen on both IPv4 and IPv6. Opens a unix socket when given a path instead of an address (e.g. '/run/zigbee2mqtt/zigbee2mqtt.sock')
@@ -134,16 +135,16 @@ zigbee2mqtt:
   advanced:
     # -- Optional: ZigBee pan ID (default: shown below)
     # Setting pan_id: GENERATE will make Zigbee2MQTT generate a new panID on next startup
-    pan_id: '!secret.yaml zigbee_pan_id'
+    pan_id: \!secret.yaml zigbee_pan_id
     #  Optional: Zigbee extended pan ID, GENERATE will make Zigbee2MQTT generate a new extended panID on next startup (default: shown below)
-    ext_pan_id: '!secret.yaml zigbee_ext_pan_id'
+    ext_pan_id: \!secret.yaml zigbee_ext_pan_id
     # --  Optional: ZigBee channel, changing requires re-pairing of all devices. (Note: use a ZLL channel: 11, 15, 20, or 25 to avoid Problems)
     # (default: 11)
     channel: 11
     # --  Optional: network encryption key
     # GENERATE will make Zigbee2MQTT generate a new network key on next startup
     # Note: changing requires repairing of all devices (default: shown below)
-    network_key: '!secret.yaml zigbee_network_key'
+    network_key: \!secret.yaml zigbee_network_key
     log_output:
       - console
     log_level: info
