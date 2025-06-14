@@ -33,3 +33,18 @@ patches:
         apiGroup: "volsync.backube"
         kind: "ReplicationDestination"
         name: "zigbee2mqtt-data-bootstrap"
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: ZIGBEE2MQTT_CONFIG_ADVANCED_PAN_ID
+        value: "!secret.yaml zigbee_pan_id"
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: ZIGBEE2MQTT_CONFIG_ADVANCED_EXT_PAN_ID
+        value: "!secret.yaml zigbee_ext_pan_id"
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: ZIGBEE2MQTT_CONFIG_ADVANCED_NETWORK_KEY
+        value: "!secret.yaml zigbee_network_key"
