@@ -173,6 +173,7 @@ helmCharts:
         - name: 'TeslamateCustomDashboards'
           orgId: 1
           folder: TeslaMate Custom Dashboards
+          folderUid: jchmTmCuGrDa
           type: file
           disableDeletion: false
           allowUiUpdates: true
