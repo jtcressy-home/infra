@@ -431,7 +431,7 @@ helmCharts:
         mileage-stats:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/refs/heads/main/dashboards/MileageStats.json
         range-degradation:
-          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/refs/heads/main/dashboards/RangeDegredation.json
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/refs/heads/main/dashboards/RangeDegradation.json
         speed-rates:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/refs/heads/main/dashboards/SpeedRates.json
         speed-temperature:
