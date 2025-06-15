@@ -1,0 +1,90 @@
+controllers:
+  main:
+    type: statefulset
+    replicas: 1
+    pod:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |-
+          [
+            {
+              "name": "macvlan-conf-dhcp",
+              "namespace": "kube-system",
+              "interface": "eth1",
+              "mac": "fa:77:a4:fe:98:92"
+            }
+          ]
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        # intel.feature.node.kubernetes.io/gpu: "true"
+    containers:
+      main:
+        image:
+          repository: koush/scrypted
+          tag: v0.123.38-jammy-full
+        env:
+          TZ: America/Chicago
+        ports:
+          - name: http
+            containerPort: 11080
+          - name: https
+            containerPort: 11443
+          - name: rebroadcast
+            containerPort: 34135
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+        resources:
+          requests:
+            # gpu.intel.com/i915: 1
+            cpu: 136m
+            memory: 1024Mi
+          limits:
+            # gpu.intel.com/i915: 1
+            memory: 6144Mi
+        securityContext:
+          privileged: true
+service:
+  main:
+    ports:
+      http:
+        port: 11080
+        targetPort: 11080
+      https:
+        port: 10443
+        targetPort: 10443
+      rebroadcast:
+        port: 34135
+        targetPort: 34135
+persistence:
+  config:
+    enabled: true
+    existingClaim: scrypted-pvc
+    globalMounts:
+      - path: /server/volume
+        readOnly: false
+  cache:
+    type: emptyDir
+    globalMounts:
+      - path: /.cache
+  cache-npm:
+    type: emptyDir
+    globalMounts:
+      - path: /.npm
+  dev-bus-usb:
+    type: hostPath
+    hostPath: /dev/bus/usb
+    hostPathType: Directory
+  sys-bus-usb:
+    type: hostPath
+    hostPath: /sys/bus/usb
+    hostPathType: Directory
+  recordings:
+    type: nfs
+    server: truenas-purplebox.tailnet-4d89.ts.net
+    path: /mnt/purple/general/media/scrypted
+    globalMounts:
+      - path: /recordings
