@@ -37,14 +37,23 @@ patches:
       path: /spec/template/spec/containers/0/env/-
       value:
         name: ZIGBEE2MQTT_CONFIG_ADVANCED_PAN_ID
-        value: "!secret.yaml zigbee_pan_id"
+        valueFrom:
+          secretKeyRef:
+            name: zigbee2mqtt-secret
+            key: zigbee_pan_id
     - op: add
       path: /spec/template/spec/containers/0/env/-
       value:
         name: ZIGBEE2MQTT_CONFIG_ADVANCED_EXT_PAN_ID
-        value: "!secret.yaml zigbee_ext_pan_id"
+        valueFrom:
+          secretKeyRef:
+            name: zigbee2mqtt-secret
+            key: zigbee_ext_pan_id
     - op: add
       path: /spec/template/spec/containers/0/env/-
       value:
         name: ZIGBEE2MQTT_CONFIG_ADVANCED_NETWORK_KEY
-        value: "!secret.yaml zigbee_network_key"
+        valueFrom:
+          secretKeyRef:
+            name: zigbee2mqtt-secret
+            key: zigbee_network_key
