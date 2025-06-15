@@ -11,7 +11,7 @@ controllers:
         env: &env
           TZ: "America/Chicago"
           VIRTUAL_HOST: "teslamate.tailnet-4d89.ts.net"
-          CHECK_ORIGIN: "true"
+          CHECK_ORIGIN: "false"
           DISABLE_MQTT: "false"
           MQTT_HOST: "nats.nats.svc.cluster.local"
           MQTT_USERNAME: "mqtt"
