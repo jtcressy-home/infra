@@ -122,7 +122,7 @@ zigbee2mqtt:
     # -- If the front end should be enabled, true by default. Pod health checks are based on this, so disabling
     # it will cause an error loop unless health checks are updated.
     enabled: true
-    package: zigbee2mqtt-frontend # OR zigbee2mqtt-windfront
+    package: zigbee2mqtt-windfront # OR zigbee2mqtt-frontend
     # -- Mandatory, default 8080
     port: 8080
     # -- Optional, empty by default to listen on both IPv4 and IPv6. Opens a unix socket when given a path instead of an address (e.g. '/run/zigbee2mqtt/zigbee2mqtt.sock')
