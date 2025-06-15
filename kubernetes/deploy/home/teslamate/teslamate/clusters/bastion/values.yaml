@@ -80,12 +80,12 @@ ingress:
           - path: /
             pathType: Prefix
             service:
-              name: main
+              name: teslamate-main
               port: 4000
           - path: /api
             pathType: Prefix
             service:
-              name: api
+              name: teslamate-api
               port: 8080
     tls:
       - hosts:
