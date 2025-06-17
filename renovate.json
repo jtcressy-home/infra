@@ -4,20 +4,20 @@
     "config:recommended"
   ],
   "kubernetes": {
-    "fileMatch": [
-      "\\.yaml$"
+    "managerFilePatterns": [
+      "/\\.yaml$/"
     ]
   },
   "helm-values": {
-    "fileMatch": [
-      "\\.yaml$"
+    "managerFilePatterns": [
+      "/\\.yaml$/"
     ]
   },
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "\\.yaml$"
+      "managerFilePatterns": [
+        "/\\.yaml$/"
       ],
       "matchStrings": [
         "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s  version: (?<currentValue>.*)\\s",
