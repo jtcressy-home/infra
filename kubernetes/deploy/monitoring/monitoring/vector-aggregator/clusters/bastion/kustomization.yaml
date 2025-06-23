@@ -115,7 +115,7 @@ helmCharts:
           inputs:
             - kubernetes_transform
           endpoints:
-            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
           mode: bulk
           api_version: v8
           healthcheck:
@@ -131,7 +131,7 @@ helmCharts:
             - talos_service_transform
             - talos_kernel_transform
           endpoints: 
-            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
           mode: bulk
           api_version: v8
           healthcheck:
@@ -146,7 +146,7 @@ helmCharts:
           inputs:
             - unifi_kernel_transform
           endpoints:
-            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
           mode: bulk
           api_version: v8
           healthcheck:
@@ -161,7 +161,7 @@ helmCharts:
           inputs:
             - proxmox_syslog_transform
           endpoints:
-            - "http://victoria-logs.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
           mode: bulk
           api_version: v8
           healthcheck:
