@@ -1,139 +1,87 @@
----
-use_default_settings:
-  engines:
-    keep_only:
-      - arch linux wiki
-      - google
-      - google images
-      - google news
-      - google videos
-      - google scholar
-      - google play apps
-      - duckduckgo
-      - brave
-      - startpage
-      - gitlab
-      - github
-      - codeberg
-      - sourcehut
-      - bitbucket
-      - apple app store
-      - wikipedia
-      - currency
-      - docker hub
-      - ddg definitions
-      - duckduckgo images
-      - bandcamp
-      - deviantart
-      - tineye
-      - apple maps
-      - fdroid
-      - flickr
-      - free software directory
-      - z-library
-      - lobste.rs
-      - openstreetmap
-      - npm
-      - pypi
-      - lib.rs
-      - nyaa
-      - reddit
-      - sepiasearch
-      - soundcloud
-      - stackoverflow
-      - askubuntu
-      - superuser
-      - searchcode code
-      - unsplash
-      - youtube
-      - wolframalpha
-      - mojeek
-
-
-server:
-  limiter: true
-  image_proxy: true
-  method: GET
-  public_instance: false
-  image_proxy: true
-  http_protocol_version: "1.1"
-
-search:
-  autocomplete: duckduckgo
-  autocomplete_min: 2
-  default_lang: "all"
-  max_page: 0
-  safe_search: 0
-  favicon_resolver: duckduckgo
-  languages:
-    - all
-    - en
-    - en-US
-
+# see https://docs.searxng.org/admin/engines/settings.html#use-default-settings
+use_default_settings: true
 general:
-  instance_name: Cressy Web Search
+  debug: false
+  instance_name: "Cressy Web Search"
   privacypolicy_url: false
   donation_url: false
   contact_url: false
   enable_metrics: false
-
+server:
+  limiter: false
+  image_proxy: true
 ui:
+  static_use_hash: true
   default_theme: simple
+  theme_args:
+    simple_style: dark
   infinite_scroll: true
   query_in_title: true
-  results_on_new_tab: false
-  static_use_hash: true
-  theme_args:
-    simple_style: auto
-
-categories_as_tabs:
-  general:
-  images:
-  videos:
-  map:
-
-
+search:
+  autocomplete: "duckduckgo"
+  default_lang: "all"
 enabled_plugins:
-  - Search on category select
-  - Self Information
-  - Basic Calculator
-  - Hash plugin
-  - Hostnames plugin
-  - Open Access DOI rewrite
-  - Tracker URL remover
-  - Unit converter plugin
-  - Vim-like hotkeys
-
-# Configure specific engines
-engines:
-  - name: google
-    use_mobile_ui: true
-    method: GET
-    headers:
-      Accept-Language: en-US,en;q=0.9
-      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
-    cookies:
-      CONSENT: YES+
-    disabled: false
-
-  # Optional: Add fallback engines to reduce dependency on Google
-  - name: duckduckgo
-    shortcut: ddg
-    disabled: false
-    weight: 1
-  - name: brave
-    disabled: false
-    weight: 1
-
+  - 'Hash plugin'
+  - 'Search on category select'
+  - 'Self Informations'
+  - 'Tracker URL remover'
+  - 'Hostnames plugin'
+  - 'Open Access DOI rewrite'
+  - 'Unit converter plugin'
 hostnames:
   high_priority:
-    - (.*)\/blog\/(.*)
-    - (.*\.)?wikipedia.org$
-    - (.*\.)?github.com$
-    - (.*\.)?reddit.com$
-    - (.*\.)?docker.com$
-    - (.*\.)?archlinux.org$
-    - (.*\.)?stackoverflow.com$
-    - (.*\.)?askubuntu.com$
-    - (.*\.)?superuser.com$
+    - '(.*)\/blog\/(.*)'
+    - '(.*\.)?wikipedia.org$'
+    - '(.*\.)?github.com$'
+    - '(.*\.)?reddit.com$'
+    - '(.*\.)?linuxserver.io$'
+    - '(.*\.)?docker.com$'
+    - '(.*\.)?archlinux.org$'
+    - '(.*\.)?stackoverflow.com$'
+    - '(.*\.)?askubuntu.com$'
+    - '(.*\.)?superuser.com$'
+  remove:
+    - '(.*\.)?facebook.com$'
+    - '(.*\.)?instagram.com$'
+    - '(.*\.)?codegrepper.com$'
+    - '(.*\.)?w3schools.com$'
+    - '(.*\.)?geeksforgeeks.org$'
+    - '(.*\.)?stackshare.io$'
+    - '(.*\.)?tutorialspoint.com$'
+    - '(.*\.)?answeright.com$'
+    - '(.*\.)?askdev.info$'
+    - '(.*\.)?askdev.io$'
+    - '(.*\.)?blogmepost.com$'
+    - '(.*\.)?c-sharpcorner.com$'
+    - '(.*\.)?code-examples.net$'
+    - '(.*\.)?codeflow.site$'
+    - '(.*\.)?gitmemory.cn$'
+    - '(.*\.)?gitmemory.com$'
+    - '(.*\.)?intellipaat.com$'
+    - '(.*\.)?javaer101.com$'
+    - '(.*\.)?programmerstart.com$'
+    - '(.*\.)?programmersought.com$'
+    - '(.*\.)?qastack.com$'
+    - '(.*\.)?roboflow.ai$'
+    - '(.*\.)?stackanswers.net$'
+    - '(.*\.)?stackoom.com$'
+    - '(.*\.)?stackovernet.com$'
+    - '(.*\.)?stackovernet.xyz$'
+    - '(.*\.)?stackoverrun.com$'
+    - '(.*\.)?thetopsites.net$'
+    - '(.*\.)?ubuntugeeks.com$'
+    - '(.*\.)?cyberciti.biz$'
+    - '(.*\.)?ispycode.com$'
+    - '(.*\.)?reposhub.com$'
+    - '(.*\.)?githubmemory.com$'
+    - '(.*\.)?issueexplorer.com$'
+    - '(.*\.)?tabnine.com$'
+    - '(.*\.)?gitcode.net$'
+    - '(.*\.)?command-not-found.com$'
+    - '(.*\.)?im-coder.com$'
+    - '(.*\.)?i-harness.com$'
+  replace:
+    '(.*\.)?reddit.com$': 'some.redlib.com'
+    '(.*\.)?redd.it$': 'some.redlib.com'
+    '(.*\.)?youtube.com$': 'some.piped.com'
+    '(.*\.)?youtu.be$': 'some.piped.com'
