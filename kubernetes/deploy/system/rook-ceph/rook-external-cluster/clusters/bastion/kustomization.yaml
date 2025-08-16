@@ -9,14 +9,14 @@ resources:
 helmCharts:
 - name: rook-ceph-cluster
   repo: https://charts.rook.io/release
-  version: v1.17.4
+  version: v1.17.7
   releaseName: rook-ceph-operator
   namespace: rook-ceph
   valuesInline:
     operatorNamespace: rook-ceph
     cephClusterSpec:
       cephVersion:
-        image: 'quay.io/ceph/ceph:v18.2.7'
+        image: 'quay.io/ceph/ceph:v19.2.2'
       external:
         enable: true
       crashCollector:
