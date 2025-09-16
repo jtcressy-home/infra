@@ -1,0 +1,64 @@
+name: Overlay Render
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  render:
+    name: Render Kustomize overlays
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+
+      - uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: v5.7.1
+
+      - name: Prepare base worktree
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+          git worktree add ../base ${{ github.event.pull_request.base.sha }}
+
+      - name: Render overlays
+        id: render
+        run: python .github/scripts/render_overlays.py ../base "$(pwd)" overlay-render.md
+        continue-on-error: true
+
+      - name: Ensure comment file exists
+        if: always()
+        run: |
+          if [ ! -f overlay-render.md ]; then
+            {
+              echo "## Overlay Render";
+              echo;
+              echo "Failed to generate overlay render report.";
+            } > overlay-render.md
+          fi
+
+      - name: Post overlay render comment
+        if: always()
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: overlay-render
+          message-path: overlay-render.md
+
+      - name: Cleanup base worktree
+        if: always()
+        run: git worktree remove ../base --force
+
+      - name: Fail if rendering failed
+        if: steps.render.outcome == 'failure'
+        run: exit 1
