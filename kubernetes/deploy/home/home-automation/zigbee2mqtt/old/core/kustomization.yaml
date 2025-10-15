@@ -12,7 +12,7 @@ resources:
 helmCharts:
 - name: app-template
   repo: https://bjw-s-labs.github.io/helm-charts/
-  version: 1.5.1
+  version: 4.4.0
   releaseName: zigbee2mqtt
   valuesInline:
     controller:
