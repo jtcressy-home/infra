@@ -4,7 +4,7 @@ kind: Kustomization
 helmCharts:
 - name: ollama
   repo: https://otwld.github.io/ollama-helm/
-  version: 1.19.0
+  version: 1.35.0
   releaseName: ollama
   valuesFile: ollama-values.yaml
 
