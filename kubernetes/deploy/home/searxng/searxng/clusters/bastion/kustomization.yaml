@@ -16,7 +16,7 @@ configMapGenerator:
 helmCharts:
   - name: valkey
     repo: oci://registry-1.docker.io/bitnamicharts
-    version: 3.0.12
+    version: 5.0.8
     releaseName: valkey-searxng
     valuesInline:
       fullnameOverride: valkey
