@@ -47,7 +47,7 @@ helmCharts:
           initialDelaySeconds: 10
           timeoutSeconds: 5
     extraArgs:
-      - --ignore-ingress-tls-spec
+      ignore-ingress-tls-spec: true
     policy: sync
     sources: ["ingress", "service"]
     txtOwnerId: bastion
