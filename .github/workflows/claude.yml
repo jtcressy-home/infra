@@ -40,8 +40,11 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
+          # Custom prompt to instruct Claude to open PRs by default
+          prompt: |
+            $TASK
+
+            After completing your work, please create a pull request with your changes using `gh pr create`. Use a clear title and description that summarizes the changes made.
 
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
