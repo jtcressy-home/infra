@@ -8,6 +8,6 @@ resources:
 helmCharts:
   - name: app-template
     repo: https://bjw-s-labs.github.io/helm-charts/
-    version: 4.1.1
+    version: 4.4.0
     releaseName: overseerr
     valuesFile: values.yaml
