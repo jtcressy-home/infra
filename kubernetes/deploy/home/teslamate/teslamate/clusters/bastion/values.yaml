@@ -7,7 +7,7 @@ controllers:
       main:
         image:
           repository: teslamate/teslamate
-          tag: 2.0.0
+          tag: 2.2.0
         env: &env
           TZ: "America/Chicago"
           VIRTUAL_HOST: "teslamate.tailnet-4d89.ts.net"
