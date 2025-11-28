@@ -5,20 +5,20 @@ go 1.24.0
 toolchain go1.24.4
 
 require (
-	github.com/charmbracelet/huh v0.7.0
+	github.com/charmbracelet/huh v0.8.0
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-logr/logr v1.4.3
 	github.com/kastenhq/kubestr v0.4.49
-	github.com/lainio/err2 v1.2.2
+	github.com/lainio/err2 v1.2.3
 	github.com/magefile/mage v1.15.0
-	github.com/samber/lo v1.51.0
-	github.com/xuri/excelize/v2 v2.9.1
-	k8s.io/api v0.33.1
-	k8s.io/apimachinery v0.33.1
+	github.com/samber/lo v1.52.0
+	github.com/xuri/excelize/v2 v2.10.0
+	k8s.io/api v0.34.2
+	k8s.io/apimachinery v0.34.2
 	k8s.io/klog/v2 v2.130.1
-	tailscale.com v1.84.2
+	tailscale.com v1.92.0
 )
 
 require (
