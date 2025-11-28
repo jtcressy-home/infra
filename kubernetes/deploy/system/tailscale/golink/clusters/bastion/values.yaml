@@ -1,0 +1,46 @@
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/tailscale/golink
+          tag: main
+        env:
+          TZ: "America/Chicago"
+          TS_AUTHKEY:
+            valueFrom:
+              secretKeyRef:
+                name: golink-authkey
+                key: authkey
+        command:
+          - "/golink"
+        args:
+          - "-sqlitedb"
+          - "/home/nonroot/golink.db"
+          - "-verbose"
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+service:
+  main:
+    ports:
+      http:
+        port: 80
+        targetPort: 80
+persistence:
+  data:
+    enabled: true
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /home/nonroot
+        readOnly: false
