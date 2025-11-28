@@ -1,6 +1,6 @@
 image:
   repository: ollama/ollama
-  tag: 0.5.7
+  tag: 0.13.0
 replicaCount: 1
 updateStrategy:
   type: Recreate
