@@ -27,7 +27,7 @@ helmCharts:
 
 - name: surveyor
   repo: https://nats-io.github.io/k8s/helm/charts/
-  version: 0.20.0
+  version: 0.20.5
   releaseName: surveyor
   valuesInline:
     serviceMonitor:
