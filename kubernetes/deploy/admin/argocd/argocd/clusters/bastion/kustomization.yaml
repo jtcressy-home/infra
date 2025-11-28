@@ -33,3 +33,4 @@ patches:
 - path: argocd-rbac-cm.yaml
 - path: argocd-cmd-params-cm.yaml
 - path: patch-resources.yaml
+- path: patch-redis-ha-haproxy-strategy.yaml

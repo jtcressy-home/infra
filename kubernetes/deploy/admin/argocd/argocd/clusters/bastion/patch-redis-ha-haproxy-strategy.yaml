@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-redis-ha-haproxy
+spec:
+  strategy:
+    rollingUpdate:
+      # With 3 replicas and required pod anti-affinity (one pod per node),
+      # we need maxUnavailable >= 1 to allow rolling updates.
+      # Otherwise new pods can't schedule until old ones are removed.
+      maxUnavailable: 1
