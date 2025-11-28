@@ -234,7 +234,7 @@ spec:
         - -c
         - |
           #!/bin/bash
-          
+
           echo "Setting up installer dependencies"
           apt-get update -yqq
           apt-get install -yqq --no-install-recommends \
