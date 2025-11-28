@@ -4,6 +4,6 @@ namespace: external-secrets
 helmCharts:
 - name: connect
   repo: https://1password.github.io/connect-helm-charts
-  version: 1.17.0
+  version: 2.0.5
   releaseName: connect
   includeCRDs: true
