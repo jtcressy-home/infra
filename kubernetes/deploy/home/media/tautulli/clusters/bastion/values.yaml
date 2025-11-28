@@ -7,7 +7,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/home-operations/tautulli
-          tag: 2.15.2@sha256:4e7d75c9fe8f96ae766269fb451fc5ad215451b30a463c11142c492512c021cd
+          tag: 2.16.0@sha256:2a092f86a51f5718111097b0fced33eaa876b5904a543b7504f92357a4f75635
         env:
           TZ: America/Chicago
         probes:
@@ -37,7 +37,7 @@ controllers:
       jbops:
         image:
           repository: registry.k8s.io/git-sync/git-sync
-          tag: v4.4.1@sha256:699b654e373f000c356756c24290a6dbb86500934b65ce6093fd92c434c61c6b
+          tag: v4.5.0@sha256:0e64aedb0d0ae0a3bab880349a5109b2a31891d646dd61e433ca36ed220dff1f
         env:
           GITSYNC_REPO: https://github.com/blacktwin/JBOPS
           GITSYNC_REF: master
