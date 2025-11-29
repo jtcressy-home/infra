@@ -38,9 +38,7 @@ persistence:
   data:
     enabled: true
     type: persistentVolumeClaim
-    accessMode: ReadWriteOnce
-    size: 1Gi
-    storageClass: longhorn
+    existingClaim: golink-data
     globalMounts:
       - path: /home/nonroot
         readOnly: false

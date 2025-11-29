@@ -1,0 +1,130 @@
+# Golink PVC Migration from Longhorn to Ceph
+#
+# This file configures golink to use Ceph storage with VolSync automated backups.
+#
+# MANUAL MIGRATION STEPS (run these BEFORE applying this configuration):
+#
+# 1. Create a one-time backup of the existing Longhorn PVC:
+#    kubectl -n tailscale exec -it deployment/golink -- tar -czf /tmp/golink-backup.tar.gz -C /home/nonroot .
+#    kubectl -n tailscale cp golink-<pod-id>:/tmp/golink-backup.tar.gz ./golink-backup.tar.gz
+#
+# 2. Scale down the golink deployment:
+#    kubectl -n tailscale scale deployment/golink --replicas=0
+#
+# 3. Apply the new configuration (this will create the new PVC with cephfs):
+#    kubectl apply -k kubernetes/deploy/system/tailscale/golink/clusters/bastion/
+#
+# 4. Restore the data to the new PVC:
+#    # First, create a temporary pod to mount the new PVC
+#    kubectl -n tailscale run golink-restore --image=busybox --command -- sleep 3600
+#    kubectl -n tailscale set volumes pod/golink-restore --add --name=data --claim-name=golink-data --mount-path=/data
+#
+#    # Copy the backup to the pod
+#    kubectl -n tailscale cp ./golink-backup.tar.gz golink-restore:/tmp/golink-backup.tar.gz
+#
+#    # Extract the backup
+#    kubectl -n tailscale exec -it golink-restore -- tar -xzf /tmp/golink-backup.tar.gz -C /data
+#
+#    # Cleanup
+#    kubectl -n tailscale delete pod golink-restore
+#
+# 5. Scale up the golink deployment:
+#    kubectl -n tailscale scale deployment/golink --replicas=1
+#
+# 6. Verify golink is working correctly:
+#    kubectl -n tailscale get pods -l app.kubernetes.io/name=golink
+#    kubectl -n tailscale logs -l app.kubernetes.io/name=golink
+#
+# 7. Delete the old Longhorn PVC:
+#    kubectl -n tailscale delete pvc golink-data-old
+#
+# NOTE: After the initial migration, VolSync will automatically:
+# - Create backups every 12 hours to the restic repository
+# - Retain: 12 hourly, 7 daily, 4 weekly snapshots
+# - The ReplicationDestination can be used for disaster recovery
+#
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: golink-restic
+  namespace: tailscale
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: golink-restic-secret
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/golink"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: volsync-restic-template
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: golink-data
+  labels:
+    app.kubernetes.io/name: golink
+spec:
+  accessModes: ["ReadWriteOnce"]
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: golink-rdst
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: cephfs
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: golink-rdst
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: golink-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    moverSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    capacity: 1Gi # must match the PersistentVolumeClaim `.resources.requests.storage` size above
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: golink-rsrc
+spec:
+  sourcePVC: golink-data
+  trigger:
+    schedule: "0 */12 * * *" # every 12 hours
+  restic:
+    pruneIntervalDays: 14
+    repository: golink-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    cacheStorageClassName: cephfs
+    moverSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    retain:
+      hourly: 12
+      daily: 7
+      weekly: 4

@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - external-secret.yaml
+  - persistence.yaml
 
 helmCharts:
 - name: app-template
