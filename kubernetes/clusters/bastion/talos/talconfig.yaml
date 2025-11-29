@@ -2,10 +2,10 @@
 clusterName: ${clusterName}
 
 # renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: v1.8.3
+talosVersion: v1.11.5
 
 # renovate: datasource=github-releases depName=siderolabs/kubelet
-kubernetesVersion: v1.30.3
+kubernetesVersion: v1.34.2
 
 endpoint: https://talos-master-0.tailnet-4d89.ts.net:6443
 
