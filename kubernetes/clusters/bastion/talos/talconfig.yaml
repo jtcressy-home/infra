@@ -229,7 +229,7 @@ patches:
     kubelet:
       nodeIP:
         validSubnets:
-          - 100.64.0.0/10
+          - 192.168.20.0/24
     features:
       kubePrism:
         enabled: true
@@ -240,7 +240,8 @@ patches:
         resolveMemberNames: true
     network:
       nameservers:
-        - 100.100.100.100
+        - 192.168.20.1
+        - 1.1.1.1
 - '@./patch-longhorn.yaml'
 - '@./patch-global-sysctls.yaml'
 worker:
@@ -251,7 +252,24 @@ worker:
         - TS_ACCEPT_DNS=true
         - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
 controlPlane:
-  extensionServices: *commonExtensionServices
+  extensionServices:
+    - name: tailscale
+      environment:
+        - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
+        - TS_ACCEPT_DNS=true
+        - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+        - TS_SERVE_CONFIG=/etc/tailscale/serve.json
+      files:
+        - content: |
+            {
+              "TCP": {
+                "6443": {
+                  "HTTPS": true
+                }
+              }
+            }
+          path: /etc/tailscale/serve.json
+          permissions: "0644"
   patches:
     - |
       machine:
@@ -293,7 +311,7 @@ controlPlane:
           extraArgs:
             listen-metrics-urls: http://0.0.0.0:2381
           advertisedSubnets:
-            - 100.64.0.0/10 # we want etcd to talk over tailscale for stable network paths
+            - 192.168.20.0/24 # using underlay network for node-to-node communication
         proxy:
           disabled: true
         scheduler:
