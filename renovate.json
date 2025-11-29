@@ -38,12 +38,6 @@
       "versioning": "regex:^controller-v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$"
     },
     {
-      "matchPackageNames": [
-        "koush/scrypted"
-      ],
-      "versioning": "regex:^18-jammy-full.s6-v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$"
-    },
-    {
       "matchFileNames": [
         "kubernetes/clusters/*/talos/*.yaml"
       ],
