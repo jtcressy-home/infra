@@ -40,12 +40,6 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # Custom prompt to instruct Claude to open PRs by default
-          prompt: |
-            $TASK
-
-            After completing your work, please create a pull request with your changes using `gh pr create`. Use a clear title and description that summarizes the changes made.
-
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/sdk#command-line for available options

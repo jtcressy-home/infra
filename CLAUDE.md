@@ -114,3 +114,39 @@ The repository includes Go modules in `magefiles/` for advanced automation tasks
 
 ## Secret Management
 Secrets are managed through External Secrets Operator with Doppler as the backend. The `task eso:connect-doppler-branch` command connects Doppler config branches to the Kubernetes cluster.
+
+## Instructions for Claude Code Agent
+
+When you receive a task via `@claude` mention in an issue or pull request comment:
+
+### PR Creation for Code Changes
+
+**Always create a pull request** when your task involves making code changes to the repository. This includes:
+- Creating, modifying, or deleting files in `kubernetes/deploy/`
+- Updating Kustomize overlays or Helm configurations
+- Enabling/disabling application overlays
+- Making changes to workflow files or configuration
+
+Use `gh pr create` with:
+- A descriptive title that summarizes the change (e.g., "chore(wolf): disable deployment until GPU node available")
+- A clear description explaining what was changed and why
+- Appropriate commit messages following the repository's conventions
+
+### When NOT to Create a PRs
+
+Only post a comment summary (without a PR) for tasks that don't modify code, such as:
+- Informational requests (explaining how something works)
+- Status checks (verifying current state)
+- Questions about the repository structure
+
+### Code Style and Conventions
+
+Follow the patterns already established in this repository:
+- Use the Task runner (`task <command>`) for infrastructure operations
+- Respect the overlay system directory structure (clusters/ vs disabled/)
+- Maintain the same YAML formatting and comment style as existing files
+- Reference the appropriate ArgoCD project for deployments
+
+### Error Handling
+
+If a task requires manual intervention or has blockers, explain what you attempted and what manual steps would be needed, rather than silently failing.
