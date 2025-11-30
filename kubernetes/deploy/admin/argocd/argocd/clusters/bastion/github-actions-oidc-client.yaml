@@ -1,0 +1,29 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: github-actions-oidc-client
+  namespace: argocd
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: github-actions-oidc-client
+    template:
+      type: Opaque
+      engineVersion: v2
+      metadata:
+        labels:
+          app.kubernetes.io/part-of: argocd
+      data:
+        dex.clientId: "{{ .clientId }}"
+        dex.clientSecret: "{{ .clientSecret }}"
+  data:
+  - secretKey: clientId
+    remoteRef:
+      key: argocd-github-actions-oidc-client
+      property: client_id
+  - secretKey: clientSecret
+    remoteRef:
+      key: argocd-github-actions-oidc-client
+      property: client_secret
