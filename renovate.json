@@ -4,7 +4,8 @@
     "config:recommended"
   ],
   "ignorePaths": [
-    "**/disabled/**"
+    "**/disabled/**",
+    "**/old/**"
   ],
   "kubernetes": {
     "managerFilePatterns": [
