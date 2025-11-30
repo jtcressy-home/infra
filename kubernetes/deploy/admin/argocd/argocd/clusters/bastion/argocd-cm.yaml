@@ -35,6 +35,9 @@ data:
       name: GitHub Actions
       config:
         issuer: https://token.actions.githubusercontent.com
+        getUserInfo: false
+        insecureSkipEmailVerified: true
+        insecureEnableGroups: true
         scopes:
           - openid
         userIDKey: sub
