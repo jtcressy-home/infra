@@ -41,7 +41,7 @@ fi
 # Use existing argo-cd-cli public client (no secret required)
 log_info "Exchanging GitHub OIDC token with Dex using argo-cd-cli client..."
 
-DEX_TOKEN_RESPONSE=$(curl -sSf \
+HTTP_CODE=$(curl -sS -w "%{http_code}" -o /tmp/dex_response.json \
     -X POST \
     "${DEX_ISSUER}/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
@@ -52,10 +52,20 @@ DEX_TOKEN_RESPONSE=$(curl -sSf \
     --data-urlencode "connector_id=github-actions" \
     --data-urlencode "scope=openid groups email")
 
+if [[ "${HTTP_CODE}" != "200" ]]; then
+    log_error "Dex token exchange failed with HTTP ${HTTP_CODE}"
+    log_error "Response: $(cat /tmp/dex_response.json)"
+    rm -f /tmp/dex_response.json
+    exit 1
+fi
+
+DEX_TOKEN_RESPONSE=$(cat /tmp/dex_response.json)
+rm -f /tmp/dex_response.json
+
 DEX_TOKEN=$(echo "${DEX_TOKEN_RESPONSE}" | jq -r '.access_token // .id_token')
 
 if [[ -z "${DEX_TOKEN}" || "${DEX_TOKEN}" == "null" ]]; then
-    log_error "Failed to exchange token with Dex"
+    log_error "Failed to extract token from Dex response"
     log_error "Response: ${DEX_TOKEN_RESPONSE}"
     exit 1
 fi
