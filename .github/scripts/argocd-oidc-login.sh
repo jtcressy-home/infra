@@ -49,7 +49,7 @@ HTTP_CODE=$(curl -sS -w "%{http_code}" -o /tmp/dex_response.json \
     --data-urlencode "client_secret=" \
     --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
     --data-urlencode "subject_token=${GITHUB_OIDC_TOKEN}" \
-    --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:access_token" \
+    --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:id_token" \
     --data-urlencode "connector_id=github-actions" \
     --data-urlencode "scope=openid groups email")
 
