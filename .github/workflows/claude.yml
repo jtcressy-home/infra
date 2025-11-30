@@ -39,6 +39,17 @@ jobs:
           # renovate: datasource=github-releases depName=tailscale/tailscale
           version: 1.90.9
 
+      - name: Install Task
+        uses: go-task/setup-task@v1
+
+      - name: Install ArgoCD CLI
+        run: |
+          # renovate: datasource=github-releases depName=argoproj/argo-cd
+          ARGOCD_VERSION=v3.2.1
+          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+          chmod +x /usr/local/bin/argocd
+          argocd version --client
+
       - name: Authenticate with ArgoCD
         id: argocd-auth
         run: |
@@ -61,5 +72,5 @@ jobs:
 
           # Allow Claude to use necessary tools for this workflow
           claude_args: |
-            --allowed-tools "Bash(git:*),Bash(gh pr create:*),Bash(task:*)"
+            --allowed-tools "Bash(git:*),Bash(gh pr create:*),Bash(task:*),Bash(argocd:*),Bash(kubectl:*)"
 
