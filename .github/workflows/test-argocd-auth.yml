@@ -1,0 +1,81 @@
+name: Test ArgoCD OIDC Authentication
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-auth:
+    name: Test ArgoCD Authentication
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ vars.TAILSCALE_OAUTH_CLIENT_ID }}
+          audience: ${{ vars.TAILSCALE_AUDIENCE }}
+          tags: ${{ vars.TAILSCALE_TAGS || 'tag:ghactions' }}
+          # renovate: datasource=github-releases depName=tailscale/tailscale
+          version: 1.90.9
+
+      - name: Verify Tailscale connectivity
+        run: |
+          echo "Testing connectivity to ArgoCD server..."
+          ping -c 3 argocd.tailnet-4d89.ts.net || true
+          echo ""
+          echo "Testing HTTPS connectivity..."
+          curl -v https://argocd.tailnet-4d89.ts.net/api/version 2>&1 | head -20
+
+      - name: Install ArgoCD CLI
+        run: |
+          # renovate: datasource=github-releases depName=argoproj/argo-cd
+          ARGOCD_VERSION=v3.2.1
+          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+          chmod +x /usr/local/bin/argocd
+          argocd version --client
+
+      - name: Authenticate with ArgoCD
+        id: auth
+        run: |
+          chmod +x .github/scripts/argocd-oidc-login.sh
+          echo "Running authentication script..."
+          ARGOCD_AUTH_TOKEN=$(.github/scripts/argocd-oidc-login.sh)
+
+          if [ -z "$ARGOCD_AUTH_TOKEN" ]; then
+            echo "❌ Failed to obtain token"
+            exit 1
+          fi
+
+          echo "✅ Token obtained (length: ${#ARGOCD_AUTH_TOKEN} chars)"
+          echo "ARGOCD_AUTH_TOKEN=${ARGOCD_AUTH_TOKEN}" >> $GITHUB_ENV
+        env:
+          ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
+
+      - name: Test ArgoCD API with token
+        run: |
+          echo "Testing ArgoCD API access with obtained token..."
+          echo ""
+
+          echo "1. Testing /api/version endpoint (no auth required):"
+          curl -sS https://argocd.tailnet-4d89.ts.net/api/version | jq '.'
+          echo ""
+
+          echo "2. Testing /api/v1/applications endpoint (requires auth):"
+          curl -sS -H "Authorization: Bearer ${ARGOCD_AUTH_TOKEN}" \
+            https://argocd.tailnet-4d89.ts.net/api/v1/applications | jq '.items[].metadata.name' | head -10
+          echo ""
+
+          echo "3. Testing argocd CLI with token:"
+          argocd app list \
+            --auth-token "${ARGOCD_AUTH_TOKEN}" \
+            --server argocd.tailnet-4d89.ts.net \
+            --grpc-web \
+            --plaintext=false
+
+          echo ""
+          echo "✅ All tests passed!"
