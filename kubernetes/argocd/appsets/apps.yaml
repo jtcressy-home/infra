@@ -4,8 +4,12 @@ metadata:
   name: apps
   namespace: argocd
 spec:
+  # syncPolicy controls how the ApplicationSet manages Application resources
+  # 'sync' (default): Allows create, update, and delete operations
+  # This ensures git is the source of truth - when overlays move to disabled/,
+  # the corresponding Applications are automatically deleted from ArgoCD
   syncPolicy:
-    applicationsSync: create-update
+    applicationsSync: sync  # Changed from create-update
   ignoreApplicationDifferences:
     - jsonPointers:
         - /spec/syncPolicy

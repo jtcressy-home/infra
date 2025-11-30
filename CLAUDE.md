@@ -81,6 +81,26 @@ Path segments map to ArgoCD Application properties:
 - **app**: `{app}` (segment 4) - Application name
 - **cluster**: `{cluster}` (segment 6) - Target cluster name
 
+#### Important: Automatic Deletion Behavior
+
+The ApplicationSet is configured with `applicationsSync: sync`, which means:
+- **Moving an overlay from `clusters/` to `disabled/` will cause ArgoCD to automatically DELETE the application**
+- The application and all its Kubernetes resources will be removed from the cluster
+- This happens automatically after the change is merged to the main branch
+
+**Safety Guidelines:**
+1. Always use `task apps:overlay:disable` instead of manual `git mv` commands
+2. The disable task will show you what resources will be deleted and require confirmation
+3. Use `task apps:overlay:status` to check the current state before disabling
+4. PR reviews and ArgoCD diff workflow will show deletions before merge
+5. To temporarily disable without deleting, consider commenting out in a kustomization instead
+
+**Checking for Orphaned Applications:**
+If applications exist in ArgoCD but not in git, use:
+```bash
+task apps:overlay:orphaned
+```
+
 #### Task Command Arguments
 Most `task apps:*` commands accept these parameters (can be provided or interactively selected):
 - **project**: ArgoCD project name (admin, database, home, misc, monitoring, system)
