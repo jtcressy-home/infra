@@ -8,6 +8,7 @@ resources:
 - infra-repo.yaml
 - bastion-cluster-config.yaml
 - github-oauth-client.yaml
+- github-actions-oidc-client.yaml
 
 components:
 - ../../components/prometheus-operator
