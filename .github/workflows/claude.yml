@@ -39,6 +39,17 @@ jobs:
           # renovate: datasource=github-releases depName=tailscale/tailscale
           version: 1.90.9
 
+      - name: Authenticate with ArgoCD
+        id: argocd-auth
+        run: |
+          chmod +x .github/scripts/argocd-oidc-login.sh
+          ARGOCD_AUTH_TOKEN=$(.github/scripts/argocd-oidc-login.sh)
+          echo "::add-mask::${ARGOCD_AUTH_TOKEN}"
+          echo "ARGOCD_AUTH_TOKEN=${ARGOCD_AUTH_TOKEN}" >> $GITHUB_ENV
+        env:
+          ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
+          DEX_CLIENT_SECRET: ${{ secrets.DEX_CLIENT_SECRET }}
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1

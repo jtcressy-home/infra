@@ -6,6 +6,20 @@ data:
   url: https://argocd.tailnet-4d89.ts.net
   kustomize.buildOptions: --enable-helm
   dex.config: |
+    # Enable token exchange grant type
+    oauth2:
+      grantTypes:
+        - "authorization_code"
+        - "refresh_token"
+        - "urn:ietf:params:oauth:grant-type:token-exchange"
+
+    # Static client for token exchange (uses Basic Auth)
+    staticClients:
+    - id: github-actions-oidc
+      name: "GitHub Actions Token Exchange"
+      secret: $github-actions-oidc-client:dex.clientSecret
+      public: true
+
     connectors:
     # - type: github
     #   id: github
@@ -22,6 +36,18 @@ data:
         userHeader: Tailscale-User-Login
         # staticGroups:
         # - default
+    # GitHub Actions OIDC Connector for token exchange
+    - type: oidc
+      id: github-actions
+      name: GitHub Actions
+      config:
+        issuer: https://token.actions.githubusercontent.com
+        scopes:
+          - openid
+        userIDKey: sub
+        userNameKey: actor
+        claimMapping:
+          groups: ref
   resource.customizations: |
     apiextensions.k8s.io_CustomResourceDefinition:
       syncOptions:
@@ -52,7 +78,6 @@ data:
     - .webhooks[]?.clientConfig.caBundle
     jsonPointers:
     - /webhooks/*/clientConfig/caBundle
-  accounts.gh_actions: apiKey
 
 kind: ConfigMap
 metadata:
