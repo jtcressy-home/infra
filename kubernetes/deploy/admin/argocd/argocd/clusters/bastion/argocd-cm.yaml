@@ -17,7 +17,7 @@ data:
     staticClients:
     - id: github-actions-oidc
       name: "GitHub Actions Token Exchange"
-      secret: $github-actions-oidc-client:dex.clientSecret
+      secretEnv: GITHUB_ACTIONS_CLIENT_SECRET
       public: true
 
     connectors:
