@@ -48,7 +48,6 @@ jobs:
           echo "ARGOCD_AUTH_TOKEN=${ARGOCD_AUTH_TOKEN}" >> $GITHUB_ENV
         env:
           ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
-          DEX_CLIENT_SECRET: ${{ secrets.DEX_CLIENT_SECRET }}
 
       - name: Run Claude Code
         id: claude

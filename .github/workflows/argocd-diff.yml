@@ -43,7 +43,6 @@ jobs:
           echo "ARGOCD_AUTH_TOKEN=${ARGOCD_AUTH_TOKEN}" >> $GITHUB_ENV
         env:
           ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
-          DEX_CLIENT_SECRET: ${{ secrets.DEX_CLIENT_SECRET }}
 
       - run: task apps:overlays:diff-pr-all -- --grpc-web --revision ${{ github.event.pull_request.head.sha }}
         env:
