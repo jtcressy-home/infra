@@ -46,6 +46,7 @@ HTTP_CODE=$(curl -sS -w "%{http_code}" -o /tmp/dex_response.json \
     "${DEX_ISSUER}/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "client_id=argo-cd-cli" \
+    --data-urlencode "client_secret=" \
     --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
     --data-urlencode "subject_token=${GITHUB_OIDC_TOKEN}" \
     --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:access_token" \
