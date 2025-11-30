@@ -29,7 +29,7 @@ data:
     p, role:gh_actions_pr, clusters, get, *, allow
     p, role:gh_actions_pr, clusters, list, *, allow
     p, role:gh_actions_pr, projects, get, *, allow
-  scopes: "[email, group]"
+  scopes: "[email, groups]"
 kind: ConfigMap
 metadata:
   name: argocd-rbac-cm
