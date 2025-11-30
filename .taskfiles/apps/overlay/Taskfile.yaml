@@ -109,6 +109,11 @@ tasks:
     summary: |
       This task will disable an existing, enabled kustomize overlay targeting a specific cluster.
 
+      WARNING: With automatic deletion enabled, this will cause ArgoCD to DELETE
+      the application and all its resources from the cluster after the change is merged.
+
+      Use `task apps:overlay:status` first to see what will be deleted.
+
       Common arguments (project, namespace, app, cluster) can be explicitly provided or interactively selected.
 
       Example: disable the 'multus' app overlay in the 'kube-system' namespace targeting the 'cluster1' cluster.
@@ -117,12 +122,26 @@ tasks:
       Example: disable a cluster addon that targets all clusters.
         task apps:overlay:disable project=system namespace=kube-system app=volsync cluster=_all
     interactive: true
-    silent: true
+    silent: false
     vars: *allvars
     cmds:
+      - echo "⚠️  WARNING: Disabling this overlay will cause ArgoCD to DELETE the application!"
+      - echo "Application: {{.app}}-{{.cluster}}"
+      - echo ""
+      - echo "Fetching current application status..."
+      - argocd app get "{{.app}}-{{.cluster}}" -o tree || echo "Application not found (may already be deleted)"
+      - echo ""
+      - |
+        read -p "Continue with disable? This will DELETE the application after merge. (yes/no): " confirm
+        if [ "$confirm" != "yes" ]; then
+          echo "Disable cancelled"
+          exit 1
+        fi
       - mkdir -p "{{.disabledPath}}"
       - mv "{{.enabledPath}}/{{.cluster}}" "{{.disabledPath}}/"
-      - echo "Disabled overlay at {{.disabledPath}}/{{.cluster}}"
+      - echo "✓ Disabled overlay at {{.disabledPath}}/{{.cluster}}"
+      - echo ""
+      - echo "NOTE: After merging this change, ArgoCD will delete the application from the cluster"
     preconditions:
       - sh: test -f "{{.enabledPath}}/{{.cluster}}/kustomization.yaml"
         msg: "App overlay doesn't exist or isn't enabled."
@@ -293,3 +312,21 @@ tasks:
     preconditions:
       - sh: test -f "{{.overlayPath}}/kustomization.yaml"
         msg: "App overlay doesn't exist."
+  orphaned:
+    desc: "List orphaned ArgoCD applications"
+    summary: |
+      Lists ArgoCD applications that exist in the cluster but don't have
+      corresponding enabled overlays in git (likely in disabled/).
+    silent: false
+    cmds:
+      - |
+        echo "Checking for orphaned ArgoCD applications..."
+        argocd app list -o name | grep -v "^argocd/" | while read app; do
+          cluster=$(echo "$app" | rev | cut -d'-' -f1 | rev)
+          appname=$(echo "$app" | rev | cut -d'-' -f2- | rev)
+          found=$(find kubernetes/deploy -path "*/clusters/${cluster}/kustomization.yaml" | \
+                  grep "/${appname}/clusters/${cluster}/" || echo "")
+          if [ -z "$found" ]; then
+            echo "ORPHANED: $app"
+          fi
+        done
