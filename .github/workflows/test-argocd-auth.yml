@@ -52,6 +52,10 @@ jobs:
           fi
 
           echo "✅ Token obtained (length: ${#ARGOCD_AUTH_TOKEN} chars)"
+          echo ""
+          echo "Token claims:"
+          echo "$ARGOCD_AUTH_TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq '.' || echo "Failed to decode token"
+          echo ""
           echo "ARGOCD_AUTH_TOKEN=${ARGOCD_AUTH_TOKEN}" >> $GITHUB_ENV
         env:
           ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
