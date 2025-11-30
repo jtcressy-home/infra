@@ -38,17 +38,14 @@ if [[ "${ACTIONS_STEP_DEBUG:-false}" == "true" ]]; then
 fi
 
 # Step 2: Exchange GitHub OIDC token with Dex
-# Per Dex docs: client credentials via Basic Auth, connector_id parameter
-log_info "Exchanging GitHub OIDC token with Dex..."
-
-# Read client secret from environment (set by workflow)
-CLIENT_SECRET="${DEX_CLIENT_SECRET:?DEX_CLIENT_SECRET environment variable is required}"
+# Use existing argo-cd-cli public client (no secret required)
+log_info "Exchanging GitHub OIDC token with Dex using argo-cd-cli client..."
 
 DEX_TOKEN_RESPONSE=$(curl -sSf \
     -X POST \
     "${DEX_ISSUER}/token" \
-    --user "github-actions-oidc:${CLIENT_SECRET}" \
     -H "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "client_id=argo-cd-cli" \
     --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
     --data-urlencode "subject_token=${GITHUB_OIDC_TOKEN}" \
     --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:jwt" \

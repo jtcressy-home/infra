@@ -8,7 +8,6 @@ resources:
 - infra-repo.yaml
 - bastion-cluster-config.yaml
 - github-oauth-client.yaml
-- github-actions-oidc-client.yaml
 
 components:
 - ../../components/prometheus-operator
@@ -35,4 +34,3 @@ patches:
 - path: argocd-cmd-params-cm.yaml
 - path: patch-resources.yaml
 - path: patch-redis-ha-haproxy-strategy.yaml
-- path: patch-dex-env.yaml

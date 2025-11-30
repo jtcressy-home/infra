@@ -13,13 +13,6 @@ data:
         - "refresh_token"
         - "urn:ietf:params:oauth:grant-type:token-exchange"
 
-    # Static client for token exchange (uses Basic Auth)
-    staticClients:
-    - id: github-actions-oidc
-      name: "GitHub Actions Token Exchange"
-      secretEnv: GITHUB_ACTIONS_CLIENT_SECRET
-      public: true
-
     connectors:
     # - type: github
     #   id: github
