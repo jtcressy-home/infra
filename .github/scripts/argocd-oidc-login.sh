@@ -81,16 +81,26 @@ fi
 
 # Step 3: Obtain ArgoCD session token using Dex token
 log_info "Obtaining ArgoCD session token..."
-ARGOCD_SESSION_RESPONSE=$(curl -sSf \
+HTTP_CODE=$(curl -sS -w "%{http_code}" -o /tmp/argocd_response.json \
     -X POST \
     "https://${ARGOCD_SERVER}/api/v1/session" \
     -H "Content-Type: application/json" \
     -d "{\"token\": \"${DEX_TOKEN}\"}")
 
+if [[ "${HTTP_CODE}" != "200" ]]; then
+    log_error "ArgoCD session creation failed with HTTP ${HTTP_CODE}"
+    log_error "Response: $(cat /tmp/argocd_response.json)"
+    rm -f /tmp/argocd_response.json
+    exit 1
+fi
+
+ARGOCD_SESSION_RESPONSE=$(cat /tmp/argocd_response.json)
+rm -f /tmp/argocd_response.json
+
 ARGOCD_SESSION_TOKEN=$(echo "${ARGOCD_SESSION_RESPONSE}" | jq -r '.token')
 
 if [[ -z "${ARGOCD_SESSION_TOKEN}" || "${ARGOCD_SESSION_TOKEN}" == "null" ]]; then
-    log_error "Failed to obtain ArgoCD session token"
+    log_error "Failed to extract session token from ArgoCD response"
     log_error "Response: ${ARGOCD_SESSION_RESPONSE}"
     exit 1
 fi
