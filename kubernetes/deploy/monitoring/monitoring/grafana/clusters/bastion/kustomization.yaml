@@ -6,7 +6,7 @@ resources:
 helmCharts:
 - name: grafana
   repo: https://grafana.github.io/helm-charts
-  version: 10.2.0
+  version: 10.3.0
   releaseName: grafana
   valuesInline:
     admin:
