@@ -54,6 +54,9 @@ jobs:
 
       - name: Terraform Plan (Merge Validation)
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL_S3: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           TF_VAR_oci_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
           TF_VAR_oci_user_ocid: ${{ secrets.OCI_USER_OCID }}
           TF_VAR_oci_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
