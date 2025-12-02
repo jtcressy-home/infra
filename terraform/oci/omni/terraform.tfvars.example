@@ -1,0 +1,21 @@
+# OCI Provider Configuration
+# These values should be populated from Doppler secrets in GitHub Actions
+# For local testing, copy this file to terraform.tfvars and fill in your values
+
+oci_tenancy_ocid       = "ocid1.tenancy.oc1..aaaaaaaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+oci_user_ocid          = "ocid1.user.oc1..aaaaaaaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+oci_fingerprint        = "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99"
+oci_region             = "us-ashburn-1"
+oci_compartment_ocid   = "ocid1.compartment.oc1..aaaaaaaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+oci_availability_domain = "AD-1"
+
+# SSH Configuration
+ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExamplePublicKeyContentHere user@host"
+
+# Tailscale Configuration
+tailscale_authkey = "tskey-auth-xxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Cloudflare R2 Backend Configuration
+cloudflare_account_id           = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+cloudflare_r2_access_key_id     = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+cloudflare_r2_secret_access_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
