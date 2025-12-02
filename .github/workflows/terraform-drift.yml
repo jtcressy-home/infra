@@ -1,0 +1,193 @@
+name: Terraform Drift Detection
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      auto_apply:
+        description: 'Auto-apply to fix drift'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  detect-drift:
+    name: Detect Infrastructure Drift
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    defaults:
+      run:
+        working-directory: terraform/oci/omni
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.x"
+          terraform_wrapper: false
+
+      - name: Configure OCI CLI
+        run: |
+          mkdir -p ~/.oci
+          cat > ~/.oci/config <<EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          region=${{ secrets.OCI_REGION }}
+          key_file=~/.oci/oci_api_key.pem
+          EOF
+
+          cat > ~/.oci/oci_api_key.pem <<EOF
+          ${{ secrets.OCI_PRIVATE_KEY }}
+          EOF
+          chmod 600 ~/.oci/oci_api_key.pem
+
+      - name: Terraform Init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        run: terraform init
+
+      - name: Terraform Plan (Drift Check)
+        id: drift-check
+        env:
+          TF_VAR_oci_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
+          TF_VAR_oci_user_ocid: ${{ secrets.OCI_USER_OCID }}
+          TF_VAR_oci_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          TF_VAR_oci_region: ${{ secrets.OCI_REGION }}
+          TF_VAR_oci_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          TF_VAR_oci_availability_domain: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_tailscale_authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_cloudflare_r2_access_key_id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        run: |
+          echo "::group::Terraform Plan for Drift Detection"
+          terraform plan -detailed-exitcode -no-color -out=drift.tfplan 2>&1 | tee drift_output.txt
+          EXIT_CODE=$?
+          echo "::endgroup::"
+
+          # Exit codes: 0 = no changes, 1 = error, 2 = changes detected (drift)
+          echo "exitcode=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          if [ $EXIT_CODE -eq 2 ]; then
+            echo "drift_detected=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Infrastructure drift detected!"
+          elif [ $EXIT_CODE -eq 0 ]; then
+            echo "drift_detected=false" >> $GITHUB_OUTPUT
+            echo "✅ No drift detected - infrastructure matches desired state"
+          else
+            echo "drift_detected=error" >> $GITHUB_OUTPUT
+            echo "❌ Error during drift detection"
+            exit 1
+          fi
+
+      - name: Create Drift Report
+        if: steps.drift-check.outputs.drift_detected == 'true'
+        run: |
+          cat > drift_report.md <<'EOF'
+          ## ⚠️ Terraform Drift Detected
+
+          Infrastructure has drifted from the desired state defined in Git.
+
+          ### Detected Changes
+
+          <details>
+          <summary>Show Drift Details</summary>
+
+          ```terraform
+          $(cat drift_output.txt)
+          ```
+
+          </details>
+
+          ### Remediation
+
+          **Option 1: Auto-apply (if enabled)**
+          This workflow can automatically reconcile drift if `auto_apply` is enabled.
+
+          **Option 2: Manual review**
+          Review the drift and either:
+          - Update Terraform code to match actual infrastructure
+          - Apply Terraform to reconcile infrastructure to desired state
+
+          **Triggered by**: Scheduled drift detection (every 6 hours)
+          **Timestamp**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
+
+      - name: Create Drift Issue
+        if: steps.drift-check.outputs.drift_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const driftReport = fs.readFileSync('terraform/oci/omni/drift_report.md', 'utf8');
+
+            // Check if there's already an open drift issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'terraform-drift'
+            });
+
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### Drift Still Detected\n\n${driftReport}`
+              });
+              console.log(`Updated existing drift issue #${issues.data[0].number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '⚠️ Terraform Drift Detected - Omni Infrastructure',
+                body: driftReport,
+                labels: ['terraform-drift', 'infrastructure']
+              });
+              console.log(`Created new drift issue #${issue.data.number}`);
+            }
+
+      - name: Auto-Apply to Fix Drift
+        if: |
+          steps.drift-check.outputs.drift_detected == 'true' &&
+          (github.event.inputs.auto_apply == 'true' || github.event_name == 'schedule')
+        env:
+          TF_VAR_oci_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
+          TF_VAR_oci_user_ocid: ${{ secrets.OCI_USER_OCID }}
+          TF_VAR_oci_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          TF_VAR_oci_region: ${{ secrets.OCI_REGION }}
+          TF_VAR_oci_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          TF_VAR_oci_availability_domain: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_tailscale_authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_cloudflare_r2_access_key_id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        run: |
+          echo "🔄 Auto-applying to fix drift..."
+          terraform apply -auto-approve drift.tfplan
+          echo "✅ Drift reconciled automatically"
+
+      - name: Report No Drift
+        if: steps.drift-check.outputs.drift_detected == 'false'
+        run: |
+          echo "✅ No infrastructure drift detected. Everything matches desired state!"

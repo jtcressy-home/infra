@@ -1,0 +1,125 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/oci/omni/**/*.tf'
+      - 'terraform/oci/omni/**/*.tfvars'
+      - 'terraform/oci/omni/**/terraform.lock.hcl'
+
+jobs:
+  terraform-apply:
+    name: Apply Infrastructure Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    defaults:
+      run:
+        working-directory: terraform/oci/omni
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.x"
+          terraform_wrapper: false
+
+      - name: Configure OCI CLI
+        run: |
+          mkdir -p ~/.oci
+          cat > ~/.oci/config <<EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          region=${{ secrets.OCI_REGION }}
+          key_file=~/.oci/oci_api_key.pem
+          EOF
+
+          cat > ~/.oci/oci_api_key.pem <<EOF
+          ${{ secrets.OCI_PRIVATE_KEY }}
+          EOF
+          chmod 600 ~/.oci/oci_api_key.pem
+
+      - name: Terraform Init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        env:
+          TF_VAR_oci_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
+          TF_VAR_oci_user_ocid: ${{ secrets.OCI_USER_OCID }}
+          TF_VAR_oci_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          TF_VAR_oci_region: ${{ secrets.OCI_REGION }}
+          TF_VAR_oci_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          TF_VAR_oci_availability_domain: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_tailscale_authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_cloudflare_r2_access_key_id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        run: |
+          echo "::group::Terraform Plan"
+          terraform plan -out=tfplan
+          echo "::endgroup::"
+
+      - name: Terraform Apply
+        id: apply
+        env:
+          TF_VAR_oci_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
+          TF_VAR_oci_user_ocid: ${{ secrets.OCI_USER_OCID }}
+          TF_VAR_oci_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          TF_VAR_oci_region: ${{ secrets.OCI_REGION }}
+          TF_VAR_oci_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          TF_VAR_oci_availability_domain: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_tailscale_authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_cloudflare_r2_access_key_id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        run: |
+          echo "::group::Terraform Apply"
+          terraform apply -auto-approve tfplan 2>&1 | tee apply_output.txt
+          echo "::endgroup::"
+
+      - name: Parse Apply Output
+        id: parse-output
+        if: always()
+        run: |
+          if [ -f apply_output.txt ]; then
+            # Extract summary
+            SUMMARY=$(grep -E "Apply complete\!|Error:" apply_output.txt | tail -1)
+            echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+
+            # Get outputs if apply succeeded
+            if grep -q "Apply complete!" apply_output.txt; then
+              terraform output -json > outputs.json 2>/dev/null || echo "{}" > outputs.json
+              echo "outputs<<EOF" >> $GITHUB_OUTPUT
+              cat outputs.json >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Report Apply Status
+        if: always()
+        run: |
+          if [ -f apply_output.txt ]; then
+            if grep -q "Apply complete!" apply_output.txt; then
+              echo "✅ Terraform apply succeeded"
+              echo "Summary: ${{ steps.parse-output.outputs.summary }}"
+            else
+              echo "❌ Terraform apply failed"
+              echo "Summary: ${{ steps.parse-output.outputs.summary }}"
+              exit 1
+            fi
+          fi
