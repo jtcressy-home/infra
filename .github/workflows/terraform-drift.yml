@@ -58,25 +58,30 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL_S3: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
         run: terraform init
 
       - name: Terraform Plan (Drift Check)
         id: drift-check
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL_S3: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           TF_VAR_oci_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
           TF_VAR_oci_user_ocid: ${{ secrets.OCI_USER_OCID }}
+          TF_VAR_oci_private_key: ${{ secrets.OCI_PRIVATE_KEY }}
           TF_VAR_oci_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
           TF_VAR_oci_region: ${{ secrets.OCI_REGION }}
           TF_VAR_oci_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
           TF_VAR_oci_availability_domain: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-          TF_VAR_tailscale_authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          TF_VAR_tailscale_auth_key: ${{ secrets.TAILSCALE_AUTHKEY }}
           TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           TF_VAR_cloudflare_r2_access_key_id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
         run: |
           echo "::group::Terraform Plan for Drift Detection"
-          terraform plan -detailed-exitcode -no-color -out=drift.tfplan 2>&1 | tee drift_output.txt
+          terraform plan -input=false -detailed-exitcode -no-color -out=drift.tfplan 2>&1 | tee drift_output.txt
           EXIT_CODE=$?
           echo "::endgroup::"
 
@@ -171,20 +176,24 @@ jobs:
           steps.drift-check.outputs.drift_detected == 'true' &&
           (github.event.inputs.auto_apply == 'true' || github.event_name == 'schedule')
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL_S3: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           TF_VAR_oci_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
           TF_VAR_oci_user_ocid: ${{ secrets.OCI_USER_OCID }}
+          TF_VAR_oci_private_key: ${{ secrets.OCI_PRIVATE_KEY }}
           TF_VAR_oci_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
           TF_VAR_oci_region: ${{ secrets.OCI_REGION }}
           TF_VAR_oci_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
           TF_VAR_oci_availability_domain: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-          TF_VAR_tailscale_authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          TF_VAR_tailscale_auth_key: ${{ secrets.TAILSCALE_AUTHKEY }}
           TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           TF_VAR_cloudflare_r2_access_key_id: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
         run: |
           echo "🔄 Auto-applying to fix drift..."
-          terraform apply -auto-approve drift.tfplan
+          terraform apply -input=false -auto-approve drift.tfplan
           echo "✅ Drift reconciled automatically"
 
       - name: Report No Drift
