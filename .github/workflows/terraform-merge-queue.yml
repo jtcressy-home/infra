@@ -70,7 +70,7 @@ jobs:
           TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
         run: |
           echo "::group::Terraform Plan"
-          terraform plan -no-color
+          terraform plan -input=false -no-color
           echo "::endgroup::"
 
           if [ $? -ne 0 ]; then

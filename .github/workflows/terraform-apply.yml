@@ -74,7 +74,7 @@ jobs:
           TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
         run: |
           echo "::group::Terraform Plan"
-          terraform plan -out=tfplan
+          terraform plan -input=false -out=tfplan
           echo "::endgroup::"
 
       - name: Terraform Apply
@@ -96,7 +96,7 @@ jobs:
           TF_VAR_cloudflare_r2_secret_access_key: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
         run: |
           echo "::group::Terraform Apply"
-          terraform apply -auto-approve tfplan 2>&1 | tee apply_output.txt
+          terraform apply -input=false -auto-approve tfplan 2>&1 | tee apply_output.txt
           echo "::endgroup::"
 
       - name: Parse Apply Output
