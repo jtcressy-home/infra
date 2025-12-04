@@ -4,7 +4,7 @@ kind: Kustomization
 helmCharts:
   - name: victoria-metrics-operator
     repo: https://victoriametrics.github.io/helm-charts/
-    version: 0.56.4
+    version: 0.57.0
     releaseName: victoria-metrics-operator
     namespace: monitoring
     includeCRDs: true
