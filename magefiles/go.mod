@@ -18,7 +18,7 @@ require (
 	k8s.io/api v0.34.2
 	k8s.io/apimachinery v0.34.2
 	k8s.io/klog/v2 v2.130.1
-	tailscale.com v1.92.0
+	tailscale.com v1.92.1
 )
 
 require (
