@@ -124,6 +124,21 @@
       "addLabels": [
         "renovate:automerge"
       ]
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/squat/generic-device-plugin"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
     }
   ],
   "autoApprove": true
