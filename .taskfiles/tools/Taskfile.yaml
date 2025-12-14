@@ -1,0 +1,86 @@
+---
+version: "3"
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task -l
+
+  install-fzf:
+    desc: Install fzf (fuzzy finder)
+    silent: false
+    cmds:
+      - |
+        if command -v fzf >/dev/null 2>&1; then
+          echo "✓ fzf is already installed ($(fzf --version))"
+        else
+          echo "Installing fzf..."
+          git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+          ~/.fzf/install --bin
+          sudo ln -sf ~/.fzf/bin/fzf /usr/local/bin/fzf
+          echo "✓ fzf installed successfully"
+        fi
+
+  install-doppler:
+    desc: Install Doppler CLI
+    silent: false
+    cmds:
+      - |
+        if command -v doppler >/dev/null 2>&1; then
+          echo "✓ Doppler is already installed ($(doppler --version))"
+        else
+          echo "Installing Doppler CLI..."
+          # Install for Debian/Ubuntu
+          sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+          curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" | sudo tee /etc/apt/sources.list.d/doppler-cli.list
+          sudo apt-get update && sudo apt-get install -y doppler
+          echo "✓ Doppler installed successfully"
+        fi
+
+  install-talosctl:
+    desc: Install talosctl
+    silent: false
+    cmds:
+      - |
+        if command -v talosctl >/dev/null 2>&1; then
+          echo "✓ talosctl is already installed ($(talosctl version --client --short 2>/dev/null || echo 'unknown version'))"
+        else
+          echo "Installing talosctl..."
+          curl -sL https://talos.dev/install | sh
+          echo "✓ talosctl installed successfully"
+        fi
+
+  install-talhelper:
+    desc: Install talhelper
+    silent: false
+    cmds:
+      - |
+        if command -v talhelper >/dev/null 2>&1; then
+          echo "✓ talhelper is already installed ($(talhelper --version 2>/dev/null || echo 'unknown version'))"
+        else
+          echo "Installing talhelper..."
+          # Install using go install
+          export GOBIN=/usr/local/bin
+          sudo -E go install github.com/budimanjojo/talhelper/v3@latest
+          echo "✓ talhelper installed successfully"
+        fi
+
+  reinstall-talhelper:
+    desc: Force reinstall talhelper (removes existing installation first)
+    silent: false
+    cmds:
+      - sudo rm -f /usr/local/bin/talhelper
+      - task: install-talhelper
+
+  install-all:
+    desc: Install all required tools (fzf, doppler, talosctl, talhelper)
+    silent: false
+    cmds:
+      - task: install-fzf
+      - task: install-doppler
+      - task: install-talosctl
+      - task: install-talhelper
+      - echo ""
+      - echo "All tools installed successfully! 🎉"
