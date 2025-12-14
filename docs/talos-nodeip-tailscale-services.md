@@ -46,9 +46,12 @@ Added to control plane `extensionServices`:
 files:
   - content: |
       {
-        "TCP": {
-          "6443": {
-            "HTTPS": true
+        "version": "0.0.1",
+        "services": {
+          "svc:bastion-k8s": {
+            "endpoints": {
+              "tcp:6443": "tcp://localhost:6443"
+            }
           }
         }
       }
@@ -111,13 +114,17 @@ controlPlane:
       files:
         - content: |
             {
-              "TCP": {
-                "6443": {
-                  "HTTPS": true
+              "version": "0.0.1",
+              "services": {
+                "svc:bastion-k8s": {
+                  "endpoints": {
+                    "tcp:6443": "tcp://localhost:6443"
+                  }
                 }
               }
             }
           path: /etc/tailscale/serve.json
+          permissions: "0644"
 ```
 
 ## Applying the Changes
