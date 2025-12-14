@@ -262,8 +262,13 @@ controlPlane:
       files:
         - content: |
             {
-              "TCP": {
-                "6443": "svc:bastion-k8s"
+              "version": "0.0.1",
+              "services": {
+                "svc:bastion-k8s": {
+                  "endpoints": {
+                    "tcp:6443": "tcp://localhost:6443"
+                  }
+                }
               }
             }
           path: /etc/tailscale/serve.json
