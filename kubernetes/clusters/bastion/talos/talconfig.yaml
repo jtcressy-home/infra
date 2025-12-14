@@ -263,9 +263,7 @@ controlPlane:
         - content: |
             {
               "TCP": {
-                "6443": {
-                  "HTTPS": true
-                }
+                "6443": "svc:bastion-k8s"
               }
             }
           path: /etc/tailscale/serve.json
