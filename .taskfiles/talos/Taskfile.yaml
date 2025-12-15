@@ -111,9 +111,6 @@ tasks:
       - clusterconfig/*.yaml
       - clusterconfig/talosconfig
     cmds:
-      - talhelper -v
-      - pwd
-      - ls
       - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper genconfig
 
   gencommand:

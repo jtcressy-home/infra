@@ -6,7 +6,7 @@ vars:
     sh: "git rev-parse --show-toplevel"
 
 includes:
-  talos: 
+  talos:
     taskfile: .taskfiles/talos/Taskfile.yaml
     vars:
       dopplerProject: jtcressy-home-infra
@@ -25,12 +25,20 @@ includes:
     taskfile: .taskfiles/volsync/Taskfile.yaml
   apps:
     taskfile: .taskfiles/apps/Taskfile.yaml
+  tools:
+    taskfile: .taskfiles/tools/Taskfile.yaml
 
 tasks:
   default:
     silent: true
     cmds:
       - task -l
+
+  tools:
+    desc: Install all required tools (fzf, doppler, talosctl, talhelper)
+    summary: Installs all tools needed for cluster management
+    cmds:
+      - task: tools:install-all
 
   cuda:
     summary: runs a kubernetes pod with nvidia-smi
