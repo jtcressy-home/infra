@@ -18,6 +18,9 @@ controllers:
         args:
           - tunnel
           - run
+        ports:
+          http:
+            containerPort: 8080
         probes:
           liveness:
             enabled: true
