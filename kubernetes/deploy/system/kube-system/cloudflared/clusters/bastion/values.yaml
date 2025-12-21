@@ -18,9 +18,6 @@ controllers:
         args:
           - tunnel
           - run
-        ports:
-          http:
-            containerPort: 8080
         probes:
           liveness:
             enabled: true
@@ -28,7 +25,7 @@ controllers:
             spec:
               httpGet:
                 path: /ready
-                port: http
+                port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
@@ -39,7 +36,7 @@ controllers:
             spec:
               httpGet:
                 path: /ready
-                port: http
+                port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10
               timeoutSeconds: 1
@@ -50,7 +47,7 @@ controllers:
             spec:
               httpGet:
                 path: /ready
-                port: http
+                port: 8080
               failureThreshold: 30
               periodSeconds: 10
         resources:
