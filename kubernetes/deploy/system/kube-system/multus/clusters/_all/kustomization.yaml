@@ -30,27 +30,46 @@ helmCharts:
         memory: 512M
     hostPaths:
       netns: /var/run/netns
+    podSecurityContext: {}
+    securityContext: {}
 
 
 resources:
 - crd.yaml
 - dhcp-networkattachment.yaml
+- rbac-clusterrole.yaml
 
 patches:
 - target:
     group: apps
     version: v1
     kind: DaemonSet
-    name: multus
+    name: multus-main
+  patch: |-
+    - op: add
+      path: /spec/template/spec/priorityClassName
+      value: system-node-critical
+    - op: remove
+      path: /spec/template/spec/securityContext/privileged
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value:
+        name: host-run-netns
+        mountPath: /var/run/netns
+        mountPropagation: HostToContainer
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    name: multus-main
   patch: |-
     apiVersion: apps/v1
     kind: DaemonSet
     metadata:
-      name: multus
+      name: multus-main
     spec:
       template:
         spec:
-          priorityClassName: system-node-critical
           initContainers:
           - name: dhcp-cleanup
             image: busybox
@@ -64,6 +83,9 @@ patches:
             - name: multus-shim-bin
               mountPath: /host/opt/cni/bin
           containers:
+          - name: main
+            securityContext:
+              privileged: true
           - name: dhcp-daemon
             image: ghcr.io/angelnu/cni-plugins
             command:
