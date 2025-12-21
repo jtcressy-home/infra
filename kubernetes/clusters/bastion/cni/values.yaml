@@ -84,6 +84,12 @@ localRedirectPolicy: true
 operator:
   rollOutPods: true
 rollOutCiliumPods: true
+resources:
+  limits:
+    memory: 2Gi
+  requests:
+    memory: 1Gi
+    cpu: 500m
 securityContext:
   privileged: true
 routingMode: tunnel
