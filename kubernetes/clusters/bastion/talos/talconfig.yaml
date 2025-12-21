@@ -12,7 +12,12 @@ endpoint: https://talos-master-0:6443
 allowSchedulingOnMasters: true
 allowSchedulingOnControlPlanes: true
 
-additionalApiServerCertSans: []
+additionalApiServerCertSans:
+- talos-master-0.tailnet-4d89.ts.net
+- talos-master-1.tailnet-4d89.ts.net
+- talos-master-2.tailnet-4d89.ts.net
+- bastion-k8s.tailnet-4d89.ts.net
+- 100.120.223.43
 
 additionalMachineCertSans: []
 
