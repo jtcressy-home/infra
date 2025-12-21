@@ -1,0 +1,58 @@
+---
+# ClusterRole and ClusterRoleBinding required for Multus CNI
+# The angelnu/multus Helm chart (based on bjw-s common library) only creates
+# a namespace-scoped Role, but Multus requires cluster-wide permissions to
+# read pods across all namespaces when setting up pod networking.
+#
+# This is the official RBAC configuration from upstream multus-cni project:
+# https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/deployments/multus-daemonset.yml
+#
+# Related issues where other users encountered and fixed the same problem:
+# - https://github.com/k8snetworkplumbingwg/multus-cni/issues/667
+# - https://github.com/ContainerCraft/Kargo3/issues/5
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: multus
+  labels:
+    app.kubernetes.io/instance: multus
+    app.kubernetes.io/name: multus
+rules:
+  - apiGroups: ["k8s.cni.cncf.io"]
+    resources:
+      - '*'
+    verbs:
+      - '*'
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/status
+    verbs:
+      - get
+      - update
+  - apiGroups:
+      - ""
+      - events.k8s.io
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+      - update
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: multus
+  labels:
+    app.kubernetes.io/instance: multus
+    app.kubernetes.io/name: multus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: multus
+subjects:
+- kind: ServiceAccount
+  name: multus
+  namespace: kube-system
