@@ -1,0 +1,42 @@
+controllers:
+  main:
+    replicas: 3
+    initContainers:
+      copy-config:
+        image:
+          repository: alpine
+          tag: latest
+        command:
+          - "/bin/sh"
+          - -c
+          - |
+            apk add envsubst;
+            envsubst < /configs/config.yml > /www/assets/config.yml;
+        envFrom:
+          - secretRef:
+              name: homer-env-secrets
+    containers:
+      main:
+        image:
+          repository: ghcr.io/bastienwirtz/homer
+          tag: v25.11.1
+          pullPolicy: IfNotPresent
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+persistence:
+  config:
+    type: emptyDir
+    globalMounts:
+      - path: /www/assets
+  configfiles:
+    type: configMap
+    name: homer-config
+    globalMounts:
+      - path: /configs
