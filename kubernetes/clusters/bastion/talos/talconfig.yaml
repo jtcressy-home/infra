@@ -7,7 +7,7 @@ talosVersion: v1.8.3
 # renovate: datasource=github-releases depName=siderolabs/kubelet
 kubernetesVersion: v1.30.3
 
-endpoint: https://talos-master-0.tailnet-4d89.ts.net:6443
+endpoint: https://talos-master-0:6443
 
 allowSchedulingOnMasters: true
 allowSchedulingOnControlPlanes: true
@@ -81,12 +81,6 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
       node.longhorn.io/create-default-disk: "true"
-    patches:
-      - '@./patch-logging.yaml'
-      - |
-        - op: add
-          path: /machine/logging/destinations/0/extraTags/node
-          value: talos-master-0
   - hostname: talos-master-1
     ipAddress: talos-master-1
     controlPlane: true
@@ -103,12 +97,6 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
       node.longhorn.io/create-default-disk: "true"
-    patches:
-      - '@./patch-logging.yaml'
-      - |
-        - op: add
-          path: /machine/logging/destinations/0/extraTags/node
-          value: talos-master-1
   - hostname: talos-master-2
     ipAddress: talos-master-2
     controlPlane: true
@@ -125,12 +113,6 @@ nodes:
       topology.kubernetes.io/region: home
       topology.kubernetes.io/zone: home-office-rack
       node.longhorn.io/create-default-disk: "true"
-    patches:
-      - '@./patch-logging.yaml'
-      - |
-        - op: add
-          path: /machine/logging/destinations/0/extraTags/node
-          value: talos-master-2
   - hostname: talos-worker-gpu-0
     ipAddress: talos-worker-gpu-0
     controlPlane: false
@@ -145,11 +127,6 @@ nodes:
       node.longhorn.io/create-default-disk: "false"
     patches:
       - "@./patch-nvidia-gpu.yaml"
-      - '@./patch-logging.yaml'
-      - |
-        - op: add
-          path: /machine/logging/destinations/0/extraTags/node
-          value: talos-worker-gpu-0
   - hostname: talos-worker-gpu-1
     ipAddress: talos-worker-gpu-1
     controlPlane: false
@@ -170,11 +147,6 @@ nodes:
           - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
     patches:
       - "@./patch-nvidia-gpu.yaml"
-      - '@./patch-logging.yaml'
-      - |
-        - op: add
-          path: /machine/logging/destinations/0/extraTags/node
-          value: talos-worker-gpu-1
 # ## SBC'S ##
 #   - hostname: raspberrypi-dca632210df0.tailnet-4d89.ts.net
 #     ipAddress: raspberrypi-dca632210df0.tailnet-4d89.ts.net
@@ -258,21 +230,21 @@ controlPlane:
         - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
         - TS_ACCEPT_DNS=true
         - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
-        - TS_SERVE_CONFIG=/etc/tailscale/serve.json
-      files:
-        - content: |
-            {
-              "version": "0.0.1",
-              "services": {
-                "svc:bastion-k8s": {
-                  "endpoints": {
-                    "tcp:6443": "tcp://localhost:6443"
-                  }
-                }
-              }
-            }
-          path: /etc/tailscale/serve.json
-          permissions: "0644"
+        # - TS_SERVE_CONFIG=/etc/tailscale/serve.json
+      # files:
+      #   - content: |
+      #       {
+      #         "version": "0.0.1",
+      #         "services": {
+      #           "svc:bastion-k8s": {
+      #             "endpoints": {
+      #               "tcp:6443": "tcp://localhost:6443"
+      #             }
+      #           }
+      #         }
+      #       }
+      #     path: /etc/tailscale/serve.json
+      #     permissions: "0644"
   patches:
     - |
       machine:
