@@ -312,7 +312,11 @@ tasks:
           cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
           eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}} {{.CLI_ARGS}}")
     preconditions:
-      - talosctl -n {{.node}} get mc
+      - for:
+          var: nodes
+          split: ','
+        cmd: talosctl -n {{.ITEM}} get mc
+      # - talosctl -n {{.node}} get mc
 
   upgrade-talos:
     label: 'upgrade-talos-{{.cluster}}-{{.node}}'

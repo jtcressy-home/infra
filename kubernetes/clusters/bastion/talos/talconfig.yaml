@@ -217,8 +217,9 @@ patches:
         resolveMemberNames: true
     network:
       nameservers:
-        - 192.168.20.1
-        - 1.1.1.1
+        - 100.100.100.100
+        - 76.76.2.22
+        - 2606:1a40::22
 - '@./patch-longhorn.yaml'
 - '@./patch-global-sysctls.yaml'
 worker:
@@ -227,7 +228,7 @@ worker:
       environment:
         - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
         - TS_ACCEPT_DNS=true
-        - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
+        - TS_EXTRA_ARGS=--accept-routes --advertise-tags=tag:k8s-cluster-bastion
 controlPlane:
   extensionServices:
     - name: tailscale
