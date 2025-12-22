@@ -2,10 +2,10 @@
 clusterName: ${clusterName}
 
 # renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: v1.9.6
+talosVersion: v1.11.6
 
 # renovate: datasource=github-releases depName=siderolabs/kubelet
-kubernetesVersion: v1.32.4
+kubernetesVersion: v1.34.1
 
 endpoint: https://talos-master-0:6443
 
@@ -235,22 +235,54 @@ controlPlane:
         - TS_AUTH_KEY=${TAILSCALE_AUTHKEY}
         - TS_ACCEPT_DNS=true
         - TS_EXTRA_ARGS=--advertise-connector --advertise-tags=tag:k8s-cluster-bastion
-        # - TS_SERVE_CONFIG=/etc/tailscale/serve.json
-      # files:
-      #   - content: |
-      #       {
-      #         "version": "0.0.1",
-      #         "services": {
-      #           "svc:bastion-k8s": {
-      #             "endpoints": {
-      #               "tcp:6443": "tcp://localhost:6443"
-      #             }
-      #           }
-      #         }
-      #       }
-      #     path: /etc/tailscale/serve.json
-      #     permissions: "0644"
+        - TS_SERVE_CONFIG=/etc/tailscale/serve.json
+      configFiles:
+        - mountPath: /etc/tailscale/serve.json
+          content: |
+            {
+              "Services": {
+                "svc:bastion-k8s": {
+                  "TCP": {
+                    "6443": {
+                      "TCPForward": "127.0.0.1:6443"
+                    }
+                  }
+                }
+              }
+            }
   patches:
+    - |
+      machine:
+        pods:
+          - apiVersion: v1
+            kind: Pod
+            metadata:
+              name: ts-serve-advertise
+              namespace: kube-system
+            spec:
+              restartPolicy: OnFailure
+              containers:
+                - name: tailscale
+                  image: ghcr.io/tailscale/tailscale:v1.90.9
+                  command:
+                    - /usr/local/bin/tailscale
+                    - serve
+                    - advertise
+                    - svc:bastion-k8s
+                  volumeMounts:
+                    - name: tailscaled-sock
+                      mountPath: /var/run/tailscale/tailscaled.sock
+                  resources:
+                    limits:
+                      cpu: 10m
+                      memory: 64Mi
+                    requests:
+                      cpu: 10m
+                      memory: 64Mi
+              volumes:
+                - name: tailscaled-sock
+                  hostPath:
+                    path: /var/run/tailscale/tailscaled.sock
     - |
       machine:
         certSANs:
