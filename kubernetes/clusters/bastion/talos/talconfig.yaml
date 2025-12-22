@@ -204,6 +204,8 @@ patches:
       servers:
         - time.cloudflare.com
     kubelet:
+      extraArgs:
+        feature-gates: ImageVolume=true
       nodeIP:
         validSubnets:
           - 192.168.20.0/24
@@ -261,22 +263,73 @@ controlPlane:
               name: ts-serve-advertise
               namespace: kube-system
             spec:
-              restartPolicy: OnFailure
+              hostNetwork: true
+              restartPolicy: Always
               containers:
-                - name: tailscale
-                  image: ghcr.io/tailscale/tailscale:v1.90.9
+                - name: healthcheck
+                  image: nicolaka/netshoot:latest
+                  env:
+                    - name: PROBE_INTERVAL
+                      value: "10"
+                    - name: PROBE_TIMEOUT
+                      value: "5"
+                    - name: FAILURE_THRESHOLD
+                      value: "3"
+                    - name: SUCCESS_THRESHOLD
+                      value: "1"
                   command:
-                    - /usr/local/bin/tailscale
-                    - serve
-                    - advertise
-                    - svc:bastion-k8s
+                    - /bin/sh
+                    - -c
+                    - |
+                      PROBE_INTERVAL="$${PROBE_INTERVAL:-10}"
+                      PROBE_TIMEOUT="$${PROBE_TIMEOUT:-5}"
+                      FAILURE_THRESHOLD="$${FAILURE_THRESHOLD:-3}"
+                      SUCCESS_THRESHOLD="$${SUCCESS_THRESHOLD:-1}"
+
+                      consecutive_failures=0
+                      consecutive_successes=0
+                      is_advertised=false
+
+                      echo "Starting health check loop..."
+                      echo "  PROBE_INTERVAL: $${PROBE_INTERVAL}s"
+                      echo "  PROBE_TIMEOUT: $${PROBE_TIMEOUT}s"
+                      echo "  FAILURE_THRESHOLD: $${FAILURE_THRESHOLD}"
+                      echo "  SUCCESS_THRESHOLD: $${SUCCESS_THRESHOLD}"
+
+                      while true; do
+                        if timeout "$${PROBE_TIMEOUT}" curl -sk https://127.0.0.1:6443/healthz > /dev/null 2>&1; then
+                          consecutive_failures=0
+                          consecutive_successes=$$((consecutive_successes + 1))
+                          echo "[OK] Health check passed (successes: $${consecutive_successes}, advertised: $${is_advertised})"
+
+                          if [ "$$is_advertised" = "false" ] && [ "$$consecutive_successes" -ge "$$SUCCESS_THRESHOLD" ]; then
+                            echo "Threshold reached, advertising service..."
+                            /tailscale/usr/local/bin/tailscale serve advertise svc:bastion-k8s
+                            is_advertised=true
+                          fi
+                        else
+                          consecutive_successes=0
+                          consecutive_failures=$$((consecutive_failures + 1))
+                          echo "[FAIL] Health check failed (failures: $${consecutive_failures}/$${FAILURE_THRESHOLD}, advertised: $${is_advertised})"
+
+                          if [ "$$is_advertised" = "true" ] && [ "$$consecutive_failures" -ge "$$FAILURE_THRESHOLD" ]; then
+                            echo "Threshold reached, draining service..."
+                            /tailscale/usr/local/bin/tailscale serve drain svc:bastion-k8s
+                            is_advertised=false
+                          fi
+                        fi
+
+                        sleep "$${PROBE_INTERVAL}"
+                      done
                   volumeMounts:
                     - name: tailscaled-sock
                       mountPath: /var/run/tailscale/tailscaled.sock
+                    - name: tailscale-bin
+                      mountPath: /tailscale
                   resources:
                     limits:
-                      cpu: 10m
-                      memory: 64Mi
+                      cpu: 50m
+                      memory: 128Mi
                     requests:
                       cpu: 10m
                       memory: 64Mi
@@ -284,6 +337,10 @@ controlPlane:
                 - name: tailscaled-sock
                   hostPath:
                     path: /var/run/tailscale/tailscaled.sock
+                - name: tailscale-bin
+                  image:
+                    reference: ghcr.io/tailscale/tailscale:v1.90.9
+                    pullPolicy: IfNotPresent
     - |
       machine:
         certSANs:
@@ -301,7 +358,7 @@ controlPlane:
         apiServer:
           admissionControl: null
           extraArgs:
-            feature-gates: SELinuxMountReadWriteOncePod=false # prevents .spec.seLinuxMount from being set on CSIDriver to work around https://github.com/argoproj/argo-cd/issues/13585
+            feature-gates: SELinuxMountReadWriteOncePod=false,ImageVolume=true # prevents .spec.seLinuxMount from being set on CSIDriver to work around https://github.com/argoproj/argo-cd/issues/13585
             bind-address: 0.0.0.0
             oidc-issuer-url: https://vault.jtcressy.net/v1/identity/oidc/provider/default
             oidc-client-id: Xg96CJ6FgSZzyoPlumEdhXBncKcNigwS
