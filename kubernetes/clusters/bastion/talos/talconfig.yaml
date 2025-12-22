@@ -2,10 +2,10 @@
 clusterName: ${clusterName}
 
 # renovate: datasource=github-releases depName=siderolabs/talos
-talosVersion: v1.8.3
+talosVersion: v1.9.6
 
 # renovate: datasource=github-releases depName=siderolabs/kubelet
-kubernetesVersion: v1.30.3
+kubernetesVersion: v1.32.4
 
 endpoint: https://talos-master-0:6443
 
@@ -52,10 +52,10 @@ cniConfig:
         systemExtensions:
           officialExtensions:
             - siderolabs/amd-ucode
-            - siderolabs/amdgpu-firmware
+            - siderolabs/amdgpu  # renamed from amdgpu-firmware in 1.9
             - siderolabs/binfmt-misc
             - siderolabs/fuse3
-            - siderolabs/i915-ucode
+            - siderolabs/i915  # renamed from i915-ucode in 1.9
             - siderolabs/intel-ice-firmware
             - siderolabs/intel-ucode
             - siderolabs/iscsi-tools
@@ -77,8 +77,8 @@ nodes:
       size: ">=250GB"
     disableSearchDomain: false
     networkInterfaces:
-      - interface: eno1
-        mtu: 0
+      - deviceSelector:
+          hardwareAddr: bc:24:11:d4:fa:d1
         dhcp: true
     schematic: *schematicBasicVM
     nodeLabels:
@@ -93,8 +93,8 @@ nodes:
       size: ">=250GB"
     disableSearchDomain: false
     networkInterfaces:
-      - interface: eno1
-        mtu: 0
+      - deviceSelector:
+          hardwareAddr: bc:24:11:2a:f8:5c
         dhcp: true
     schematic: *schematicBasicVM
     nodeLabels:
@@ -109,8 +109,8 @@ nodes:
       size: ">=250GB"
     disableSearchDomain: false
     networkInterfaces:
-      - interface: eno1
-        mtu: 0
+      - deviceSelector:
+          hardwareAddr: bc:24:11:4a:1e:8e
         dhcp: true
     schematic: *schematicBasicVM
     nodeLabels:
