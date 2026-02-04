@@ -1,8 +1,8 @@
 module github.com/jtcresy-home/infra/scratch/ts-route-setter
 
-go 1.25.3
+go 1.25.5
 
-toolchain go1.25.4
+toolchain go1.25.7
 
 require tailscale.com v1.92.1
 
