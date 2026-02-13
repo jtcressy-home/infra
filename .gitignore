@@ -18,6 +18,9 @@ kubernetes/oldapps/**
 *.sops.*.tmp
 *.code-workspace
 
+# worktrees
+.worktrees/
+
 # macOS files
 .DS_Store
 .AppleDouble
