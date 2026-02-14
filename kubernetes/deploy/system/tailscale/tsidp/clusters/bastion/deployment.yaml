@@ -43,6 +43,7 @@ spec:
               cpu: 10m
             limits:
               memory: 128Mi
+              squat.ai/tun: "1"
       volumes:
         - name: data
           persistentVolumeClaim:
