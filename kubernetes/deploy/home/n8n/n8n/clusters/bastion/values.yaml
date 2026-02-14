@@ -1,0 +1,62 @@
+image:
+  repository: n8nio/n8n
+  tag: 2.8.3@sha256:649e3667ecb156674fc97430653e8c42c34fc02c280a634ca3807d09357cf3ea
+
+timezone: America/Chicago
+
+db:
+  type: postgresdb
+
+externalPostgresql:
+  host: teslamate-db-rw.teslamate.svc.cluster.local
+  port: 5432
+  database: n8n
+  username: n8n
+  existingSecret: n8n-secret
+
+existingEncryptionKeySecret: n8n-secret
+
+diagnostics:
+  enabled: false
+
+versionNotifications:
+  enabled: false
+
+main:
+  resources:
+    requests:
+      cpu: 10m
+    limits:
+      memory: 512Mi
+
+  persistence:
+    enabled: true
+    existingClaim: n8n
+
+  extraSecretNamesForEnvFrom:
+    - n8n-secret
+
+  initContainers:
+    - name: init-db
+      image: ghcr.io/home-operations/postgres-init:18
+      envFrom:
+        - secretRef:
+            name: n8n-secret
+
+ingress:
+  enabled: true
+  className: tailscale
+  hosts:
+    - host: n8n
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - n8n
+
+worker:
+  mode: regular
+
+webhook:
+  mode: regular

@@ -1,0 +1,60 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n
+spec:
+  accessModes: ["ReadWriteOnce"]
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: n8n-rdst
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: cephfs
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: n8n-rdst
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: n8n-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    moverSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    capacity: 5Gi # must match the PersistentVolumeClaim .resources.requests.storage size above
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: n8n-rsrc
+spec:
+  sourcePVC: n8n
+  trigger:
+    schedule: "15 */8 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: n8n-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: cephfs
+    cacheStorageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
+    moverSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    retain:
+      hourly: 24
+      daily: 7
+      weekly: 5

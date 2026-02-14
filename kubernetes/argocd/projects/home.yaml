@@ -33,6 +33,9 @@ spec:
     - name: '*'
       namespace: searxng
       server: '*'
+    - name: '*'
+      namespace: n8n
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
