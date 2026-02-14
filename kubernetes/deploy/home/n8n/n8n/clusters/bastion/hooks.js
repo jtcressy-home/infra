@@ -462,22 +462,24 @@ module.exports = {
             });
 
             if (!user) {
-              // Check if this is the first user (should be owner)
-              const userCount = await User.count();
+              // Map OIDC role claim to n8n role
+              // tsidp provides a "role" extra claim via Tailscale ACL capability grants
+              const oidcRole = userInfo.role || (tokens.id_token && decodeJwt(tokens.id_token).role);
+              const n8nRole = oidcRole === 'owner' ? 'global:owner' : 'global:member';
 
               const userData = {
                 email: userInfo.email,
                 firstName: userInfo.given_name || userInfo.name?.split(' ')[0] || 'User',
                 lastName: userInfo.family_name || userInfo.name?.split(' ').slice(1).join(' ') || '',
                 password: crypto.randomBytes(32).toString('hex'), // Random password, can't be used
-                role: { slug: userCount === 0 ? 'global:owner' : 'global:member' },
+                role: { slug: n8nRole },
               };
 
               // Use createUserWithProject to create both user and personal project
               const result = await User.createUserWithProject(userData);
               user = result.user;
 
-              console.log(`[OIDC Hook] Created ${userCount === 0 ? 'owner' : 'member'} user with personal project: ${userInfo.email}`);
+              console.log(`[OIDC Hook] Created ${n8nRole} user with personal project: ${userInfo.email} (oidc role claim: ${oidcRole || 'none'})`);
             }
 
             if (!user) {
