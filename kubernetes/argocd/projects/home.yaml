@@ -36,6 +36,9 @@ spec:
     - name: '*'
       namespace: n8n
       server: '*'
+    - name: '*'
+      namespace: metamcp
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
