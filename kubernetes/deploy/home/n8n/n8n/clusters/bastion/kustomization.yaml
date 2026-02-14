@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - externalsecret.yaml
+  - persistence.yaml
+  - mcp-ingress.yaml
+
+helmCharts:
+  - name: n8n
+    repo: https://community-charts.github.io/helm-charts
+    version: 1.16.28
+    releaseName: n8n
+    namespace: n8n
+    valuesFile: values.yaml

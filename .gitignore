@@ -21,6 +21,24 @@ kubernetes/oldapps/**
 # worktrees
 .worktrees/
 
+# Claude Code sandbox artifacts (0-byte placeholders)
+.bash_profile
+.bashrc
+.profile
+.zprofile
+.zshrc
+.gitconfig
+.gitmodules
+.ripgreprc
+.mcp.json
+.claude/
+.idea
+HEAD
+config
+hooks
+objects
+refs
+
 # macOS files
 .DS_Store
 .AppleDouble
