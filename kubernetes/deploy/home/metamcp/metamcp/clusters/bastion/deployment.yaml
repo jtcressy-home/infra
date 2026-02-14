@@ -41,6 +41,20 @@ spec:
                 secretKeyRef:
                   name: metamcp-secret
                   key: DATABASE_URL
+            - name: POSTGRES_HOST
+              value: teslamate-db-rw.teslamate.svc.cluster.local
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: metamcp-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: metamcp-secret
+                  key: POSTGRES_PASSWORD
             # Application URLs
             - name: APP_URL
               value: https://metamcp.tailnet-4d89.ts.net
