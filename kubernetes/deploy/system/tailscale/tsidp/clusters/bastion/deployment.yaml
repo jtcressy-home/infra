@@ -17,6 +17,8 @@ spec:
       labels:
         app.kubernetes.io/name: tsidp
     spec:
+      securityContext:
+        fsGroup: 65533
       containers:
         - name: tsidp
           image: ghcr.io/tailscale/tsidp:latest
