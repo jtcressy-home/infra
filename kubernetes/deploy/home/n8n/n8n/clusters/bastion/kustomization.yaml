@@ -6,6 +6,11 @@ resources:
   - persistence.yaml
   - mcp-ingress.yaml
 
+configMapGenerator:
+  - name: n8n-oidc-hooks
+    files:
+      - hooks.js
+
 helmCharts:
   - name: n8n
     repo: https://community-charts.github.io/helm-charts
