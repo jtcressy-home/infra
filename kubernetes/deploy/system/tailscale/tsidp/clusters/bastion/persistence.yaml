@@ -29,9 +29,9 @@ spec:
     cacheStorageClassName: cephfs
     volumeSnapshotClassName: cephfs-snapshot
     moverSecurityContext:
-      runAsUser: 0
-      runAsGroup: 0
-      fsGroup: 0
+      runAsUser: 1001
+      runAsGroup: 65533
+      fsGroup: 65533
     capacity: 1Gi
 ---
 apiVersion: volsync.backube/v1alpha1
@@ -51,9 +51,9 @@ spec:
     cacheStorageClassName: cephfs
     volumeSnapshotClassName: cephfs-snapshot
     moverSecurityContext:
-      runAsUser: 0
-      runAsGroup: 0
-      fsGroup: 0
+      runAsUser: 1001
+      runAsGroup: 65533
+      fsGroup: 65533
     retain:
       hourly: 24
       daily: 7
