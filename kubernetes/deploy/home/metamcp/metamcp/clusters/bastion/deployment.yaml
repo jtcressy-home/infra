@@ -135,6 +135,18 @@ spec:
                 secretKeyRef:
                   name: metamcp-secret
                   key: PROWLARR_API_KEY
+            # arr-suite-mcp additional service configuration
+            - name: OVERSEERR_HOST
+              value: overseerr.media.svc.cluster.local
+            - name: OVERSEERR_PORT
+              value: "5055"
+            - name: OVERSEERR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: metamcp-secret
+                  key: OVERSEERR_API_KEY
+            - name: OVERSEERR_SSL
+              value: "false"
             # Logging
             - name: LOG_LEVEL
               value: info
