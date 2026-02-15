@@ -59,38 +59,27 @@ spec:
               memory: 1Gi
         - name: install-arr-suite-and-deno
           image: ghcr.io/metatool-ai/metamcp:latest
-          securityContext:
-            runAsUser: 0
           command:
             - sh
             - -c
             - |
               set -e
               echo "Setting up arr-suite-mcp..."
-              apt-get update && apt-get install -y git curl unzip --no-install-recommends
               
-              # Clone arr-suite-mcp (clean first in case of retry)
+              # Download arr-suite-mcp as tarball (no git needed)
               rm -rf /mcp-servers/arr-suite-mcp
               mkdir -p /mcp-servers/arr-suite-mcp
               cd /mcp-servers/arr-suite-mcp
-              git clone --depth 1 https://github.com/shaktech786/arr-suite-mcp-server.git .
+              curl -fsSL https://github.com/shaktech786/arr-suite-mcp-server/archive/refs/heads/main.tar.gz | tar xz --strip-components=1
               
-              # Install dependencies using uv (already in MetaMCP image)
-              echo "Installing dependencies with uv..."
-              uv pip install --system mcp httpx pydantic pydantic-settings python-dotenv
-              
-              # Create wrapper script
-              mkdir -p /mcp-servers/bin
-              cat > /mcp-servers/bin/arr-suite-mcp << 'WRAPPER_EOF'
-              #!/bin/sh
-              cd /mcp-servers/arr-suite-mcp
-              exec python3 -m arr_suite_mcp.server "$@"
-              WRAPPER_EOF
-              chmod +x /mcp-servers/bin/arr-suite-mcp
+              # Create venv and install dependencies using uv (already in MetaMCP image)
+              echo "Creating venv and installing dependencies with uv..."
+              uv venv /mcp-servers/arr-suite-venv
+              /mcp-servers/arr-suite-venv/bin/pip install -e .
               
               # Verify installation
               echo "Verifying arr-suite-mcp installation..."
-              /mcp-servers/bin/arr-suite-mcp --help || true
+              /mcp-servers/arr-suite-venv/bin/arr-suite-mcp --help || true
               
               # Install Deno
               echo "Installing Deno..."
@@ -108,8 +97,8 @@ spec:
               /mcp-servers/deno/bin/deno cache jsr:@wyattjoh/media-server-mcp
               
               echo "Installation complete!"
-              echo "arr-suite-mcp wrapper:"
-              ls -la /mcp-servers/bin/arr-suite-mcp
+              echo "arr-suite-mcp entry point:"
+              ls -la /mcp-servers/arr-suite-venv/bin/arr-suite-mcp
               echo "Deno binary:"
               ls -la /mcp-servers/deno/bin/deno
           volumeMounts:
