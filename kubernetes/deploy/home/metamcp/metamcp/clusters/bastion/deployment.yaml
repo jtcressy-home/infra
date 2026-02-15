@@ -57,31 +57,30 @@ spec:
               cpu: 1000m
               memory: 1Gi
         - name: install-arr-suite-and-deno
-          image: python:3.13-slim
+          image: ghcr.io/metatool-ai/metamcp:latest
           command:
             - sh
             - -c
             - |
               set -e
               echo "Setting up arr-suite-mcp..."
-              apt-get update && apt-get install -y git curl ca-certificates unzip --no-install-recommends
+              apt-get update && apt-get install -y git curl unzip --no-install-recommends || true
               
               # Clone arr-suite-mcp
               mkdir -p /mcp-servers/arr-suite-mcp
               cd /mcp-servers/arr-suite-mcp
               git clone --depth 1 https://github.com/shaktech786/arr-suite-mcp-server.git .
               
-              # Install dependencies directly to a target directory using system pip
-              echo "Installing dependencies..."
-              pip install --target /mcp-servers/python-packages --upgrade pip
-              pip install --target /mcp-servers/python-packages mcp>=1.0.0 httpx>=0.27.0 pydantic>=2.0.0 pydantic-settings>=2.0.0 python-dotenv>=1.0.0
+              # Install dependencies using uv (already in MetaMCP image)
+              echo "Installing dependencies with uv..."
+              uv pip install --system mcp httpx pydantic pydantic-settings python-dotenv
               
-              # Create wrapper script that uses system python3 with our packages
+              # Create wrapper script
               mkdir -p /mcp-servers/bin
               cat > /mcp-servers/bin/arr-suite-mcp << 'WRAPPER_EOF'
               #!/bin/sh
-              export PYTHONPATH="/mcp-servers/python-packages:/mcp-servers/arr-suite-mcp:$PYTHONPATH"
-              exec /usr/bin/python3 -m arr_suite_mcp.server "$@"
+              cd /mcp-servers/arr-suite-mcp
+              exec python3 -m arr_suite_mcp.server "$@"
               WRAPPER_EOF
               chmod +x /mcp-servers/bin/arr-suite-mcp
               
@@ -103,8 +102,8 @@ spec:
               /mcp-servers/deno/bin/deno cache jsr:@wyattjoh/media-server-mcp
               
               echo "Installation complete!"
-              echo "arr-suite-mcp entry point:"
-              ls -la /mcp-servers/arr-suite-venv/bin/arr-suite-mcp
+              echo "arr-suite-mcp wrapper:"
+              ls -la /mcp-servers/bin/arr-suite-mcp
               echo "Deno binary:"
               ls -la /mcp-servers/deno/bin/deno
           volumeMounts:
