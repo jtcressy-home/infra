@@ -28,35 +28,6 @@ spec:
               cpu: 10m
             limits:
               memory: 128Mi
-        - name: install-mcp-arr
-          image: node:20-slim
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              echo "Installing mcp-arr from source..."
-              apt-get update && apt-get install -y git ca-certificates --no-install-recommends
-              rm -rf /mcp-servers/mcp-arr
-              mkdir -p /mcp-servers/mcp-arr
-              cd /mcp-servers/mcp-arr
-              git clone --depth 1 https://github.com/aplaceforallmystuff/mcp-arr.git .
-              echo "Installing npm dependencies..."
-              npm ci
-              echo "Building TypeScript..."
-              npm run build
-              echo "mcp-arr built successfully."
-              ls -la dist/
-          volumeMounts:
-            - name: mcp-servers
-              mountPath: /mcp-servers
-          resources:
-            requests:
-              cpu: 100m
-              memory: 512Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
         - name: install-arr-suite-and-deno
           image: ghcr.io/metatool-ai/metamcp:latest
           command:
@@ -71,7 +42,11 @@ spec:
               mkdir -p /mcp-servers/arr-suite-mcp
               cd /mcp-servers/arr-suite-mcp
               curl -fsSL https://github.com/shaktech786/arr-suite-mcp-server/archive/refs/heads/main.tar.gz | tar xz --strip-components=1
-              
+
+              # Patch server.py to add queue management tools
+              echo "Applying queue tools patch..."
+              python3 /mcp-patches/add-queue-tools.py /mcp-servers/arr-suite-mcp/arr_suite_mcp/server.py
+
               # Create venv and install dependencies using uv (already in MetaMCP image)
               echo "Creating venv and installing dependencies with uv..."
               uv venv /mcp-servers/arr-suite-venv
@@ -104,6 +79,9 @@ spec:
           volumeMounts:
             - name: mcp-servers
               mountPath: /mcp-servers
+            - name: mcp-patches
+              mountPath: /mcp-patches
+              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -239,3 +217,6 @@ spec:
         - name: mcp-servers
           emptyDir:
             sizeLimit: 2Gi
+        - name: mcp-patches
+          configMap:
+            name: metamcp-mcp-patches

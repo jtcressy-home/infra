@@ -1,0 +1,175 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metamcp-mcp-patches
+data:
+  add-queue-tools.py: |
+    #!/usr/bin/env python3
+    """Patch arr-suite-mcp server.py to expose queue management tools.
+
+    The upstream client code already has get_queue() and delete_queue_item()
+    for both Sonarr and Radarr, but server.py never registers them as MCP tools.
+    This script adds the tool definitions and handler cases.
+    """
+    import sys
+
+    def patch_file(path: str) -> None:
+        with open(path, "r") as f:
+            content = f.read()
+
+        # --- Validate markers exist ---
+        markers = {
+            "sonarr_get_series tool": 'name="sonarr_get_series"',
+            "radarr_get_movies tool": 'name="radarr_get_movies"',
+            "sonarr_get_series handler": "return await client.get_all_series()",
+            "radarr_get_movies handler": "return await client.get_all_movies()",
+        }
+        for label, marker in markers.items():
+            if marker not in content:
+                print(f"ERROR: Could not find marker for {label}: {marker!r}")
+                sys.exit(1)
+
+        # --- Check tools aren't already present ---
+        for tool in ["sonarr_get_queue", "sonarr_delete_queue_item",
+                      "radarr_get_queue", "radarr_delete_queue_item"]:
+            if f'name="{tool}"' in content:
+                print(f"Tool {tool} already present, skipping patch.")
+                return
+
+        # --- Sonarr tool definitions ---
+        sonarr_queue_tools = '''
+                Tool(
+                    name="sonarr_get_queue",
+                    description="Get the Sonarr download queue",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "page": {"type": "integer", "description": "Page number", "default": 1},
+                            "page_size": {"type": "integer", "description": "Items per page", "default": 20},
+                            "include_unknown_series": {"type": "boolean", "description": "Include unknown series items", "default": False}
+                        }
+                    }
+                ),
+                Tool(
+                    name="sonarr_delete_queue_item",
+                    description="Remove an item from the Sonarr download queue",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "queue_id": {"type": "integer", "description": "Queue item ID to remove"},
+                            "remove_from_client": {"type": "boolean", "description": "Also remove from download client", "default": True},
+                            "blocklist": {"type": "boolean", "description": "Add release to blocklist to prevent re-download", "default": False}
+                        },
+                        "required": ["queue_id"]
+                    }
+                ),'''
+
+        # --- Radarr tool definitions ---
+        radarr_queue_tools = '''
+                Tool(
+                    name="radarr_get_queue",
+                    description="Get the Radarr download queue",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "page": {"type": "integer", "description": "Page number", "default": 1},
+                            "page_size": {"type": "integer", "description": "Items per page", "default": 20},
+                            "include_unknown_movies": {"type": "boolean", "description": "Include unknown movie items", "default": False}
+                        }
+                    }
+                ),
+                Tool(
+                    name="radarr_delete_queue_item",
+                    description="Remove an item from the Radarr download queue",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "queue_id": {"type": "integer", "description": "Queue item ID to remove"},
+                            "remove_from_client": {"type": "boolean", "description": "Also remove from download client", "default": True},
+                            "blocklist": {"type": "boolean", "description": "Add release to blocklist to prevent re-download", "default": False}
+                        },
+                        "required": ["queue_id"]
+                    }
+                ),'''
+
+        # --- Sonarr handler cases ---
+        sonarr_handler = '''
+            elif name == "sonarr_get_queue":
+                return await client.get_queue(
+                    page=arguments.get("page", 1),
+                    page_size=arguments.get("page_size", 20),
+                    include_unknown_series=arguments.get("include_unknown_series", False)
+                )
+            elif name == "sonarr_delete_queue_item":
+                await client.delete_queue_item(
+                    queue_id=arguments["queue_id"],
+                    remove_from_client=arguments.get("remove_from_client", True),
+                    blocklist=arguments.get("blocklist", False)
+                )
+                return {"status": "success", "message": f"Queue item {arguments['queue_id']} removed"}'''
+
+        # --- Radarr handler cases ---
+        radarr_handler = '''
+            elif name == "radarr_get_queue":
+                return await client.get_queue(
+                    page=arguments.get("page", 1),
+                    page_size=arguments.get("page_size", 20),
+                    include_unknown_movies=arguments.get("include_unknown_movies", False)
+                )
+            elif name == "radarr_delete_queue_item":
+                await client.delete_queue_item(
+                    queue_id=arguments["queue_id"],
+                    remove_from_client=arguments.get("remove_from_client", True),
+                    blocklist=arguments.get("blocklist", False)
+                )
+                return {"status": "success", "message": f"Queue item {arguments['queue_id']} removed"}'''
+
+        # --- Insert Sonarr tools ---
+        # Find the closing of the sonarr_get_series Tool block in _get_sonarr_tools
+        # Pattern: after the Tool with name="sonarr_get_series", find its closing ),
+        idx = content.find('name="sonarr_get_series"')
+        # Find the next "]" which closes the tools list after this tool
+        bracket_idx = content.find("]", idx)
+        # Find the last ")," before that bracket (end of sonarr_get_series Tool)
+        last_comma = content.rfind("),", idx, bracket_idx)
+        insert_point = last_comma + 2  # after "),"
+        content = content[:insert_point] + sonarr_queue_tools + content[insert_point:]
+
+        # --- Insert Radarr tools ---
+        idx = content.find('name="radarr_get_movies"')
+        bracket_idx = content.find("]", idx)
+        last_comma = content.rfind("),", idx, bracket_idx)
+        insert_point = last_comma + 2
+        content = content[:insert_point] + radarr_queue_tools + content[insert_point:]
+
+        # --- Insert Sonarr handler ---
+        # The sonarr_get_series handler has two returns (conditional + unconditional).
+        # Use get_all_series() as the specific marker for the last return.
+        marker = "return await client.get_all_series()"
+        idx = content.find(marker)
+        if idx == -1:
+            print("ERROR: Could not find get_all_series() handler return")
+            sys.exit(1)
+        eol_idx = content.find("\n", idx)
+        content = content[:eol_idx] + "\n" + sonarr_handler + content[eol_idx:]
+
+        # --- Insert Radarr handler ---
+        marker = "return await client.get_all_movies()"
+        idx = content.find(marker)
+        if idx == -1:
+            print("ERROR: Could not find get_all_movies() handler return")
+            sys.exit(1)
+        eol_idx = content.find("\n", idx)
+        content = content[:eol_idx] + "\n" + radarr_handler + content[eol_idx:]
+
+        with open(path, "w") as f:
+            f.write(content)
+
+        print("Queue tools patch applied successfully.")
+
+    if __name__ == "__main__":
+        if len(sys.argv) != 2:
+            print(f"Usage: {sys.argv[0]} <path-to-server.py>")
+            sys.exit(1)
+        patch_file(sys.argv[1])

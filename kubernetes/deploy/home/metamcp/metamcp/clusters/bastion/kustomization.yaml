@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - externalsecret.yaml
   - persistence.yaml
+  - configmap-mcp-patches.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
