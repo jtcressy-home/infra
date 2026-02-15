@@ -36,7 +36,7 @@ spec:
             - |
               set -e
               echo "Installing mcp-arr from source..."
-              apt-get update && apt-get install -y git --no-install-recommends
+              apt-get update && apt-get install -y git ca-certificates --no-install-recommends
               mkdir -p /mcp-servers/mcp-arr
               cd /mcp-servers/mcp-arr
               git clone --depth 1 https://github.com/aplaceforallmystuff/mcp-arr.git .
@@ -64,7 +64,7 @@ spec:
             - |
               set -e
               echo "Setting up arr-suite-mcp virtual environment..."
-              apt-get update && apt-get install -y git curl --no-install-recommends
+              apt-get update && apt-get install -y git curl ca-certificates --no-install-recommends
               
               # Create venv for arr-suite-mcp
               python -m venv /mcp-servers/arr-suite-venv
