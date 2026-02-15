@@ -28,29 +28,6 @@ spec:
               cpu: 10m
             limits:
               memory: 128Mi
-        - name: install-mcp-servers
-          image: python:3.12-slim
-          command:
-            - sh
-            - -c
-            - |
-              echo "Installing MCP servers..."
-              pip install --target /mcp-servers --no-cache-dir \
-                arr-suite-mcp \
-                sonarr-mcp \
-                radarr-mcp
-              echo "MCP servers installed successfully"
-              ls -la /mcp-servers/bin/
-          volumeMounts:
-            - name: mcp-servers
-              mountPath: /mcp-servers
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
       containers:
         - name: metamcp
           image: ghcr.io/metatool-ai/metamcp:latest
@@ -151,24 +128,7 @@ spec:
             # Logging
             - name: LOG_LEVEL
               value: info
-            # PATH for MCP servers installed via pip
-            - name: PATH
-              value: "/mcp-servers/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-          volumeMounts:
-            - name: data
-              mountPath: /app/data
-            - name: mcp-servers
-              mountPath: /mcp-servers
-          resources:
-            requests:
-              memory: 2Gi
-              cpu: 100m
-            limits:
-              memory: 4Gi
-              cpu: 1000m
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: metamcp
-        - name: mcp-servers
-          emptyDir: {}
