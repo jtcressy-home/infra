@@ -69,6 +69,10 @@ spec:
               # Create venv for arr-suite-mcp
               python -m venv /mcp-servers/arr-suite-venv
               
+              # Fix Python symlink to use system python3 (MetaMCP container has it at /usr/bin/python3)
+              rm /mcp-servers/arr-suite-venv/bin/python
+              ln -s /usr/bin/python3 /mcp-servers/arr-suite-venv/bin/python
+              
               # Clone arr-suite-mcp
               mkdir -p /mcp-servers/arr-suite-mcp
               cd /mcp-servers/arr-suite-mcp
