@@ -75,11 +75,11 @@ spec:
               # Create venv and install dependencies using uv (already in MetaMCP image)
               echo "Creating venv and installing dependencies with uv..."
               uv venv /mcp-servers/arr-suite-venv
-              /mcp-servers/arr-suite-venv/bin/pip install -e .
+              uv pip install --python /mcp-servers/arr-suite-venv/bin/python -e .
               
               # Verify installation
               echo "Verifying arr-suite-mcp installation..."
-              /mcp-servers/arr-suite-venv/bin/arr-suite-mcp --help || true
+              /mcp-servers/arr-suite-venv/bin/python -m arr_suite_mcp.server --help || true
               
               # Install Deno
               echo "Installing Deno..."
