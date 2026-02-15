@@ -70,8 +70,20 @@ spec:
               python -m venv /mcp-servers/arr-suite-venv
               
               # Fix Python symlink to use system python3 (MetaMCP container has it at /usr/bin/python3)
-              rm /mcp-servers/arr-suite-venv/bin/python
-              ln -s /usr/bin/python3 /mcp-servers/arr-suite-venv/bin/python
+              # First check what the venv created
+              ls -la /mcp-servers/arr-suite-venv/bin/
+              
+              # Remove and recreate the python symlink
+              if [ -e /mcp-servers/arr-suite-venv/bin/python ]; then
+                rm /mcp-servers/arr-suite-venv/bin/python
+              fi
+              ln -sf /usr/bin/python3 /mcp-servers/arr-suite-venv/bin/python
+              
+              # Also need to update python3 symlink if it exists
+              if [ -e /mcp-servers/arr-suite-venv/bin/python3 ]; then
+                rm /mcp-servers/arr-suite-venv/bin/python3
+              fi
+              ln -sf /usr/bin/python3 /mcp-servers/arr-suite-venv/bin/python3
               
               # Clone arr-suite-mcp
               mkdir -p /mcp-servers/arr-suite-mcp
