@@ -64,7 +64,7 @@ spec:
             - |
               set -e
               echo "Setting up arr-suite-mcp virtual environment..."
-              apt-get update && apt-get install -y git curl ca-certificates --no-install-recommends
+              apt-get update && apt-get install -y git curl ca-certificates unzip --no-install-recommends
               
               # Create venv for arr-suite-mcp
               python -m venv /mcp-servers/arr-suite-venv
