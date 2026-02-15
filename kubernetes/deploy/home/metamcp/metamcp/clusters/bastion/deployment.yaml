@@ -35,14 +35,15 @@ spec:
             - -c
             - |
               echo "Installing MCP servers..."
-              pip install --user --no-cache-dir \
+              pip install --target /mcp-servers --no-cache-dir \
                 arr-suite-mcp \
                 sonarr-mcp \
                 radarr-mcp
               echo "MCP servers installed successfully"
+              ls -la /mcp-servers/bin/
           volumeMounts:
             - name: mcp-servers
-              mountPath: /root/.local
+              mountPath: /mcp-servers
           resources:
             requests:
               cpu: 100m
@@ -152,12 +153,12 @@ spec:
               value: info
             # PATH for MCP servers installed via pip
             - name: PATH
-              value: "/home/nextjs/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              value: "/mcp-servers/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
           volumeMounts:
             - name: data
               mountPath: /app/data
             - name: mcp-servers
-              mountPath: /home/nextjs/.local
+              mountPath: /mcp-servers
           resources:
             requests:
               memory: 2Gi
