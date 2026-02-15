@@ -28,6 +28,89 @@ spec:
               cpu: 10m
             limits:
               memory: 128Mi
+        - name: install-mcp-arr
+          image: node:20-slim
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Installing mcp-arr from source..."
+              apt-get update && apt-get install -y git --no-install-recommends
+              mkdir -p /mcp-servers/mcp-arr
+              cd /mcp-servers/mcp-arr
+              git clone --depth 1 https://github.com/aplaceforallmystuff/mcp-arr.git .
+              echo "Installing npm dependencies..."
+              npm ci
+              echo "Building TypeScript..."
+              npm run build
+              echo "mcp-arr built successfully."
+              ls -la dist/
+          volumeMounts:
+            - name: mcp-servers
+              mountPath: /mcp-servers
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+        - name: install-arr-suite-and-deno
+          image: python:3.13-slim
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Setting up arr-suite-mcp virtual environment..."
+              apt-get update && apt-get install -y git curl --no-install-recommends
+              
+              # Create venv for arr-suite-mcp
+              python -m venv /mcp-servers/arr-suite-venv
+              
+              # Clone arr-suite-mcp
+              mkdir -p /mcp-servers/arr-suite-mcp
+              cd /mcp-servers/arr-suite-mcp
+              git clone --depth 1 https://github.com/shaktech786/arr-suite-mcp-server.git .
+              
+              # Install arr-suite-mcp in editable mode
+              echo "Installing arr-suite-mcp in editable mode..."
+              /mcp-servers/arr-suite-venv/bin/pip install --upgrade pip
+              /mcp-servers/arr-suite-venv/bin/pip install -e .
+              
+              # Verify installation
+              echo "Verifying arr-suite-mcp installation..."
+              /mcp-servers/arr-suite-venv/bin/arr-suite-mcp --help || true
+              
+              # Install Deno
+              echo "Installing Deno..."
+              export DENO_INSTALL=/mcp-servers/deno
+              curl -fsSL https://deno.land/install.sh | sh
+              
+              # Verify Deno
+              /mcp-servers/deno/bin/deno --version
+              
+              # Pre-cache media-server-mcp
+              echo "Pre-caching media-server-mcp..."
+              export DENO_DIR=/mcp-servers/deno-cache
+              /mcp-servers/deno/bin/deno cache jsr:@wyattjoh/media-server-mcp
+              
+              echo "Installation complete!"
+              echo "arr-suite-mcp entry point:"
+              ls -la /mcp-servers/arr-suite-venv/bin/arr-suite-mcp
+              echo "Deno binary:"
+              ls -la /mcp-servers/deno/bin/deno
+          volumeMounts:
+            - name: mcp-servers
+              mountPath: /mcp-servers
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
       containers:
         - name: metamcp
           image: ghcr.io/metatool-ai/metamcp:latest
@@ -90,14 +173,27 @@ spec:
               value: "true"
             - name: BOOTSTRAP_DISABLE_SSO_REGISTRATION
               value: "false"
-            # Arr service URLs (for mcp-arr to reference)
+            # Arr service URLs (for media-server-mcp to reference)
             - name: SONARR_URL
               value: http://sonarr.media.svc.cluster.local:8989
             - name: RADARR_URL
               value: http://radarr.media.svc.cluster.local:7878
             - name: PROWLARR_URL
               value: http://prowlarr.media.svc.cluster.local:9696
-            # Arr API keys (available to mcp-arr via env references)
+            # Arr service HOST/PORT format (for arr-suite-mcp)
+            - name: SONARR_HOST
+              value: sonarr.media.svc.cluster.local
+            - name: SONARR_PORT
+              value: "8989"
+            - name: RADARR_HOST
+              value: radarr.media.svc.cluster.local
+            - name: RADARR_PORT
+              value: "7878"
+            - name: PROWLARR_HOST
+              value: prowlarr.media.svc.cluster.local
+            - name: PROWLARR_PORT
+              value: "9696"
+            # Arr API keys (available to MCP servers via env references)
             - name: SONARR_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -125,10 +221,21 @@ spec:
                   key: OVERSEERR_API_KEY
             - name: OVERSEERR_SSL
               value: "false"
+            # Deno cache location for media-server-mcp
+            - name: DENO_DIR
+              value: /mcp-servers/deno-cache
             # Logging
             - name: LOG_LEVEL
               value: info
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: mcp-servers
+              mountPath: /mcp-servers
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: metamcp
+        - name: mcp-servers
+          emptyDir:
+            sizeLimit: 2Gi
