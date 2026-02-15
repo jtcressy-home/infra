@@ -37,6 +37,7 @@ spec:
               set -e
               echo "Installing mcp-arr from source..."
               apt-get update && apt-get install -y git ca-certificates --no-install-recommends
+              rm -rf /mcp-servers/mcp-arr
               mkdir -p /mcp-servers/mcp-arr
               cd /mcp-servers/mcp-arr
               git clone --depth 1 https://github.com/aplaceforallmystuff/mcp-arr.git .
@@ -58,15 +59,18 @@ spec:
               memory: 1Gi
         - name: install-arr-suite-and-deno
           image: ghcr.io/metatool-ai/metamcp:latest
+          securityContext:
+            runAsUser: 0
           command:
             - sh
             - -c
             - |
               set -e
               echo "Setting up arr-suite-mcp..."
-              apt-get update && apt-get install -y git curl unzip --no-install-recommends || true
+              apt-get update && apt-get install -y git curl unzip --no-install-recommends
               
-              # Clone arr-suite-mcp
+              # Clone arr-suite-mcp (clean first in case of retry)
+              rm -rf /mcp-servers/arr-suite-mcp
               mkdir -p /mcp-servers/arr-suite-mcp
               cd /mcp-servers/arr-suite-mcp
               git clone --depth 1 https://github.com/shaktech786/arr-suite-mcp-server.git .
@@ -91,6 +95,7 @@ spec:
               # Install Deno
               echo "Installing Deno..."
               export DENO_INSTALL=/mcp-servers/deno
+              rm -rf /mcp-servers/deno
               curl -fsSL https://deno.land/install.sh | sh
               
               # Verify Deno
@@ -99,6 +104,7 @@ spec:
               # Pre-cache media-server-mcp
               echo "Pre-caching media-server-mcp..."
               export DENO_DIR=/mcp-servers/deno-cache
+              rm -rf /mcp-servers/deno-cache
               /mcp-servers/deno/bin/deno cache jsr:@wyattjoh/media-server-mcp
               
               echo "Installation complete!"
