@@ -28,35 +28,6 @@ spec:
               cpu: 10m
             limits:
               memory: 128Mi
-        - name: install-mcp-arr
-          image: node:20-slim
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              echo "Installing mcp-arr from source..."
-              apt-get update && apt-get install -y git ca-certificates --no-install-recommends
-              rm -rf /mcp-servers/mcp-arr
-              mkdir -p /mcp-servers/mcp-arr
-              cd /mcp-servers/mcp-arr
-              git clone --depth 1 https://github.com/aplaceforallmystuff/mcp-arr.git .
-              echo "Installing npm dependencies..."
-              npm ci
-              echo "Building TypeScript..."
-              npm run build
-              echo "mcp-arr built successfully."
-              ls -la dist/
-          volumeMounts:
-            - name: mcp-servers
-              mountPath: /mcp-servers
-          resources:
-            requests:
-              cpu: 100m
-              memory: 512Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
         - name: install-arr-suite-and-deno
           image: ghcr.io/metatool-ai/metamcp:latest
           command:
@@ -70,8 +41,8 @@ spec:
               rm -rf /mcp-servers/arr-suite-mcp
               mkdir -p /mcp-servers/arr-suite-mcp
               cd /mcp-servers/arr-suite-mcp
-              curl -fsSL https://github.com/shaktech786/arr-suite-mcp-server/archive/refs/heads/main.tar.gz | tar xz --strip-components=1
-              
+              curl -fsSL https://github.com/jtcressy/arr-suite-mcp-server/archive/refs/heads/main.tar.gz | tar xz --strip-components=1
+
               # Create venv and install dependencies using uv (already in MetaMCP image)
               echo "Creating venv and installing dependencies with uv..."
               uv venv /mcp-servers/arr-suite-venv
