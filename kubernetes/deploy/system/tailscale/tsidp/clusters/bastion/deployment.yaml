@@ -32,6 +32,8 @@ spec:
           env:
             - name: TAILSCALE_USE_WIP_CODE
               value: "1"
+            - name: TSIDP_USE_FUNNEL
+              value: "1"
           envFrom:
             - secretRef:
                 name: tsidp-secret
