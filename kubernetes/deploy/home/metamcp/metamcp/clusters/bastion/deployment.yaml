@@ -41,7 +41,7 @@ spec:
               rm -rf /mcp-servers/arr-suite-mcp
               mkdir -p /mcp-servers/arr-suite-mcp
               cd /mcp-servers/arr-suite-mcp
-              curl -fsSL https://github.com/jtcressy/arr-suite-mcp-server/archive/refs/heads/claude/add-queue-management-mcp-LdDuK.tar.gz | tar xz --strip-components=1
+              curl -fsSL https://github.com/jtcressy/arr-suite-mcp-server/archive/refs/heads/main.tar.gz | tar xz --strip-components=1
 
               # Create venv and install dependencies using uv (already in MetaMCP image)
               echo "Creating venv and installing dependencies with uv..."
