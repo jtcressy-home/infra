@@ -43,7 +43,7 @@ metadata:
   name: sabnzbd-rdst
 spec:
   trigger:
-    manual: restore-once-2
+    manual: restore-once-3
   restic:
     repository: sabnzbd-restic-secret
     copyMethod: Snapshot
