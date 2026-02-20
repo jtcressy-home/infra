@@ -35,7 +35,7 @@ spec:
   resources:
     requests:
       storage: 2Gi
-  storageClassName: cephfs
+  storageClassName: ceph-rbd
 ---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
@@ -43,14 +43,14 @@ metadata:
   name: sabnzbd-rdst
 spec:
   trigger:
-    manual: restore-once
+    manual: restore-once-2
   restic:
     repository: sabnzbd-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: cephfs
-    cacheStorageClassName: cephfs
-    volumeSnapshotClassName: cephfs-snapshot
+    storageClassName: ceph-rbd
+    cacheStorageClassName: ceph-rbd
+    volumeSnapshotClassName: ceph-rbd-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -70,9 +70,9 @@ spec:
     repository: sabnzbd-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: cephfs
-    cacheStorageClassName: cephfs
-    volumeSnapshotClassName: cephfs-snapshot
+    storageClassName: ceph-rbd
+    cacheStorageClassName: ceph-rbd
+    volumeSnapshotClassName: ceph-rbd-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
