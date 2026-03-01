@@ -30,5 +30,5 @@ spec:
       daily: 7
       weekly: 4
     copyMethod: Snapshot
-    storageClassName: ceph-rbd
-    volumeSnapshotClassName: csi-ceph-blockpool
+    storageClassName: cephfs
+    volumeSnapshotClassName: cephfs-snapshot
