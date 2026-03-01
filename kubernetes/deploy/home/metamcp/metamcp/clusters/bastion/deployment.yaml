@@ -70,6 +70,16 @@ spec:
               echo "Installation complete!"
               echo "arr-suite-mcp entry point:"
               ls -la /mcp-servers/arr-suite-venv/bin/arr-suite-mcp
+              # Install home-media-mcp
+              echo "Setting up home-media-mcp..."
+              uv venv /mcp-servers/home-media-venv
+              uv pip install --python /mcp-servers/home-media-venv/bin/python \
+                git+https://github.com/jtcressy/home-media-mcp.git
+              # Verify installation
+              echo "Verifying home-media-mcp installation..."
+              /mcp-servers/home-media-venv/bin/home-media-mcp --help || true
+              echo "home-media-mcp entry point:"
+              ls -la /mcp-servers/home-media-venv/bin/home-media-mcp
               echo "Deno binary:"
               ls -la /mcp-servers/deno/bin/deno
           volumeMounts:
@@ -198,11 +208,20 @@ spec:
             # Logging
             - name: LOG_LEVEL
               value: info
+            # Node.js memory cap to prevent unbounded heap growth
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=512"
           volumeMounts:
             - name: data
               mountPath: /app/data
             - name: mcp-servers
               mountPath: /mcp-servers
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
       volumes:
         - name: data
           persistentVolumeClaim:
