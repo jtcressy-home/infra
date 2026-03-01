@@ -74,7 +74,7 @@ nodes:
     ipAddress: talos-master-0
     controlPlane: true
     installDiskSelector:
-      size: ">=250GB"
+      size: ">=32GB"
     disableSearchDomain: false
     networkInterfaces:
       - deviceSelector:
