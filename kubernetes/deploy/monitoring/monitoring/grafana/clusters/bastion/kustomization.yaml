@@ -40,7 +40,7 @@ helmCharts:
         - grafana
     persistence:
       enabled: true
-      storageClassName: cephfs
+      storageClassName: zfs-nvme
       size: 10Gi
     grafana.ini:
       analytics:

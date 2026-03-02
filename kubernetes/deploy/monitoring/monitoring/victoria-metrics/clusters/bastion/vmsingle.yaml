@@ -21,7 +21,7 @@ spec:
       type: LoadBalancer
       externalTrafficPolicy: Local
   storage:
-    storageClassName: ceph-rbd
+    storageClassName: zfs-nvme
     accessModes: [ReadWriteOnce]
     volumeMode: Filesystem
     resources:

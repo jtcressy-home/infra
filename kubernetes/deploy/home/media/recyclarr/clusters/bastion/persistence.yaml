@@ -35,7 +35,7 @@ spec:
   resources:
     requests:
       storage: 2Gi
-  storageClassName: cephfs
+  storageClassName: zfs-nvme
 ---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
@@ -43,14 +43,14 @@ metadata:
   name: recyclarr-rdst
 spec:
   trigger:
-    manual: restore-once
+    manual: restore-zfs-migration
   restic:
     repository: recyclarr-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: cephfs
-    cacheStorageClassName: cephfs
-    volumeSnapshotClassName: cephfs-snapshot
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -70,9 +70,9 @@ spec:
     repository: recyclarr-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: cephfs
-    cacheStorageClassName: cephfs
-    volumeSnapshotClassName: cephfs-snapshot
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568

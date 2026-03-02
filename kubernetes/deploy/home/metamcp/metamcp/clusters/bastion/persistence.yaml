@@ -8,10 +8,32 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: cephfs
+  storageClassName: zfs-nvme
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: metamcp-rdst
   resources:
     requests:
       storage: 1Gi
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: metamcp-rdst
+  labels:
+    app.kubernetes.io/name: metamcp
+spec:
+  trigger:
+    manual: restore-zfs-migration
+  restic:
+    repository: metamcp-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
+    capacity: 1Gi
 ---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationSource
@@ -30,5 +52,5 @@ spec:
       daily: 7
       weekly: 4
     copyMethod: Snapshot
-    storageClassName: cephfs
-    volumeSnapshotClassName: cephfs-snapshot
+    storageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot

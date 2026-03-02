@@ -27,15 +27,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: victoria-logs-data
 spec:
-  accessModes: ["ReadWriteMany"]
-  dataSourceRef:
-    kind: ReplicationDestination
-    apiGroup: volsync.backube
-    name: victoria-logs-data-rdst
+  accessModes: ["ReadWriteOnce"]
   resources:
     requests:
       storage: 20Gi
-  storageClassName: cephfs
+  storageClassName: zfs-nvme
 # ---
 # apiVersion: volsync.backube/v1alpha1
 # kind: ReplicationDestination
