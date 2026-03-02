@@ -18,6 +18,7 @@ helmCharts:
       enableCSIHostNetwork: true
       enableGrpcMetrics: true
       enableCSIEncryption: false
+      provisionerReplicas: 1
       # cephFSKernelMountOptions: ms_mode=secure # Necessary, otherwise PVC won't be able to be mounted to Pod. You'll see errors like stderr: unable to get monitor info from DNS SRV with service name: ceph-mon, failed for service _ceph-mon._tcp
       csiAddons:
         enabled: false

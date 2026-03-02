@@ -7,7 +7,7 @@ metadata:
   namespace: monitoring
 spec:
   # useStrictSecurity: true # enables apparmor, which we can only use after upgrading to talos 1.8.0+
-  replicaCount: 3
+  replicaCount: 1
   evaluationInterval: 1m
   selectAllByDefault: true
   externalLabels:
@@ -37,11 +37,3 @@ spec:
     limits:
       cpu: 1
       memory: 1Gi
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchLabels:
-          app.kubernetes.io/name: vmalert
-          app.kubernetes.io/instance: victoria
