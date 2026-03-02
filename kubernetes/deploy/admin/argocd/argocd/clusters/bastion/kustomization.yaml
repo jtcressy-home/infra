@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: argocd
 
 resources:
-- github.com/argoproj/argo-cd//manifests/ha/cluster-install?ref=v3.2.1
+- github.com/argoproj/argo-cd//manifests/cluster-install?ref=v3.2.1
 - default-project.yaml
 - infra-repo.yaml
 - bastion-cluster-config.yaml
@@ -15,22 +15,7 @@ components:
 # - ../../components/github-app-repo-creds
 
 patches:
-- target:
-    kind: NetworkPolicy
-    name: argocd-redis-ha-proxy-network-policy
-  patch: |
-    - op: add
-      path: /spec/ingress/-
-      value:
-        from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: monitoring
-        ports:
-        - protocol: TCP
-          port: 9101
 - path: argocd-cm.yaml
 - path: argocd-rbac-cm.yaml
 - path: argocd-cmd-params-cm.yaml
 - path: patch-resources.yaml
-- path: patch-redis-ha-haproxy-strategy.yaml

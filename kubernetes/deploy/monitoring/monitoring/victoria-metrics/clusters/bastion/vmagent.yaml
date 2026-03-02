@@ -22,7 +22,7 @@ spec:
   #  - action: labeldrop
   #    source_labels: [prometheus, service, endpoint]
   # pod config
-  replicaCount: 3
+  replicaCount: 1
   statefulMode: true
   statefulStorage:
     volumeClaimTemplate:
@@ -31,14 +31,6 @@ spec:
         resources:
           requests:
             storage: 35Gi
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchLabels:
-          app.kubernetes.io/name: vmagent
-          app.kubernetes.io/instance: victoria
   resources: # TODO: refine
     requests:
       cpu: 150m

@@ -9,7 +9,7 @@ helmCharts:
   namespace: monitoring
   valuesInline:
     role: Stateless-Aggregator
-    replicas: 3
+    replicas: 1
     service:
       type: LoadBalancer
       externalTrafficPolicy: Cluster
