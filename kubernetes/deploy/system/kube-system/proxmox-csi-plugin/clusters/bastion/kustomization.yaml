@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - externalsecret.yaml
+  - volumesnapshotclass.yaml
+helmCharts:
+  - name: proxmox-csi-plugin
+    repo: oci://ghcr.io/sergelogvinov/charts
+    version: 0.5.5
+    releaseName: proxmox-csi-plugin
+    namespace: kube-system
+    valuesInline:
+      existingConfigSecret: proxmox-csi-plugin
+      storageClass:
+        - name: zfs-nvme
+          storage: nvme-pool
+          reclaimPolicy: Delete
+          fstype: ext4
+          ssd: true
+          cache: none
+      snapshotter:
+        enabled: true
+      node:
+        kubeletDir: /var/lib/kubelet
