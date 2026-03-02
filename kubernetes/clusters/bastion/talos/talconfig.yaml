@@ -5,7 +5,7 @@ clusterName: ${clusterName}
 talosVersion: v1.11.6
 
 # renovate: datasource=github-releases depName=siderolabs/kubelet
-kubernetesVersion: v1.34.1
+kubernetesVersion: v1.35.2
 
 endpoint: https://talos-master-0:6443
 
