@@ -12,7 +12,7 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: cephfs
+  storageClassName: zfs-nvme
 ---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
@@ -20,14 +20,14 @@ metadata:
   name: n8n-rdst
 spec:
   trigger:
-    manual: restore-once
+    manual: restore-zfs-migration
   restic:
     repository: n8n-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: cephfs
-    cacheStorageClassName: cephfs
-    volumeSnapshotClassName: cephfs-snapshot
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 1000
       runAsGroup: 1000
@@ -47,9 +47,9 @@ spec:
     repository: n8n-restic-secret
     copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
-    storageClassName: cephfs
-    cacheStorageClassName: cephfs
-    volumeSnapshotClassName: cephfs-snapshot
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 1000
       runAsGroup: 1000

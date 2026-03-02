@@ -41,7 +41,7 @@ persistence:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
     size: 1Gi
-    storageClass: ceph-rbd
+    storageClass: zfs-nvme
     globalMounts:
       - path: /home/nonroot
         readOnly: false
