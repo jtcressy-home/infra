@@ -84,7 +84,7 @@ nodes:
     nodeLabels:
       <<: *schematicBasicVMIDLabels
       topology.kubernetes.io/region: home
-      topology.kubernetes.io/zone: home-office-rack
+      topology.kubernetes.io/zone: purplebox
       node.longhorn.io/create-default-disk: "true"
   - hostname: talos-master-1
     ipAddress: talos-master-1
