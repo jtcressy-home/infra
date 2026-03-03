@@ -18,7 +18,8 @@ helmCharts:
           fstype: ext4
           ssd: true
           cache: none
-      snapshotter:
-        enabled: true
+      controller:
+        snapshotter:
+          enabled: true
       node:
         kubeletDir: /var/lib/kubelet
