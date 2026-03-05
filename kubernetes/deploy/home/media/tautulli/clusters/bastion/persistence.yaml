@@ -43,13 +43,14 @@ metadata:
   name: tautulli-rdst
 spec:
   trigger:
-    manual: restore-zfs-direct
+    manual: restore-zfs-snapshot
   restic:
     repository: tautulli-restic-secret
-    copyMethod: Direct
+    copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -67,10 +68,11 @@ spec:
   restic:
     pruneIntervalDays: 7
     repository: tautulli-restic-secret
-    copyMethod: Direct
+    copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568

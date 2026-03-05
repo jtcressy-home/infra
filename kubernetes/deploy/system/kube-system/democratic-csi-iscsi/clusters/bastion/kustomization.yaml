@@ -6,14 +6,14 @@ resources:
 helmCharts:
 - name: democratic-csi
   repo: https://democratic-csi.github.io/charts/
-  version: 0.14.6
-  releaseName: rainbowbox-iscsi
+  version: 0.15.0
+  releaseName: zfs-iscsi
   namespace: kube-system
   valuesInline:
     csiDriver:
-      name: "iscsi"
+      name: "zfs-iscsi.democratic-csi.bastion"
     storageClasses:
-    - name: rainbowbox-iscsi
+    - name: zfs-nvme
       defaultClass: false
       reclaimPolicy: Delete
       volumeBindingMode: Immediate
@@ -29,14 +29,14 @@ helmCharts:
         node-publish-secret:
         controller-expand-secret:
     volumeSnapshotClasses:
-    - name: rainbowbox-iscsi
+    - name: zfs-nvme-snapshot
+      deletionPolicy: Delete
       parameters:
         detachedSnapshots: "true"
     driver:
-      existingConfigSecret: truenas-rainbowbox-iscsi
+      existingConfigSecret: zfs-iscsi-purplebox
       config:
-        driver: freenas-api-iscsi
-    # Talos specific node settings
+        driver: zfs-generic-iscsi
     node:
       hostPID: true
       driver:
