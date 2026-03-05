@@ -20,14 +20,13 @@ metadata:
   name: tsidp-rdst
 spec:
   trigger:
-    manual: restore-zfs-migration
+    manual: restore-zfs-direct
   restic:
     repository: tsidp-restic-secret
-    copyMethod: Snapshot
+    copyMethod: Direct
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
-    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 1001
       runAsGroup: 65533
@@ -45,11 +44,10 @@ spec:
   restic:
     pruneIntervalDays: 7
     repository: tsidp-restic-secret
-    copyMethod: Snapshot
+    copyMethod: Direct
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
-    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 1001
       runAsGroup: 65533
