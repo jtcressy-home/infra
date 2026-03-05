@@ -25,14 +25,13 @@ metadata:
     app.kubernetes.io/name: metamcp
 spec:
   trigger:
-    manual: restore-zfs-migration
+    manual: restore-zfs-direct
   restic:
     repository: metamcp-restic-secret
-    copyMethod: Snapshot
+    copyMethod: Direct
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
-    volumeSnapshotClassName: zfs-nvme-snapshot
     capacity: 1Gi
 ---
 apiVersion: volsync.backube/v1alpha1
@@ -51,6 +50,5 @@ spec:
     retain:
       daily: 7
       weekly: 4
-    copyMethod: Snapshot
+    copyMethod: Direct
     storageClassName: zfs-nvme
-    volumeSnapshotClassName: zfs-nvme-snapshot

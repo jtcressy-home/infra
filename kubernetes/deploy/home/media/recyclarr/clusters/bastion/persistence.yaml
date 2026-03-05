@@ -43,14 +43,13 @@ metadata:
   name: recyclarr-rdst
 spec:
   trigger:
-    manual: restore-zfs-migration
+    manual: restore-zfs-direct
   restic:
     repository: recyclarr-restic-secret
-    copyMethod: Snapshot
+    copyMethod: Direct
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
-    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
@@ -68,11 +67,10 @@ spec:
   restic:
     pruneIntervalDays: 7
     repository: recyclarr-restic-secret
-    copyMethod: Snapshot
+    copyMethod: Direct
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
-    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
