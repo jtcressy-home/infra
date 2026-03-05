@@ -20,13 +20,14 @@ metadata:
   name: n8n-rdst
 spec:
   trigger:
-    manual: restore-zfs-direct
+    manual: restore-zfs-snapshot
   restic:
     repository: n8n-restic-secret
-    copyMethod: Direct
+    copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 1000
       runAsGroup: 1000
@@ -44,10 +45,11 @@ spec:
   restic:
     pruneIntervalDays: 7
     repository: n8n-restic-secret
-    copyMethod: Direct
+    copyMethod: Snapshot
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 1000
       runAsGroup: 1000
