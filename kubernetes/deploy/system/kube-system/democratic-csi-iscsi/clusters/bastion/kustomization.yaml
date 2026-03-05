@@ -46,4 +46,4 @@ helmCharts:
           - name: ISCSIADM_HOST_PATH
             value: /usr/local/sbin/iscsiadm
         iscsiDirHostPath: /usr/local/etc/iscsi
-        iscsiDirHostPathType: ""
+        iscsiDirHostPathType: DirectoryOrCreate
