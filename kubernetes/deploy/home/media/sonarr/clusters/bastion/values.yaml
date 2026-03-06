@@ -77,9 +77,7 @@ persistence:
     globalMounts:
       - path: /config/logs
   media:
-    type: nfs
-    server: truenas-purplebox.private.home
-    path: /mnt/purple/general/media
+    existingClaim: purplebox-smb-media
   tmp:
     type: emptyDir
 ingress:
