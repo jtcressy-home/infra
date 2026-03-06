@@ -1,15 +1,6 @@
 ---
 version: "3"
 
-vars:
-  cluster:
-    sh: | # auto-selects (skip prompt) if there's only one cluster or cluster is already set in the environment or task args
-      {{- if eq (index . "cluster") nil -}}
-      ls {{.PROJECT_DIR}}/kubernetes/clusters | fzf -1 --height=~5 --prompt="Choose a cluster: " | tr -d '\n\r'
-      {{- else -}}
-      echo {{index . "cluster"}}
-      {{- end -}}
-
 tasks:
   default:
     silent: true
@@ -22,30 +13,31 @@ tasks:
       TALOSCONFIG: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
       clusterName: "{{.cluster}}"
     vars:
-      node: &nodevar
-        sh: |
-          {{- if eq (index . "node") nil -}}
-          ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/ | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g' | fzf --height=~10 --prompt="Choose node from cluster {{.cluster}}: "
-          {{- else -}}
-          echo {{index . "node"}}
-          {{- end -}}
-      nodes: &nodesvar
-        sh: |
-          {{- if eq (index . "nodes") nil -}}
-          ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/ | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g' | fzf -m --height=~10 --prompt="Choose nodes from cluster {{.cluster}}: " --print0 | tr '\0' ',' | sed 's/,$//'
-          {{- else -}}
-          echo {{index . "nodes"}}
-          {{- end -}}
+      node: &nodevar '{{ or .node (fail "variable `node` is required. Use `task talos:nodes cluster=<name>` to list available nodes.") }}'
+      nodes: &nodesvar '{{ or .nodes (fail "variable `nodes` is required (comma-separated). Use `task talos:nodes cluster=<name>` to list available nodes.") }}'
+
+  clusters:
+    desc: "List available Talos cluster names"
+    silent: true
+    cmds:
+      - ls {{.PROJECT_DIR}}/kubernetes/clusters
+
+  nodes:
+    desc: "List available node names for a cluster (requires: cluster)"
+    silent: true
+    requires:
+      vars: [cluster]
+    cmds:
+      - ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/*.yaml | xargs -n1 basename | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g'
 
   ctl:
-    desc: Talosctl wrapper with automatic cluster/node selection (place args after --)
+    desc: "Run talosctl with automatic config selection (requires: cluster, nodes; pass args after --)"
     summary: |
-      Runs talosctl with automatic cluster/node selection. 
+      Runs talosctl with automatic cluster/node selection.
       Use <TAB> to select multiple nodes.
       example:
         task talos:ctl -- disks
     silent: false
-    interactive: true
     requires:
       vars: [cluster]
     vars:
@@ -58,13 +50,12 @@ tasks:
 
   gensecret:
     desc: Generate talos secrets and store in a new doppler config
+    internal: true
     summary: |
       Uses talhelper to generate secrets for a new cluster,
         storing them in a new doppler branch config that branches from "{{.dopplerConfig}}"
-      
+
       This task also uses "{{.dopplerProject}}" for the doppler project.
-    prompt: '!!!WARNING!!! This will overwrite any existing secrets for cluster "{{.cluster}}". Continue?'
-    interactive: false
     requires:
       vars: [cluster]
     env:
@@ -94,12 +85,11 @@ tasks:
       - sh: doppler -p {{.dopplerProject}} configs create {{.dopplerConfig}}_{{.cluster}}
         msg: |-
           Failed to create doppler config "{{.dopplerConfig}}_{{.cluster}}" in project "{{.dopplerProject}}". Make sure it doesn't already exist.
-        
+
   genconfig:
     label: 'genconfig-{{.cluster}}'
-    desc: Generate talos config
+    desc: "Generate talos config files via talhelper + doppler (requires: cluster)"
     silent: true
-    interactive: true
     dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
@@ -115,9 +105,8 @@ tasks:
 
   gencommand:
     label: 'gencommand-{{.cluster}}'
-    desc: Generate talos commands
+    desc: "Generate talos commands via talhelper (requires: cluster; pass args after --)"
     silent: false
-    interactive: true
     dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     requires:
@@ -127,8 +116,7 @@ tasks:
 
   checkcerts:
     label: "checkcerts-{{.cluster}}"
-    desc: Check talos certs
-    interactive: true
+    desc: "Decode and display talos certificate details from doppler (requires: cluster)"
     requires:
       vars: [cluster, dopplerProject, dopplerConfig]
     dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
@@ -147,8 +135,7 @@ tasks:
       - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- bash -c {{.script | shellQuote}}
 
   mergeclientconfig:
-    desc: Merge cluster talos client config into home directory default talosconfig
-    interactive: true
+    desc: "Merge cluster talosconfig into ~/.talos/config (requires: cluster)"
     requires:
       vars: [cluster]
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
@@ -160,7 +147,7 @@ tasks:
 
   bootstrap:
     desc: Bootstrap talos cluster
-    interactive: true
+    internal: true
     requires:
       vars: [cluster]
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
@@ -173,8 +160,7 @@ tasks:
       - talosctl bootstrap -n {{.node}}
 
   disks:
-    desc: Get disks insecurely
-    interactive: true
+    desc: "List disks on a node via insecure talosctl connection (requires: cluster, ip)"
     dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     deps:
@@ -184,10 +170,8 @@ tasks:
     cmds:
       - talosctl -n {{.ip}} disks --insecure
 
-
   get-iso-url:
-    desc: Get talos iso download URL for a node
-    interactive: true
+    desc: "Get talos ISO download URL for a node (requires: cluster, node)"
     silent: true
     env: *commonenv
     deps:
@@ -203,7 +187,7 @@ tasks:
 
   join-node:
     desc: Apply talos config on a new node in maintenance mode
-    interactive: true
+    internal: true
     # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
     env: *commonenv
     deps:
@@ -218,82 +202,11 @@ tasks:
         cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
         eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.node}} --extra-flags="{{.extraFlags}}")
 
-  # launch-node-oci:
-  #   desc: Launch an Oracle Cloud instance and join it to the cluster
-  #   # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
-  #   env: *env
-  #   interactive: true
-  #   requires:
-  #     vars: [cluster, node]
-  #   vars:
-  #     configfile: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
-  #     hostname: "{{.node | splitList \".\" | first}}"
-  #     compartmentId:
-  #       sh: op read op://{{.opVault}}/Oracle/compartmentId
-  #     region:
-  #       sh: yq -r '.machine.nodeLabels["topology.kubernetes.io/region"]' "{{.configfile}}"
-  #     vcn:
-  #       sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-vcn"]' "{{.configfile}}"
-  #     shape:
-  #       sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-shape"]' "{{.configfile}}"
-  #     image:
-  #       sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-image"]' "{{.configfile}}"
-  #     shapeCpu:
-  #       sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-cpus"]' "{{.configfile}}"
-  #     shapeMemory:
-  #       sh: yq -r '.machine.nodeLabels["infra.jtcressy.net/oci-memory"]' "{{.configfile}}"
-  #     vcnId: # use oci cli to get vcn id
-  #       sh: oci network vcn list --auth security_token --compartment-id={{.compartmentId | shellQuote}} --query "data[?\"display-name\"=='{{.vcn}}'].id | [0]" --raw-output
-  #     subnetId: # use oci cli to get 'default' subnet id
-  #       sh: oci network subnet list --auth security_token --compartment-id={{.compartmentId | shellQuote}} --vcn-id={{.vcnId | shellQuote}} --query "data[?\"display-name\"=='default-{{.region}}'].id | [0]" --raw-output
-  #     imageId: # use oci cli to get image id of a latest Talos image
-  #       sh: oci compute image list --compartment-id={{.compartmentId | shellQuote}} --operating-system Custom --operating-system-version Custom --auth security_token --query "data[?\"display-name\"=='{{.image}}'].id | [0]" --raw-output
-  #     availabilityDomain:
-  #       sh: oci iam availability-domain list --auth security_token --compartment-id={{.compartmentId | shellQuote}} --query data[0].name --raw-output
-  #   cmds:
-  #     - |
-  #       oci compute instance launch --auth security_token --shape={{.shape | shellQuote}} --shape-config='{"ocpus":{{.shapeCpu}},"memoryInGBs":{{.shapeMemory}}}' --availability-domain={{.availabilityDomain | shellQuote}} --compartment-id={{.compartmentId | shellQuote}} --image-id={{.imageId | shellQuote}} --subnet-id={{.subnetId | shellQuote}} --display-name={{.hostname | shellQuote}} --assign-public-ip=true --launch-options='{"networkType":"PARAVIRTUALIZED"}' --user-data-file={{.configfile}} --query 'data.id' --raw-output
-  #       echo 🚀🚀🚀
-  #   preconditions:
-  #     - oci session validate --auth security_token
-  #     - |
-  #       if [[ $(oci compute instance list --compartment-id={{.compartmentId | shellQuote}} --display-name={{.hostname | shellQuote}} --auth security_token --query "data[?\"lifecycle-state\"!='TERMINATING' && \"lifecycle-state\"!='TERMINATED'].id" --raw-output | wc -l) -gt 0 ]]; then
-  #         echo "Instance already exists with display-name {{.hostname}}"
-  #         exit 1
-  #       else
-  #         echo "Instance does not exist with display-name {{.hostname}}. Proceeding with launch. 🚀"
-  #         exit 0
-  #       fi
-
-  # terminate-node-oci:
-  #   desc: Terminate an Oracle Cloud instance and remove it from the cluster
-  #   # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
-  #   env: *env
-  #   interactive: true
-  #   requires:
-  #     vars: [cluster, node]
-  #   vars:
-  #     configfile: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
-  #     hostname: "{{.node | splitList \".\" | first}}"
-  #     compartmentId:
-  #       sh: op read op://{{.opVault}}/Oracle/compartmentId
-  #     region:
-  #       sh: yq -r '.machine.nodeLabels["topology.kubernetes.io/region"]' "{{.configfile}}"
-  #     instance:
-  #       sh: oci compute instance list --compartment-id={{.compartmentId | shellQuote}} --display-name={{.hostname | shellQuote}} --auth security_token --query "data[?\"lifecycle-state\"!='TERMINATING' && \"lifecycle-state\"!='TERMINATED'].id | [0]" --raw-output
-  #   cmds:
-  #     - echo {{.instance}}
-  #     - talosctl reset -n {{.hostname}}
-  #     - oci compute instance --auth security_token terminate --instance-id={{.instance | shellQuote}}
-  #   preconditions:
-  #     - oci session validate --auth security_token
-
   apply:
-    desc: Apply talos config on a node
+    desc: "Apply talos config on nodes (requires: cluster, nodes; optional: mode=auto|staged|reboot|try|no-reboot, dryrun=true|false)"
     summary: |
       args:
         mode: auto, interactive, no-reboot, reboot, staged, try (default: auto)
-    interactive: true
     env: *commonenv
     deps:
       - genconfig
@@ -321,8 +234,8 @@ tasks:
   upgrade-talos:
     label: 'upgrade-talos-{{.cluster}}-{{.node}}'
     desc: Upgrade talos on a node
+    internal: true
     silent: false
-    interactive: true
     env: *commonenv
     requires:
       vars: [cluster, dopplerProject, dopplerConfig]
@@ -342,7 +255,7 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade k8s on a node
-    interactive: true
+    internal: true
     requires:
       vars: [cluster]
     env: *commonenv

@@ -9,23 +9,11 @@ tasks:
   corevars:
     internal: true
     vars: &corevars
-      project: &projectvar
-        sh: |
-          {{- if eq (index . "project") nil -}}
-          ls {{.PROJECT_DIR}}/kubernetes/argocd/projects | sed 's/.yaml//g' | fzf --height=~10 --prompt="Select or enter ArgoCD App Project: " --print-query | tail -1
-          {{- else -}}
-          echo {{index . "project"}}
-          {{- end -}}
-      namespace: &namespacevar
-        sh: |
-          {{- if eq (index . "namespace") nil -}}
-          ls {{.PROJECT_DIR}}/kubernetes/deploy/{{.project}}/ | fzf --height=~10 --prompt="Select or enter Namespace: " --print-query | tail -1
-          {{- else -}}
-          echo {{index . "namespace"}}
-          {{- end -}}
+      project: &projectvar '{{ or .project (fail "variable `project` is required. Use `task apps:projects` to list available projects.") }}'
+      namespace: &namespacevar '{{ or .namespace (fail "variable `namespace` is required") }}'
 
   create:
-    desc: "Create a new ArgoCD App Project"
+    desc: "Create a new ArgoCD AppProject YAML file (requires: project; optional: description)"
     silent: true
     vars:
       project: *projectvar
@@ -62,7 +50,7 @@ tasks:
         msg: "Project name is required"
 
   show:
-    desc: "Show an ArgoCD App Project"
+    desc: "Display the YAML contents of an ArgoCD AppProject (requires: project)"
     aliases:
       - view
     summary: |
@@ -84,7 +72,7 @@ tasks:
         msg: "Project does not exist"
 
   dest:
-    desc: "List destinations for an ArgoCD App Project"
+    desc: "List allowed destinations for an ArgoCD AppProject (requires: project)"
     summary: |
       This task will list all allowed destinations for an ArgoCD App Project
       <project> (required) can be explicitly provided or interactively selected.
@@ -106,7 +94,7 @@ tasks:
         msg: "Project does not exist"
 
   dest:add:
-    desc: "Add a new destination to an ArgoCD App Project"
+    desc: "Add a namespace destination to an ArgoCD AppProject (requires: project, namespace; optional: server, name)"
     summary: |
       This task will add a new destination to an ArgoCD App Project. 
       <project> can be explicitly provided or interactively selected.
@@ -135,7 +123,7 @@ tasks:
         msg: "Destination already exists in project"
 
   dest:remove:
-    desc: "Remove a destination from an ArgoCD App Project"
+    desc: "Remove a namespace destination from an ArgoCD AppProject (requires: project, namespace; optional: server, name)"
     summary: |
       This task will remove a destination from an ArgoCD App Project. 
       <project> can be explicitly provided or interactively selected.

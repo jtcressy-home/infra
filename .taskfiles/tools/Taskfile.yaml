@@ -3,11 +3,13 @@ version: "3"
 
 tasks:
   default:
+    internal: true
     silent: true
     cmds:
       - task -l
 
   install-fzf:
+    internal: true
     desc: Install fzf (fuzzy finder)
     silent: false
     cmds:
@@ -23,6 +25,7 @@ tasks:
         fi
 
   install-doppler:
+    internal: true
     desc: Install Doppler CLI
     silent: false
     cmds:
@@ -40,6 +43,7 @@ tasks:
         fi
 
   install-talosctl:
+    internal: true
     desc: Install talosctl
     silent: false
     cmds:
@@ -53,6 +57,7 @@ tasks:
         fi
 
   install-talhelper:
+    internal: true
     desc: Install talhelper
     silent: false
     cmds:
@@ -68,6 +73,7 @@ tasks:
         fi
 
   reinstall-talhelper:
+    internal: true
     desc: Force reinstall talhelper (removes existing installation first)
     silent: false
     cmds:
@@ -75,6 +81,7 @@ tasks:
       - task: install-talhelper
 
   install-all:
+    internal: true
     desc: Install all required tools (fzf, doppler, talosctl, talhelper)
     silent: false
     cmds:
