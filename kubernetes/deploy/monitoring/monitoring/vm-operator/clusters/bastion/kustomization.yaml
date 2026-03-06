@@ -22,6 +22,9 @@ helmCharts:
           value: 10m
         - name: VM_VMAGENTDEFAULT_CONFIGRELOADERCPU
           value: 10m
+      admissionWebhooks:
+        certManager:
+          enabled: true
       rbac:
         pspEnabled: false
       resources:
