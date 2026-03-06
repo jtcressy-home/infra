@@ -2,6 +2,7 @@ version: '3'
 
 tasks:
   default:
+    desc: "Run restic commands against a backup repo (requires: repo; pass CLI args after --)"
     silent: true
     requires:
       vars: [repo]
@@ -12,7 +13,7 @@ tasks:
       - doppler -p {{.dopplerProject}} -c {{.dopplerConfig}} run -- restic --repo={{.resticBucket}}/{{.repo}} {{.CLI_ARGS | default "-h"}}
       
   snapshots:
-    desc: Get snapshots for a specific restic repo
+    desc: "List restic snapshots for a backup repo (requires: repo)"
     requires:
       vars: [repo]
     vars:
@@ -22,7 +23,7 @@ tasks:
       - doppler -p {{.dopplerProject}} -c {{.dopplerConfig}} run -- restic snapshots --repo={{.resticBucket}}/{{.repo}}
 
   restore:
-    desc: Restores a snapshot with an id to a specified dest
+    desc: "Restore a restic snapshot to a destination path (requires: repo, id, dest)"
     requires:
       vars: [repo, id, dest]
     vars:
