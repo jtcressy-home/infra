@@ -79,7 +79,7 @@ tasks:
       - sh: test -f "{{.disabledPath}}/{{.cluster}}/kustomization.yaml"
         msg: "App overlay doesn't exist or isn't disabled."
   disable:
-    internal: true
+    desc: "Disable an enabled app overlay, moving it from clusters/ to disabled/ (requires: project, namespace, app, cluster)"
     summary: |
       This task will disable an existing, enabled kustomize overlay targeting a specific cluster.
 
