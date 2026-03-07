@@ -62,6 +62,8 @@ controllers:
             cpu: 10m
           limits:
             memory: 64Mi
+        terminationMessagePath: /tmp/termination-log
+        terminationMessagePolicy: FallbackToLogsOnError
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
