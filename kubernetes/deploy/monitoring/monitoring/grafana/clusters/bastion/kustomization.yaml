@@ -105,14 +105,6 @@ helmCharts:
           allowUiUpdates: true
           options:
             path: /var/lib/grafana/dashboards/default
-        - name: ceph
-          orgId: 1
-          folder: Ceph
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/ceph
         - name: cilium
           orgId: 1
           folder: Cilium
@@ -255,19 +247,6 @@ helmCharts:
           datasource: Prometheus
         nats-supercluster:
           url: https://raw.githubusercontent.com/nats-io/nats-surveyor/main/docker-compose/grafana/provisioning/dashboards/supercluster-dashboard.json
-          datasource: Prometheus
-      ceph:
-        ceph-cluster-galexrt:
-          gnetId: 2842
-          revision: 17
-          datasource: Prometheus
-        ceph-pools-galexrt:
-          gnetId: 5342
-          revision: 9
-          datasource: Prometheus
-        ceph-osd-galexrt:
-          gnetId: 5336
-          revision: 9
           datasource: Prometheus
       cilium:
         hubble-dashboard:
