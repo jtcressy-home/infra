@@ -82,16 +82,8 @@ nodePort:
   enabled: true
 localRedirectPolicy: true
 operator:
+  replicas: 1
   rollOutPods: true
-  affinity:
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          podAffinityTerm:
-            labelSelector:
-              matchLabels:
-                io.cilium/app: operator
-            topologyKey: kubernetes.io/hostname
 rollOutCiliumPods: true
 resources:
   limits:
