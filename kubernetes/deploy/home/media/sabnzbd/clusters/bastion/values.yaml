@@ -83,7 +83,7 @@ persistence:
     globalMounts:
       - path: /media/downloads/nzbs/incomplete
   media:
-    existingClaim: purplebox-smb-media
+    existingClaim: purplebox-nfs-media
     globalMounts:
       - path: /media/downloads/nzbs
         subPath: downloads/nzbs
