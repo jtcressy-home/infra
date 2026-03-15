@@ -41,7 +41,7 @@ controllers:
       api:
         image:
           repository: tobiasehlert/teslamateapi
-          tag: 1.23.0
+          tag: 1.24.2
         env:
           <<: *env
           API_TOKEN_DISABLE: "true"
