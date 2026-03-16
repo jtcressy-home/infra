@@ -50,7 +50,7 @@ jobs:
           outputFile: "${{ github.workspace }}/.local/diff-pr-all.md"
 
       - name: Post diff in comment
-        uses: mshick/add-pr-comment@v2
+        uses: mshick/add-pr-comment@v3
         with:
           message-id: argocd-diff
           message-path: "${{ github.workspace }}/.local/diff-pr-all.md"
