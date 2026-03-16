@@ -4,7 +4,7 @@ kind: Kustomization
 helmCharts:
   - name: grafana-operator
     repo: oci://ghcr.io/grafana/helm-charts
-    version: v5.20.0
+    version: 5.22.1
     releaseName: grafana-operator
     includeCRDs: true
     valuesInline:
