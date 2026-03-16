@@ -141,5 +141,7 @@
       ]
     }
   ],
-  "autoApprove": true
+  "autoApprove": true,
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0
 }
