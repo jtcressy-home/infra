@@ -1,8 +1,8 @@
-ARG ARGOCD_VERSION="v3.2.1"
+ARG ARGOCD_VERSION="v3.3.3"
 ARG K9S_VERSION="latest"
-ARG TAILSCALE_VERSION="v1.90.9"
+ARG TAILSCALE_VERSION="v1.94.2"
 ARG CLOUDFLARED_VERSION="2026.3.0"
-ARG TALOSCTL_VERSION="v1.11.5"
+ARG TALOSCTL_VERSION="v1.12.5"
 
 FROM ghcr.io/tailscale/tailscale:${TAILSCALE_VERSION} as tailscale
 FROM docker.io/derailed/k9s:${K9S_VERSION} as k9s
@@ -12,7 +12,7 @@ FROM docker.io/cloudflare/cloudflared:${CLOUDFLARED_VERSION} as cloudflared
 FROM ghcr.io/siderolabs/talosctl:${TALOSCTL_VERSION} as talosctl
 FROM docker.io/mikefarah/yq:latest as yq
 
-FROM golang:1.25 as gomod-builder
+FROM golang:1.26 as gomod-builder
 
 ENV GOBIN /usr/local/bin
 
