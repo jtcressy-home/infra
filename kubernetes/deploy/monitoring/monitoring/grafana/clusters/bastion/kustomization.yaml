@@ -482,10 +482,10 @@ helmCharts:
           type: postgres
           access: proxy
           url: teslamate-db-rw.teslamate.svc.cluster.local
-          database: app
           user: postgres
           secureJsonData:
             password: "$TESLAMATE_DB_PASSWORD"
           jsonData:
+            database: app
             postgresVersion: 1000
             sslmode: disable
