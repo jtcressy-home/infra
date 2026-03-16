@@ -14,7 +14,7 @@ configMapGenerator:
 helmCharts:
   - name: n8n
     repo: https://community-charts.github.io/helm-charts
-    version: 1.16.28
+    version: 1.16.31
     releaseName: n8n
     namespace: n8n
     valuesFile: values.yaml
