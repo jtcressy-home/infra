@@ -1,0 +1,62 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: configarr
+spec:
+  schedule: "@daily"
+  timeZone: America/Chicago
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+          containers:
+            - name: configarr
+              image: ghcr.io/raydak-labs/configarr:1.24.0
+              env:
+                - name: TZ
+                  value: America/Chicago
+                - name: DRY_RUN
+                  value: "false"
+              envFrom:
+                - secretRef:
+                    name: configarr-secret
+              resources:
+                requests:
+                  cpu: 10m
+                limits:
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: config
+                  mountPath: /app/config/config.yml
+                  subPath: config.yml
+                  readOnly: true
+                - name: repos
+                  mountPath: /app/repos
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: config
+              configMap:
+                name: configarr
+            - name: repos
+              persistentVolumeClaim:
+                claimName: configarr
+            - name: tmp
+              emptyDir: {}
