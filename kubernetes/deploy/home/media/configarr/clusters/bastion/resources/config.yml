@@ -100,25 +100,30 @@ lidarr:
           until_score: 10000
           quality_sort: top
         qualities:
+          - name: FLAC 24bit
+          - name: ALAC 24bit
           - name: FLAC
           - name: ALAC
           - name: WAV
           - name: APE
           - name: WavPack
-          - name: MP3-320
+          - name: OGG Vorbis Q10
           - name: AAC-320
-          - name: Ogg Vorbis Q10
+          - name: MP3-320
+          - name: OGG Vorbis Q9
+          - name: AAC-256
           - name: MP3-256
           - name: MP3-VBR-V0
-          - name: AAC-256
-          - name: Ogg Vorbis Q9
+          - name: OGG Vorbis Q8
+          - name: AAC-VBR
           - name: MP3-224
+          - name: OGG Vorbis Q7
           - name: MP3-192
-          - name: MP3-160
-          - name: Ogg Vorbis Q7
-          - name: MP3-128
-          - name: Ogg Vorbis Q5
+          - name: OGG Vorbis Q6
           - name: AAC-192
+          - name: MP3-160
+          - name: OGG Vorbis Q5
+          - name: MP3-128
           - name: MP3-112
           - name: MP3-96
           - name: Unknown
