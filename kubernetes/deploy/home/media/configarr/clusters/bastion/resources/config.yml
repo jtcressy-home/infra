@@ -1,0 +1,139 @@
+sonarrEnabled: false
+radarrEnabled: false
+lidarrEnabled: true
+whisparrEnabled: false
+readarrEnabled: false
+
+customFormatDefinitions:
+  # Preferred release groups (Davo's Community Guide)
+  - trash_id: lidarr-preferred-groups
+    name: "Preferred Groups"
+    trash_scores:
+      default: 100
+    includeCustomFormatWhenRenaming: false
+    specifications:
+      - name: "Preferred Groups"
+        implementation: ReleaseTitleSpecification
+        negate: false
+        required: false
+        fields:
+          value: "\\b(DeVOiD|PERFECT|ENRiCH)\\b"
+
+  # CD source preference
+  - trash_id: lidarr-cd-source
+    name: "CD Source"
+    trash_scores:
+      default: 50
+    includeCustomFormatWhenRenaming: false
+    specifications:
+      - name: "CD Source"
+        implementation: ReleaseTitleSpecification
+        negate: false
+        required: false
+        fields:
+          value: "\\b(CD|CDDA)\\b"
+
+  # WEB source
+  - trash_id: lidarr-web-source
+    name: "WEB Source"
+    trash_scores:
+      default: 25
+    includeCustomFormatWhenRenaming: false
+    specifications:
+      - name: "WEB Source"
+        implementation: ReleaseTitleSpecification
+        negate: false
+        required: false
+        fields:
+          value: "\\b(WEB|WEBFLAC)\\b"
+
+  # Lossless preference
+  - trash_id: lidarr-lossless
+    name: "Lossless"
+    trash_scores:
+      default: 75
+    includeCustomFormatWhenRenaming: false
+    specifications:
+      - name: "Lossless"
+        implementation: ReleaseTitleSpecification
+        negate: false
+        required: false
+        fields:
+          value: "\\b(FLAC|ALAC|APE|WAV|PCM|Lossless)\\b"
+
+  # Vinyl avoidance
+  - trash_id: lidarr-vinyl
+    name: "Vinyl"
+    trash_scores:
+      default: -50
+    includeCustomFormatWhenRenaming: false
+    specifications:
+      - name: "Vinyl"
+        implementation: ReleaseTitleSpecification
+        negate: false
+        required: false
+        fields:
+          value: "\\b(Vinyl|LP|12\"|7\")\\b"
+
+lidarr:
+  lidarr:
+    base_url: http://lidarr.media.svc.cluster.local:8686
+    api_key: !env LIDARR_API_KEY
+
+    custom_formats:
+      - trash_ids:
+          - lidarr-preferred-groups
+          - lidarr-cd-source
+          - lidarr-web-source
+          - lidarr-lossless
+          - lidarr-vinyl
+        assign_scores_to:
+          - name: Any
+
+    quality_profiles:
+      - name: Any
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: FLAC
+          until_score: 10000
+          quality_sort: top
+        qualities:
+          - name: FLAC
+          - name: ALAC
+          - name: WAV
+          - name: APE
+          - name: WavPack
+          - name: MP3-320
+          - name: AAC-320
+          - name: Ogg Vorbis Q10
+          - name: MP3-256
+          - name: MP3-VBR-V0
+          - name: AAC-256
+          - name: Ogg Vorbis Q9
+          - name: MP3-224
+          - name: MP3-192
+          - name: MP3-160
+          - name: Ogg Vorbis Q7
+          - name: MP3-128
+          - name: Ogg Vorbis Q5
+          - name: AAC-192
+          - name: MP3-112
+          - name: MP3-96
+          - name: Unknown
+
+    metadata_profiles:
+      - name: Standard
+        primary_types:
+          - Album
+          - EP
+          - Single
+        secondary_types:
+          - Studio
+          - Live
+          - Compilation
+          - Soundtrack
+          - Remix
+        release_statuses:
+          - Official
