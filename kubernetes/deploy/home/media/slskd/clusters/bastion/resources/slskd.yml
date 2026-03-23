@@ -1,0 +1,16 @@
+directories:
+  downloads: /media/downloads/slskd/complete
+  incomplete: /media/downloads/slskd/incomplete
+
+shares:
+  directories: []
+
+web:
+  port: 5030
+  https:
+    disabled: true
+  authentication:
+    disabled: false
+
+soulseek:
+  listen_port: -1

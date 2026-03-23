@@ -14,16 +14,18 @@ controllers:
     containers:
       app: &appcontainer
         image:
-          repository: ghcr.io/home-operations/lidarr
-          tag: rolling@sha256:dab0e07502a34436fc50c3e789388f0a29f8cbf681fb7a02ed703ad7c368a22c
+          repository: ghcr.io/hotio/lidarr
+          tag: nightly@sha256:1c026b8b5f650d43e951480970f8531955bff24d4c3c7c1c4f8ad21536711945
         env:
+          PUID: "568"
+          PGID: "568"
           LIDARR__APP__INSTANCENAME: Lidarr
           LIDARR__APP__THEME: dark
           LIDARR__AUTH__METHOD: External
           LIDARR__AUTH__REQUIRED: DisabledForLocalAddresses
           LIDARR__LOG__LEVEL: info
           LIDARR__SERVER__PORT: &port 8686
-          LIDARR__UPDATE__BRANCH: develop
+          LIDARR__UPDATE__BRANCH: nightly
           TZ: America/Chicago
         envFrom: *envFrom
         probes:
