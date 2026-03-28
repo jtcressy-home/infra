@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slskd
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: slskd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: slskd
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: slskd
+          image: slskd/slskd:latest@sha256:17ef977563be206f3b5932080b1e23883b2cb39dc9010640f6f39b4eaec887e3
+          ports:
+            - name: http
+              containerPort: 5030
+              protocol: TCP
+          env:
+            - name: SLSKD_REMOTE_CONFIGURATION
+              value: "true"
+            - name: SLSKD_SLSK_LISTEN_PORT
+              value: "-1"
+            - name: TZ
+              value: America/Chicago
+          envFrom:
+            - secretRef:
+                name: slskd-secret
+          resources:
+            requests:
+              cpu: 10m
+            limits:
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: app
+              mountPath: /app
+            - name: config
+              mountPath: /app/slskd.yml
+              subPath: slskd.yml
+              readOnly: true
+            - name: media
+              mountPath: /media
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: app
+          persistentVolumeClaim:
+            claimName: slskd
+        - name: config
+          configMap:
+            name: slskd-config
+        - name: media
+          nfs:
+            server: truenas-purplebox.private.home
+            path: /mnt/purple/general/media
+        - name: tmp
+          emptyDir: {}
