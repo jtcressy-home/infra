@@ -82,6 +82,11 @@ spec:
               ls -la /mcp-servers/home-media-venv/bin/home-media-mcp
               echo "Deno binary:"
               ls -la /mcp-servers/deno/bin/deno
+
+              # Pre-cache mcpvault for Obsidian vault MCP access
+              echo "Pre-caching @bitbonsai/mcpvault..."
+              npx -y @bitbonsai/mcpvault@latest --help || true
+              echo "mcpvault pre-cached successfully"
           volumeMounts:
             - name: mcp-servers
               mountPath: /mcp-servers
@@ -216,12 +221,52 @@ spec:
               mountPath: /app/data
             - name: mcp-servers
               mountPath: /mcp-servers
+            - name: obsidian-vault
+              mountPath: /obsidian-vault
+              readOnly: true
           resources:
             requests:
               cpu: 100m
               memory: 512Mi
             limits:
               memory: 2Gi
+        - name: obsidian-sync
+          image: ghcr.io/belphemur/obsidian-headless-sync-docker:latest
+          env:
+            - name: OBSIDIAN_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-sync-secret
+                  key: OBSIDIAN_AUTH_TOKEN
+            - name: VAULT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-sync-secret
+                  key: VAULT_NAME
+            - name: VAULT_HOST_PATH
+              value: /obsidian-vault
+            - name: CONFIG_HOST_PATH
+              value: /obsidian-config
+            - name: VAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-sync-secret
+                  key: VAULT_PASSWORD
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: obsidian-vault
+              mountPath: /obsidian-vault
+            - name: obsidian-config
+              mountPath: /obsidian-config
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -229,3 +274,9 @@ spec:
         - name: mcp-servers
           emptyDir:
             sizeLimit: 2Gi
+        - name: obsidian-vault
+          persistentVolumeClaim:
+            claimName: obsidian-vault
+        - name: obsidian-config
+          emptyDir:
+            sizeLimit: 100Mi
