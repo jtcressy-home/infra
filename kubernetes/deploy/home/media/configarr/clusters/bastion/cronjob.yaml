@@ -22,7 +22,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: configarr
-              image: ghcr.io/raydak-labs/configarr:1.24.0
+              image: ghcr.io/raydak-labs/configarr:1.25.0
               env:
                 - name: TZ
                   value: America/Chicago
