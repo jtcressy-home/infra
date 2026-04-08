@@ -243,10 +243,6 @@ spec:
                 secretKeyRef:
                   name: obsidian-sync-secret
                   key: VAULT_NAME
-            - name: VAULT_HOST_PATH
-              value: /obsidian-vault
-            - name: CONFIG_HOST_PATH
-              value: /obsidian-config
             - name: VAULT_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -258,9 +254,9 @@ spec:
               value: "1000"
           volumeMounts:
             - name: obsidian-vault
-              mountPath: /obsidian-vault
+              mountPath: /vault
             - name: obsidian-config
-              mountPath: /obsidian-config
+              mountPath: /home/obsidian/.config
           resources:
             requests:
               cpu: 50m
