@@ -25,7 +25,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: navidrome
-          image: ghcr.io/navidrome/navidrome:0.60.3
+          image: ghcr.io/navidrome/navidrome:0.61.1
           ports:
             - containerPort: 4533
               name: http
