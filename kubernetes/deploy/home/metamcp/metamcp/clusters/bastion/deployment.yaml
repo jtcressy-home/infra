@@ -17,6 +17,8 @@ spec:
       labels:
         app.kubernetes.io/name: metamcp
     spec:
+      securityContext:
+        fsGroup: 1000
       initContainers:
         - name: init-db
           image: ghcr.io/home-operations/postgres-init:18
