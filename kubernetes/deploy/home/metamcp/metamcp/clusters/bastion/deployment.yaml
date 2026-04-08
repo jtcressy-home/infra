@@ -233,6 +233,7 @@ spec:
               memory: 2Gi
         - name: obsidian-sync
           image: ghcr.io/belphemur/obsidian-headless-sync-docker:latest@sha256:2e8731a6cc246af383579478e2719b56efec0a63ac5baae731e88b13b1cc9ab7
+          command: ["/bin/sh", "-c", "umask 0002 && exec /init"]
           env:
             - name: OBSIDIAN_AUTH_TOKEN
               valueFrom:
