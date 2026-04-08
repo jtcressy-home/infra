@@ -17,6 +17,20 @@ spec:
     requests:
       storage: 1Gi
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: obsidian-vault
+  labels:
+    app.kubernetes.io/name: metamcp
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: zfs-nvme
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
 metadata:
