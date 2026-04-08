@@ -225,7 +225,6 @@ spec:
               mountPath: /mcp-servers
             - name: obsidian-vault
               mountPath: /obsidian-vault
-              readOnly: true
           resources:
             requests:
               cpu: 100m
