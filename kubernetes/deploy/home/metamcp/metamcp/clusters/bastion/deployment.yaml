@@ -235,7 +235,7 @@ spec:
           image: ghcr.io/belphemur/obsidian-headless-sync-docker:latest@sha256:2e8731a6cc246af383579478e2719b56efec0a63ac5baae731e88b13b1cc9ab7
           env:
             - name: S6_STAGE2_HOOK
-              value: "sed -i '/exec s6-setuidgid/i umask 0002' /etc/s6-overlay/s6-rc.d/svc-obsidian-sync/run"
+              value: "sed -i 's|exec s6-setuidgid|umask 0002; exec s6-setuidgid|' /etc/s6-overlay/s6-rc.d/svc-obsidian-sync/run"
             - name: OBSIDIAN_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
