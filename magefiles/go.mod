@@ -15,8 +15,8 @@ require (
 	github.com/magefile/mage v1.17.1
 	github.com/samber/lo v1.53.0
 	github.com/xuri/excelize/v2 v2.10.1
-	k8s.io/api v0.35.3
-	k8s.io/apimachinery v0.35.3
+	k8s.io/api v0.35.4
+	k8s.io/apimachinery v0.35.4
 	k8s.io/klog/v2 v2.140.0
 	tailscale.com v1.96.5
 )
