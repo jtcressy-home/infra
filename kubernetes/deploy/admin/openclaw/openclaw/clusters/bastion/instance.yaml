@@ -75,6 +75,10 @@ spec:
   # gates any merges into this Git overlay.
   selfConfigure:
     enabled: true
+    allowedActions:
+      - config
+      - skills
+      - files
 
   resources:
     requests:
