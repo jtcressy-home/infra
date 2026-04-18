@@ -30,6 +30,12 @@ spec:
     - namespace: 'openclaw-operator-system'
       name: '*'
       server: '*'
+    - namespace: 'openclaw'
+      name: '*'
+      server: '*'
+    - namespace: 'tailscale'
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

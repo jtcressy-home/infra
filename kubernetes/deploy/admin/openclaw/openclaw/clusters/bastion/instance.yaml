@@ -1,0 +1,85 @@
+# OpenClawInstance: the single gateway pod for bastion. Fresh start (not a
+# migration from rainbowtank), so no spec.restoreFrom. Backup is enabled;
+# operator reads S3 credentials from the openclaw-backup overlay's
+# ExternalSecret in openclaw-operator-system.
+apiVersion: openclaw.rocks/v1alpha1
+kind: OpenClawInstance
+metadata:
+  name: openclaw-gw
+  namespace: openclaw
+spec:
+  # Image tag omitted — operator/chart defaults pin appVersion.
+
+  # Gateway-visible env (Telegram token only; no R2/Tailscale).
+  envFrom:
+    - secretRef:
+        name: openclaw-api-keys
+
+  # Base config checked into Git. mergeMode=merge preserves runtime state in
+  # the PVC (paired devices, onboarded LLM providers) across reconciles.
+  config:
+    configMapRef:
+      name: openclaw-config
+      key: openclaw.json
+    format: json
+    mergeMode: merge
+
+  # Gateway reverse-proxy sidecar and token auth. The operator creates the
+  # environment variable OPENCLAW_GATEWAY_TOKEN from this Secret's "token"
+  # key. The Secret itself is produced by external-secret-gateway-token.yaml.
+  gateway:
+    enabled: true
+    existingSecret: openclaw-gw-gateway-token
+    controlUiOrigins:
+      - https://openclaw-gw.tailnet-4d89.ts.net
+
+  # Tailscale integration DISABLED: exposure is handled by the
+  # tailscale-operator-managed ProxyGroup in the openclaw-gw-proxygroup
+  # overlay (the tsnet mode baked into OpenClaw itself is redundant here).
+  tailscale:
+    enabled: false
+
+  # Persistent state: agent workspaces, LLM provider auth profiles (Codex
+  # OAuth tokens land here after one-time onboarding), channel connector
+  # state. ZFS-over-iSCSI via democratic-csi is the cluster's only durable
+  # storage class. orphan=true keeps the PVC around if the instance is
+  # deleted.
+  storage:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: zfs-nvme
+      accessModes:
+        - ReadWriteOnce
+      orphan: true
+
+  # Kubernetes Service shape. Type ClusterIP — the external exposure is the
+  # operator-managed tailscale Service/ProxyGroup, which selects on pod
+  # labels.
+  networking:
+    service:
+      type: ClusterIP
+
+  # Scheduled backup to S3/R2. Operator mounts the s3-backup-credentials
+  # Secret from OperatorNamespace only on Job/CronJob pods — gateway pod
+  # cannot read R2 creds even indirectly.
+  backup:
+    schedule: "0 3 * * *"
+    retentionDays: 14
+    historyLimit: 3
+    failedHistoryLimit: 3
+    timeout: 30m
+
+  # Agents may author their own OpenClawSelfConfig CRs (see selfconfig.yaml)
+  # for narrow self-modifications. Operator enforces schema; human review
+  # gates any merges into this Git overlay.
+  selfConfigure:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi

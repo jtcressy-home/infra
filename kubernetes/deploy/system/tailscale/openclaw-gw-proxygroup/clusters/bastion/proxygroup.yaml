@@ -1,0 +1,25 @@
+# ProxyGroup: the set of tailnet nodes the tailscale-operator manages to
+# advertise the Tailscale Service svc:openclaw-gw. Nodes run the Tailscale
+# containerboot image and use the operator's OAuth client (configured in
+# the tailscale-operator install overlay) to authenticate — no
+# per-ProxyGroup auth key needed.
+#
+# replicas: 1 because the underlying K8s cluster is a single Talos node;
+# HA isn't possible until more nodes come online. type: ingress pairs with
+# the openclaw-gw-tailscale Service (loadBalancerClass=tailscale +
+# tailscale.com/proxy-group annotation) in the openclaw namespace.
+#
+# tag:openclaw-gw is owned by tag:k8s-operator in the tailnet ACL
+# (jtcressy-home/tailnet-policy PR #2, merged & applied). ACL also
+# auto-approves svc:openclaw-gw for any node bearing this tag.
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyGroup
+metadata:
+  name: openclaw-gw
+  namespace: tailscale
+spec:
+  type: ingress
+  replicas: 1
+  hostnamePrefix: openclaw-gw-k8s
+  tags:
+    - tag:openclaw-gw
