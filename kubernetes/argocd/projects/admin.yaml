@@ -27,6 +27,9 @@ spec:
     - namespace: 'byoh-system'
       name: '*'
       server: '*'
+    - namespace: 'openclaw-operator-system'
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
