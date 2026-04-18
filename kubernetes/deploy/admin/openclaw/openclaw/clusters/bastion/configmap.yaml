@@ -1,0 +1,59 @@
+# OpenClaw gateway configuration. Referenced by the OpenClawInstance via
+# spec.config.configMapRef. The operator loads this as the base config on
+# every reconcile and, when mergeMode=merge, deep-merges it with any runtime
+# state already in the PVC — Git is the base, PVC is the authority for
+# runtime deltas (paired devices, onboarded LLM providers, etc.).
+#
+# The operator's enrichment pipeline (see openclaw-operator
+# internal/resources/configmap.go: BuildConfigMapFromBytes) automatically
+# injects the following at reconcile time — do NOT duplicate them here:
+#   - gateway.auth (mode=token plus the auto-mounted token)
+#   - gateway.trustedProxies (merges 127.0.0.0/8 with anything user-set)
+#   - gateway.controlUi.allowedOrigins (from localhost + ingress hosts +
+#     spec.gateway.controlUiOrigins)
+#   - gateway.bind (loopback; the nginx proxy sidecar handles external)
+#   - gateway.tailscale (injected only when spec.tailscale.enabled — left
+#     off here since exposure is via the tailscale-operator ProxyGroup)
+#   - browser settings (when spec.chromium.enabled)
+#   - OpenTelemetry metrics
+#   - skill packs
+#
+# Source: hand-authored baseline (rainbowtank's live config could not be
+# dumped — sshd is not listening on that host and Tailscale SSH returns
+# 502). Audit fixes from 2026-04-16 Lab Notebook are applied below.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openclaw-config
+  namespace: openclaw
+data:
+  openclaw.json: |
+    {
+      "gateway": {
+        "auth": {
+          "rateLimit": {
+            "maxAttempts": 10,
+            "windowMs": 60000,
+            "lockoutMs": 300000
+          }
+        }
+      },
+      "channels": {
+        "telegram": {
+          "enabled": true,
+          "groupAllowFrom": []
+        }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "openai/codex-gpt-5-mini",
+            "fallback": "openai/codex-gpt-4.1-mini"
+          },
+          "sandbox": true
+        }
+      },
+      "skills": {
+        "prelude": []
+      }
+    }

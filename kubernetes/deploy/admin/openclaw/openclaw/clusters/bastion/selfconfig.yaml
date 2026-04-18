@@ -1,0 +1,19 @@
+# Empty OpenClawSelfConfig scaffold — exists to be the sole CR the admin
+# agent may edit via PR. Adding a field here produces a rendered patch; the
+# operator applies it on top of the instance's base spec. The Git PR review
+# flow is the enforcement boundary — the CRD itself is permissive on what
+# can be requested.
+apiVersion: openclaw.rocks/v1alpha1
+kind: OpenClawSelfConfig
+metadata:
+  name: openclaw-gw-admin
+  namespace: openclaw
+spec:
+  instanceRef: openclaw-gw
+  addEnvVars: []
+  removeEnvVars: []
+  addSkills: []
+  removeSkills: []
+  addWorkspaceFiles: {}
+  removeWorkspaceFiles: []
+  configPatch: {}
