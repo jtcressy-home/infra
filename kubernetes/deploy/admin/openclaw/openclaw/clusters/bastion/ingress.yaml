@@ -1,12 +1,16 @@
 # Tailscale-exposed HTTPS Ingress backed by the openclaw-gw ProxyGroup.
 #
-# Per tailscale-operator docs (https://tailscale.com/kb/1439/kubernetes-operator-cluster-ingress)
-# the ProxyGroup-backed Ingress pattern uses the tailscale.com/hostname
-# annotation (derives MagicDNS name = "openclaw-gw.<tailnet>.ts.net") and
-# does NOT use a `host` field on the rule (the rule applies to all traffic
-# hitting the Tailscale Service VIP). The previous attempt with
-# `host: openclaw-gw.tailnet-4d89.ts.net` on the rule was rejected by the
-# operator with "rule with host <x> ignored, unsupported".
+# Per canonical docs (https://tailscale.com/kb/1439/kubernetes-operator-cluster-ingress):
+# - Use `defaultBackend` (no rules with `host` — ProxyGroup-mode rejects rule hosts).
+# - Set `spec.tls.hosts[0]` to the desired first DNS label. Default otherwise
+#   is `<ingress-name>-<namespace>` which produced the mangled
+#   "openclaw-gw-openclaw" / "openclaw-openclaw-gw-ingress" forms seen earlier.
+# - Do NOT set the `tailscale.com/hostname` annotation — tls.hosts[0] is the
+#   source of truth for ProxyGroup-backed Ingresses.
+# - Only annotation required: `tailscale.com/proxy-group`.
+#
+# Final DNS name: openclaw-gw.<tailnet>.ts.net (matches ACL autoApprover on
+# svc:openclaw-gw via tailnet-policy repo).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -14,7 +18,6 @@ metadata:
   namespace: openclaw
   annotations:
     tailscale.com/proxy-group: openclaw-gw
-    tailscale.com/hostname: openclaw-gw
 spec:
   ingressClassName: tailscale
   defaultBackend:
@@ -22,3 +25,6 @@ spec:
       name: openclaw-gw
       port:
         number: 18789
+  tls:
+    - hosts:
+        - openclaw-gw
