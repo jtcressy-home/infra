@@ -36,6 +36,9 @@ data:
             "windowMs": 60000,
             "lockoutMs": 300000
           }
+        },
+        "reload": {
+          "mode": "hot"
         }
       },
       "channels": {
