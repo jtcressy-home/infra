@@ -1,0 +1,29 @@
+# Augmenting NetworkPolicy: allow inbound traffic from the tailscale
+# namespace (ProxyGroup pods) to the openclaw gateway pod on 18790.
+#
+# The openclaw-operator installs its own NetworkPolicy on the pod that
+# only allows ingress from within the openclaw namespace. With the
+# Ingress routed through tailscale-namespace ProxyGroup pods, we need
+# this additional allow-rule so the proxy can actually reach the
+# gateway sidecar. NetworkPolicies are additive (OR semantics) so this
+# sits alongside the operator-managed policy without conflict.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openclaw-gw-allow-tailscale
+  namespace: openclaw
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: openclaw
+      app.kubernetes.io/instance: openclaw-gw
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: tailscale
+      ports:
+        - protocol: TCP
+          port: 18790

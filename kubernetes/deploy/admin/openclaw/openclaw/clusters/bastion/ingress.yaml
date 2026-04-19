@@ -1,0 +1,33 @@
+# Tailscale-exposed HTTPS Ingress backed by the openclaw-gw ProxyGroup.
+#
+# The tailscale-operator routes this Ingress through the ProxyGroup's
+# pods (svc:openclaw-gw VIP) instead of spawning a dedicated ts-* proxy
+# pod. Combines:
+#   - HTTPS termination + automatic cert provisioning (Ingress feature)
+#   - Named Tailscale Service + VIP (ProxyGroup feature)
+#
+# Backend targets the ClusterIP Service the openclaw-operator creates
+# (name = instance name "openclaw-gw"), port 18789 = gateway sidecar.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openclaw-gw
+  namespace: openclaw
+  annotations:
+    tailscale.com/proxy-group: openclaw-gw
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - "openclaw-gw"
+  rules:
+    - host: "openclaw-gw"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openclaw-gw
+                port:
+                  number: 18789
