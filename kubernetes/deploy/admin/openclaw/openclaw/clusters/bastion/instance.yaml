@@ -78,7 +78,7 @@ spec:
     allowedActions:
       - config
       - skills
-      - files
+      - workspaceFiles
 
   resources:
     requests:
