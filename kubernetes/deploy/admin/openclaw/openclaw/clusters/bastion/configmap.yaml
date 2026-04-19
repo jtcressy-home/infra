@@ -46,14 +46,12 @@ data:
       },
       "agents": {
         "defaults": {
-          "model": {
-            "primary": "openai/codex-gpt-5-mini",
-            "fallback": "openai/codex-gpt-4.1-mini"
+          "models": {
+            "openai-codex/gpt-5.4": {}
           },
-          "sandbox": true
+          "model": {
+            "primary": "openai-codex/gpt-5.4"
+          }
         }
-      },
-      "skills": {
-        "prelude": []
       }
     }
