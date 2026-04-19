@@ -13,3 +13,4 @@ resources:
   - selfconfig.yaml
   - ingress.yaml
   - netpol.yaml
+  - netpol-egress-ollama.yaml
