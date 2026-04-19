@@ -18,6 +18,11 @@ metadata:
   namespace: openclaw
   annotations:
     tailscale.com/proxy-group: openclaw-gw
+    # Tailscale Services created by the operator default to tag:k8s. Override
+    # with a dedicated tag so the autoApprover in tailnet-policy can reference
+    # it specifically (not all tag:k8s services). Per tailscale-operator docs
+    # the autoApprover matches on service tag, not service name.
+    tailscale.com/tags: "tag:openclaw-gw"
 spec:
   ingressClassName: tailscale
   defaultBackend:
