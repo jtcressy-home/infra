@@ -25,7 +25,7 @@ spec:
       name: openclaw-config
       key: openclaw.json
     format: json
-    mergeMode: replace
+    mergeMode: overwrite
 
   # Gateway reverse-proxy sidecar and token auth. The operator creates the
   # environment variable OPENCLAW_GATEWAY_TOKEN from this Secret's "token"
