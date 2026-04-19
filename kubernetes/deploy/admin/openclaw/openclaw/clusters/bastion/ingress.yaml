@@ -7,7 +7,7 @@
 #   - Named Tailscale Service + VIP (ProxyGroup feature)
 #
 # Backend targets the ClusterIP Service the openclaw-operator creates
-# (name = instance name "openclaw-gw"), port 18789 = gateway sidecar.
+# (name = instance name "openclaw-gw.tailnet-4d89.ts.net"), port 18789 = gateway sidecar.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -19,9 +19,9 @@ spec:
   ingressClassName: tailscale
   tls:
     - hosts:
-        - "openclaw-gw"
+        - "openclaw-gw.tailnet-4d89.ts.net"
   rules:
-    - host: "openclaw-gw"
+    - host: "openclaw-gw.tailnet-4d89.ts.net"
       http:
         paths:
           - path: /
