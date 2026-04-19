@@ -15,14 +15,17 @@ spec:
     - secretRef:
         name: openclaw-api-keys
 
-  # Base config checked into Git. mergeMode=merge preserves runtime state in
-  # the PVC (paired devices, onboarded LLM providers) across reconciles.
+  # Base config checked into Git. mergeMode=replace makes the ConfigMap the
+  # sole source of truth for openclaw.json on every reconcile, evicting any
+  # residual keys left by prior bad-config merges. Runtime state (paired
+  # devices, OAuth profiles) lives in SEPARATE PVC files (devices/paired.json,
+  # identity/device.json, auth-profiles.json) and is untouched by replace.
   config:
     configMapRef:
       name: openclaw-config
       key: openclaw.json
     format: json
-    mergeMode: merge
+    mergeMode: replace
 
   # Gateway reverse-proxy sidecar and token auth. The operator creates the
   # environment variable OPENCLAW_GATEWAY_TOKEN from this Secret's "token"
