@@ -1,13 +1,12 @@
 # Tailscale-exposed HTTPS Ingress backed by the openclaw-gw ProxyGroup.
 #
-# The tailscale-operator routes this Ingress through the ProxyGroup's
-# pods (svc:openclaw-gw VIP) instead of spawning a dedicated ts-* proxy
-# pod. Combines:
-#   - HTTPS termination + automatic cert provisioning (Ingress feature)
-#   - Named Tailscale Service + VIP (ProxyGroup feature)
-#
-# Backend targets the ClusterIP Service the openclaw-operator creates
-# (name = instance name "openclaw-gw.tailnet-4d89.ts.net"), port 18789 = gateway sidecar.
+# Per tailscale-operator docs (https://tailscale.com/kb/1439/kubernetes-operator-cluster-ingress)
+# the ProxyGroup-backed Ingress pattern uses the tailscale.com/hostname
+# annotation (derives MagicDNS name = "openclaw-gw.<tailnet>.ts.net") and
+# does NOT use a `host` field on the rule (the rule applies to all traffic
+# hitting the Tailscale Service VIP). The previous attempt with
+# `host: openclaw-gw.tailnet-4d89.ts.net` on the rule was rejected by the
+# operator with "rule with host <x> ignored, unsupported".
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -15,19 +14,11 @@ metadata:
   namespace: openclaw
   annotations:
     tailscale.com/proxy-group: openclaw-gw
+    tailscale.com/hostname: openclaw-gw
 spec:
   ingressClassName: tailscale
-  tls:
-    - hosts:
-        - "openclaw-gw.tailnet-4d89.ts.net"
-  rules:
-    - host: "openclaw-gw.tailnet-4d89.ts.net"
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: openclaw-gw
-                port:
-                  number: 18789
+  defaultBackend:
+    service:
+      name: openclaw-gw
+      port:
+        number: 18789
