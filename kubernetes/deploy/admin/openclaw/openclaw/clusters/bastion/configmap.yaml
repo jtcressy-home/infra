@@ -56,5 +56,8 @@ data:
             "primary": "openai-codex/gpt-5.4"
           }
         }
+      },
+      "memory": {
+        "backend": "qmd"
       }
     }
