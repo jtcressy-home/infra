@@ -59,7 +59,7 @@ data:
             "provider": "ollama",
             "model": "qwen3-embedding:4b",
             "remote": {
-              "baseUrl": "http://100.120.142.7:11434"
+              "baseUrl": "http://rainbowtank.tailnet-4d89.ts.net:11434"
             }
           }
         }
