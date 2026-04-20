@@ -15,59 +15,6 @@ spec:
     - secretRef:
         name: openclaw-api-keys
 
-  # PATH override so the gateway (a Node process) and its spawned children
-  # can resolve qmd, uv, and anything else installed by init containers into
-  # the PVC at /home/openclaw/.local/bin. The default container PATH does
-  # not include that directory, and Node's spawn() inherits the parent
-  # process PATH verbatim.
-  env:
-    - name: PATH
-      value: /home/openclaw/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-  # Install @tobilu/qmd into the PVC so the gateway's qmd memory backend
-  # has its binary available. Mirrors the operator's own init-uv pattern:
-  # idempotent, writes into /data/.local which is the same path the main
-  # container sees as /home/openclaw/.local. qmd downloads ~2GB of GGUF
-  # models to ~/.cache/qmd on first use — also on the PVC, so models
-  # persist across pod restarts.
-  #
-  # node:24-bookworm-slim has npm; qmd's native deps (better-sqlite3,
-  # node-llama-cpp, sqlite-vec) ship prebuilt binaries for linux/x64 so no
-  # build toolchain is required.
-  initContainers:
-    - name: init-qmd
-      image: node:24-bookworm-slim
-      command:
-        - sh
-        - -c
-        - |
-          set -e
-          if [ -x /data/.local/bin/qmd ]; then
-            echo "qmd already installed: $(/data/.local/bin/qmd --version 2>/dev/null || echo unknown)"
-            exit 0
-          fi
-          export HOME=/tmp
-          export NPM_CONFIG_PREFIX=/data/.local
-          export NPM_CONFIG_CACHE=/data/.cache/npm
-          npm install -g @tobilu/qmd
-          /data/.local/bin/qmd --version
-      securityContext:
-        allowPrivilegeEscalation: false
-        capabilities:
-          drop:
-            - ALL
-        readOnlyRootFilesystem: true
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        seccompProfile:
-          type: RuntimeDefault
-      volumeMounts:
-        - mountPath: /data
-          name: data
-        - mountPath: /tmp
-          name: tmp
-
   # Base config checked into Git. mergeMode=replace makes the ConfigMap the
   # sole source of truth for openclaw.json on every reconcile, evicting any
   # residual keys left by prior bad-config merges. Runtime state (paired
