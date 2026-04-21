@@ -56,10 +56,10 @@ data:
             "primary": "openai-codex/gpt-5.4"
           },
           "memorySearch": {
-            "provider": "ollama",
-            "model": "qwen3-embedding:4b",
+            "provider": "openai",
+            "model": "openai/text-embedding-3-small",
             "remote": {
-              "baseUrl": "http://rainbowtank.tailnet-4d89.ts.net:11434"
+              "baseUrl": "https://openrouter.ai/api/v1"
             }
           }
         }
