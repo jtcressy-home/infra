@@ -12,7 +12,7 @@ require (
 	github.com/go-logr/logr v1.4.3
 	github.com/kastenhq/kubestr v0.4.49
 	github.com/lainio/err2 v1.2.3
-	github.com/magefile/mage v1.17.1
+	github.com/magefile/mage v1.17.2
 	github.com/samber/lo v1.53.0
 	github.com/xuri/excelize/v2 v2.10.1
 	k8s.io/api v0.36.0
