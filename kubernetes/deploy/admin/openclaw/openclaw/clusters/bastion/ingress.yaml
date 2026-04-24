@@ -13,8 +13,9 @@
 # svc:openclaw-gw via tailnet-policy repo).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
+# Name must not match the OpenClawInstance: reconcileIngress deletes matching Ingresses when ingress.enabled=false.
 metadata:
-  name: openclaw-gw
+  name: openclaw-gw-ts
   namespace: openclaw
   annotations:
     tailscale.com/proxy-group: openclaw-gw
