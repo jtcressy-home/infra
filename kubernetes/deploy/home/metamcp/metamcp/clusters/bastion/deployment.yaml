@@ -31,7 +31,7 @@ spec:
             limits:
               memory: 128Mi
         - name: install-arr-suite-and-deno
-          image: ghcr.io/metatool-ai/metamcp:latest
+          image: ghcr.io/jtcressy-home/metamcp:patched@sha256:9b6e0a664616a97773f39fb50e8acb318d8f9abd8ce9eba60ff20669c72296c9
           command:
             - sh
             - -c
@@ -101,10 +101,25 @@ spec:
               memory: 1Gi
       containers:
         - name: metamcp
-          image: ghcr.io/metatool-ai/metamcp:latest
+          image: ghcr.io/jtcressy-home/metamcp:patched@sha256:9b6e0a664616a97773f39fb50e8acb318d8f9abd8ce9eba60ff20669c72296c9
           ports:
             - containerPort: 12008
               name: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 12008
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 12008
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
           env:
             # Database
             - name: DATABASE_URL
