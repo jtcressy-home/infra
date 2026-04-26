@@ -145,10 +145,6 @@
       "matchPackageNames": [
         "ghcr.io/openclaw/openclaw"
       ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
       "ignoreUnstable": true,
       "automerge": true,
       "addLabels": [

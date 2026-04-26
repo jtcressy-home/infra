@@ -9,8 +9,10 @@ metadata:
   namespace: openclaw
 spec:
   # Pinned so Renovate can track gateway image releases (see renovate.json
-  # packageRule for ghcr.io/openclaw/openclaw — minor/patch automerged,
-  # majors and pre-releases held for review).
+  # packageRule for ghcr.io/openclaw/openclaw — non-prerelease bumps
+  # automerged; -beta.* tags held by ignoreUnstable). Upstream uses CalVer
+  # (YYYY.M.D) so a semver matchUpdateTypes filter is meaningless here —
+  # year rollover would be a "major" bump but isn't actually breaking.
   image:
     repository: ghcr.io/openclaw/openclaw
     # renovate: datasource=docker depName=ghcr.io/openclaw/openclaw
