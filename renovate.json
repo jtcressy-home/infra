@@ -26,7 +26,8 @@
       "matchStrings": [
         "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s  version: (?<currentValue>.*)\\s",
         "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\stalosVersion: (?<currentValue>.*)\\s",
-        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\skubernetesVersion: (?<currentValue>.*)\\s"
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\skubernetesVersion: (?<currentValue>.*)\\s",
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s+tag: (?<currentValue>.*)\\s"
       ],
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     }
@@ -135,6 +136,20 @@
         "patch",
         "digest"
       ],
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/openclaw/openclaw"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "ignoreUnstable": true,
       "automerge": true,
       "addLabels": [
         "renovate:automerge"

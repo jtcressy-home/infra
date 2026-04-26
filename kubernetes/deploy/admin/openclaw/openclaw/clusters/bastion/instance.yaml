@@ -8,7 +8,13 @@ metadata:
   name: openclaw-gw
   namespace: openclaw
 spec:
-  # Image tag omitted — operator/chart defaults pin appVersion.
+  # Pinned so Renovate can track gateway image releases (see renovate.json
+  # packageRule for ghcr.io/openclaw/openclaw — minor/patch automerged,
+  # majors and pre-releases held for review).
+  image:
+    repository: ghcr.io/openclaw/openclaw
+    # renovate: datasource=docker depName=ghcr.io/openclaw/openclaw
+    tag: 2026.4.24
 
   # Gateway-visible env (Telegram token only; no R2/Tailscale).
   envFrom:
