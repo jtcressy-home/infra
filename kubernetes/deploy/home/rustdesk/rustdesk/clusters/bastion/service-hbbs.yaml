@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rustdesk-hbbs
+  annotations:
+    tailscale.com/hostname: rustdesk-hbbs
+spec:
+  type: LoadBalancer
+  loadBalancerClass: tailscale
+  selector:
+    app.kubernetes.io/name: rustdesk
+  ports:
+    - name: nat-test-tcp
+      port: 21115
+      targetPort: 21115
+      protocol: TCP
+    - name: id-tcp
+      port: 21116
+      targetPort: 21116
+      protocol: TCP
+    - name: id-udp
+      port: 21116
+      targetPort: 21116
+      protocol: UDP
+    - name: api-tcp
+      port: 21118
+      targetPort: 21118
+      protocol: TCP
+    - name: webclient-tcp
+      port: 21119
+      targetPort: 21119
+      protocol: TCP

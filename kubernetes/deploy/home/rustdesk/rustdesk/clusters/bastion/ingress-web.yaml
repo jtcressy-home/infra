@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rustdesk-web
+  annotations:
+    # tailscale.com/funnel: "true"
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: rustdesk-hbbs
+      port:
+        number: 21119
