@@ -1,0 +1,44 @@
+# OpenClaw SIP voice POC configuration. The plugin is loaded from the
+# ImageVolume mounted by instance.yaml; no upstream voice-call plugin is
+# installed for this isolated instance.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openclaw-sip-voice-config
+  namespace: openclaw
+data:
+  openclaw.json: |
+    {
+      "plugins": {
+        "load": {
+          "paths": [
+            "/opt/openclaw-plugins/sip-voice"
+          ]
+        },
+        "entries": {
+          "sip-voice": {
+            "enabled": true,
+            "config": {
+              "bridge": {
+                "url": "ws://127.0.0.1:9077"
+              },
+              "maxConcurrentCalls": 1,
+              "audio": {
+                "format": "g711-ulaw-8khz"
+              },
+              "realtime": {
+                "provider": "google",
+                "model": "gemini-3.1-flash-live-preview",
+                "toolPolicy": "safe-read-only",
+                "providers": {
+                  "google": {
+                    "apiKey": "${GEMINI_API_KEY}",
+                    "voice": "Kore"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }

@@ -1,0 +1,52 @@
+# OpenClaw SIP voice network allow-list.
+#
+# SIP/RTP traffic is expected to use the Multus macvlan interface. Cilium
+# NetworkPolicy enforcement on that interface still needs live validation, but
+# this additive policy records the intended UniFi allow-list alongside the
+# instance. DNS/HTTPS egress is explicit so Gemini Live does not depend on an
+# operator-generated default egress policy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openclaw-sip-voice-unifi-sip-rtp
+  namespace: openclaw
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: openclaw
+      app.kubernetes.io/instance: openclaw-sip-voice
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 192.168.20.1/32
+      ports:
+        - protocol: UDP
+          port: 5060
+        - protocol: UDP
+          port: 10000
+          endPort: 10019
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 192.168.20.1/32
+      ports:
+        - protocol: UDP
+          port: 5060
+        - protocol: UDP
+          port: 10000
+          endPort: 10019
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6443
