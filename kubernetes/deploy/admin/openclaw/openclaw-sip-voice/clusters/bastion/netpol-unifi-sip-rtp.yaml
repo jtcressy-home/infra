@@ -2,9 +2,10 @@
 #
 # SIP/RTP traffic is expected to use the Multus macvlan interface. Cilium
 # NetworkPolicy enforcement on that interface still needs live validation, but
-# this additive policy records the intended UniFi allow-list alongside the
-# instance. DNS/HTTPS egress is explicit so Gemini Live does not depend on an
-# operator-generated default egress policy.
+# this policy keeps the POC's egress explicit. Ingress enforcement is left open
+# because kubelet host probes are not reliably expressible with plain
+# Kubernetes NetworkPolicy on this Cilium setup; a stricter ingress policy
+# should use a deliberate CiliumNetworkPolicy follow-up.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -16,29 +17,7 @@ spec:
       app.kubernetes.io/name: openclaw
       app.kubernetes.io/instance: openclaw-sip-voice
   policyTypes:
-    - Ingress
     - Egress
-  ingress:
-    # Kubelet health probes can originate from host/CNI paths that are not
-    # reliably represented as the node's LAN IP. Keep this limited to health
-    # ports; SIP/RTP remains restricted to UniFi below.
-    - from:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-      ports:
-        - protocol: TCP
-          port: 18790
-        - protocol: TCP
-          port: 9078
-    - from:
-        - ipBlock:
-            cidr: 192.168.20.1/32
-      ports:
-        - protocol: UDP
-          port: 5060
-        - protocol: UDP
-          port: 10000
-          endPort: 10019
   egress:
     - to:
         - ipBlock:
