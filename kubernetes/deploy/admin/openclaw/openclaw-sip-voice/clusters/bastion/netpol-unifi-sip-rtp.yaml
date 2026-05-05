@@ -19,6 +19,16 @@ spec:
     - Ingress
     - Egress
   ingress:
+    # Kubelet health probes originate from the node, not from inside the pod.
+    # Keep this narrow so the pod remains closed except for probes and UniFi.
+    - from:
+        - ipBlock:
+            cidr: 192.168.20.30/32
+      ports:
+        - protocol: TCP
+          port: 18790
+        - protocol: TCP
+          port: 9078
     - from:
         - ipBlock:
             cidr: 192.168.20.1/32
