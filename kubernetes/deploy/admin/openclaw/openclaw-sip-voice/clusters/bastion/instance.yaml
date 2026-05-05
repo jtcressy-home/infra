@@ -33,6 +33,19 @@ spec:
         }
       ]
 
+  # The pod has a same-LAN macvlan interface for SIP/RTP. Kubelet probes
+  # against the Cilium pod IP can time out because return traffic to the node's
+  # 192.168.20.30 address prefers the macvlan interface. The operator's main
+  # OpenClaw probes do not expose httpGet.host, so disable them for this POC and
+  # keep bridge readiness below pointed at the macvlan IP.
+  probes:
+    startup:
+      enabled: false
+    liveness:
+      enabled: false
+    readiness:
+      enabled: false
+
   extraVolumes:
     - name: sip-voice-plugin
       image:
@@ -82,12 +95,14 @@ spec:
           protocol: TCP
       readinessProbe:
         httpGet:
+          host: 192.168.20.11
           path: /readyz
           port: bridge-health
         periodSeconds: 10
         failureThreshold: 6
       livenessProbe:
         httpGet:
+          host: 192.168.20.11
           path: /healthz
           port: bridge-health
         periodSeconds: 30
