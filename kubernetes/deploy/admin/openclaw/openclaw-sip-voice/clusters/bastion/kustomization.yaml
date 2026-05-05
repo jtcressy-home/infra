@@ -10,4 +10,3 @@ resources:
   - external-secret-sip.yaml
   - configmap.yaml
   - instance.yaml
-  - netpol-unifi-sip-rtp.yaml
