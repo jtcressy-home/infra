@@ -9,7 +9,7 @@ spec:
   image:
     repository: ghcr.io/openclaw/openclaw
     # Match the audited bastion gateway overlay baseline.
-    tag: 2026.5.4
+    tag: 2026.5.5
 
   envFrom:
     - secretRef:
