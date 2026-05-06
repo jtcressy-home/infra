@@ -8,7 +8,6 @@ kind: Kustomization
 resources:
   - external-secret-api-keys.yaml
   - external-secret-sip.yaml
-  - configmap.yaml
   - bridge-service.yaml
   - bridge-statefulset.yaml
   - netpol-bridge-client.yaml

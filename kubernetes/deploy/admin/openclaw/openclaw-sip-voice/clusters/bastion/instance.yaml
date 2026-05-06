@@ -16,9 +16,28 @@ spec:
         name: openclaw-sip-voice-api-keys
 
   config:
-    configMapRef:
-      name: openclaw-sip-voice-config
-      key: openclaw.json
+    raw:
+      plugins:
+        load:
+          paths:
+            - /opt/openclaw-plugins/sip-voice
+        entries:
+          sip-voice:
+            enabled: true
+            config:
+              bridge:
+                url: ws://openclaw-sip-voice-bridge.openclaw.svc.cluster.local:9077
+              maxConcurrentCalls: 1
+              audio:
+                format: g711-ulaw-8khz
+              realtime:
+                provider: google
+                model: gemini-3.1-flash-live-preview
+                toolPolicy: safe-read-only
+                providers:
+                  google:
+                    apiKey: ${GEMINI_API_KEY}
+                    voice: Kore
     format: json
     mergeMode: overwrite
 
