@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openclaw-sip-voice-decommissioned
+  namespace: openclaw
+  labels:
+    app.kubernetes.io/name: openclaw-sip-voice-decommissioned
+    app.kubernetes.io/part-of: openclaw-sip-voice
+data:
+  status: decommissioned
+  reason: "Old SIP UA PoC disabled; official voice-call/Twilio redesign will replace it."

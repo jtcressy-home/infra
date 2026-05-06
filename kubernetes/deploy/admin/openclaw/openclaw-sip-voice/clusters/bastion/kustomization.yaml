@@ -6,9 +6,4 @@ kind: Kustomization
 # set a local namespace transformer here.
 
 resources:
-  - external-secret-api-keys.yaml
-  - external-secret-sip.yaml
-  - bridge-service.yaml
-  - bridge-statefulset.yaml
-  - netpol-bridge-client.yaml
-  - instance.yaml
+  - decommissioned.yaml
