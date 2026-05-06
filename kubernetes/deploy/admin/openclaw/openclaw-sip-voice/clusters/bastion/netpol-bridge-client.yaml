@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openclaw-sip-voice-bridge-client
+  namespace: openclaw
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: openclaw-sip-voice
+      app.kubernetes.io/name: openclaw
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: openclaw-sip-voice-bridge
+              app.kubernetes.io/part-of: openclaw-sip-voice
+      ports:
+        - port: 9077
+          protocol: TCP

@@ -11,4 +11,5 @@ resources:
   - configmap.yaml
   - bridge-service.yaml
   - bridge-statefulset.yaml
+  - netpol-bridge-client.yaml
   - instance.yaml
