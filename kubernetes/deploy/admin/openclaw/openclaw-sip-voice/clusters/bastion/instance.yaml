@@ -44,7 +44,7 @@ spec:
   extraVolumes:
     - name: sip-voice-plugin
       image:
-        reference: ghcr.io/jtcressy/openclaw-sip-voice-plugin@sha256:bb9ec03ee81921e9fe7777bfea6a32a7e8d1aa0e569463516f7442b5da9cf344
+        reference: ghcr.io/jtcressy/openclaw-sip-voice-plugin@sha256:730cd05bf291da8d6a151e8a659eb2d313bac7ae616f3031e6a17cc2bf87b570
         pullPolicy: IfNotPresent
 
   extraVolumeMounts:

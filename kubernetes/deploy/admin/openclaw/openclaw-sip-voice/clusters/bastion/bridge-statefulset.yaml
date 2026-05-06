@@ -35,7 +35,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: openclaw-sip-voice-bridge
-          image: ghcr.io/jtcressy/openclaw-sip-voice-bridge@sha256:86da1b98904f3201b97d548c4f90938ae9667f2999fdc185ac36af527e51a77c
+          image: ghcr.io/jtcressy/openclaw-sip-voice-bridge@sha256:9d36cf958ec976baefffb5b1e393a22ad1d9f5791e0c430790df74e81f56a796
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
