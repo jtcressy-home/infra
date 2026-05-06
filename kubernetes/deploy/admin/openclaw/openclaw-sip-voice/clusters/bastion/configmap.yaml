@@ -20,7 +20,7 @@ data:
             "enabled": true,
             "config": {
               "bridge": {
-                "url": "ws://127.0.0.1:9077"
+                "url": "ws://openclaw-sip-voice-bridge.openclaw.svc.cluster.local:9077"
               },
               "maxConcurrentCalls": 1,
               "audio": {

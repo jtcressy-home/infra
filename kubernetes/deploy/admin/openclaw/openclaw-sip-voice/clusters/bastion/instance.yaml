@@ -22,30 +22,6 @@ spec:
     format: json
     mergeMode: overwrite
 
-  podAnnotations:
-    k8s.v1.cni.cncf.io/networks: |-
-      [
-        {
-          "name": "macvlan-conf-dhcp",
-          "namespace": "kube-system",
-          "interface": "eth1",
-          "mac": "02:8c:20:0c:1a:01"
-        }
-      ]
-
-  # The pod has a same-LAN macvlan interface for SIP/RTP. Kubelet probes
-  # against the Cilium pod IP can time out because return traffic to the node's
-  # 192.168.20.30 address prefers the macvlan interface. PodSecurity baseline
-  # also forbids overriding probe httpGet.host to the macvlan IP. Disable HTTP
-  # probes for this POC and verify health explicitly during rollout.
-  probes:
-    startup:
-      enabled: false
-    liveness:
-      enabled: false
-    readiness:
-      enabled: false
-
   extraVolumes:
     - name: sip-voice-plugin
       image:
@@ -56,43 +32,6 @@ spec:
     - name: sip-voice-plugin
       mountPath: /opt/openclaw-plugins/sip-voice
       readOnly: true
-
-  sidecars:
-    - name: openclaw-sip-voice-bridge
-      image: ghcr.io/jtcressy/openclaw-sip-voice-bridge@sha256:c273b8b514a2740016ba2ffba053c1c86ac8d6e01c4dea821ed9d13b5eca7b68
-      imagePullPolicy: IfNotPresent
-      envFrom:
-        - secretRef:
-            name: openclaw-sip-voice-sip
-      env:
-        - name: SIP_TRANSPORT
-          value: udp
-        - name: SIP_BIND_ADDR
-          value: 0.0.0.0:5060
-        # The bridge currently requires an explicit advertised address. This
-        # should match the DHCP reservation for MAC 02:8c:20:0c:1a:01.
-        - name: SIP_ADVERTISE_ADDR
-          value: 192.168.20.11:5060
-        - name: RTP_PORT_MIN
-          value: "10000"
-        - name: RTP_PORT_MAX
-          value: "10019"
-        - name: BRIDGE_WS_ADDR
-          value: 127.0.0.1:9077
-        - name: METRICS_ADDR
-          value: 0.0.0.0:9078
-        - name: CODECS
-          value: g711_ulaw
-      ports:
-        - name: sip-udp
-          containerPort: 5060
-          protocol: UDP
-        - name: bridge-ws
-          containerPort: 9077
-          protocol: TCP
-        - name: bridge-health
-          containerPort: 9078
-          protocol: TCP
 
   tailscale:
     enabled: false

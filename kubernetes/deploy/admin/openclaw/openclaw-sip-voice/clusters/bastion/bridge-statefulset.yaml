@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: openclaw-sip-voice-bridge
+  namespace: openclaw
+  labels:
+    app.kubernetes.io/name: openclaw-sip-voice-bridge
+    app.kubernetes.io/part-of: openclaw-sip-voice
+spec:
+  replicas: 1
+  serviceName: openclaw-sip-voice-bridge
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: openclaw-sip-voice-bridge
+      app.kubernetes.io/part-of: openclaw-sip-voice
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: openclaw-sip-voice-bridge
+        app.kubernetes.io/part-of: openclaw-sip-voice
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |-
+          [
+            {
+              "name": "macvlan-conf-dhcp",
+              "namespace": "kube-system",
+              "interface": "eth1",
+              "mac": "02:8c:20:0c:1a:01"
+            }
+          ]
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: openclaw-sip-voice-bridge
+          image: ghcr.io/jtcressy/openclaw-sip-voice-bridge@sha256:86da1b98904f3201b97d548c4f90938ae9667f2999fdc185ac36af527e51a77c
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          envFrom:
+            - secretRef:
+                name: openclaw-sip-voice-sip
+          env:
+            - name: SIP_TRANSPORT
+              value: udp
+            - name: SIP_BIND_ADDR
+              value: 0.0.0.0:5060
+            # Must match DHCP reservation for MAC 02:8c:20:0c:1a:01.
+            - name: SIP_ADVERTISE_ADDR
+              value: 192.168.20.11:5060
+            - name: RTP_PORT_MIN
+              value: "10000"
+            - name: RTP_PORT_MAX
+              value: "10019"
+            - name: BRIDGE_WS_ADDR
+              value: 0.0.0.0:9077
+            - name: METRICS_ADDR
+              value: 127.0.0.1:9078
+            - name: CODECS
+              value: g711_ulaw
+          ports:
+            - name: sip-udp
+              containerPort: 5060
+              protocol: UDP
+            - name: bridge-ws
+              containerPort: 9077
+              protocol: TCP
+            - name: bridge-metrics
+              containerPort: 9078
+              protocol: TCP
+          startupProbe:
+            exec:
+              command:
+                - /openclaw-sip-voice-bridge
+                - healthcheck
+                - --url
+                - http://127.0.0.1:9078/healthz
+                - --timeout
+                - 2s
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command:
+                - /openclaw-sip-voice-bridge
+                - healthcheck
+                - --url
+                - http://127.0.0.1:9078/healthz
+                - --timeout
+                - 2s
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            exec:
+              command:
+                - /openclaw-sip-voice-bridge
+                - healthcheck
+                - --url
+                - http://127.0.0.1:9078/readyz
+                - --timeout
+                - 2s
+            failureThreshold: 3
+            periodSeconds: 5
+            timeoutSeconds: 3

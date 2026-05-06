@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: openclaw-sip-voice-bridge
+  namespace: openclaw
+  labels:
+    app.kubernetes.io/name: openclaw-sip-voice-bridge
+    app.kubernetes.io/part-of: openclaw-sip-voice
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: openclaw-sip-voice-bridge
+    app.kubernetes.io/part-of: openclaw-sip-voice
+  ports:
+    - name: bridge-ws
+      port: 9077
+      targetPort: bridge-ws
+      protocol: TCP
