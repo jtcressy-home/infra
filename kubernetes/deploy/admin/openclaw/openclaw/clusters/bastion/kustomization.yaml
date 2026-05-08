@@ -8,9 +8,16 @@ kind: Kustomization
 resources:
   - external-secret-api-keys.yaml
   - external-secret-gateway-token.yaml
-  - configmap.yaml
   - instance.yaml
-  - selfconfig.yaml
   - ingress.yaml
   - netpol.yaml
   - netpol-egress-ollama.yaml
+
+# Git-owned base config. The stable ConfigMap name is required because the
+# OpenClawInstance references it through spec.config.configMapRef.
+configMapGenerator:
+  - name: openclaw-config
+    files:
+      - openclaw.json
+generatorOptions:
+  disableNameSuffixHash: true

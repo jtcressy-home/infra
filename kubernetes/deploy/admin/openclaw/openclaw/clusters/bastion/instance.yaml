@@ -23,11 +23,15 @@ spec:
     - secretRef:
         name: openclaw-api-keys
 
-  # Base config checked into Git. mergeMode=replace makes the ConfigMap the
-  # sole source of truth for openclaw.json on every reconcile, evicting any
-  # residual keys left by prior bad-config merges. Runtime state (paired
-  # devices, OAuth profiles) lives in SEPARATE PVC files (devices/paired.json,
-  # identity/device.json, auth-profiles.json) and is untouched by replace.
+  # Base config checked into Git. The referenced ConfigMap is generated from
+  # openclaw.json in this overlay and is the only Git-owned openclaw.json base.
+  # The operator enriches that base into its generated runtime ConfigMap.
+  #
+  # Do not set spec.config.raw while configMapRef is active. Current operator
+  # behavior ignores raw when configMapRef is set, so raw would become latent
+  # state rather than a clear overlay. mergeMode=overwrite restores the
+  # generated config into the PVC on pod startup; durable runtime state such as
+  # paired devices and OAuth profiles lives in separate PVC files.
   config:
     configMapRef:
       name: openclaw-config
@@ -81,13 +85,15 @@ spec:
     failedHistoryLimit: 3
     timeout: 30m
 
-  # Agents may author their own OpenClawSelfConfig CRs (see selfconfig.yaml)
-  # for narrow self-modifications. Operator enforces schema; human review
-  # gates any merges into this Git overlay.
+  # Agents may create runtime OpenClawSelfConfig requests for narrow
+  # self-modifications. Do not GitOps-manage an OpenClawSelfConfig scaffold in
+  # this overlay. configPatch is intentionally not allowed here because it
+  # writes spec.config.raw, which is ignored while configMapRef is active.
+  # envVars is also withheld because plain environment mutation is broader than
+  # the current bootstrap need.
   selfConfigure:
     enabled: true
     allowedActions:
-      - config
       - skills
       - workspaceFiles
 
