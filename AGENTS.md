@@ -32,34 +32,43 @@ This repo may use official upstream GSD for scoped infra-repo planning and execu
 
 ### Roles
 
-- GSD is the local planning/execution loop for one active project at a time.
-- `.planning/` is private operational state for the current worktree.
-- Obsidian is the durable curated project record.
+- GSD is the local planning/execution loop for scoped infra-repo work.
+- `.planning/` is private operational state for the current worktree and is mounted as a private git submodule.
+- Obsidian can be used as source material for bootstrap or explicit sync, but `.planning/` is sufficient operational state after ingest.
 - Codex is the bounded execution harness for code, GitOps, and infra edits.
+
+### GSD Private Submodule
+
+- `.planning/` is a private submodule at `https://github.com/jtcressy-home/infra-planning.git`.
+- The public `infra` repo should track only `.gitmodules` and the `.planning` gitlink, not private planning file contents.
+- Local GSD routing files such as `.planning/active-workstream` and generated root `.planning/STATE.md` mirrors are private submodule working-tree state and should not be committed.
+- If `.planning/` is missing or empty after clone, check `.gitmodules` first and initialize it with `git submodule update --init .planning` using credentials that can read the private repo.
+- If `.planning/` exists as a submodule, check `git submodule status .planning` before assuming planning state is absent or stale.
+- If private submodule access is unavailable, do not recreate `.planning/` in the public repo. Ask the user to initialize/authorize the submodule or provide an explicit fallback.
 
 ### Active Project Rule
 
-- Each worktree has one atomic `.planning/` folder.
-- Treat the current worktree as owning at most one active GSD project.
-- Do not mix unrelated projects in the same `.planning/` state.
-- If `.planning/` already exists, infer the active project from `.planning/PROJECT.md`, `.planning/ROADMAP.md`, and `.planning/STATE.md`.
-- If `.planning/` does not exist, ask the user which Obsidian project folder should be used as the durable record before starting GSD planning.
-- Use vault-root-relative Obsidian paths only, such as `openclaw/index.md` or `some-project/index.md`.
-- Do not use absolute filesystem paths for Obsidian notes in instructions, plans, or summaries.
+- Each worktree has one atomic `.planning/` submodule, which may contain multiple GSD workstreams.
+- Treat unrelated infra efforts as separate GSD workstreams under `.planning/workstreams/<name>/`, or use separate git worktrees when that is cleaner.
+- Do not mix unrelated projects in one flat roadmap/state file.
+- If `.planning/` already exists, infer repo-wide context from `.planning/PROJECT.md` and the active project from the current workstream. Prefer `gsd-sdk query workstream.list` and `gsd-sdk query workstream.status <name>` when workstreams are present.
+- If `.planning/` does not exist or does not contain expected GSD files, first treat it as an uninitialized or out-of-sync submodule and follow the GSD Private Submodule checks above. Only ask whether to initialize from Obsidian, another planning source, or a blank GSD project after confirming the private submodule cannot provide existing state.
+- When using Obsidian paths, use vault-root-relative paths only, such as `openclaw/index.md` or `some-project/index.md`.
+- Do not use absolute filesystem paths for Obsidian notes in instructions, plans, or summaries unless the user explicitly requests that fallback.
 
 ### Project Switching
 
-- Before switching projects in the same worktree, sync the current `.planning/` state back to the appropriate Obsidian project notes.
-- After sync, ask the user whether to keep, remove, or leave the old `.planning/` state in place before starting another project.
+- Before switching projects in the same worktree, preserve the current workstream state in the private `.planning` submodule when it should be retained.
+- Ask the user whether to keep, archive, or leave the old workstream state in place before starting another project.
 - Prefer a separate git worktree for each active GSD project when practical.
-- A worktree may serve as the durable local legacy for that project's gitignored `.planning/` state while it exists.
-- Before deleting, closing, or abandoning a worktree, sync any durable GSD decisions, milestone status, blockers, and next steps back to Obsidian.
+- A worktree may serve as the durable local workspace for that project's private `.planning` submodule state while it exists.
+- Before deleting, closing, or abandoning a worktree, ensure private planning state has been committed to the private submodule when it should be retained.
 
 ### Obsidian Access
 
-- Use the Obsidian connector/MCP tools for Obsidian reads and writes.
-- Before project planning, read the selected project's Obsidian index note and its linked current working set.
-- If Obsidian connector/MCP tools are unavailable, STOP and ask the user to repair the Obsidian connection before continuing project planning.
+- Use the Obsidian connector/MCP tools when the user explicitly asks to ingest from, read, or update Obsidian.
+- After Obsidian has been ingested into `.planning/`, continue from `.planning/` unless the user asks to refresh or sync Obsidian.
+- If Obsidian connector/MCP tools are unavailable for an explicit Obsidian task, stop and ask the user to repair the Obsidian connection or explicitly authorize a non-Obsidian fallback.
 - Do not read or write Obsidian notes by filesystem path unless the user explicitly directs that fallback.
 
 ### Planning Gate
@@ -77,10 +86,9 @@ If the next milestone is unclear, stop implementation and run a planning/discuss
 
 ### Obsidian Write Boundary
 
-- Obsidian is readable context through the Obsidian connector/MCP tools.
-- Writes to Obsidian should be deliberate and reviewable.
+- Obsidian writes are optional sync actions, not a default lifecycle requirement.
 - Ask before substantial note writes.
 - When updating Obsidian, follow the vault conventions in `README.md`, relative to the Obsidian vault root.
 - Summarize only durable decisions, milestone status, blockers, and next steps back into Obsidian.
 - Do not dump raw GSD working state into Obsidian.
-- Do not commit `.planning/`.
+- Do not commit private `.planning/` contents to the public repo. Only update the public `.planning` submodule pointer when deliberately advancing the private planning repo revision.
