@@ -42,7 +42,8 @@ This repo may use official upstream GSD for scoped infra-repo planning and execu
 - `.planning/` is a private submodule at `https://github.com/jtcressy-home/infra-planning.git`.
 - The public `infra` repo should track only `.gitmodules` and the `.planning` gitlink, not private planning file contents.
 - Local GSD routing files such as `.planning/active-workstream` and generated root `.planning/STATE.md` mirrors are private submodule working-tree state and should not be committed.
-- If `.planning/` is missing after clone, initialize it with `git submodule update --init .planning` using credentials that can read the private repo.
+- If `.planning/` is missing or empty after clone, check `.gitmodules` first and initialize it with `git submodule update --init .planning` using credentials that can read the private repo.
+- If `.planning/` exists as a submodule, check `git submodule status .planning` before assuming planning state is absent or stale.
 - If private submodule access is unavailable, do not recreate `.planning/` in the public repo. Ask the user to initialize/authorize the submodule or provide an explicit fallback.
 
 ### Active Project Rule
@@ -51,7 +52,7 @@ This repo may use official upstream GSD for scoped infra-repo planning and execu
 - Treat unrelated infra efforts as separate GSD workstreams under `.planning/workstreams/<name>/`, or use separate git worktrees when that is cleaner.
 - Do not mix unrelated projects in one flat roadmap/state file.
 - If `.planning/` already exists, infer repo-wide context from `.planning/PROJECT.md` and the active project from the current workstream. Prefer `gsd-sdk query workstream.list` and `gsd-sdk query workstream.status <name>` when workstreams are present.
-- If `.planning/` does not exist, ask the user whether to initialize from Obsidian, another planning source, or a blank GSD project.
+- If `.planning/` does not exist or does not contain expected GSD files, first treat it as an uninitialized or out-of-sync submodule and follow the GSD Private Submodule checks above. Only ask whether to initialize from Obsidian, another planning source, or a blank GSD project after confirming the private submodule cannot provide existing state.
 - When using Obsidian paths, use vault-root-relative paths only, such as `openclaw/index.md` or `some-project/index.md`.
 - Do not use absolute filesystem paths for Obsidian notes in instructions, plans, or summaries unless the user explicitly requests that fallback.
 
