@@ -1,8 +1,8 @@
 module github.com/jtcresy-home/infra/scratch/ts-route-setter
 
-go 1.26.2
+go 1.26.3
 
-require tailscale.com v1.98.1
+require tailscale.com v1.98.2
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
