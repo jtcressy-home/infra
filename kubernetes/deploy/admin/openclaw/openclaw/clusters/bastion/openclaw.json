@@ -20,13 +20,14 @@
   "agents": {
     "defaults": {
       "models": {
-        "openai-codex/gpt-5.5": {}
+        "openai-codex/gpt-5.5": {
+          "agentRuntime": {
+            "id": "pi"
+          }
+        }
       },
       "model": {
         "primary": "openai-codex/gpt-5.5"
-      },
-      "agentRuntime": {
-        "id": "pi"
       },
       "memorySearch": {
         "provider": "openai",
