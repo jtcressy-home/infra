@@ -7,4 +7,8 @@ metadata:
 type: Opaque
 stringData:
   type: git
+  # Argo CD should render manifests from this repo without cloning history.
+  # Submodules are disabled on repo-server; .planning is private GSD state and
+  # is not needed for GitOps target-state generation.
+  depth: "1"
   url: https://github.com/jtcressy-home/infra
