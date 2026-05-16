@@ -25,6 +25,9 @@
       "model": {
         "primary": "openai-codex/gpt-5.5"
       },
+      "agentRuntime": {
+        "id": "pi"
+      },
       "memorySearch": {
         "provider": "openai",
         "model": "openai/text-embedding-3-small",
