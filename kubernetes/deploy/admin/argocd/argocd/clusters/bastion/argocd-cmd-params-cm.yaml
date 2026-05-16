@@ -10,5 +10,6 @@ data:
   # the public GitOps tree, so do not initialize submodules during target-state
   # generation.
   reposerver.enable.git.submodule: "false"
+  applicationsetcontroller.enable.git.submodule: "false"
   applicationsetcontroller.log.level: "info"
   notificationscontroller.log.level: "info"
