@@ -7,7 +7,7 @@ spec:
   goTemplate: true
   generators:
   - git:
-      repoURL: https://github.com/jtcressy-home/infra.git
+      repoURL: https://github.com/jtcressy-home/infra
       revision: HEAD
       directories:
       - path: 'kubernetes/clusters/*/cni'
@@ -19,7 +19,7 @@ spec:
     spec:
       project: system
       source:
-        repoURL: https://github.com/jtcressy-home/infra.git
+        repoURL: https://github.com/jtcressy-home/infra
         targetRevision: HEAD
         path: '{{.path.path}}'
         kustomize:
