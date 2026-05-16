@@ -20,10 +20,10 @@
   "agents": {
     "defaults": {
       "models": {
-        "openai-codex/gpt-5.4": {}
+        "codex/gpt-5.5": {}
       },
       "model": {
-        "primary": "openai-codex/gpt-5.4"
+        "primary": "codex/gpt-5.5"
       },
       "memorySearch": {
         "provider": "openai",
