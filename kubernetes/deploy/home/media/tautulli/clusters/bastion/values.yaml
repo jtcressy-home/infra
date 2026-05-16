@@ -26,6 +26,7 @@ controllers:
         resources:
           requests:
             cpu: 10m
+            memory: 256Mi
           limits:
             memory: 512Mi
         securityContext: &securityContext
@@ -46,6 +47,7 @@ controllers:
         resources:
           requests:
             cpu: 10m
+            memory: 32Mi
           limits:
             memory: 128Mi
         securityContext: *securityContext
