@@ -1,0 +1,6 @@
+[general]
+dateformat = %F %T
+
+[logfiles]
+console => notice,warning,error,verbose
+messages => notice,warning,error

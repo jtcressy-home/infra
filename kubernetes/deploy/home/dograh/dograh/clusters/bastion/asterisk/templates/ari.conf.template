@@ -1,0 +1,9 @@
+[general]
+enabled = yes
+pretty = yes
+
+[${ASTERISK_ARI_USERNAME}]
+type = user
+read_only = no
+password = ${ASTERISK_ARI_PASSWORD}
+password_format = plain

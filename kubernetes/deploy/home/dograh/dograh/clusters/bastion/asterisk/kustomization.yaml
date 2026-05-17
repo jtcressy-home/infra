@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dograh
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - name: dograh-asterisk-templates
+    files:
+      - templates/ari.conf.template
+      - templates/extensions.conf.template
+      - templates/http.conf.template
+      - templates/logger.conf.template
+      - templates/modules.conf.template
+      - templates/pjsip.conf.template
+      - templates/rtp.conf.template
+      - templates/websocket_client.conf.template
+resources:
+  - externalsecret.yaml
+  - deployment.yaml
+  - service.yaml
