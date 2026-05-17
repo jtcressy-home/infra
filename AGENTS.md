@@ -13,6 +13,7 @@ The ApplicationSet uses `applicationsSync: sync`. **Moving an overlay from `clus
 
 - Always use `task apps:overlays:disable` — never `git mv` to disable an overlay manually
 - Use `task apps:overlays:diff` to preview changes before committing
+- When introducing a new namespace for an app overlay, update the matching ArgoCD `AppProject` destination before expecting the ApplicationSet app to sync. Prefer `task apps:projects:dest:add` or the existing project YAML pattern, and verify the live `AppProject` has synced before troubleshooting the app rollout.
 
 ## Helm Charts
 

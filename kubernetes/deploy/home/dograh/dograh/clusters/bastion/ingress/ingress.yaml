@@ -3,6 +3,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: dograh
+  annotations:
+    link.argocd.argoproj.io/external-link: https://dograh.tailnet-4d89.ts.net
 spec:
   ingressClassName: tailscale
   tls:
@@ -12,7 +14,7 @@ spec:
     - host: dograh
       http:
         paths:
-          - path: /api
+          - path: /api/v1
             pathType: Prefix
             backend:
               service:
