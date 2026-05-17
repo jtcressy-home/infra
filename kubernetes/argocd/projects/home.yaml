@@ -39,6 +39,9 @@ spec:
     - name: '*'
       namespace: metamcp
       server: '*'
+    - name: '*'
+      namespace: dograh
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
