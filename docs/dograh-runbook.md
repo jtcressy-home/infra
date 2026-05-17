@@ -235,6 +235,17 @@ Do not move the overlay to `disabled/` manually. Use the repo overlay tasks for 
 
 This section is the operator checklist for Task 3 live validation. Do not mark it complete from local render checks alone.
 
+Current validation attempt, 2026-05-17T02:25:58Z:
+
+- PASS: `task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion` rendered the fully wired overlay locally.
+- PASS: forbidden-pattern scans found no app-template usage, host networking, Funnel, VolSync/restic MinIO backup resources, `mc mirror --remove`, or Compose-local host assumptions in the Dograh overlay.
+- PASS: `argocd login argocd.tailnet-4d89.ts.net --sso` completed successfully for the CLI.
+- PASS: `argocd app get argocd/metamcp-bastion --grpc-web` confirmed the logged-in CLI can inspect an existing app.
+- BLOCKED: `task apps:overlays:status project=home namespace=dograh app=dograh cluster=bastion` returned `PermissionDenied` because `argocd/dograh-bastion` is not generated yet.
+- BLOCKED: `kubectl -n argocd get applications.argoproj.io dograh-bastion` returned NotFound, and `argocd app list --grpc-web` did not include Dograh.
+- BLOCKED: `kubectl get namespace dograh` returned NotFound; `kubectl apply --dry-run=server -f /tmp/dograh-full-render.yaml` reached the cluster but failed because the namespace does not yet exist.
+- NOT RUN: rollout, Asterisk registration, Dograh UI workflow setup, and real inbound call UAT require the Dograh Application to exist and sync from the GitOps target revision.
+
 Pre-call checks:
 
 ```bash
