@@ -86,6 +86,24 @@
       ]
     },
     {
+      "matchPackageNames": [
+        "ghcr.io/dograh-hq/dograh-api",
+        "ghcr.io/dograh-hq/dograh-ui"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "dograh",
+      "groupSlug": "dograh",
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
       "matchFileNames": [
         ".taskfiles/**"
       ],
