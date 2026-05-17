@@ -1,0 +1,164 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dograh-api
+  labels:
+    app.kubernetes.io/name: dograh-api
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dograh-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dograh-api
+    spec:
+      initContainers:
+        - name: init-db
+          image: ghcr.io/home-operations/postgres-init:18
+          env:
+            - name: INIT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: INIT_POSTGRES_DBNAME
+            - name: INIT_POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: INIT_POSTGRES_HOST
+            - name: INIT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: INIT_POSTGRES_USER
+            - name: INIT_POSTGRES_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: INIT_POSTGRES_PASS
+            - name: INIT_POSTGRES_SUPER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-db-superuser
+                  key: password
+          resources:
+            requests:
+              cpu: 10m
+            limits:
+              memory: 128Mi
+        - name: init-vector
+          image: ghcr.io/cloudnative-pg/postgresql:17.6-system-trixie
+          command:
+            - psql
+            - -v
+            - ON_ERROR_STOP=1
+            - -h
+            - dograh-db-rw.dograh.svc.cluster.local
+            - -U
+            - postgres
+            - -d
+            - dograh
+            - -c
+            - CREATE EXTENSION IF NOT EXISTS vector;
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-db-superuser
+                  key: password
+            - name: PGUSER
+              value: postgres
+          resources:
+            requests:
+              cpu: 10m
+            limits:
+              memory: 128Mi
+      containers:
+        - name: dograh-api
+          image: ghcr.io/dograh-hq/dograh-api:1.29.0@sha256:f338d55d56acad6e8ef4054aa8d0bc5d74884f3418bbe24d54235d2378a3fdbe
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: ENVIRONMENT
+              value: production
+            - name: DEPLOYMENT_MODE
+              value: oss
+            - name: AUTH_PROVIDER
+              value: local
+            - name: FASTAPI_WORKERS
+              value: "1"
+            - name: ARQ_WORKERS
+              value: "1"
+            - name: LOG_LEVEL
+              value: INFO
+            - name: ENABLE_TELEMETRY
+              value: "false"
+            - name: ENABLE_AWS_S3
+              value: "false"
+            - name: MINIO_ENDPOINT
+              value: minio.dograh.svc.cluster.local:80
+            - name: MINIO_SECURE
+              value: "false"
+            - name: MINIO_BUCKET
+              value: voice-audio
+            - name: BACKEND_API_ENDPOINT
+              value: https://dograh.tailnet-4d89.ts.net
+            - name: PUBLIC_BASE_URL
+              value: https://dograh.tailnet-4d89.ts.net
+            - name: UI_APP_URL
+              value: https://dograh.tailnet-4d89.ts.net
+            - name: MINIO_PUBLIC_ENDPOINT
+              value: https://dograh-minio.tailnet-4d89.ts.net
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: REDIS_URL
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: MINIO_SECRET_KEY
+            - name: OSS_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dograh-secret
+                  key: OSS_JWT_SECRET
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
