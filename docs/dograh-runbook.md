@@ -113,6 +113,8 @@ The ARI password comes from the `dograh` 1Password item and must match the Aster
 ws://dograh-api.dograh.svc.cluster.local:8000/api/v1/telephony/ws/ari
 ```
 
+Dograh `1.29.0` builds the ARI event websocket URL with the ARI password in the `api_key` query parameter. Keep `ASTERISK_ARI_PASSWORD` URL-safe until Dograh URL-encodes that value; validation on 2026-05-17 required rotating this field to a letters/digits-only value after Asterisk rejected the first connection with HTTP 401.
+
 Provider checks:
 
 ```bash
@@ -235,16 +237,21 @@ Do not move the overlay to `disabled/` manually. Use the repo overlay tasks for 
 
 This section is the operator checklist for Task 3 live validation. Do not mark it complete from local render checks alone.
 
-Current validation attempt, 2026-05-17T02:25:58Z:
+Completed validation, 2026-05-17T04:17:17Z:
 
 - PASS: `task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion` rendered the fully wired overlay locally.
 - PASS: forbidden-pattern scans found no app-template usage, host networking, Funnel, VolSync/restic MinIO backup resources, `mc mirror --remove`, or Compose-local host assumptions in the Dograh overlay.
 - PASS: `argocd login argocd.tailnet-4d89.ts.net --sso` completed successfully for the CLI.
 - PASS: `argocd app get argocd/metamcp-bastion --grpc-web` confirmed the logged-in CLI can inspect an existing app.
-- BLOCKED: `task apps:overlays:status project=home namespace=dograh app=dograh cluster=bastion` returned `PermissionDenied` because `argocd/dograh-bastion` is not generated yet.
-- BLOCKED: `kubectl -n argocd get applications.argoproj.io dograh-bastion` returned NotFound, and `argocd app list --grpc-web` did not include Dograh.
-- BLOCKED: `kubectl get namespace dograh` returned NotFound; `kubectl apply --dry-run=server -f /tmp/dograh-full-render.yaml` reached the cluster but failed because the namespace does not yet exist.
-- NOT RUN: rollout, Asterisk registration, Dograh UI workflow setup, and real inbound call UAT require the Dograh Application to exist and sync from the GitOps target revision.
+- PASS: `task apps:overlays:status project=home namespace=dograh app=dograh cluster=bastion` reported `argocd/dograh-bastion` synced to HEAD commit `d9a6783` and `Healthy`.
+- PASS: `kubectl -n dograh get pods,ingress,cluster,tenant,cronjob` showed Dograh API/UI/Asterisk/Valkey/CNPG/MinIO running, CNPG healthy, MinIO Tenant initialized/green, and MinIO R2 backup CronJob present.
+- PASS: Asterisk `pjsip show registrations` reported `unifi-talk-registration/sip:192.168.20.1:5060` as `Registered`.
+- PASS: Asterisk `http show status` showed ARI enabled on port `8088`.
+- PASS: Asterisk `ari show apps` listed `dograh`.
+- PASS: Dograh API health through the tailnet returned status `ok`, version `1.29.0`, and `auth_provider: local`.
+- PASS: Dograh telephony config `Dograh Asterisk` used provider `ari`; extension `7000` was active and mapped to workflow `1`, `Cluster Smoke Test`.
+- PASS: Real inbound call from UniFi Talk caller `0003` to extension `7000` created Dograh workflow run `1`, answered in Asterisk Stasis, created and bridged the external media websocket channel, connected Gemini Live, completed normally with cause `16 (Normal Clearing)`, uploaded `recordings/1.wav`, and uploaded `transcripts/1.txt`.
+- NOTE: Dograh logged a non-blocking warning while parsing the initial Asterisk `MEDIA_START` frame as JSON. The pipeline continued, Gemini Live connected, artifacts were written, and teardown was normal.
 
 Pre-call checks:
 
