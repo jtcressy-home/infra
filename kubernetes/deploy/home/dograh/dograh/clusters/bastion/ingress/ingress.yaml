@@ -1,0 +1,28 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dograh
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - dograh
+  rules:
+    - host: dograh
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: dograh-api
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dograh-ui
+                port:
+                  number: 3010
