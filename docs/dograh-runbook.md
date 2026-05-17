@@ -44,6 +44,29 @@ CNPG_R2_DESTINATION_PATH=s3://restic-backups/dograh/
 MINIO_R2_TARGET=dograh-voice-audio
 ```
 
+Confirmed shared R2 field placement:
+
+| Field name | Dograh item status | Shared source |
+| --- | --- | --- |
+| `R2_ENDPOINT` | not present | `cloudflare-r2-generic` field `endpoint` |
+| `R2_ACCESS_KEY_ID` | not present | `cloudflare-r2-generic` field `access_key_id` |
+| `R2_SECRET_ACCESS_KEY` | not present | `cloudflare-r2-generic` field `secret_access_key` |
+
+### Confirmed Non-Secret Deployment Inputs
+
+```text
+ASTERISK_IMAGE: ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:984a02847c8fd9963b20dacdfb14be21e420b278914870ad14c5871eca0b5df7
+ASTERISK_IMAGE_SOURCE: https://github.com/jtcressy/docker-asterisk
+ASTERISK_STABLE_MAC: 02:8c:20:0c:1a:01
+ASTERISK_LAN_IP: 192.168.20.11
+ASTERISK_PJSIP_BINDADDR: 192.168.20.11
+ASTERISK_NETWORK_MODEL: direct-l2-multus
+CNPG_R2_DESTINATION_PATH: s3://restic-backups/dograh/
+MINIO_R2_TARGET: dograh-voice-audio
+```
+
+Asterisk uses direct Multus L2 by default. NAT-style `local_net`, `external_signaling_address`, and `external_media_address` are fallback-only knobs if direct L2 fails with evidence.
+
 ### Accepted Dograh Images
 
 ```text
