@@ -16,7 +16,7 @@ spec:
   image:
     repository: ghcr.io/openclaw/openclaw
     # renovate: datasource=docker depName=ghcr.io/openclaw/openclaw
-    tag: 2026.5.12
+    tag: 2026.5.18
 
   # Gateway-visible env (Telegram token only; no R2/Tailscale).
   envFrom:
