@@ -52,7 +52,7 @@ spec:
             limits:
               memory: 128Mi
         - name: init-vector
-          image: ghcr.io/cloudnative-pg/postgresql:17.6-system-trixie
+          image: ghcr.io/cloudnative-pg/postgresql:17.10-system-trixie
           command:
             - psql
             - -v
