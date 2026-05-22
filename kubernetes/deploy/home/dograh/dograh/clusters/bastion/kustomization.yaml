@@ -9,4 +9,5 @@ resources:
   - app
   - ingress
   - asterisk
+  - jellyseerr-adapter
   - backups
