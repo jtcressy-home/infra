@@ -20,7 +20,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: adapter
-          image: ghcr.io/jtcressy/dograh-jellyseerr-adapter:sha-efcca62@sha256:cb9233cb8cdb5a11cb1d986abb8305b5ea916664c80edfda438a34b7e9291233
+          image: ghcr.io/jtcressy/dograh-jellyseerr-adapter:sha-12579b3@sha256:f91cec139a51bf039c04abc2c98d32df8d29626c721bae51a234dcf56544e59d
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
