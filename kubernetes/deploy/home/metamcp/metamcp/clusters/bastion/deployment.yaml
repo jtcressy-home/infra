@@ -30,75 +30,6 @@ spec:
               cpu: 10m
             limits:
               memory: 128Mi
-        - name: install-arr-suite-and-deno
-          image: ghcr.io/metatool-ai/metamcp:latest
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              echo "Setting up arr-suite-mcp..."
-              
-              # Download arr-suite-mcp as tarball (no git needed)
-              rm -rf /mcp-servers/arr-suite-mcp
-              mkdir -p /mcp-servers/arr-suite-mcp
-              cd /mcp-servers/arr-suite-mcp
-              curl -fsSL https://github.com/jtcressy/arr-suite-mcp-server/archive/refs/heads/main.tar.gz | tar xz --strip-components=1
-
-              # Create venv and install dependencies using uv (already in MetaMCP image)
-              echo "Creating venv and installing dependencies with uv..."
-              uv venv /mcp-servers/arr-suite-venv
-              uv pip install --python /mcp-servers/arr-suite-venv/bin/python -e .
-              
-              # Verify installation
-              echo "Verifying arr-suite-mcp installation..."
-              /mcp-servers/arr-suite-venv/bin/python -m arr_suite_mcp.server --help || true
-              
-              # Install Deno
-              echo "Installing Deno..."
-              export DENO_INSTALL=/mcp-servers/deno
-              rm -rf /mcp-servers/deno
-              curl -fsSL https://deno.land/install.sh | sh
-              
-              # Verify Deno
-              /mcp-servers/deno/bin/deno --version
-              
-              # Pre-cache media-server-mcp
-              echo "Pre-caching media-server-mcp..."
-              export DENO_DIR=/mcp-servers/deno-cache
-              rm -rf /mcp-servers/deno-cache
-              /mcp-servers/deno/bin/deno cache jsr:@wyattjoh/media-server-mcp
-              
-              echo "Installation complete!"
-              echo "arr-suite-mcp entry point:"
-              ls -la /mcp-servers/arr-suite-venv/bin/arr-suite-mcp
-              # Install home-media-mcp
-              echo "Setting up home-media-mcp..."
-              uv venv /mcp-servers/home-media-venv
-              uv pip install --python /mcp-servers/home-media-venv/bin/python \
-                git+https://github.com/jtcressy/home-media-mcp.git
-              # Verify installation
-              echo "Verifying home-media-mcp installation..."
-              /mcp-servers/home-media-venv/bin/home-media-mcp --help || true
-              echo "home-media-mcp entry point:"
-              ls -la /mcp-servers/home-media-venv/bin/home-media-mcp
-              echo "Deno binary:"
-              ls -la /mcp-servers/deno/bin/deno
-
-              # Pre-cache mcpvault for Obsidian vault MCP access
-              echo "Pre-caching @bitbonsai/mcpvault..."
-              npx -y @bitbonsai/mcpvault@latest --help || true
-              echo "mcpvault pre-cached successfully"
-          volumeMounts:
-            - name: mcp-servers
-              mountPath: /mcp-servers
-          resources:
-            requests:
-              cpu: 100m
-              memory: 512Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
       containers:
         - name: metamcp
           image: ghcr.io/metatool-ai/metamcp:latest
@@ -161,57 +92,6 @@ spec:
               value: "true"
             - name: BOOTSTRAP_DISABLE_SSO_REGISTRATION
               value: "false"
-            # Arr service URLs (for media-server-mcp to reference)
-            - name: SONARR_URL
-              value: http://sonarr.media.svc.cluster.local:8989
-            - name: RADARR_URL
-              value: http://radarr.media.svc.cluster.local:7878
-            - name: PROWLARR_URL
-              value: http://prowlarr.media.svc.cluster.local:9696
-            # Arr service HOST/PORT format (for arr-suite-mcp)
-            - name: SONARR_HOST
-              value: sonarr.media.svc.cluster.local
-            - name: SONARR_PORT
-              value: "8989"
-            - name: RADARR_HOST
-              value: radarr.media.svc.cluster.local
-            - name: RADARR_PORT
-              value: "7878"
-            - name: PROWLARR_HOST
-              value: prowlarr.media.svc.cluster.local
-            - name: PROWLARR_PORT
-              value: "9696"
-            # Arr API keys (available to MCP servers via env references)
-            - name: SONARR_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: metamcp-secret
-                  key: SONARR_API_KEY
-            - name: RADARR_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: metamcp-secret
-                  key: RADARR_API_KEY
-            - name: PROWLARR_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: metamcp-secret
-                  key: PROWLARR_API_KEY
-            # arr-suite-mcp additional service configuration
-            - name: OVERSEERR_HOST
-              value: overseerr.media.svc.cluster.local
-            - name: OVERSEERR_PORT
-              value: "5055"
-            - name: OVERSEERR_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: metamcp-secret
-                  key: OVERSEERR_API_KEY
-            - name: OVERSEERR_SSL
-              value: "false"
-            # Deno cache location for media-server-mcp
-            - name: DENO_DIR
-              value: /mcp-servers/deno-cache
             # Logging
             - name: LOG_LEVEL
               value: info
@@ -221,8 +101,6 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /app/data
-            - name: mcp-servers
-              mountPath: /mcp-servers
             - name: obsidian-vault
               mountPath: /obsidian-vault
           resources:
@@ -231,6 +109,63 @@ spec:
               memory: 512Mi
             limits:
               memory: 2Gi
+        - name: overseerr-mcp
+          image: ghcr.io/jmagar/overseerr-mcp:latest@sha256:0ab6c7ee55a13990534085a8ac8acd745ad1280d0dc6c3be0712aa34e63c088c
+          ports:
+            - containerPort: 9151
+              name: overseerr-mcp
+          env:
+            - name: OVERSEERR_URL
+              value: http://overseerr.media.svc.cluster.local:5055
+            - name: OVERSEERR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: metamcp-secret
+                  key: OVERSEERR_API_KEY
+            - name: OVERSEERR_MCP_TRANSPORT
+              value: streamable-http
+            - name: OVERSEERR_MCP_HOST
+              value: 127.0.0.1
+            - name: OVERSEERR_MCP_PORT
+              value: "9151"
+            - name: OVERSEERR_MCP_NO_AUTH
+              value: "true"
+            - name: OVERSEERR_LOG_LEVEL
+              value: info
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - wget -qO- http://127.0.0.1:9151/health >/dev/null
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - wget -qO- http://127.0.0.1:9151/health >/dev/null
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
         - name: obsidian-sync
           image: ghcr.io/belphemur/obsidian-headless-sync-docker:latest@sha256:2e8731a6cc246af383579478e2719b56efec0a63ac5baae731e88b13b1cc9ab7
           command:
@@ -274,9 +209,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: metamcp
-        - name: mcp-servers
-          emptyDir:
-            sizeLimit: 2Gi
         - name: obsidian-vault
           persistentVolumeClaim:
             claimName: obsidian-vault
