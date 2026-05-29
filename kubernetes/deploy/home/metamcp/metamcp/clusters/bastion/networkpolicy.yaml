@@ -1,0 +1,20 @@
+# Restrict inbound pod traffic to the MetaMCP application port.
+#
+# The BluePopcorn MCP server runs as a sidecar for localhost access from
+# MetaMCP. The Service does not expose port 9151, but that is not a pod-network
+# security boundary. This policy allows only the app port and denies direct
+# pod-to-pod ingress to the sidecar port.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metamcp-allow-app-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: metamcp
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 12008

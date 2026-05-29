@@ -31,6 +31,15 @@ Analyze the repo with Explore before making changes. Follow existing patterns fo
 
 This repo may use official upstream GSD for scoped infra-repo planning and execution.
 
+### Codex GSD Enforcement
+
+- Codex must use GSD proactively for scoped infra, GitOps, cluster, Dograh, MetaMCP, and other active workstream work even when the user does not explicitly type a `$gsd-*` command.
+- For freeform requests that change architecture, implementation direction, live rollout state, project scope, or durable decisions, route through the appropriate GSD skill/router first, such as `gsd-progress --do`, `gsd-ns-workflow`, `gsd-ns-ideate`, `gsd-spike`, `gsd-capture`, or the directly matching workflow skill.
+- Before implementing work inside an existing GSD workstream, read the active workstream state and any phase checkpoint/handoff files, including `.planning/workstreams/<name>/STATE.md`, `ROADMAP.md`, and relevant `.continue-here.md` files when present.
+- If conversation context and `.planning` disagree, trust `.planning` only after checking the newest relevant artifacts and git history; record any correction back into the workstream before proceeding.
+- When a session pivots materially, update a durable GSD artifact before continuing: `STATE.md`, a phase checkpoint, a spike artifact, a quick-task summary, or a capture note as appropriate.
+- Do not represent `.planning` notes as behavior-changing instructions unless the rule is also codified in this `AGENTS.md`, another injected instruction file, or persistent assistant memory.
+
 ### Roles
 
 - GSD is the local planning/execution loop for scoped infra-repo work.

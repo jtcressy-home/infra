@@ -109,11 +109,11 @@ spec:
               memory: 512Mi
             limits:
               memory: 2Gi
-        - name: overseerr-mcp
-          image: ghcr.io/jhomen368/overseerr-mcp:latest@sha256:11aa9273da21d72190fdbe6d320391a63a3baf2c14bc33db981248ab32646235
+        - name: bluepopcorn-mcp
+          image: ghcr.io/jtcressy/bluepopcorn-mcp:rolling@sha256:682fff5f14714d7043e7b7e37f98f2c15cb2d083d41b085414608f478a1fd51b
           ports:
             - containerPort: 9151
-              name: overseerr-mcp
+              name: bluepopcorn-mcp
           env:
             - name: SEERR_URL
               value: http://overseerr.media.svc.cluster.local:5055
@@ -122,25 +122,26 @@ spec:
                 secretKeyRef:
                   name: metamcp-secret
                   key: OVERSEERR_API_KEY
-            - name: HTTP_MODE
-              value: "true"
-            - name: PORT
+            - name: MCP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: metamcp-secret
+                  key: BLUEPOPCORN_MCP_API_KEY
+            - name: HTTP_HOST
+              value: 0.0.0.0
+            - name: HTTP_PORT
               value: "9151"
           readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - wget -qO- http://127.0.0.1:9151/health >/dev/null
+            httpGet:
+              path: /health
+              port: 9151
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 3
           livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - wget -qO- http://127.0.0.1:9151/health >/dev/null
+            httpGet:
+              path: /health
+              port: 9151
             initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 3
@@ -150,8 +151,8 @@ spec:
               drop:
                 - ALL
             runAsNonRoot: true
-            runAsUser: 1001
-            runAsGroup: 1001
+            runAsUser: 10001
+            runAsGroup: 10001
             seccompProfile:
               type: RuntimeDefault
           resources:

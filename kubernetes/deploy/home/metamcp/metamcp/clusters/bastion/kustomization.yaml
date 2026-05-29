@@ -4,6 +4,7 @@ resources:
   - externalsecret.yaml
   - persistence.yaml
   - deployment.yaml
+  - networkpolicy.yaml
   - service.yaml
   - ingress.yaml
 namespace: metamcp
