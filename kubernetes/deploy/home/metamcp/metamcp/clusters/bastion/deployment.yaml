@@ -110,28 +110,22 @@ spec:
             limits:
               memory: 2Gi
         - name: overseerr-mcp
-          image: ghcr.io/jmagar/overseerr-mcp:latest@sha256:0ab6c7ee55a13990534085a8ac8acd745ad1280d0dc6c3be0712aa34e63c088c
+          image: ghcr.io/jhomen368/overseerr-mcp:latest@sha256:11aa9273da21d72190fdbe6d320391a63a3baf2c14bc33db981248ab32646235
           ports:
             - containerPort: 9151
               name: overseerr-mcp
           env:
-            - name: OVERSEERR_URL
+            - name: SEERR_URL
               value: http://overseerr.media.svc.cluster.local:5055
-            - name: OVERSEERR_API_KEY
+            - name: SEERR_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: metamcp-secret
                   key: OVERSEERR_API_KEY
-            - name: OVERSEERR_MCP_TRANSPORT
-              value: streamable-http
-            - name: OVERSEERR_MCP_HOST
-              value: 127.0.0.1
-            - name: OVERSEERR_MCP_PORT
-              value: "9151"
-            - name: OVERSEERR_MCP_NO_AUTH
+            - name: HTTP_MODE
               value: "true"
-            - name: OVERSEERR_LOG_LEVEL
-              value: info
+            - name: PORT
+              value: "9151"
           readinessProbe:
             exec:
               command:
@@ -156,16 +150,16 @@ spec:
               drop:
                 - ALL
             runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
+            runAsUser: 1001
+            runAsGroup: 1001
             seccompProfile:
               type: RuntimeDefault
           resources:
             requests:
-              cpu: 10m
-              memory: 64Mi
+              cpu: 25m
+              memory: 128Mi
             limits:
-              memory: 256Mi
+              memory: 512Mi
         - name: obsidian-sync
           image: ghcr.io/belphemur/obsidian-headless-sync-docker:latest@sha256:2e8731a6cc246af383579478e2719b56efec0a63ac5baae731e88b13b1cc9ab7
           command:
