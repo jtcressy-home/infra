@@ -110,7 +110,7 @@ spec:
             limits:
               memory: 2Gi
         - name: bluepopcorn-mcp
-          image: ghcr.io/jtcressy/bluepopcorn-mcp:rolling@sha256:682fff5f14714d7043e7b7e37f98f2c15cb2d083d41b085414608f478a1fd51b
+          image: ghcr.io/jtcressy/bluepopcorn-mcp:rolling@sha256:30a64041bfe935dc9c5c625d27b0796a8648f7ef6d8afaad7cdc586c6148d71f
           ports:
             - containerPort: 9151
               name: bluepopcorn-mcp
@@ -122,6 +122,11 @@ spec:
                 secretKeyRef:
                   name: metamcp-secret
                   key: OVERSEERR_API_KEY
+            - name: SEERR_API_USER
+              valueFrom:
+                secretKeyRef:
+                  name: metamcp-secret
+                  key: DOGRAH_AGENT_USER_ID
             - name: MCP_API_KEY
               valueFrom:
                 secretKeyRef:
