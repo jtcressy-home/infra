@@ -42,6 +42,90 @@ Static credentials are stored in the `dograh` 1Password item and delivered throu
 
 Required 1Password-backed fields are `POSTGRES_USER`, `POSTGRES_PASS`, `POSTGRES_PASSWORD`, `POSTGRES_SUPER_PASS`, `VALKEY_PASSWORD`, `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`, `OSS_JWT_SECRET`, `ASTERISK_ARI_PASSWORD`, `UNIFI_TALK_SIP_SERVER`, `UNIFI_TALK_SIP_USERNAME`, `UNIFI_TALK_SIP_PASSWORD`, and `UNIFI_TALK_SIP_EXTENSION`. Shared Cloudflare R2 credentials stay in the `cloudflare-r2-generic` item and are referenced by field name only.
 
+## v2 Media Request Assistant Runtime
+
+Dograh v2 uses Dograh's MCP tool path for active media requests:
+
+```text
+Caller on extension 7000
+-> Dograh workflow Media Request Assistant
+-> Dograh MCP tool media-requests-mcp
+-> MetaMCP endpoint media-requests
+-> BluePopcorn MCP sidecar upstream jellyseerr-requests
+-> Jellyseerr-compatible Overseerr API
+```
+
+Runtime inventory:
+
+```text
+Active workflow=Media Request Assistant
+Workflow id=3
+Current published version=7
+Private validation extension=7000
+Rollback workflow=Cluster Smoke Test
+Rollback workflow id=1
+Dograh MCP tool=media-requests-mcp
+Dograh MCP tool UUID=a1e46e94-f8c0-4f3e-9328-22d079de4760
+Dograh credential=metamcp-media-requests-20260530
+Dograh credential UUID=548e96c5-259a-496d-813f-669a172d9e49
+```
+
+MetaMCP route details:
+
+```text
+MetaMCP endpoint name=media-requests
+In-cluster URL=http://metamcp.metamcp.svc.cluster.local:12008/metamcp/media-requests/mcp
+Tailnet URL=https://metamcp.tailnet-4d89.ts.net/metamcp/media-requests/mcp
+MetaMCP upstream=jellyseerr-requests
+Upstream transport=STREAMABLE_HTTP
+Upstream URL=http://127.0.0.1:9151/mcp
+Upstream auth=bearer
+BluePopcorn sidecar image=ghcr.io/jtcressy/bluepopcorn-mcp:rolling@sha256:30a64041bfe935dc9c5c625d27b0796a8648f7ef6d8afaad7cdc586c6148d71f
+Jellyseerr API URL=http://overseerr.media.svc.cluster.local:5055
+```
+
+The BluePopcorn MCP server is a sidecar inside the MetaMCP pod. Port `9151` is for localhost access from MetaMCP; the MetaMCP Service exposes only port `12008`, and the overlay NetworkPolicy allows inbound pod traffic only to the MetaMCP app port.
+
+BluePopcorn image ownership:
+
+```text
+Image build repo=https://github.com/jtcressy/containers
+Image app path=apps/bluepopcorn-mcp
+Published image=ghcr.io/jtcressy/bluepopcorn-mcp
+Current tag strategy=rolling plus immutable digest pin in infra
+Upstream source=BluePopcorn project, packaged by the containers repo
+Rebuild trigger=Renovate or manual source ref bump in jtcressy/containers, then publish GHCR image and update the digest in this infra overlay
+```
+
+Live Jellyseerr request semantics observed through the current route:
+
+```text
+API base=http://overseerr.media.svc.cluster.local:5055/api/v1
+Auth header=X-Api-Key from OVERSEERR_API_KEY
+Actor header=X-API-User from DOGRAH_AGENT_USER_ID
+Search/detail/request client=BluePopcorn sidecar
+Dedicated actor=dograh-agent, Jellyseerr local user id 72
+Pending/manual request status observed=2
+Available media status may appear on mediaInfo even when the original request has already been cleaned up
+Deleted or unavailable validation requests return 404 from GET /api/v1/request/{id}
+```
+
+For validation, capture both the Dograh run evidence and external Jellyseerr readback. A clean successful mutation needs a new request id whose `requestedBy.id` matches the dedicated Dograh Agent actor and whose approval state is still pending/manual before cleanup. Do not treat an assistant transcript claim as sufficient evidence.
+
+## v2 Secret Boundaries And Rotation
+
+Keep the three credential scopes separate:
+
+- Jellyseerr API access comes from the existing `overseerr` 1Password item and is rendered into the MetaMCP secret as `OVERSEERR_API_KEY`.
+- BluePopcorn sidecar bearer auth comes from the dedicated `BLUEPOPCORN_MCP_API_KEY` field on the `metamcp` 1Password item.
+- Dograh gets only the MetaMCP bearer credential in its database credential record; do not put Jellyseerr or BluePopcorn sidecar keys into Dograh.
+
+Rotation paths:
+
+- Jellyseerr API key: rotate the key in Jellyseerr/Overseerr, update the existing `overseerr` 1Password item, let ExternalSecrets reconcile `metamcp-secret`, then roll the MetaMCP pod so the BluePopcorn sidecar reads the new `SEERR_API_KEY`.
+- BluePopcorn sidecar bearer key: update `BLUEPOPCORN_MCP_API_KEY` on the `metamcp` 1Password item, let ExternalSecrets reconcile `metamcp-secret`, update the `jellyseerr-requests` upstream bearer configuration in MetaMCP to match, then roll MetaMCP.
+- Dograh MetaMCP credential: rotate only the MetaMCP endpoint bearer used by Dograh credential `metamcp-media-requests-20260530`, then update or replace the Dograh credential record and confirm MCP tool `media-requests-mcp` still references the active credential.
+
 ## Initial Admin Access
 
 Open Dograh through the tailnet URL:
@@ -130,19 +214,21 @@ kubectl -n dograh exec deploy/dograh-asterisk -- asterisk -rx 'pjsip show regist
 
 ## No-Tool Test Workflow
 
-The v1 no-tool workflow is infrastructure validation only, not the full Media Request Assistant per D-03. It should answer the inbound call, converse briefly, and prove that Dograh receives caller audio and returns model audio through Asterisk.
+The v1 no-tool workflow is now the rollback smoke workflow, not the active v2 Media Request Assistant. It should answer the inbound call, converse briefly, and prove that Dograh receives caller audio and returns model audio through Asterisk.
 
 Configure the workflow inside Dograh after the app is healthy:
 
 ```text
 Workflow purpose=real inbound call infrastructure validation
+Workflow name=Cluster Smoke Test
+Workflow id=1
 Tools=none
 Assigned telephony provider=Asterisk ARI
-Assigned phone number or extension=7000
+Assigned phone number or extension=7000 when rolled back from v2 validation
 Expected behavior=brief spoken response without external tool calls
 ```
 
-Do not add external media tooling, request tooling, or application-specific smoke cases to this v1 workflow.
+Do not add external media tooling, request tooling, or application-specific smoke cases to this smoke workflow. Keep it available as the immediate rollback target for extension `7000`.
 
 ## Health And Logs
 
@@ -211,6 +297,17 @@ Valkey is disposable runtime state. If Valkey is lost, restart Dograh API worker
 
 Asterisk `/var/lib/asterisk`, `/var/log/asterisk`, and `/var/spool/asterisk` are intentionally non-durable for v1. Asterisk voicemail, recordings, and spool contents are not protected unless the user later requests voicemail or recording durability.
 
+If CNPG restore is unavailable and Dograh database state must be recreated, rebuild only the app-local Dograh objects from the current runbook and planning facts:
+
+1. Confirm Dograh API/UI, Asterisk, MetaMCP, and the BluePopcorn sidecar are healthy before recreating app state.
+2. Recreate the Dograh MCP tool `media-requests-mcp` pointing at the MetaMCP `media-requests` endpoint.
+3. Recreate the Dograh credential `metamcp-media-requests-20260530` with only the MetaMCP bearer token.
+4. Recreate or import the `Media Request Assistant` workflow and publish the expected version, currently workflow id `3` version `7`.
+5. Attach MCP tool `media-requests-mcp` to the workflow.
+6. Assign extension `7000` to `Media Request Assistant` for private validation.
+7. Keep `Cluster Smoke Test` workflow id `1` available as the rollback assignment for extension `7000`.
+8. Run the v2 validation checklist below and record evidence before treating the recreate as complete.
+
 ## Rollback And Cutover
 
 Before cutover:
@@ -222,12 +319,13 @@ kubectl -n dograh rollout status deploy/dograh-api deploy/dograh-ui deploy/dogra
 kubectl -n dograh exec deploy/dograh-asterisk -- asterisk -rx 'pjsip show registrations'
 ```
 
-Cutover is only complete after the no-tool workflow is assigned to extension `7000` and a real inbound call passes. Keep the previous UniFi/OpenClaw Voice path available until the Dograh call path is proven.
+Cutover is only complete after `Media Request Assistant` workflow id `3` is assigned to extension `7000` and a real inbound call proves the Dograh MCP tool to Jellyseerr path. Keep the previous UniFi/OpenClaw Voice path available until the Dograh call path is proven.
 
 Rollback options:
 
 - Revert the Dograh GitOps commit if the overlay change is the cause.
 - Re-sync ArgoCD after revert and verify app health with the task status wrapper.
+- Reassign extension `7000` from `Media Request Assistant` workflow id `3` back to `Cluster Smoke Test` workflow id `1` if the v2 tool path fails but the call infrastructure is healthy.
 - Return UniFi Talk routing to the previous known-good target if Asterisk registration or two-way audio fails.
 - Preserve CNPG and MinIO data while investigating unless a deliberate restore plan has been approved.
 
@@ -270,9 +368,13 @@ Call UAT:
 ```text
 1. Confirm Dograh ARI provider uses http://dograh-asterisk.dograh.svc.cluster.local:8088.
 2. Confirm Stasis app dograh, websocket client dograh, and extension 7000 are configured.
-3. Confirm the no-tool workflow is assigned to extension 7000.
+3. Confirm Media Request Assistant workflow id 3, published version 7, is assigned to extension 7000.
 4. Place a real inbound UniFi Talk call.
 5. Confirm Dograh hears caller audio.
 6. Confirm the caller hears Dograh's model response.
-7. Record pass/fail evidence without secret values.
+7. Confirm the transcript shows the media request intent and tool result without secret values.
+8. Capture the Dograh run id or transcript id.
+9. Capture Jellyseerr before/after evidence proving the requested item was created or changed.
+10. Clean up the test request in Jellyseerr when the request was validation-only.
+11. Record pass/fail evidence without secret values.
 ```
