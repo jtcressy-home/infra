@@ -2,15 +2,15 @@
 
 ## Dograh Deployment Inputs
 
-Dograh v1 is one ArgoCD-discovered app under `kubernetes/deploy/home/dograh/dograh/clusters/bastion` in namespace `dograh`.
+Dograh v1 is one ArgoCD-discovered app under `kubernetes/deploy/agentic-ai/dograh/dograh/clusters/bastion` in namespace `dograh`.
 
 Primary local commands:
 
 ```bash
-task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion
-task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion > /tmp/dograh-full-render.yaml
+task apps:overlays:render project=agentic-ai namespace=dograh app=dograh cluster=bastion
+task apps:overlays:render project=agentic-ai namespace=dograh app=dograh cluster=bastion > /tmp/dograh-full-render.yaml
 kubectl apply --dry-run=server -f /tmp/dograh-full-render.yaml
-task apps:overlays:status project=home namespace=dograh app=dograh cluster=bastion
+task apps:overlays:status project=agentic-ai namespace=dograh app=dograh cluster=bastion
 ```
 
 Public and internal endpoints:
@@ -235,8 +235,8 @@ Do not add external media tooling, request tooling, or application-specific smok
 Overlay and ArgoCD checks:
 
 ```bash
-task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion
-task apps:overlays:status project=home namespace=dograh app=dograh cluster=bastion
+task apps:overlays:render project=agentic-ai namespace=dograh app=dograh cluster=bastion
+task apps:overlays:status project=agentic-ai namespace=dograh app=dograh cluster=bastion
 kubectl -n dograh get all
 ```
 
@@ -313,8 +313,8 @@ If CNPG restore is unavailable and Dograh database state must be recreated, rebu
 Before cutover:
 
 ```bash
-task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion
-task apps:overlays:status project=home namespace=dograh app=dograh cluster=bastion
+task apps:overlays:render project=agentic-ai namespace=dograh app=dograh cluster=bastion
+task apps:overlays:status project=agentic-ai namespace=dograh app=dograh cluster=bastion
 kubectl -n dograh rollout status deploy/dograh-api deploy/dograh-ui deploy/dograh-asterisk
 kubectl -n dograh exec deploy/dograh-asterisk -- asterisk -rx 'pjsip show registrations'
 ```
@@ -337,6 +337,8 @@ This section is the operator checklist for Task 3 live validation. Do not mark i
 
 Completed validation, 2026-05-17T04:17:17Z:
 
+These entries reflect the AppProject layout at validation time; current operator commands above use `project=agentic-ai`.
+
 - PASS: `task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion` rendered the fully wired overlay locally.
 - PASS: forbidden-pattern scans found no app-template usage, host networking, Funnel, VolSync/restic MinIO backup resources, `mc mirror --remove`, or Compose-local host assumptions in the Dograh overlay.
 - PASS: `argocd login argocd.tailnet-4d89.ts.net --sso` completed successfully for the CLI.
@@ -354,8 +356,8 @@ Completed validation, 2026-05-17T04:17:17Z:
 Pre-call checks:
 
 ```bash
-task apps:overlays:render project=home namespace=dograh app=dograh cluster=bastion
-task apps:overlays:status project=home namespace=dograh app=dograh cluster=bastion
+task apps:overlays:render project=agentic-ai namespace=dograh app=dograh cluster=bastion
+task apps:overlays:status project=agentic-ai namespace=dograh app=dograh cluster=bastion
 kubectl -n dograh rollout status deploy/dograh-api deploy/dograh-ui deploy/dograh-asterisk
 kubectl -n dograh get cluster dograh-db
 kubectl -n dograh get tenant dograh-minio

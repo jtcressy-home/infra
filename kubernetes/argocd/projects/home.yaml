@@ -33,15 +33,6 @@ spec:
     - name: '*'
       namespace: searxng
       server: '*'
-    - name: '*'
-      namespace: n8n
-      server: '*'
-    - name: '*'
-      namespace: metamcp
-      server: '*'
-    - name: '*'
-      namespace: dograh
-      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

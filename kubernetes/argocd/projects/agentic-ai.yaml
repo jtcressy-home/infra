@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: agentic-ai
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: Agentic AI apps
+  destinations:
+    - name: '*'
+      namespace: dograh
+      server: '*'
+    - name: '*'
+      namespace: metamcp
+      server: '*'
+    - name: '*'
+      namespace: n8n
+      server: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - 'https://github.com/jtcressy-home/infra'
