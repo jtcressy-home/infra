@@ -29,7 +29,7 @@ Runtime pins and LAN inputs:
 DOGRAH_API_IMAGE=ghcr.io/dograh-hq/dograh-api:1.29.0@sha256:f338d55d56acad6e8ef4054aa8d0bc5d74884f3418bbe24d54235d2378a3fdbe
 DOGRAH_UI_IMAGE=ghcr.io/dograh-hq/dograh-ui:1.29.0@sha256:54da6c9877dcdae1d0c37aa4c28a7ba1689dc44a484508f7b1c47b1f2c133deb
 Asterisk image=ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:984a02847c8fd9963b20dacdfb14be21e420b278914870ad14c5871eca0b5df7
-Asterisk image source=https://github.com/jtcressy/docker-asterisk
+Asterisk image source=https://github.com/jtcressy/containers/tree/main/apps/docker-asterisk
 Multus MAC=02:8c:20:0c:1a:01
 Multus IP=192.168.20.11
 direct-L2 bind=ASTERISK_PJSIP_BINDADDR=192.168.20.11
@@ -161,7 +161,7 @@ Operational expectations:
 
 ## Telephony Provider Setup
 
-Asterisk runs as the separate `dograh-asterisk` workload. The image source is `https://github.com/jtcressy/docker-asterisk`, and the pinned image is:
+Asterisk runs as the separate `dograh-asterisk` workload. The image source is `https://github.com/jtcressy/containers/tree/main/apps/docker-asterisk`, and the pinned image is:
 
 ```text
 ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:984a02847c8fd9963b20dacdfb14be21e420b278914870ad14c5871eca0b5df7
