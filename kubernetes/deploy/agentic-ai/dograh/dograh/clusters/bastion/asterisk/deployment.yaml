@@ -30,7 +30,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: asterisk
-          image: ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:984a02847c8fd9963b20dacdfb14be21e420b278914870ad14c5871eca0b5df7
+          image: ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:bf7b44aa79128b82d9a21e8f3bbf1227e507599f1de90c57573245636ba1699e
           imagePullPolicy: IfNotPresent
           ports:
             - name: ari-http
