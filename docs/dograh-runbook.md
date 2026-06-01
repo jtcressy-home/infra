@@ -28,7 +28,7 @@ Runtime pins and LAN inputs:
 ```text
 DOGRAH_API_IMAGE=ghcr.io/dograh-hq/dograh-api:1.29.0@sha256:f338d55d56acad6e8ef4054aa8d0bc5d74884f3418bbe24d54235d2378a3fdbe
 DOGRAH_UI_IMAGE=ghcr.io/dograh-hq/dograh-ui:1.29.0@sha256:54da6c9877dcdae1d0c37aa4c28a7ba1689dc44a484508f7b1c47b1f2c133deb
-Asterisk image=ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:984a02847c8fd9963b20dacdfb14be21e420b278914870ad14c5871eca0b5df7
+Asterisk image=ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:bf7b44aa79128b82d9a21e8f3bbf1227e507599f1de90c57573245636ba1699e
 Asterisk image source=https://github.com/jtcressy/containers/tree/main/apps/docker-asterisk
 Multus MAC=02:8c:20:0c:1a:01
 Multus IP=192.168.20.11
@@ -164,7 +164,7 @@ Operational expectations:
 Asterisk runs as the separate `dograh-asterisk` workload. The image source is `https://github.com/jtcressy/containers/tree/main/apps/docker-asterisk`, and the pinned image is:
 
 ```text
-ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:984a02847c8fd9963b20dacdfb14be21e420b278914870ad14c5871eca0b5df7
+ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:bf7b44aa79128b82d9a21e8f3bbf1227e507599f1de90c57573245636ba1699e
 ```
 
 The default network model is direct L2 through Multus/macvlan:
