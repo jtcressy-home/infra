@@ -40,6 +40,12 @@ This repo may use official upstream GSD for scoped infra-repo planning and execu
 - When a session pivots materially, update a durable GSD artifact before continuing: `STATE.md`, a phase checkpoint, a spike artifact, a quick-task summary, or a capture note as appropriate.
 - Do not represent `.planning` notes as behavior-changing instructions unless the rule is also codified in this `AGENTS.md`, another injected instruction file, or persistent assistant memory.
 
+### GSD Installation
+
+- If GSD skills are missing in Codex, use the maintained Open GSD upstream at `open-gsd/gsd-core`; do not install from skills.sh search results, random forks, or legacy `gsd-build/*` packages.
+- For Codex, install with `npx @opengsd/gsd-core@latest --codex --global` after explicit user approval, because it downloads from npm and writes to `~/.codex`.
+- After install, restart Codex or run `codex --reload` so new `gsd-*` skills are available.
+
 ### Roles
 
 - GSD is the local planning/execution loop for scoped infra-repo work.
