@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Static copies of github.com/kubernetes-sigs/agent-sandbox v0.4.6 release assets.
+# Remote URL references are not used because manifest.yaml and extensions.yaml both define the
+# same agent-sandbox-controller Deployment (extensions.yaml adds --extensions flag), which
+# causes a kustomize resource-ID conflict when both are listed as remote resources.
+# Extensions-only CRDs/RBAC are split into extensions.yaml (Deployment removed to avoid conflict).
+# The Deployment in manifest.yaml is patched below to add the --extensions flag.
+resources:
+  - manifest.yaml
+  - extensions.yaml
+patches:
+  # Enable extensions controller by adding --extensions arg to the controller Deployment.
+  # extensions.yaml ships a Deployment with this arg; since we can't use both remote files
+  # simultaneously (duplicate resource ID), we apply it as a strategic merge patch here.
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: agent-sandbox-controller
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: "--extensions"
+  # Apply ServerSideApply sync option to all CRDs so ArgoCD can apply large CRD manifests.
+  - target:
+      group: apiextensions.k8s.io
+      version: v1
+      kind: CustomResourceDefinition
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-options
+        value: ServerSideApply=true
