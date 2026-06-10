@@ -1,0 +1,34 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: volsync-alerts
+  namespace: kube-system
+spec:
+  groups:
+    - name: volsync
+      rules:
+        - alert: VolSyncVolumeOutOfSync
+          expr: volsync_volume_out_of_sync == 1
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "VolSync replication {{ $labels.obj_namespace }}/{{ $labels.obj_name }} is out of sync"
+            description: >-
+              {{ $labels.obj_namespace }}/{{ $labels.obj_name }} has missed its sync
+              deadline for over 1 hour. Check the ReplicationSource/Destination status
+              and mover pods — common causes are stuck VolumeSnapshot/clone teardown,
+              iSCSI attach failures, restic cache exhaustion, or node pod-cap saturation.
+        - alert: VolSyncMoverPodStuck
+          expr: sum by (namespace, pod, phase) (kube_pod_status_phase{pod=~"volsync-(src|dst)-.*", phase=~"Pending|Failed"} == 1) > 0
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "VolSync mover pod {{ $labels.namespace }}/{{ $labels.pod }} stuck in {{ $labels.phase }}"
+            description: >-
+              Mover pod {{ $labels.namespace }}/{{ $labels.pod }} has been
+              {{ $labels.phase }} for 30 minutes. Pending usually means an unattachable
+              volume or pod-cap exhaustion; Failed pods accumulating means the backup
+              itself is erroring (check pod logs).
