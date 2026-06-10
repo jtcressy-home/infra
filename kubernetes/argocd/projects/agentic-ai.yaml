@@ -18,6 +18,12 @@ spec:
     - name: '*'
       namespace: n8n
       server: '*'
+    - name: "*"
+      namespace: openshell
+      server: "*"
+    - name: "*"
+      namespace: openshell-track-reference
+      server: "*"
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

@@ -39,6 +39,12 @@ spec:
     - name: '*'
       namespace: minio-operator
       server: '*'
+    - name: "*"
+      namespace: agent-sandbox-system
+      server: "*"
+    - name: "*"
+      namespace: envoy-gateway-system
+      server: "*"
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
