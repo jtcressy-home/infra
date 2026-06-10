@@ -1,0 +1,52 @@
+# SandboxTemplate for the reference track.
+# Uses extensions.agents.x-k8s.io/v1alpha1 — the only served version of the v0.4.6 CRDs
+# (extensions.yaml in the agent-sandbox-system overlay); v1beta1 does not exist yet.
+#
+# shutdownPolicy does NOT live here — it goes on SandboxClaim.spec.lifecycle.shutdownPolicy at runtime.
+# networkPolicyManagement: Unmanaged — the controller creates no NetworkPolicies; the track's
+# git-declared deny-all baseline + scoped allows in networkpolicy.yaml are the complete policy.
+#
+# Pod spec satisfies the restricted PodSecurity admission profile enforced by the namespace label:
+#   - runAsNonRoot: true
+#   - seccompProfile: RuntimeDefault
+#   - capabilities: drop ALL (no add)
+#   - No hostPath, hostNetwork, hostPID, privileged
+apiVersion: extensions.agents.x-k8s.io/v1alpha1
+kind: SandboxTemplate
+metadata:
+  name: reference-base
+  namespace: openshell-track-reference
+spec:
+  podTemplate:
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: agent
+          image: ghcr.io/nvidia/openshell-community/sandboxes/base:latest
+          # The base image's entrypoint is a bare non-interactive /bin/bash (verified via
+          # crane config) — without args the pod exits immediately. Keep the reference
+          # sandbox alive explicitly; Phase 3 harness templates must replace this with
+          # their real long-running entrypoint (e.g. sshd for gateway SSH on 2222).
+          args: ["-c", "sleep infinity"]
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+  # Unmanaged: ALL network policy is declared in git (networkpolicy.yaml deny-all baseline +
+  # scoped openshell allow). v0.4.6's Managed default generates a policy allowing public
+  # internet egress, and NetworkPolicies are additive — it would defeat the deny-all posture.
+  networkPolicyManagement: Unmanaged
+  service: false
+  envVarsInjectionPolicy: Disallowed

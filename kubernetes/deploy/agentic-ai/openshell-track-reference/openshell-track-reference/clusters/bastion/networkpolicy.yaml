@@ -1,0 +1,39 @@
+# Deny-all baseline: blocks all ingress and egress by default for all pods in the track namespace.
+# This (plus the scoped allow below) is the COMPLETE network policy for the track — the
+# SandboxTemplate uses networkPolicyManagement: Unmanaged so the controller adds nothing.
+# Phase 3 tracks loosen egress deliberately (per-track allows in git), never by controller default.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: openshell-track-reference
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# Allow sandbox pods to receive SSH connections (TCP 2222) from the OpenShell gateway pods
+# only — scoped to the gateway pod labels and port so other workloads (or a compromised
+# sandbox) in the openshell namespace get nothing beyond the deny-all baseline.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-openshell-ingress
+  namespace: openshell-track-reference
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshell
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: openshell
+              app.kubernetes.io/instance: openshell
+      ports:
+        - port: 2222
+          protocol: TCP
