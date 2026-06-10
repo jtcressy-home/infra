@@ -15,3 +15,14 @@ helmCharts:
     releaseName: openshell
     namespace: openshell
     valuesFile: values.yaml
+
+patches:
+  # The chart hardcodes its volumeClaimTemplate with no storageClassName knob and the
+  # cluster has no default StorageClass — without this the PVC never binds (pod Pending).
+  - target:
+      kind: StatefulSet
+      name: openshell
+    patch: |-
+      - op: add
+        path: /spec/volumeClaimTemplates/0/spec/storageClassName
+        value: zfs-nvme
