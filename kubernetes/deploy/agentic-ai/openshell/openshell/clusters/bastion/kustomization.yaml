@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: openshell
+
+resources:
+  - externalsecret.yaml
+  - gateway.yaml
+  - networkpolicy.yaml
+
+helmCharts:
+  - name: helm-chart
+    repo: oci://ghcr.io/nvidia/openshell
+    version: 0.0.59
+    releaseName: openshell
+    namespace: openshell
+    valuesFile: values.yaml
