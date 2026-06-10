@@ -1,0 +1,43 @@
+# SandboxTemplate for the reference track.
+# Uses extensions.agents.x-k8s.io/v1beta1 (requires extensions.yaml from agent-sandbox-system overlay).
+#
+# shutdownPolicy does NOT live here — it goes on SandboxClaim.spec.lifecycle.shutdownPolicy at runtime.
+# networkPolicyManagement: Managed causes the agent-sandbox controller to create and maintain
+# additional NetworkPolicy rules for each sandbox on top of the deny-all baseline in networkpolicy.yaml.
+#
+# Pod spec satisfies the restricted PodSecurity admission profile enforced by the namespace label:
+#   - runAsNonRoot: true
+#   - seccompProfile: RuntimeDefault
+#   - capabilities: drop ALL (no add)
+#   - No hostPath, hostNetwork, hostPID, privileged
+apiVersion: extensions.agents.x-k8s.io/v1beta1
+kind: SandboxTemplate
+metadata:
+  name: reference-base
+  namespace: openshell-track-reference
+spec:
+  podTemplate:
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: agent
+          image: ghcr.io/nvidia/openshell-community/sandboxes/base:latest
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+  networkPolicyManagement: Managed
+  service: false
+  envVarsInjectionPolicy: Disallowed
