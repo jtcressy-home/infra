@@ -27,6 +27,11 @@ spec:
       containers:
         - name: agent
           image: ghcr.io/nvidia/openshell-community/sandboxes/base:latest
+          # The base image's entrypoint is a bare non-interactive /bin/bash (verified via
+          # crane config) — without args the pod exits immediately. Keep the reference
+          # sandbox alive explicitly; Phase 3 harness templates must replace this with
+          # their real long-running entrypoint (e.g. sshd for gateway SSH on 2222).
+          args: ["-c", "sleep infinity"]
           resources:
             requests:
               cpu: 500m
