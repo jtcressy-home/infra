@@ -1,5 +1,6 @@
 # SandboxTemplate for the reference track.
-# Uses extensions.agents.x-k8s.io/v1beta1 (requires extensions.yaml from agent-sandbox-system overlay).
+# Uses extensions.agents.x-k8s.io/v1alpha1 — the only served version of the v0.4.6 CRDs
+# (extensions.yaml in the agent-sandbox-system overlay); v1beta1 does not exist yet.
 #
 # shutdownPolicy does NOT live here — it goes on SandboxClaim.spec.lifecycle.shutdownPolicy at runtime.
 # networkPolicyManagement: Managed causes the agent-sandbox controller to create and maintain
@@ -10,7 +11,7 @@
 #   - seccompProfile: RuntimeDefault
 #   - capabilities: drop ALL (no add)
 #   - No hostPath, hostNetwork, hostPID, privileged
-apiVersion: extensions.agents.x-k8s.io/v1beta1
+apiVersion: extensions.agents.x-k8s.io/v1alpha1
 kind: SandboxTemplate
 metadata:
   name: reference-base

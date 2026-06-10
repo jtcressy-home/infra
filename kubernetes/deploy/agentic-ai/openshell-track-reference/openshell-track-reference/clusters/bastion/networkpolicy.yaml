@@ -12,8 +12,9 @@ spec:
     - Ingress
     - Egress
 ---
-# Allow sandbox pods to receive SSH connections (port 2222) from the OpenShell gateway namespace.
-# OpenShell gateway pods are labeled app.kubernetes.io/name: openshell in namespace openshell.
+# Allow sandbox pods to receive SSH connections (TCP 2222) from the OpenShell gateway pods
+# only — scoped to the gateway pod labels and port so other workloads (or a compromised
+# sandbox) in the openshell namespace get nothing beyond the deny-all baseline.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -28,3 +29,10 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: openshell
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: openshell
+              app.kubernetes.io/instance: openshell
+      ports:
+        - port: 2222
+          protocol: TCP
