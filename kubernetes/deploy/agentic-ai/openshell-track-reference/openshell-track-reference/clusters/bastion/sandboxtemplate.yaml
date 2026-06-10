@@ -22,11 +22,20 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
+        # The base image declares USER as the *named* user "sandbox"; kubelet cannot verify
+        # a non-numeric user against runAsNonRoot and fails the pod with
+        # CreateContainerConfigError (observed live during the REQ-102 GC test).
+        # An explicit numeric UID satisfies the check. 998 is the actual 'sandbox'
+        # account in the image (extracted from its /etc/passwd: sandbox:x:998:998::/sandbox)
+        # so the process owns /sandbox and the venv/home files real workloads need.
+        runAsUser: 998
+        runAsGroup: 998
+        fsGroup: 998
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: agent
-          image: ghcr.io/nvidia/openshell-community/sandboxes/base:latest
+          image: ghcr.io/nvidia/openshell-community/sandboxes/base:latest@sha256:aeef1c63f00e2913ea002ccb3aaf925f338b5c5d70e63576f0d95c16a138044e
           # The base image's entrypoint is a bare non-interactive /bin/bash (verified via
           # crane config) — without args the pod exits immediately. Keep the reference
           # sandbox alive explicitly; Phase 3 harness templates must replace this with
