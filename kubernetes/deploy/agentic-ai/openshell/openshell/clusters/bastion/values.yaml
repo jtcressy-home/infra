@@ -1,0 +1,28 @@
+grpcRoute:
+  enabled: true
+  hostnames:
+    - "openshell-gw.tailnet-4d89.ts.net"
+  gateway:
+    create: false           # repo-managed Gateway in gateway.yaml
+    name: openshell-gateway
+    namespace: openshell
+
+server:
+  sandboxNamespace: ""      # defaults to release namespace (openshell); Phase 3 will add per-track routing
+  oidc:
+    issuer: "https://tsidp.tailnet-4d89.ts.net"
+    audience: "openshell-cli"
+    jwksTtl: 3600
+  tls:
+    certSecretName: openshell-server-tls
+
+certManager:
+  enabled: true
+  serverDnsNames:
+    - openshell
+    - openshell.openshell.svc
+    - openshell.openshell.svc.cluster.local
+    - localhost
+
+networkPolicy:
+  enabled: true
