@@ -18,6 +18,9 @@ server:
     audience: "openshell-cli"
     jwksTtl: 3600
 
+# Note: with certManager.enabled=true the chart's certgen hook automatically runs in
+# JWT-only mode (creates openshell-jwt-keys; cert-manager does not manage that secret).
+# cert-manager takes precedence for all TLS secrets — no pkiInitJob override needed (v0.0.59).
 certManager:
   enabled: true
   serverDnsNames:
