@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - envoyproxy.yaml
   - gatewayclass.yaml
-  - self-signed-issuer.yaml
 
 helmCharts:
   - name: gateway-helm
