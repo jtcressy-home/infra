@@ -186,6 +186,8 @@ patches:
     kubelet:
       extraArgs:
         feature-gates: ImageVolume=true
+      extraConfig:
+        maxPods: 200 # node podCIDR is a /24 (~250 usable pod IPs); keep below ~230
       nodeIP:
         validSubnets:
           - 192.168.20.0/24
