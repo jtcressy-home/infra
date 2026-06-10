@@ -3,8 +3,8 @@
 # (extensions.yaml in the agent-sandbox-system overlay); v1beta1 does not exist yet.
 #
 # shutdownPolicy does NOT live here — it goes on SandboxClaim.spec.lifecycle.shutdownPolicy at runtime.
-# networkPolicyManagement: Managed causes the agent-sandbox controller to create and maintain
-# additional NetworkPolicy rules for each sandbox on top of the deny-all baseline in networkpolicy.yaml.
+# networkPolicyManagement: Unmanaged — the controller creates no NetworkPolicies; the track's
+# git-declared deny-all baseline + scoped allows in networkpolicy.yaml are the complete policy.
 #
 # Pod spec satisfies the restricted PodSecurity admission profile enforced by the namespace label:
 #   - runAsNonRoot: true
@@ -44,6 +44,9 @@ spec:
             capabilities:
               drop:
                 - ALL
-  networkPolicyManagement: Managed
+  # Unmanaged: ALL network policy is declared in git (networkpolicy.yaml deny-all baseline +
+  # scoped openshell allow). v0.4.6's Managed default generates a policy allowing public
+  # internet egress, and NetworkPolicies are additive — it would defeat the deny-all posture.
+  networkPolicyManagement: Unmanaged
   service: false
   envVarsInjectionPolicy: Disallowed

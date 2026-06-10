@@ -1,6 +1,7 @@
 # Deny-all baseline: blocks all ingress and egress by default for all pods in the track namespace.
-# The agent-sandbox controller's networkPolicyManagement: Managed (set in sandboxtemplate.yaml)
-# will layer additional NetworkPolicy entries on top of this baseline for each sandbox.
+# This (plus the scoped allow below) is the COMPLETE network policy for the track — the
+# SandboxTemplate uses networkPolicyManagement: Unmanaged so the controller adds nothing.
+# Phase 3 tracks loosen egress deliberately (per-track allows in git), never by controller default.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
