@@ -25,10 +25,12 @@ spec:
         # The base image declares USER as the *named* user "sandbox"; kubelet cannot verify
         # a non-numeric user against runAsNonRoot and fails the pod with
         # CreateContainerConfigError (observed live during the REQ-102 GC test).
-        # An explicit numeric UID satisfies the check.
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        # An explicit numeric UID satisfies the check. 998 is the actual 'sandbox'
+        # account in the image (extracted from its /etc/passwd: sandbox:x:998:998::/sandbox)
+        # so the process owns /sandbox and the venv/home files real workloads need.
+        runAsUser: 998
+        runAsGroup: 998
+        fsGroup: 998
         seccompProfile:
           type: RuntimeDefault
       containers:
