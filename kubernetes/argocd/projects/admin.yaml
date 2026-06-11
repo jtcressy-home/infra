@@ -36,6 +36,9 @@ spec:
     - namespace: 'tailscale'
       name: '*'
       server: '*'
+    - namespace: 'dex'
+      name: '*'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
