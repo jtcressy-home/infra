@@ -24,6 +24,12 @@ spec:
     - name: "*"
       namespace: openshell-track-reference
       server: "*"
+    - name: "*"
+      namespace: openshell-hermes
+      server: "*"
+    - name: "*"
+      namespace: kagent
+      server: "*"
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
