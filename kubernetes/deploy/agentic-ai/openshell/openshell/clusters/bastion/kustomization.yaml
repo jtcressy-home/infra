@@ -11,7 +11,7 @@ resources:
 helmCharts:
   - name: helm-chart
     repo: oci://ghcr.io/nvidia/openshell
-    version: 0.0.59
+    version: 0.0.62
     releaseName: openshell
     namespace: openshell
     valuesFile: values.yaml
