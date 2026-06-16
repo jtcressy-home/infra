@@ -9,8 +9,7 @@ namespace: ark-system
 
 resources:
   - namespace.yaml
-  - envoyproxy.yaml
-  - gateway.yaml
+  - ingress.yaml
 
 # ARK (Agent Runtime for Kubernetes, github.com/mckinsey/agents-at-scale-ark).
 # Core stack installed declaratively (the upstream `ark install` CLI is imperative
@@ -49,4 +48,3 @@ helmCharts:
     version: 0.1.64
     releaseName: ark-dashboard
     namespace: ark-system
-    valuesFile: values-dashboard.yaml
