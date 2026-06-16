@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ark-system
+  labels:
+    # Baseline enforced for the initial bring-up: the ARK controller pods are
+    # restricted-compliant, but the dashboard/api containers do not set an
+    # explicit seccompProfile, which restricted enforcement would reject.
+    # restricted is set to warn/audit so non-compliant workloads are visible;
+    # tighten enforce to restricted in the ARK configuration phase.
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

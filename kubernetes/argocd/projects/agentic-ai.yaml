@@ -24,6 +24,9 @@ spec:
     - name: "*"
       namespace: openshell-track-reference
       server: "*"
+    - name: '*'
+      namespace: ark-system
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
