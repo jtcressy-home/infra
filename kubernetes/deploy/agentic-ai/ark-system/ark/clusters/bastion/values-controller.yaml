@@ -1,0 +1,24 @@
+# ark-controller: installs the Ark CRDs (Agent/Team/Model/Query/Tool/Memory/
+# MCPServer/A2AServer/A2ATask/ExecutionEngine/ArkConfig), reconcilers, and the
+# admission webhooks. The webhook serving certificate is provisioned by
+# cert-manager through the chart's own self-signed Issuer, independent of the
+# cluster internal-ca. Storage backend is etcd (CRD-backed); switching to
+# postgresql would disable CRDs in favour of an embedded apiserver.
+# completions.addr is left at its default (http://ark-completions.ark-system),
+# which resolves because the whole stack installs into ark-system.
+rbac:
+  enable: true
+crd:
+  enable: true
+  keep: true          # retain CRDs (and stored CR data) across a Helm uninstall
+webhook:
+  enable: true
+certmanager:
+  enable: true
+storage:
+  backend: etcd
+metrics:
+  # No ServiceMonitor wired for ARK yet, and enabling it would require the
+  # Prometheus operator CRDs to be present at apply time. Enable in the ARK
+  # configuration phase alongside dashboards/alerts.
+  enable: false

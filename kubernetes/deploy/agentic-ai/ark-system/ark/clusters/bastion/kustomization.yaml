@@ -1,0 +1,52 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# ARK installs into its native ark-system namespace. Several chart references are
+# hardcoded to ark-system (e.g. the controller's --completions-addr and the
+# completions Service/ServiceAccount), so installing here keeps every in-cluster
+# reference resolvable without per-chart namespace overrides.
+namespace: ark-system
+
+resources:
+  - namespace.yaml
+  - envoyproxy.yaml
+  - gateway.yaml
+
+# ARK (Agent Runtime for Kubernetes, github.com/mckinsey/agents-at-scale-ark).
+# Core stack installed declaratively (the upstream `ark install` CLI is imperative
+# and not used here): controller (CRDs + reconcilers + webhooks), completions
+# (execution engine), api (REST backend), dashboard (Next.js web UI).
+# cert-manager and Gateway API CRDs are already provided by the cluster
+# (system project), so they are NOT installed here.
+helmCharts:
+  - name: ark-controller
+    repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
+    version: 0.1.64
+    releaseName: ark-controller
+    namespace: ark-system
+    valuesFile: values-controller.yaml
+  # ark-tenant is a mandatory core component in v0.1.64: it provisions the tenant
+  # ServiceAccount + RBAC and the built-in Tool CRs (terminate, noop) that agents
+  # rely on. Installs into ark-system, making it the primary tenant namespace;
+  # additional isolated tenants can be added as separate overlays later.
+  - name: ark-tenant
+    repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
+    version: 0.1.64
+    releaseName: ark-tenant
+    namespace: ark-system
+  - name: ark-completions
+    repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
+    version: 0.1.64
+    releaseName: ark-completions
+    namespace: ark-system
+  - name: ark-api
+    repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
+    version: 0.1.64
+    releaseName: ark-api
+    namespace: ark-system
+  - name: ark-dashboard
+    repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
+    version: 0.1.64
+    releaseName: ark-dashboard
+    namespace: ark-system
+    valuesFile: values-dashboard.yaml

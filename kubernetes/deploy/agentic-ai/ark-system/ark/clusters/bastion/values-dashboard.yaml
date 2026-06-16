@@ -1,0 +1,13 @@
+# ark-dashboard: Next.js web UI. It proxies the ARK API server-side at
+# http://ark-api:80 (in-cluster), so only the dashboard is exposed off-cluster.
+# The chart renders the HTTPRoute; it attaches to the repo-managed ark-gateway
+# (gateway.yaml) and is served on the tailnet at ark.tailnet-4d89.ts.net.
+# AUTH_MODE defaults to "open" — acceptable while access is gated by the tailnet;
+# SSO/OIDC hardening is deferred to the ARK configuration phase.
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: ark-gateway
+      namespace: ark-system
+  hostnames:
+    - "ark.tailnet-4d89.ts.net"

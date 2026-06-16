@@ -1,0 +1,24 @@
+---
+# Per-Gateway EnvoyProxy so the ARK dashboard gets its OWN tailnet device.
+# The eg-tailscale GatewayClass points at a shared EnvoyProxy
+# (envoy-gateway-system/tailscale-proxy) that hardcodes
+# `tailscale.com/hostname: openshell-gw`. Every Gateway of that class inherits
+# that annotation on its Envoy LoadBalancer Service, so without this override the
+# ARK Gateway's Envoy service would also register as `openshell-gw` (collision /
+# wrong MagicDNS name) instead of `ark`. Referenced from the Gateway via
+# spec.infrastructure.parametersRef (Envoy Gateway honours a per-Gateway
+# EnvoyProxy in the Gateway's own namespace, overriding the class default).
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: ark-tailscale-proxy
+  namespace: ark-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: LoadBalancer
+        loadBalancerClass: tailscale
+        annotations:
+          tailscale.com/hostname: ark
