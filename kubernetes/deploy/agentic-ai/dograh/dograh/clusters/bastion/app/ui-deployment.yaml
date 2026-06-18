@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: dograh-ui
-          image: ghcr.io/dograh-hq/dograh-ui:1.35.0@sha256:ba7ee0d94707cf18d8b03520d61428be09ba75734730d773bbfdfd8b0efceaa0
+          image: ghcr.io/dograh-hq/dograh-ui:1.36.0@sha256:62264e661956cb3c7d83f18b73cde0ff4eaf900c4508e827e1640e564a3013d3
           ports:
             - containerPort: 3010
               name: http
