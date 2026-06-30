@@ -110,7 +110,7 @@ spec:
             limits:
               memory: 2Gi
         - name: bluepopcorn-mcp
-          image: ghcr.io/jtcressy/bluepopcorn-mcp:rolling@sha256:30a64041bfe935dc9c5c625d27b0796a8648f7ef6d8afaad7cdc586c6148d71f
+          image: ghcr.io/jtcressy/bluepopcorn-mcp:rolling@sha256:7926b94ddd14bfa1bda5c90f6ae76671e4bf75a34e0c346c8625f7d9e64da7ba
           ports:
             - containerPort: 9151
               name: bluepopcorn-mcp
