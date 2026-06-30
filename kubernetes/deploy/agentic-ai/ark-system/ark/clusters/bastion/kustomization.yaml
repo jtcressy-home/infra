@@ -30,7 +30,7 @@ helmCharts:
   # additional isolated tenants can be added as separate overlays later.
   - name: ark-tenant
     repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
-    version: 0.1.64
+    version: 0.1.65
     releaseName: ark-tenant
     namespace: ark-system
   - name: ark-completions
