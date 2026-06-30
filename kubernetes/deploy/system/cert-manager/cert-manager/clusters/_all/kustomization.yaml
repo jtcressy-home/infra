@@ -19,4 +19,4 @@ helmCharts:
       apiVersion: controller.config.cert-manager.io/v1alpha1
       kind: ControllerConfiguration
       enableGatewayAPI: true
-  version: v1.20.0
+  version: v1.20.3
