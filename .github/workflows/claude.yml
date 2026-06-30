@@ -40,7 +40,7 @@ jobs:
           version: 1.90.9
 
       - name: Install Task
-        uses: go-task/setup-task@v1
+        uses: go-task/setup-task@v2
 
       - name: Install ArgoCD CLI
         run: |
