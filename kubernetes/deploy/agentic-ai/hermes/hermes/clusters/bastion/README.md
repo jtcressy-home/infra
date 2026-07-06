@@ -37,12 +37,32 @@ The container's `HERMES_DASHBOARD=1` entrypoint always passes `--host
 dashboard unless an auth provider is registered ("Refusing to bind dashboard
 to 0.0.0.0 — the OAuth auth gate engages on non-loopback binds, but no auth
 providers are registered", [NousResearch/hermes-agent#49567]). Without an
-auth provider the dashboard fails to start at all, so `externalsecret.yaml`
-wires `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`/`_PASSWORD` from 1Password to
-satisfy the gate. Add both fields to the `hermes` 1Password item (see
-bootstrap checklist below) before relying on the ingress.
+auth provider the dashboard fails to start at all.
+
+We satisfy the gate with the bundled **self-hosted OIDC** provider
+(`plugins/dashboard_auth/self_hosted`) against our own `tsidp`
+(`kubernetes/deploy/system/tailscale/tsidp`, hostname `tsidp` →
+`https://tsidp.tailnet-4d89.ts.net`) instead of the username/password
+provider, since the dashboard is reachable at
+`https://hermes.tailnet-4d89.ts.net` for anyone on the tailnet.
+`externalsecret.yaml` wires the issuer (static — not a secret) plus
+`HERMES_DASHBOARD_OIDC_CLIENT_ID` / `HERMES_DASHBOARD_OIDC_CLIENT_SECRET`
+from 1Password. `HERMES_DASHBOARD_PUBLIC_URL` is set explicitly so the OAuth
+callback is `https://hermes.tailnet-4d89.ts.net/auth/callback` regardless of
+whether the Tailscale ingress forwards `X-Forwarded-*` headers.
+
+tsidp only issues **confidential** clients — every client it registers
+(via `/register` DCR or the `/clients` admin UI) gets a `client_secret` and
+its `/token` endpoint always requires it (see `server/token.go`
+`allowRelyingParty`); there is no public/PKCE-only client type. That lines
+up with Hermes's self-hosted OIDC provider, which supports confidential
+clients via `HERMES_DASHBOARD_OIDC_CLIENT_SECRET` (env-only for now —
+[NousResearch/hermes-agent#55650] tracks file-based secret support for
+systemd/Kubernetes-style secret mounts; irrelevant here since we already
+render one `.env` from 1Password).
 
 [NousResearch/hermes-agent#49567]: https://github.com/NousResearch/hermes-agent/issues/49567
+[NousResearch/hermes-agent#55650]: https://github.com/NousResearch/hermes-agent/issues/55650
 
 ## Camofox — not yet deployed
 
@@ -68,7 +88,46 @@ browser tooling.
    `hermes-data` PVC (not the `.env`), so it survives restarts and is never
    overwritten by the ESO reseed.
 2. Create the Discord bot application, enable the required gateway intents,
-   invite it to the target guild, and store its token plus an API/model key,
-   a generated `API_SERVER_KEY` (`openssl rand -hex 32`), and a
-   `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`/`_PASSWORD` pair in the `hermes`
+   invite it to the target guild, and store its token plus an API/model key
+   and a generated `API_SERVER_KEY` (`openssl rand -hex 32`) in the `hermes`
    1Password item — see the repo-root PR description for the full checklist.
+3. **Register the dashboard as a tsidp OIDC client** (do this from a device
+   on the tailnet):
+   1. Grant tsidp's `allow_dcr` app capability to the account that will run
+      the registration. In the [Tailscale admin console ACL
+      policy](https://login.tailscale.com/admin/acls/), add (or extend) a
+      `grants` entry, scoping `src` to that account rather than `*`:
+      ```hujson
+      "grants": [
+        {
+          "src": ["autogroup:admin"],
+          "dst": ["tag:tsidp"],
+          "app": {
+            "tailscale.com/cap/tsidp": [{"allow_dcr": true}],
+          },
+        },
+      ],
+      ```
+   2. From that device, register the client via tsidp's Dynamic Client
+      Registration endpoint (RFC 7591):
+      ```bash
+      curl -s -X POST https://tsidp.tailnet-4d89.ts.net/register \
+        -H "Content-Type: application/json" \
+        -d '{
+          "client_name": "hermes-dashboard",
+          "redirect_uris": ["https://hermes.tailnet-4d89.ts.net/auth/callback"],
+          "token_endpoint_auth_method": "client_secret_basic",
+          "grant_types": ["authorization_code", "refresh_token"],
+          "response_types": ["code"],
+          "scope": "openid profile email"
+        }'
+      ```
+      The response is a JSON object with `client_id` and `client_secret` —
+      tsidp only issues confidential clients, so both fields are present.
+   3. Immediately copy `client_id` / `client_secret` into the `hermes`
+      1Password item as `HERMES_DASHBOARD_OIDC_CLIENT_ID` /
+      `HERMES_DASHBOARD_OIDC_CLIENT_SECRET`, then discard the response —
+      the secret is shown once and tsidp cannot re-display it later
+      (deleting and re-registering the client is the only recovery path).
+   4. Revoke the `allow_dcr` grant afterward if it was added just for this
+      one-time registration.
