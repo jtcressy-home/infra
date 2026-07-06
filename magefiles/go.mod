@@ -14,7 +14,7 @@ require (
 	github.com/lainio/err2 v1.2.3
 	github.com/magefile/mage v1.17.2
 	github.com/samber/lo v1.53.0
-	github.com/xuri/excelize/v2 v2.10.1
+	github.com/xuri/excelize/v2 v2.11.0
 	k8s.io/api v0.36.2
 	k8s.io/apimachinery v0.36.2
 	k8s.io/klog/v2 v2.140.0
