@@ -30,20 +30,32 @@ never start. `fsGroup: 10000` aligns PVC ownership with the drop-down user.
 `HERMES_ALLOW_ROOT_GATEWAY` is deliberately left unset so the gateway process
 itself still refuses to run as root; only `/init` is privileged.
 
+## Dashboard auth
+
+The container's `HERMES_DASHBOARD=1` entrypoint always passes `--host
+0.0.0.0` to `hermes dashboard`, and upstream refuses to bind a non-loopback
+dashboard unless an auth provider is registered ("Refusing to bind dashboard
+to 0.0.0.0 — the OAuth auth gate engages on non-loopback binds, but no auth
+providers are registered", [NousResearch/hermes-agent#49567]). Without an
+auth provider the dashboard fails to start at all, so `externalsecret.yaml`
+wires `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`/`_PASSWORD` from 1Password to
+satisfy the gate. Add both fields to the `hermes` 1Password item (see
+bootstrap checklist below) before relying on the ingress.
+
+[NousResearch/hermes-agent#49567]: https://github.com/NousResearch/hermes-agent/issues/49567
+
+## Camofox — not yet deployed
+
+`camofox.yaml` is written but deliberately left out of `kustomization.yaml`'s
+`resources`. It points at `ghcr.io/jtcressy-home/camofox:latest`, which does
+not exist yet (confirmed: GHCR returns 403) and is blocked on
+`jtcressy-home/containers` PR #3 merging and publishing the image. Once that
+image is published, pin it to a real tag+digest and add `camofox.yaml` back
+to `kustomization.yaml`'s `resources`; until then the gateway runs without
+browser tooling.
+
 ## Unverified / to confirm after first rollout
 
-- **Dashboard bind address.** Upstream's `HERMES_DASHBOARD=1` is confirmed to
-  enable the bundled dashboard; whether it binds `0.0.0.0` automatically in
-  container mode (vs. the CLI-flag default of `127.0.0.1` documented for bare
-  installs) is not confirmed. If the Service/Ingress can't reach the
-  dashboard after rollout, exec in and check `hermes dashboard --help` for a
-  host-override flag or env var, and update `deployment.yaml`/`externalsecret.yaml`
-  accordingly.
-- **Camofox image.** `camofox.yaml` points at
-  `ghcr.io/jtcressy-home/camofox:latest` as a placeholder — this is blocked on
-  `jtcressy-home/containers` PR #3 merging and publishing the image. The
-  overlay will `ImagePullBackOff` until that ref is pinned to a real
-  tag+digest.
 - **Discord allowlisting.** Only `DISCORD_BOT_TOKEN` is wired through ESO.
   Upstream also supports `DISCORD_ALLOWED_USERS` / `DISCORD_ALLOWED_ROLES` /
   `DISCORD_ALLOWED_CHANNELS` — set at least one before exposing the bot in a
@@ -56,6 +68,7 @@ itself still refuses to run as root; only `/init` is privileged.
    `hermes-data` PVC (not the `.env`), so it survives restarts and is never
    overwritten by the ESO reseed.
 2. Create the Discord bot application, enable the required gateway intents,
-   invite it to the target guild, and store its token plus an API/model key
-   and a generated `API_SERVER_KEY` (`openssl rand -hex 32`) in the `hermes`
+   invite it to the target guild, and store its token plus an API/model key,
+   a generated `API_SERVER_KEY` (`openssl rand -hex 32`), and a
+   `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`/`_PASSWORD` pair in the `hermes`
    1Password item — see the repo-root PR description for the full checklist.
