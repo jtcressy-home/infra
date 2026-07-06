@@ -11,6 +11,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - netpol.yaml
   # camofox.yaml is intentionally NOT included yet: it points at a
   # placeholder image (ghcr.io/jtcressy-home/camofox:latest) that doesn't
   # exist (confirmed 403 from GHCR), blocked on jtcressy-home/containers
