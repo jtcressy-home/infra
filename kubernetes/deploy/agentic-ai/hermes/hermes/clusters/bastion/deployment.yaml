@@ -63,6 +63,15 @@ spec:
           env:
             - name: HERMES_UID
               value: "10000"
+            # The dashboard runs as a separate s6 `with-contenv` service whose
+            # run/finish scripts gate on HERMES_DASHBOARD from the shell env —
+            # NOT from /opt/data/.env (that file is read only by the Python
+            # process). Without this as a real container env var the wrapper
+            # treats the dashboard as disabled: run exits immediately and
+            # finish exits 125, so s6 marks it permanently down and 9119 never
+            # binds (ingress → 502). Keep it here, not only in the ESO .env.
+            - name: HERMES_DASHBOARD
+              value: "1"
           ports:
             - name: api
               containerPort: 8642
