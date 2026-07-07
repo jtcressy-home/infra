@@ -20,8 +20,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: adapter
-          # TODO: pin to @sha256 digest after first publish
-          image: ghcr.io/jtcressy/dograh-hermes-adapter:main
+          image: ghcr.io/jtcressy/dograh-hermes-adapter:sha-407e451@sha256:70cdb734244407881b481beb0821b5ffd30cbcd38fa1180d176d1b954ec93b97
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
