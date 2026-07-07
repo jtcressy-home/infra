@@ -72,6 +72,17 @@ spec:
             # binds (ingress → 502). Keep it here, not only in the ESO .env.
             - name: HERMES_DASHBOARD
               value: "1"
+            # mem0 self-hosted memory backend runs from PVC-installed deps
+            # (mem0ai/psycopg2/ollama under /opt/data/pydeps, installed out of
+            # band via `uv pip install --target`). PYTHONPATH lets the gateway's
+            # Python import them. The deps and $HERMES_HOME/mem0.json are
+            # PVC-resident runtime state, not baked into the image.
+            - name: PYTHONPATH
+              value: /opt/data/pydeps
+            # mem0ai phones home to PostHog by default; disable it so nothing
+            # about memory contents or usage leaves the network.
+            - name: MEM0_TELEMETRY
+              value: "False"
           ports:
             - name: api
               containerPort: 8642
