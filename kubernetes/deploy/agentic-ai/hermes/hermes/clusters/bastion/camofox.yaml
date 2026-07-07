@@ -44,6 +44,13 @@ spec:
             # Point it at the mounted PVC so portal logins survive restarts.
             - name: CAMOFOX_PROFILE_DIR
               value: /data
+            # Require an API key on the control API (defense-in-depth on top
+            # of the NetworkPolicy). Same value the gateway sends via .env.
+            - name: CAMOFOX_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-env
+                  key: CAMOFOX_API_KEY
           ports:
             - name: browser
               containerPort: 9377
