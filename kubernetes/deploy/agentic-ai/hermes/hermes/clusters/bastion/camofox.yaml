@@ -35,14 +35,15 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: camofox
-          # PLACEHOLDER — blocked on jtcressy-home/containers PR #3 merge +
-          # publish. Pin the exact tag+digest once that image exists; this
-          # overlay will ImagePullBackOff until then.
-          image: ghcr.io/jtcressy-home/camofox:latest
+          image: ghcr.io/jtcressy/camofox-browser:1.11.2@sha256:07c48e89160bc47bf23cd79190fa83acbe83d8b3b59dc4979e01c51738a7feee
           imagePullPolicy: IfNotPresent
           env:
             - name: CAMOFOX_PORT
               value: "9377"
+            # Camofox writes profiles to ~/.camofox by default (ephemeral).
+            # Point it at the mounted PVC so portal logins survive restarts.
+            - name: CAMOFOX_PROFILE_DIR
+              value: /data
           ports:
             - name: browser
               containerPort: 9377
