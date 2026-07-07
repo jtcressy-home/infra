@@ -1,0 +1,60 @@
+---
+# Restrict inbound pod traffic to the hermes gateway to the two paths it
+# actually serves over the pod network:
+#   - 8642 (API): the Dograh voice-glue integration calls the gateway
+#     Service directly from the dograh namespace (not through Ingress).
+#   - 9119 (dashboard): only reachable via the tailscale Ingress, so only
+#     the tailscale-operator ProxyGroup pods need pod-network access.
+# Egress is intentionally left unrestricted: the gateway needs outbound
+# internet access for model APIs (OpenAI/etc.) and messaging (Discord).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hermes-gw-ingress
+  namespace: hermes
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: dograh
+      ports:
+        - protocol: TCP
+          port: 8642
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: tailscale
+      ports:
+        - protocol: TCP
+          port: 9119
+---
+# Camofox ingress: only the hermes gateway pod (same namespace) should ever
+# reach the browser sidecar's port. Inert for now — camofox.yaml is not yet
+# in kustomization.yaml's resources, so this policy has no matching pods
+# until camofox is re-enabled. NetworkPolicies targeting nonexistent pods
+# are no-ops, so keeping this here ahead of time is safe.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hermes-camofox-ingress
+  namespace: hermes
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-camofox
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes
+      ports:
+        - protocol: TCP
+          port: 9377

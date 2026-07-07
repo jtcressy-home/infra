@@ -1,0 +1,95 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  replicas: 1
+  # Recreate is mandatory: the RWO hermes-data PVC plus upstream's own
+  # "never run two gateways against the same data dir" warning means a
+  # RollingUpdate would deadlock trying to schedule a second pod against a
+  # volume the first pod still holds.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hermes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hermes
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10000
+      # The image's own privilege model is root-init-then-drop: s6-overlay's
+      # /init runs as root to fix volume ownership, then s6-setuidgid drops
+      # the supervised gateway process to UID 10000. Do NOT set
+      # runAsNonRoot/runAsUser here — that would break the chown phase and
+      # the gateway would never start. HERMES_ALLOW_ROOT_GATEWAY is
+      # deliberately left unset so the gateway process itself still refuses
+      # to run as root; only /init is privileged.
+      initContainers:
+        - name: seed-env
+          image: nousresearch/hermes-agent:v2026.7.1@sha256:b6c019227889e6675424a2b6223b2cafdd36bf7d1048d1ddd8e043b880d6cc0f
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              cp /env/.env /opt/data/.env
+              chown 10000:10000 /opt/data/.env
+              chmod 600 /opt/data/.env
+          volumeMounts:
+            - name: hermes-data
+              mountPath: /opt/data
+            - name: hermes-env
+              mountPath: /env
+              readOnly: true
+      containers:
+        - name: hermes
+          image: nousresearch/hermes-agent:v2026.7.1@sha256:b6c019227889e6675424a2b6223b2cafdd36bf7d1048d1ddd8e043b880d6cc0f
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HERMES_UID
+              value: "10000"
+          ports:
+            - name: api
+              containerPort: 8642
+            - name: dashboard
+              containerPort: 9119
+          volumeMounts:
+            - name: hermes-data
+              mountPath: /opt/data
+          # TCP-only: the exact HTTP health path on 8642 isn't confirmed
+          # upstream, but API_SERVER_ENABLED=true + API_SERVER_HOST=0.0.0.0
+          # (set in the rendered .env) guarantee the port binds beyond
+          # loopback, so a TCP probe unambiguously proves the API server is
+          # up without needing the bearer key.
+          startupProbe:
+            tcpSocket:
+              port: 8642
+            periodSeconds: 5
+            failureThreshold: 60 # s6 boot + PVC chown + first-run model/browser init
+          livenessProbe:
+            tcpSocket:
+              port: 8642
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8642
+            periodSeconds: 10
+            failureThreshold: 3
+      volumes:
+        - name: hermes-data
+          persistentVolumeClaim:
+            claimName: hermes-data
+        - name: hermes-env
+          secret:
+            secretName: hermes-env

@@ -1,0 +1,82 @@
+---
+# Camofox remote-browser sidecar, run as its own workload rather than a pod
+# sidecar so it can be sized/restarted independently of the gateway and
+# keep the gateway's single-writer PVC clean.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hermes-camofox
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: zfs-nvme
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-camofox
+  labels:
+    app.kubernetes.io/name: hermes-camofox
+spec:
+  replicas: 1
+  # Same RWO-single-writer reasoning as the gateway Deployment.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-camofox
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hermes-camofox
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: camofox
+          # PLACEHOLDER — blocked on jtcressy-home/containers PR #3 merge +
+          # publish. Pin the exact tag+digest once that image exists; this
+          # overlay will ImagePullBackOff until then.
+          image: ghcr.io/jtcressy-home/camofox:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CAMOFOX_PORT
+              value: "9377"
+          ports:
+            - name: browser
+              containerPort: 9377
+          volumeMounts:
+            - name: hermes-camofox
+              mountPath: /data
+          startupProbe:
+            tcpSocket:
+              port: 9377
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 9377
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 9377
+            periodSeconds: 10
+            failureThreshold: 3
+      volumes:
+        - name: hermes-camofox
+          persistentVolumeClaim:
+            claimName: hermes-camofox
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-camofox
+spec:
+  selector:
+    app.kubernetes.io/name: hermes-camofox
+  ports:
+    - name: browser
+      port: 9377
+      targetPort: 9377
