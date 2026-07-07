@@ -55,6 +55,11 @@ spec:
         - name: hermes
           image: nousresearch/hermes-agent:v2026.7.1@sha256:b6c019227889e6675424a2b6223b2cafdd36bf7d1048d1ddd8e043b880d6cc0f
           imagePullPolicy: IfNotPresent
+          # Pass the gateway subcommand as the container CMD; the image
+          # entrypoint (/init + main-wrapper.sh) turns this into
+          # `hermes gateway run`. Without it the wrapper launches the
+          # interactive CLI, which exits immediately on a non-TTY stdin.
+          args: ["gateway", "run"]
           env:
             - name: HERMES_UID
               value: "10000"
