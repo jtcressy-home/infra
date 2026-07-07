@@ -1,0 +1,15 @@
+---
+# CALLER_WHITELIST maps normalized E.164 caller numbers to stable Hermes
+# session keys. Seeded empty: unknown callers fall back to their own
+# normalized number, so an empty map still gives every caller an isolated
+# memory scope.
+# TODO: swap to ExternalSecret from 1P item 'hermes-caller-whitelist' once curated
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dograh-hermes-adapter-config
+  labels:
+    app.kubernetes.io/name: dograh-hermes-adapter
+    app.kubernetes.io/part-of: dograh
+data:
+  CALLER_WHITELIST: "{}"
