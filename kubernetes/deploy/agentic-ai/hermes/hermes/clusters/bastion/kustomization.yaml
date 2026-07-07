@@ -13,3 +13,7 @@ resources:
   - ingress.yaml
   - netpol.yaml
   - camofox.yaml
+  # mem0 self-hosted memory backend: dedicated CNPG Postgres + pgvector.
+  - pg-r2-externalsecret.yaml
+  - pg-cluster.yaml
+  - pg-backup.yaml
