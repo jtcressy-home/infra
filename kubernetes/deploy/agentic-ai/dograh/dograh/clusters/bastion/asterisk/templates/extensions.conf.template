@@ -5,23 +5,5 @@ clearglobalvars = no
 
 [globals]
 DOGRAH_STASIS_APP = ${ASTERISK_STASIS_APP}
-UNIFI_TALK_ENDPOINT = ${UNIFI_TALK_ENDPOINT}
 
-[${UNIFI_TALK_INBOUND_CONTEXT}]
-exten => ${DOGRAH_INBOUND_EXTENSION},1,NoOp(UniFi Talk inbound call for Dograh on ${EXTEN})
- same => n,Stasis(${ASTERISK_STASIS_APP})
- same => n,Hangup()
-
-exten => s,1,NoOp(UniFi Talk inbound call for Dograh normalizing to ${DOGRAH_INBOUND_EXTENSION})
- same => n,Goto(${DOGRAH_INBOUND_EXTENSION},1)
-
-exten => _X.,1,NoOp(UniFi Talk inbound call for Dograh on ${EXTEN} normalizing to ${DOGRAH_INBOUND_EXTENSION})
- same => n,Goto(${DOGRAH_INBOUND_EXTENSION},1)
-
-exten => _+X.,1,NoOp(UniFi Talk inbound call for Dograh on ${EXTEN} normalizing to ${DOGRAH_INBOUND_EXTENSION})
- same => n,Goto(${DOGRAH_INBOUND_EXTENSION},1)
-
-[${UNIFI_TALK_OUTBOUND_CONTEXT}]
-exten => _X.,1,NoOp(Dograh outbound call to ${EXTEN} through UniFi Talk)
- same => n,Dial(PJSIP/${EXTEN}@${UNIFI_TALK_ENDPOINT},60)
- same => n,Hangup()
+#include "dynamic/extensions-inbound.conf"
