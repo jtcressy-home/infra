@@ -20,7 +20,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: adapter
-          image: ghcr.io/jtcressy/dograh-hermes-adapter:sha-407e451@sha256:70cdb734244407881b481beb0821b5ffd30cbcd38fa1180d176d1b954ec93b97
+          image: ghcr.io/jtcressy/dograh-hermes-adapter:sha-4aa0f40@sha256:db289af83596aa7a62016264b7c1be1ca6253ea53b5c63f537de2f9ce4f28ed2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
