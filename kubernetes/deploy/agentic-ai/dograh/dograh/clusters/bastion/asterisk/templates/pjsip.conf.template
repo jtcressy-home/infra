@@ -1,54 +1,11 @@
 [global]
 type = global
 user_agent = Dograh Asterisk Sidecar
+endpoint_identifier_order = ip,header,username,anonymous
 
 [transport-udp]
 type = transport
 protocol = udp
 bind = ${ASTERISK_PJSIP_BINDADDR}:${ASTERISK_PJSIP_PORT}
 
-[${UNIFI_TALK_ENDPOINT}-auth]
-type = auth
-auth_type = userpass
-username = ${UNIFI_TALK_SIP_USERNAME}
-password = ${UNIFI_TALK_SIP_PASSWORD}
-
-[${UNIFI_TALK_ENDPOINT}-aor]
-type = aor
-contact = sip:${UNIFI_TALK_SIP_SERVER}:${UNIFI_TALK_SIP_PORT}
-qualify_frequency = 30
-
-[${UNIFI_TALK_ENDPOINT}]
-type = endpoint
-transport = transport-udp
-context = ${UNIFI_TALK_INBOUND_CONTEXT}
-disallow = all
-allow = ulaw
-aors = ${UNIFI_TALK_ENDPOINT}-aor
-outbound_auth = ${UNIFI_TALK_ENDPOINT}-auth
-from_user = ${UNIFI_TALK_SIP_USERNAME}
-from_domain = ${UNIFI_TALK_SIP_SERVER}
-rewrite_contact = yes
-rtp_symmetric = yes
-force_rport = yes
-direct_media = no
-trust_id_inbound = yes
-send_rpid = yes
-
-[${UNIFI_TALK_ENDPOINT}-registration]
-type = registration
-transport = transport-udp
-outbound_auth = ${UNIFI_TALK_ENDPOINT}-auth
-server_uri = sip:${UNIFI_TALK_SIP_SERVER}:${UNIFI_TALK_SIP_PORT}
-client_uri = sip:${UNIFI_TALK_SIP_USERNAME}@${UNIFI_TALK_SIP_SERVER}:${UNIFI_TALK_SIP_PORT}
-contact_user = ${UNIFI_TALK_SIP_USERNAME}
-retry_interval = 60
-forbidden_retry_interval = 600
-expiration = 3600
-line = yes
-endpoint = ${UNIFI_TALK_ENDPOINT}
-
-[${UNIFI_TALK_ENDPOINT}-identify]
-type = identify
-endpoint = ${UNIFI_TALK_ENDPOINT}
-match = ${UNIFI_TALK_SIP_SERVER}
+#include "dynamic/pjsip-endpoints.conf"

@@ -44,7 +44,7 @@ spec:
                 name: dograh-asterisk-env
           env:
             - name: ASTERISK_REQUIRE_UNIFI
-              value: "true"
+              value: "false"
             - name: ASTERISK_ARI_USERNAME
               value: dograh
             - name: ASTERISK_STASIS_APP
@@ -81,6 +81,9 @@ spec:
             - name: asterisk-templates
               mountPath: /etc/asterisk/templates
               readOnly: true
+            - name: dynamic-config
+              mountPath: /etc/asterisk/dynamic
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
@@ -114,7 +117,62 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+        - name: config-reloader
+          image: ghcr.io/jtcressy/docker-asterisk:asterisk-22.9.0@sha256:bf7b44aa79128b82d9a21e8f3bbf1227e507599f1de90c57573245636ba1699e
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -u
+              gen() { readlink /etc/asterisk/dynamic/..data; }
+              reload() {
+                local m
+                for m in res_pjsip.so res_pjsip_endpoint_identifier_ip.so res_pjsip_outbound_registration.so pbx_config.so; do
+                  curl -sf -X PUT -u "${ASTERISK_ARI_USERNAME}:${ASTERISK_ARI_PASSWORD}" \
+                    "http://127.0.0.1:8088/ari/asterisk/modules/${m}" || return 1
+                done
+              }
+              prev="$(gen)"
+              echo "config-reloader watching generation ${prev}"
+              while sleep 10; do
+                cur="$(gen)"
+                if [ "${cur}" != "${prev}" ]; then
+                  if reload; then
+                    prev="${cur}"
+                    echo "reloaded modules for generation ${cur}"
+                  else
+                    echo "reload failed for generation ${cur}; will retry" >&2
+                  fi
+                fi
+              done
+          env:
+            - name: ASTERISK_ARI_USERNAME
+              value: dograh
+          envFrom:
+            - secretRef:
+                name: dograh-asterisk-env
+          volumeMounts:
+            - name: dynamic-config
+              mountPath: /etc/asterisk/dynamic
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
       volumes:
         - name: asterisk-templates
           configMap:
             name: dograh-asterisk-templates
+        - name: dynamic-config
+          secret:
+            secretName: dograh-asterisk-dynamic
