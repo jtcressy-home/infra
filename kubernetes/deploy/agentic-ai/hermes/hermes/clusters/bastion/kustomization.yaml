@@ -8,6 +8,7 @@ kind: Kustomization
 resources:
   - externalsecret.yaml
   - hermes-pvc.yaml
+  - volsync.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
