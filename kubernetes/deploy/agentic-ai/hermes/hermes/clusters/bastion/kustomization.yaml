@@ -6,6 +6,7 @@ kind: Kustomization
 # a local namespace transformer here.
 
 resources:
+  - rbac.yaml
   - externalsecret.yaml
   - hermes-pvc.yaml
   - deployment.yaml

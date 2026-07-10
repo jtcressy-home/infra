@@ -1,5 +1,19 @@
 # Hermes Agent Gateway
 
+## Read-only Kubernetes access and persistent tools
+
+The Hermes pod runs as the dedicated `hermes` ServiceAccount. A
+ClusterRoleBinding grants that account only the built-in `view` ClusterRole so
+`kubectl` can inspect resources covered by that role across all namespaces.
+Kubernetes `view` excludes Secrets, does not permit writes or other mutations,
+and does not grant unrestricted access to all cluster-scoped or RBAC resources;
+do not broaden this binding to `cluster-admin` or add Secret access.
+
+The main container puts `/opt/data/.local/bin` first in `PATH`, followed by the
+image's Hermes directories and normal system paths. This makes PVC-persisted
+tools such as `kubectl`, `gh`, and `codex` available by name after pod
+replacement without hiding image-provided or system binaries.
+
 ## The `/opt/data/.env` footgun and its resolution
 
 Hermes reads runtime config, secrets, and feature flags from `/opt/data/.env`
@@ -14,7 +28,8 @@ and unsafe to rely on, so this overlay eliminates the ambiguity outright:
 - A root `seed-env` initContainer copies that key to `/opt/data/.env`
   (`chown 10000:10000`, `chmod 600`) on every pod boot, before the gateway
   container starts.
-- The main container carries no conflicting env besides `HERMES_UID`.
+- The main container carries only the explicit process-level environment needed
+  by the image and runtime; application configuration remains in `.env`.
 
 Because the `.env` is rebuilt from 1Password on every restart, GitOps/ESO
 stays authoritative and a stale value written directly to the PVC can never
