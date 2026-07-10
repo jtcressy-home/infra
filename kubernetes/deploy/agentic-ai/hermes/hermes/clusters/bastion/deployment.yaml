@@ -65,7 +65,7 @@ spec:
             # User-installed tools persist on the data PVC. Keep that location
             # first while retaining the image's standard system search paths.
             - name: PATH
-              value: /opt/data/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              value: /opt/data/.local/bin:/opt/hermes/bin:/opt/hermes/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             - name: HERMES_UID
               value: "10000"
             # The dashboard runs as a separate s6 `with-contenv` service whose
