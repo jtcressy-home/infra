@@ -20,7 +20,7 @@ spec:
   # 2026-07-13: cluster was destroyed in the ArgoCD cascade-deletion incident
   # and restored from the barman R2 backup. The bootstrap below reflects that
   # recovery (bootstrap is only consulted at cluster creation; CNPG ignores it
-  # afterwards). New WALs/backups archive under serverName hermes-db-v2 because
+  # afterwards). New WALs/backups archive under serverName hermes-db-v3 because
   # the original hermes-db archive lineage was terminated by the restore.
   bootstrap:
     recovery:
@@ -51,7 +51,7 @@ spec:
           encryption: AES256
   backup:
     barmanObjectStore:
-      serverName: hermes-db-v2
+      serverName: hermes-db-v3
       destinationPath: s3://restic-backups/hermes/
       endpointURL: https://5d4249bf326be62396b18a9f6000341b.r2.cloudflarestorage.com
       s3Credentials:
