@@ -1,5 +1,0 @@
-[general]
-enabled = yes
-bindaddr = ${ASTERISK_HTTP_BINDADDR}
-bindport = ${ASTERISK_HTTP_PORT}
-tlsenable = no

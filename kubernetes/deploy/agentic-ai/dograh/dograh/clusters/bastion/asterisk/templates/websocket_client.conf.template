@@ -1,9 +1,0 @@
-[${ASTERISK_WS_CLIENT_NAME}]
-type = websocket_client
-uri = ${DOGRAH_ARI_WS_URI}
-protocols = media
-connection_type = per_call_config
-connection_timeout = 500
-reconnect_interval = 500
-reconnect_attempts = 5
-tls_enabled = ${ASTERISK_WS_TLS_ENABLED}

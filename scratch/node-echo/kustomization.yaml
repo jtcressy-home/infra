@@ -1,4 +1,0 @@
-namespace: default
-resources:
-  - daemonset.yaml
-  - service.yaml
