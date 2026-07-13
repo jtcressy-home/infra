@@ -47,6 +47,12 @@ spec:
     copyMethod: Snapshot
     storageClassName: zfs-nvme
     volumeSnapshotClassName: zfs-nvme-snapshot
+    # hermes runs as UID/GID 10000 (fsGroup 10000; /opt/data/.env is chown'd
+    # 10000:10000 mode 0600). The mover must match or it can't read 0600 files.
+    moverSecurityContext:
+      runAsUser: 10000
+      runAsGroup: 10000
+      fsGroup: 10000
 ---
 # Restore target for hermes-data — same pattern as every other app overlay.
 # The hermes-data PVC provisions from this via dataSourceRef. volsync restic
@@ -70,4 +76,8 @@ spec:
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
     volumeSnapshotClassName: zfs-nvme-snapshot
+    moverSecurityContext:
+      runAsUser: 10000
+      runAsGroup: 10000
+      fsGroup: 10000
     capacity: 10Gi
