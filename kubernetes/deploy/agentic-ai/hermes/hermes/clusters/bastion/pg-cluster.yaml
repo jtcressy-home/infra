@@ -16,14 +16,42 @@ spec:
   # database `mem0` is owned by the `mem0` role; CNPG surfaces its credentials
   # in the generated `hermes-db-app` secret. pgvector (0.8.1, shipped in the
   # -system- image) is enabled at bootstrap as superuser in the app database.
+  #
+  # 2026-07-13: cluster was destroyed in the ArgoCD cascade-deletion incident
+  # and restored from the barman R2 backup. The bootstrap below reflects that
+  # recovery (bootstrap is only consulted at cluster creation; CNPG ignores it
+  # afterwards). New WALs/backups archive under serverName hermes-db-v3 because
+  # the original hermes-db archive lineage was terminated by the restore.
   bootstrap:
-    initdb:
+    recovery:
+      source: hermes-db-backup
+      # Without these, CNPG assumes the application database/user are `app`
+      # and will not manage credentials for the restored `mem0` role
+      # (https://cloudnative-pg.io/docs/1.28/recovery/#recovery-from-a-backup-object).
       database: mem0
       owner: mem0
-      postInitApplicationSQL:
-        - CREATE EXTENSION IF NOT EXISTS vector
+  externalClusters:
+    - name: hermes-db-backup
+      barmanObjectStore:
+        serverName: hermes-db
+        destinationPath: s3://restic-backups/hermes/
+        endpointURL: https://5d4249bf326be62396b18a9f6000341b.r2.cloudflarestorage.com
+        s3Credentials:
+          accessKeyId:
+            name: hermes-cnpg-r2-secret
+            key: AWS_ACCESS_KEY_ID
+          secretAccessKey:
+            name: hermes-cnpg-r2-secret
+            key: AWS_SECRET_ACCESS_KEY
+        wal:
+          compression: gzip
+          encryption: AES256
+        data:
+          compression: gzip
+          encryption: AES256
   backup:
     barmanObjectStore:
+      serverName: hermes-db-v3
       destinationPath: s3://restic-backups/hermes/
       endpointURL: https://5d4249bf326be62396b18a9f6000341b.r2.cloudflarestorage.com
       s3Credentials:

@@ -8,8 +8,15 @@ spec:
   # 'sync' (default): Allows create, update, and delete operations
   # This ensures git is the source of truth - when overlays move to disabled/,
   # the corresponding Applications are automatically deleted from ArgoCD
+  # preserveResourcesOnDeletion prevents Application deletion from cascading
+  # to workload resources (2026-07-13 incident: a malformed commit briefly
+  # emptied the repo and the ApplicationSet cascade-deleted live workloads,
+  # CNPG databases, and PVCs). Intentionally removing an app's resources now
+  # requires an explicit cascade delete after disabling the overlay:
+  #   kubectl delete application <app> -n argocd --cascade=foreground
   syncPolicy:
     applicationsSync: sync  # Changed from create-update
+    preserveResourcesOnDeletion: true
   ignoreApplicationDifferences:
     - jsonPointers:
         - /spec/syncPolicy

@@ -4,6 +4,11 @@ metadata:
   name: cluster-cni
   namespace: argocd
 spec:
+  # Never cascade-delete the CNI when an Application disappears (2026-07-13
+  # incident: a malformed commit briefly emptied the repo and cilium was
+  # cascade-deleted, breaking all pod networking).
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   goTemplate: true
   generators:
   - git:
