@@ -25,6 +25,11 @@ spec:
   bootstrap:
     recovery:
       source: hermes-db-backup
+      # Without these, CNPG assumes the application database/user are `app`
+      # and will not manage credentials for the restored `mem0` role
+      # (https://cloudnative-pg.io/docs/1.28/recovery/#recovery-from-a-backup-object).
+      database: mem0
+      owner: mem0
   externalClusters:
     - name: hermes-db-backup
       barmanObjectStore:
