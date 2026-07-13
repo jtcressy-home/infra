@@ -1,0 +1,73 @@
+---
+# Restic repository credentials for volsync backup of the hermes-data PVC.
+# Sourced from the shared volsync-restic-template 1Password item; the repo
+# path is namespaced to /hermes so it does not collide with other apps.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: hermes-restic
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: hermes-restic-secret
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/hermes"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: volsync-restic-template
+---
+# Nightly restic backup of hermes-data (provider logins, session history,
+# runtime config that is not sourced from ESO). Added after the 2026-07-13
+# incident, where hermes-data was the only stateful app volume in the
+# recovery set with no backup source and had to be rebuilt from scratch.
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: hermes-data
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  sourcePVC: hermes-data
+  trigger:
+    schedule: "0 2 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: hermes-restic-secret
+    retain:
+      daily: 7
+      weekly: 4
+    copyMethod: Snapshot
+    storageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
+---
+# Restore target for hermes-data. Idle until manually triggered during a
+# recovery. The hermes-data PVC intentionally does NOT reference this as a
+# dataSourceRef yet: this is a net-new restic repo, and a dataSourceRef to a
+# ReplicationDestination with no completed restore would leave the PVC stuck
+# Pending. Once the first nightly backup exists, a follow-up can add
+# `dataSourceRef` to hermes-pvc.yaml for automatic restore-on-provision.
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: hermes-data-rdst
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  trigger:
+    manual: restore-zfs-snapshot
+  restic:
+    repository: hermes-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
+    capacity: 10Gi
