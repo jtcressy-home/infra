@@ -6,6 +6,13 @@ metadata:
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: zfs-nvme
+  # Provision from the volsync restore target (same pattern as every other
+  # app): restores the latest backup if one exists, or starts empty on a
+  # net-new repo. See persistence.yaml.
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: hermes-data-rdst
   resources:
     requests:
       storage: 10Gi

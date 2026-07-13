@@ -47,10 +47,27 @@ spec:
     copyMethod: Snapshot
     storageClassName: zfs-nvme
     volumeSnapshotClassName: zfs-nvme-snapshot
-# NOTE: the ReplicationDestination (restore target) is deliberately NOT defined
-# here yet. A ReplicationDestination with a non-empty spec.trigger.manual fires
-# immediately on first sync (status.lastManualSync is empty), which against this
-# net-new, still-empty restic repo would spawn a failing volsync-dst restore
-# mover + alerts rather than sitting idle. Add the ReplicationDestination (and
-# the hermes-data PVC's dataSourceRef to it) in a follow-up once the first
-# nightly backup exists, so its first trigger has a real snapshot to restore.
+---
+# Restore target for hermes-data — same pattern as every other app overlay.
+# The hermes-data PVC provisions from this via dataSourceRef. volsync restic
+# restore is restore-or-empty: if the repo has a backup it restores the latest
+# snapshot; on a net-new empty repo the mover completes and leaves the volume
+# empty, so the PVC binds and the app starts fresh (then the ReplicationSource
+# begins nightly backups). The manual trigger fires once and then stays idle.
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: hermes-data-rdst
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  trigger:
+    manual: restore-zfs-snapshot
+  restic:
+    repository: hermes-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
+    capacity: 10Gi
