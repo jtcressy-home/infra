@@ -23,6 +23,9 @@ Do **not** use `bjw-s/app-template` for new deployments. Prefer purpose-built co
 
 Always create a PR for any code changes. Post a comment summary (no PR) only for informational/status tasks.
 
+- Draft status is fine while work is in progress, but every PR must be marked ready for review before the task ends. Draft PRs are not reviewed.
+- Exception: `.planning` gitlink pointer bumps are pushed directly to `main` (see GSD Private Submodule).
+
 ## Explore First
 
 Analyze the repo with Explore before making changes. Follow existing patterns for directory structure, YAML style, and naming conventions.
@@ -57,6 +60,8 @@ This repo may use official upstream GSD for scoped infra-repo planning and execu
 
 - `.planning/` is a private submodule at `https://github.com/jtcressy-home/infra-planning.git`.
 - The public `infra` repo should track only `.gitmodules` and the `.planning` gitlink, not private planning file contents.
+- Commit changes to the private `infra-planning` repo as atomic commits pushed directly to `main` — do not open PRs there. If the push is rejected or conflicts (possible split-brain), stop and check with the user before overwriting anything.
+- Push public `.planning` gitlink pointer bumps directly to `main` in this repo. Never open a PR whose only change is the gitlink pointer.
 - Local GSD routing files such as `.planning/active-workstream` and generated root `.planning/STATE.md` mirrors are private submodule working-tree state and should not be committed.
 - If `.planning/` is missing or empty after clone, check `.gitmodules` first and initialize it with `git submodule update --init .planning` using credentials that can read the private repo.
 - If `.planning/` exists as a submodule, check `git submodule status .planning` before assuming planning state is absent or stale.
