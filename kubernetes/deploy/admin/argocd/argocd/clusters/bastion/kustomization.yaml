@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: argocd
+
+resources:
+- github.com/argoproj/argo-cd//manifests/cluster-install?ref=v3.2.1
+- default-project.yaml
+- infra-repo.yaml
+- bastion-cluster-config.yaml
+- github-oauth-client.yaml
+
+components:
+- ../../components/prometheus-operator
+- ../../components/tailscale-ingress
+# - ../../components/github-app-repo-creds
+
+patches:
+- path: argocd-cm.yaml
+- path: argocd-rbac-cm.yaml
+- path: argocd-cmd-params-cm.yaml
+- path: patch-resources.yaml

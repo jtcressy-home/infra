@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: searxng
+  # annotations:
+  #   tailscale.com/funnel: "true"
+  labels:
+    app.kubernetes.io/instance: searxng
+    app.kubernetes.io/name: searxng
+  namespace: searxng
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - "search"
+  rules:
+    - host: "search"
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: searxng
+                port:
+                  number: 8080

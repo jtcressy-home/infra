@@ -1,0 +1,361 @@
+---
+sonarr:
+  sonarr:
+    base_url: http://sonarr.media.svc.cluster.local:8989
+    api_key: !env_var SONARR_API_KEY
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    include:
+      # Comment out any of the following includes to disable them
+      - template: sonarr-quality-definition-series
+      - template: sonarr-v4-quality-profile-web-2160p
+      - template: sonarr-v4-custom-formats-web-2160p
+      - template: sonarr-v4-quality-profile-web-1080p
+      - template: sonarr-v4-custom-formats-web-1080p
+
+    quality_profiles:
+      - name: WEB-720p
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Web-720p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Web-720p
+            qualities:
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: HDTV-720p
+      - name: Any
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: WEB 2160p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: BluRay-2160p
+            qualities:
+              - Bluray-2160p
+              - Bluray-2160p Remux
+          - name: WEB 2160p
+            qualities:
+              - WEBDL-2160p
+              - WEBRip-2160p
+          - name: BluRay-1080p
+            qualities:
+              - Bluray-1080p
+              - Bluray-1080p Remux
+          - name: Web-1080p
+            qualities:
+              - WEBDL-1080p
+              - WEBRip-1080p
+          - name: HDTV-1080p
+          - name: Web-720p
+            qualities:
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: HDTV-720p
+          - name: Web-480p
+            qualities:
+              - WEBDL-480p
+              - WEBRip-480p
+          - name: DVD
+          - name: SDTV
+
+    custom_formats:
+      - trash_ids: ## This custom format list is the same as sonarr-v4-custom-formats-web-2160p but for the Any profile because it includes WEB-2160p releases
+          # HDR Formats
+          - 2b239ed870daba8126a53bd5dc8dc1c8 # DV HDR10Plus
+          - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
+          - 1f733af03141f068a540eec352589a89 # DV HLG
+          - 27954b0a80aab882522a88a4d9eae1cd # DV SDR
+          - 6d0d8de7b57e35518ac0308b0ddf404e # DV
+          - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
+          - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
+          - 3497799d29a085e2ac2df9d468413c94 # HDR10
+          - a3d82cbef5039f8d295478d28a887159 # HDR10+
+          - 17e889ce13117940092308f48b48b45b # HLG
+          - 2a7e3be05d3861d6df7171ec74cad727 # PQ
+
+          # Unwanted
+          - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
+          - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
+          - e2315f990da2e2cbfc9fa5b7a6fcfe48 # LQ (Release Title)
+          # - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+          - fbcb31d8dabd2a319072b84fc0b7249c # Extras
+          - 15a05bc7c1a36e2b57fd628f8977e2fc # AV1
+
+          # Misc
+          - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
+          - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
+          - 44e7c4de10ae50265753082e5dc76047 # Repack v3
+
+          # Streaming Services
+          - d660701077794679fd59e8bdf4ce3a29 # AMZN
+          - f67c9ca88f463a48346062e8ad07713f # ATVP
+          - 77a7b25585c18af08f60b1547bb9b4fb # CC
+          - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
+          - 89358767a60cc28783cdc3d0be9388a4 # DSNP
+          - 7a235133c87f7da4c8cccceca7e3c7a6 # HBO
+          - a880d6abc21e7c16884f3ae393f84179 # HMAX
+          - f6cce30f1733d5c8194222a7507909bb # Hulu
+          - 0ac24a2a68a9700bcb7eeca8e5cd644c # iT
+          - 81d1fbf600e2540cee87f3a23f9d3c1c # MAX
+          - d34870697c9db575f17700212167be23 # NF
+          - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
+          - c67a75ae4a1715f2bb4d492755ba4195 # PMTP
+          - ae58039e1319178e6be73caab5c42166 # SHO
+          - 1efe8da11bfd74fbbcd4d8117ddb9213 # STAN
+          - 43b3cf48cb385cd3eac608ee6bca7f09 # UHD Streaming Boost
+          - d2d299244a92b8a52d4921ce3897a256 # UHD Streaming Cut
+
+          # HQ Source Groups
+          - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
+          - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
+          - d84935abd3f8556dcd51d4f27e22d0a6 # WEB Tier 03
+          - d0c516558625b04b363fa6c5c2c7cfd4 # WEB Scene
+        assign_scores_to:
+          - name: Any
+      # HDR Formats
+      - trash_ids:
+          # Comment out the next line if you and all of your users' setups are fully DV compatible
+          - 9b27ab6498ec0f31a3353992e19434ca # DV (WEBDL)
+
+          # HDR10+ Boost - Uncomment the next two lines if any of your devices DO support HDR10+
+          - 0dad0a507451acddd754fe6dc3a7f5e7 # HDR10+ Boost
+          - 385e9e8581d33133c3961bdcdeffb7b4 # DV HDR10+ Boost
+        assign_scores_to:
+          - name: WEB-2160p
+          - name: Any
+
+      # Optional
+      - trash_ids:
+          - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
+          - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+          # - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
+          - 06d66ab109d4d2eddb2794d21526d140 # Retags
+          - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+        assign_scores_to:
+          - name: WEB-2160p
+          - name: WEB-1080p
+          - name: WEB-720p
+          - name: Any
+
+      - trash_ids:
+          # Uncomment the next six lines to allow x265 HD releases with HDR/DV
+          - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+        assign_scores_to:
+          - name: WEB-2160p
+            score: 0
+          - name: WEB-1080p
+            score: 0
+          - name: Any
+            score: 0
+      # - trash_ids:
+      #     - 9b64dff695c2115facf1b6ea59c9bd07 # x265 (no HDR/DV)
+      #   assign_scores_to:
+      #     - name: WEB-2160p
+      #     - name: WEB-1080p
+      #     - name: Any
+
+      # Optional SDR
+      # Only ever use ONE of the following custom formats:
+      # SDR - block ALL SDR releases
+      # SDR (no WEBDL) - block UHD/4k Remux and Bluray encode SDR releases, but allow SDR WEB
+      - trash_ids:
+          # - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR
+          - 83304f261cf516bb208c18c54c0adf97 # SDR (no WEBDL)
+        assign_scores_to:
+          - name: WEB-2160p
+
+radarr:
+  radarr:
+    base_url: http://radarr.media.svc.cluster.local:7878
+    api_key: !env_var RADARR_API_KEY
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    quality_profiles:
+      - name: SQP-1 (2160p)
+        # Uncomment the below line if you don't have access to top-tier indexers
+        min_format_score: 10
+        qualities:
+          - name: Bluray-2160p
+          - name: WEB-2160p
+            qualities:
+              - WEBDL-2160p
+              - WEBRip-2160p
+          - name: Bluray|WEB-1080p
+            qualities:
+              - Bluray-1080p
+              - WEBDL-1080p
+              - WEBRip-1080p
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: Bluray-720p
+          - name: TS
+            qualities:
+              - TELESYNC
+              - TELECINE
+          - name: CAM
+
+    include:
+    ## SQP-1
+      # Comment out any of the following includes to disable them
+      - template: radarr-quality-definition-sqp-streaming
+
+      # Choose *one* of the following four options to determine quality profile preference
+      # IMAX-E options also require uncommenting the IMAX Enhanced custom format below
+      # Comment out all four options to disable quality profile sync
+      - template: radarr-quality-profile-sqp-1-2160p-default
+      # - template: radarr-quality-profile-sqp-1-2160p-imax-e
+      # - template: radarr-quality-profile-sqp-1-2160p-4k-only-default
+      # - template: radarr-quality-profile-sqp-1-2160p-4k-only-imax-e
+
+      - template: radarr-custom-formats-sqp-1-2160p
+
+    ## SQP-2
+      # Comment out any of the following includes to disable them
+      - template: radarr-quality-definition-sqp-uhd
+      - template: radarr-quality-profile-sqp-2
+      - template: radarr-quality-profile-sqp-3
+      - template: radarr-quality-profile-sqp-4
+      - template: radarr-custom-formats-sqp-2
+      - template: radarr-custom-formats-sqp-3
+      - template: radarr-custom-formats-sqp-4
+
+# Custom Formats: https://recyclarr.dev/wiki/yaml/config-reference/custom-formats/
+    custom_formats:
+      # SQP-1 Movie Versions
+      - trash_ids:
+      # Uncomment any of the next six lines to prefer these movie versions
+          # - 570bc9ebecd92723d2d21500f4be314c # Remaster
+          # - eca37840c13c6ef2dd0262b141a5482f # 4K Remaster
+          # - e0c07d59beb37348e975a930d5e50319 # Criterion Collection
+          # - 9d27d9d2181838f76dee150882bdc58c # Masters of Cinema
+          # - db9b4c4b53d312a3ca5f1378f6440fc9 # Vinegar Syndrome
+          # - 957d0f44b592285f26449575e8b1167e # Special Edition
+      # Uncomment the next line if you prefer 1080p/2160p WEBDL with IMAX Enhanced
+          # - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
+        assign_scores_to:
+          - name: SQP-1 (2160p)
+
+      # SQP-2 Movie Versions
+      # Uncomment any of the following lines to prefer these movie versions
+      - trash_ids:
+          - 0f12c086e289cf966fa5948eac571f44 # Hybrid
+          - 570bc9ebecd92723d2d21500f4be314c # Remaster
+          - eca37840c13c6ef2dd0262b141a5482f # 4K Remaster
+          - e0c07d59beb37348e975a930d5e50319 # Criterion Collection
+          - 9d27d9d2181838f76dee150882bdc58c # Masters of Cinema
+          - db9b4c4b53d312a3ca5f1378f6440fc9 # Vinegar Syndrome
+          - 957d0f44b592285f26449575e8b1167e # Special Edition
+          - eecf3a857724171f968a66cb5719e152 # IMAX
+          - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
+        assign_scores_to:
+          - name: SQP-2
+          - name: SQP-3
+          - name: SQP-4
+
+      # SQP-1 Unwanted
+      - trash_ids:
+      # Uncomment the next six lines to block all x265 HD releases
+          # - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
+        # assign_scores_to:
+          # - name: SQP-1 (2160p)
+            # score: 0
+      # - trash_ids:
+          # - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
+        assign_scores_to:
+          - name: SQP-1 (2160p)
+
+      # SQP-2/3/4 Misc
+      - trash_ids:
+          - 2899d84dc9372de3408e6d8cc18e9666 # x264
+        assign_scores_to:
+          - name: SQP-2
+            # score: 0 # Uncomment this line to enable x264 releases
+          - name: SQP-3
+            # score: 0 # Uncomment this line to enable x264 releases
+          - name: SQP-4
+            # score: 0 # Uncomment this line to enable x264 releases
+
+      # SQP-2/3/4 Unwanted
+      - trash_ids:
+          # Uncomment the next six lines to block all x265 HD releases
+          - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
+        assign_scores_to:
+          - name: SQP-2
+            score: 0
+          - name: SQP-3
+            score: 0
+          - name: SQP-4
+            score: 0
+      - trash_ids:
+          - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
+        assign_scores_to:
+          - name: SQP-2
+          - name: SQP-3
+          - name: SQP-4
+
+
+      # SQP-1 Optional
+      - trash_ids:
+          # Uncomment the next two lines if you have a setup that supports HDR10+
+          - b17886cb4158d9fea189859409975758 # HDR10+ Boost
+          - 55a5b50cb416dea5a50c4955896217ab # DV HDR10+ Boost
+
+          # Uncomment any of the following optional custom formats if you want them to be added to
+          # the quality profile
+          - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
+          - 90cedc1fea7ea5d11298bebd3d1d3223 # EVO (no WEBDL)
+          - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+          - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
+          - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
+          - f537cf427b64c38c8e36298f657e4828 # Scene
+        assign_scores_to:
+          - name: SQP-1 (2160p)
+
+      # Optional
+      - trash_ids:
+          # Uncomment the next two lines if you have a setup that supports HDR10+
+          - b17886cb4158d9fea189859409975758 # HDR10+ Boost
+          - 55a5b50cb416dea5a50c4955896217ab # DV HDR10+ Boost
+
+          # Comment out the next line if you and all of your users' setups are fully DV compatible
+          - 923b6abef9b17f937fab56cfcf89e1f1 # DV (WEBDL)
+
+          # Uncomment any of the following if you want them to be added to the quality profile
+          - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
+          - 90cedc1fea7ea5d11298bebd3d1d3223 # EVO (no WEBDL)
+          - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+          - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
+          - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
+          - f537cf427b64c38c8e36298f657e4828 # Scene
+          - f700d29429c023a5734505e77daeaea7 # DV (Disk)
+        assign_scores_to:
+          - name: SQP-2
+          - name: SQP-3
+          - name: SQP-4
+
+      # Optional SDR
+      # Only ever use ONE of the following custom formats:
+      # SDR - block ALL SDR releases
+      # SDR (no WEBDL) - block UHD/4k Remux and Bluray encode SDR releases, but allow SDR WEB
+      - trash_ids:
+          # - 9c38ebb7384dada637be8899efa68e6f # SDR
+          - 25c12f78430a3a23413652cbd1d48d77 # SDR (no WEBDL)
+        assign_scores_to:
+          - name: SQP-1 (2160p)
+          - name: SQP-2
+          - name: SQP-3
+          - name: SQP-4

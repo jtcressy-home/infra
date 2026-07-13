@@ -1,0 +1,35 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: dograh-db
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.6-system-trixie
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: dograh-db-superuser
+  storage:
+    size: 10Gi
+    storageClass: zfs-nvme
+  monitoring:
+    enablePodMonitor: true
+  nodeMaintenanceWindow:
+    reusePVC: true
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://restic-backups/dograh/
+      endpointURL: https://5d4249bf326be62396b18a9f6000341b.r2.cloudflarestorage.com
+      s3Credentials:
+        accessKeyId:
+          name: dograh-cnpg-r2-secret
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: dograh-cnpg-r2-secret
+          key: AWS_SECRET_ACCESS_KEY
+      wal:
+        compression: gzip
+        encryption: AES256
+      data:
+        compression: gzip
+        encryption: AES256
+    retentionPolicy: "7d"

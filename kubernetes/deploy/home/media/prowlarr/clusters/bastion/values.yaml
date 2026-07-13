@@ -1,0 +1,84 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.2.0/charts/other/app-template/values.schema.json
+
+controllers:
+  prowlarr:
+    initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: 18
+        envFrom: &envFrom
+          - secretRef:
+              name: prowlarr-secret
+    containers:
+      app: &appcontainer
+        image:
+          repository: ghcr.io/home-operations/prowlarr
+          tag: rolling@sha256:91af7cbc8e357dede960033c9ecfb3a65e145d90d4e495e13adb2fbc6a546807
+        env:
+          PROWLARR__APP__INSTANCENAME: Prowlarr
+          PROWLARR__APP__THEME: dark
+          PROWLARR__AUTH__METHOD: External
+          PROWLARR__AUTH__REQUIRED: DisabledForLocalAddresses
+          PROWLARR__LOG__LEVEL: info
+          PROWLARR__SERVER__PORT: &port 9696
+          PROWLARR__UPDATE__BRANCH: develop
+          TZ: America/Chicago
+        envFrom: *envFrom
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                port: *port
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probes
+        resources:
+          requests:
+            cpu: 10m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 568
+    runAsGroup: 568
+persistence:
+  config:
+    type: emptyDir
+  tmp:
+    type: emptyDir
+ingress:
+  app:
+    enabled: true
+    className: tailscale
+    hosts:
+      - host: prowlarr
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+    tls:
+      - hosts:
+          - prowlarr
+service:
+  app:
+    controller: prowlarr
+    ports:
+      http:
+        port: *port

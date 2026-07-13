@@ -1,0 +1,9 @@
+[general]
+static = yes
+writeprotect = yes
+clearglobalvars = no
+
+[globals]
+DOGRAH_STASIS_APP = ${ASTERISK_STASIS_APP}
+
+#include "dynamic/extensions-inbound.conf"

@@ -1,0 +1,144 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- externalsecret.yaml
+
+helmCharts:
+- name: app-template
+  repo: https://bjw-s-labs.github.io/helm-charts/
+  version: 2.6.0
+  releaseName: wyze-bridge
+  valuesInline:
+    controllers:
+      main:
+        type: statefulset
+        replicas: 1
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |-
+              [
+                {
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
+                  "interface": "eth1",
+                  "mac": "fa:77:a4:fe:98:91"
+                }
+              ]
+          nodeSelector:
+            kubernetes.io/arch: amd64
+            intel.feature.node.kubernetes.io/gpu: "true"
+        containers:
+          main:
+            image:
+              repository: mrlt8/wyze-bridge
+              tag: 2.9.10-qsv
+              # repository: ghcr.io/jtcressy/docker-wyze-bridge-protect
+              # tag: latest
+            env:
+              TZ: America/Chicago
+              NET_MODE: LAN
+              SNAPSHOT: "RTSP30"
+              ON_DEMAND: "False"
+              IGNORE_OFFLINE: "True"
+              FPS_FIX: "True"
+              ENABLE_BOA: "True"
+              QUALITY: "HD255"
+              ROTATE_DOOR: "True"
+              H264_ENC: h264_qsv
+              LLHLS: "True"
+              SUBSTREAM: "False" # Wyze cams can only have one stream at a time
+              SUB_QUALITY: "SD255"
+              LIBVA_DRIVER_NAME: i965
+              ENABLE_AUDIO: "True"
+              AUDIO_CODEC: "AAC"
+              MQTT_HOST: nats.nats.svc.cluster.local:1883
+              MQTT_TOPIC: wyzebridge
+              MQTT_DTOPIC: homeassistant
+            ports:
+              - name: http
+                containerPort: 5000
+              - name: rtmp
+                containerPort: 1935
+              - name: rtsp
+                containerPort: 8554
+              - name: hls
+                containerPort: 8888
+              - name: webrtc
+                containerPort: 8889
+              - name: webrtc-udp
+                containerPort: 8189
+                protocol: UDP
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            envFrom:
+              - secretRef:
+                  name: wyze-secret
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                cpu: 136m
+                memory: 500M
+                gpu.intel.com/i915: 1
+              limits:
+                memory: 2000M
+                gpu.intel.com/i915: 1
+          
+            
+
+    service:
+      main:
+        ports:
+          http:
+            enabled: true
+            port: 5000
+            targetPort: 5000
+          rtmp:
+            enabled: true
+            port: 1935
+            targetPort: 1935
+          rtsp:
+            enabled: true
+            port: 8554
+            targetPort: 8554
+          hls:
+            enabled: true
+            port: 8888
+            targetPort: 8888
+          webrtc:
+            enabled: true
+            port: 8889
+            targetPort: 8889
+          webrtc-udp:
+            enabled: True
+            port: 8189
+            targetPort: 8189
+            protocol: UDP
+    
+    # persistence:
+    #   unifi-cam-proxy:
+    #     enabled: true
+    #     type: secret
+    #     name: unifi-cam-proxy
+
+patches:
+- target:
+    group: ""
+    version: v1
+    kind: Service
+    name: wyze-bridge
+  patch: |-
+    - op: add
+      path: /spec/loadBalancerClass
+      value: "tailscale"
+    - op: replace
+      path: /spec/type
+      value: LoadBalancer
+    - op: replace
+      path: /spec/allocateLoadBalancerNodePorts
+      value: false

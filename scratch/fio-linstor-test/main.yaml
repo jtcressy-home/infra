@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-standard-local
+  namespace: default
+spec:
+  storageClassName: home-office-rack-standard-strict-local
+  resources:
+    requests:
+      storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-standard-replicated
+  namespace: default
+spec:
+  storageClassName: home-office-rack-standard-replicated
+  resources:
+    requests:
+      storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-premium-local
+  namespace: default
+spec:
+  storageClassName: home-office-rack-premium-strict-local
+  resources:
+    requests:
+      storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-premium-replicated
+  namespace: default
+spec:
+  storageClassName: home-office-rack-premium-replicated
+  resources:
+    requests:
+      storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: volume-logger
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: volume-logger
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: volume-logger
+    spec:
+      schedulerName: linstor-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: volume-logger
+          image: alpine
+          args:
+            - sh
+            - -c
+            - |
+              apk add fio
+              for volume in $VOLUMES_TO_TEST; do
+                echo testing $volume performance
+                fio --name seqwrite-$volume --filename /$volume/test.fio --size=4G --ioengine libaio --direct 1 \
+                  --rw=write --bs=32k --numjobs=4 --group_reporting \
+                  --runtime=30s --output-format=json | tee /$volume/$NODENAME-fioSeqWrite.log
+                fio --name seqread-$volume --filename /$volume/test.fio --size=4G --ioengine libaio --direct 1 \
+                  --rw=read --bs=8k --numjobs=8 --group_reporting \
+                  --runtime=30s --output-format=json | tee /$volume/$NODENAME-fioSeqRead.log
+                fio --name 4krandwrite-$volume --filename /$volume/test.fio --size=4G --ioengine libaio --direct 1 \
+                  --rw=randwrite --bs 4k --numjobs 4 --iodepth=32 --group_reporting --rwmixwrite=100 \
+                  --runtime=30s --output-format=json | tee /$volume/$NODENAME-fio4krandwrite.log
+                fio --name 4krandread-$volume --filename /$volume/test.fio --size=4G --ioengine libaio --direct 1 \
+                  --rw randread --bs 4k --numjobs 4 --iodepth=32 --group_reporting --rwmixread=100 \
+                  --runtime=30s --output-format=json | tee /$volume/$NODENAME-fio4krandread.log
+              done
+
+              # We use this to keep the Pod running after tests are done
+              tail -f /dev/null
+          env:
+            - name: NODENAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: VOLUMES_TO_TEST
+              # value: "standard-local standard-replicated premium-local premium-replicated"
+              value: "premium-local"
+          volumeMounts:
+            - mountPath: /standard-local
+              name: standard-local
+            - mountPath: /standard-replicated
+              name: standard-replicated
+            - mountPath: /premium-local
+              name: premium-local
+            - mountPath: /premium-replicated
+              name: premium-replicated
+            - mountPath: /ephemeral
+              name: tmp
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 1Gi
+      volumes:
+        - name: standard-local
+          persistentVolumeClaim:
+            claimName: test-standard-local
+        - name: standard-replicated
+          persistentVolumeClaim:
+            claimName: test-standard-replicated
+        - name: premium-local
+          persistentVolumeClaim:
+            claimName: test-premium-local
+        - name: premium-replicated
+          persistentVolumeClaim:
+            claimName: test-premium-replicated
+        - name: tmp
+          emptyDir: {}
+
+
+
+
+# export pod=volume-logger-6b67fbc45b-5jqwc node=hp-2ua7212ndg
+# for volume in standard-local standard-replicated premium-local premium-replicated; do
+#     for test in fioSeqRead fioSeqWrite fio4krandread fio4krandwrite; do
+#         echo $pod $volume $node $test
+#         kubectl cp -n default $pod:/$volume/$node-$test.log ./$volume/$test.log
+#     done
+# done

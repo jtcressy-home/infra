@@ -1,0 +1,49 @@
+---
+version: "3"
+
+includes:
+  overlays:
+    taskfile: ./overlay/Taskfile.yaml
+  projects:
+    taskfile: ./project/Taskfile.yaml
+
+tasks:
+  overlays:
+    desc: List ArgoCD App Overlays
+    summary: |
+      This task will list all ArgoCD App Overlays in a tabular format.
+
+      The following filters can be used to narrow the results:
+        - project
+        - namespace
+        - app
+        - cluster
+        - disabled (true/false)
+    silent: true
+    vars: # vars used for filtering
+      project: >-
+        {{- .project | default "*" -}}
+      namespace: >-
+        {{- .namespace | default "*" -}}
+      app: >-
+        {{- .app | default "*" -}}
+      cluster: >-
+        {{- .cluster | default "*" -}}
+      disabledPath: >-
+        {{- if eq .disabled "true" -}}disabled{{- else -}}clusters{{- end -}}
+    cmds:
+      - |
+        {{- if eq .disabled "true" -}}
+        echo "Disabled Overlays:"
+        {{- else -}}
+        echo "Enabled Overlays:"
+        {{- end -}}
+      - ls kubernetes/deploy/{{.project}}/{{.namespace}}/{{.app}}/{{.disabledPath}}/{{.cluster}}/kustomization.yaml | jq -Rr '["PROJECT", "NAMESPACE", "APP", "CLUSTER"], (inputs | capture("kubernetes/deploy/(?<project>[^/]+)/(?<namespace>[^/]+)/(?<app>[^/]+)/.*/(?<cluster>[^/]+)/kustomization.yaml") | [.project, .namespace, .app, .cluster]) | @tsv' | column -ts $'\t'
+      
+  projects:
+    desc: "List ArgoCD App Projects"
+    summary: |
+      This task will list all ArgoCD App Projects.
+    silent: true
+    cmds:
+      - yq eval-all '. as $item ireduce ([]; . += $item)' {{.PROJECT_DIR}}/kubernetes/argocd/projects/*.yaml -o json | jq -r '["PROJECT", "DESCRIPTION"], (.[] | [.metadata.name, .spec.description]) | @tsv' | column -ts $'\t'

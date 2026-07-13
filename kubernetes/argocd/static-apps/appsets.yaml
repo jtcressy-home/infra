@@ -1,0 +1,19 @@
+# appsets application installs all appsets in kubernetes/argocd/appsets
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: appsets
+  namespace: argocd
+spec:
+  project: admin
+  source:
+    path: kubernetes/argocd/appsets
+    repoURL: https://github.com/jtcressy-home/infra
+    targetRevision: HEAD
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      allowEmpty: false

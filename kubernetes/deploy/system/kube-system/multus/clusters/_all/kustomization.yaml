@@ -1,0 +1,123 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+images:
+- name: ghcr.io/angelnu/cni-plugins
+  newTag: 1.9.1
+- name: ghcr.io/k8snetworkplumbingwg/multus-cni
+  newTag: v4.2.4-thick
+
+helmCharts:
+- name: multus
+  repo: https://angelnu.github.io/helm-charts
+  version: 5.0.7
+  releaseName: multus
+  namespace: kube-system
+  valuesInline:
+    image:
+      repository: ghcr.io/k8snetworkplumbingwg/multus-cni
+    cni:
+      image:
+        repository: ghcr.io/angelnu/cni-plugins
+      paths:
+        config: /etc/cni/net.d
+        bin: /opt/cni/bin
+    resources:
+      requests:
+        cpu: 5m
+        memory: 512M
+      limits:
+        memory: 512M
+    hostPaths:
+      netns: /var/run/netns
+    podSecurityContext: {}
+    securityContext: {}
+
+
+resources:
+- crd.yaml
+- dhcp-networkattachment.yaml
+- rbac-clusterrole.yaml
+
+patches:
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    name: multus-main
+  patch: |-
+    - op: add
+      path: /spec/template/spec/priorityClassName
+      value: system-node-critical
+    - op: remove
+      path: /spec/template/spec/securityContext/privileged
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value:
+        name: host-run-netns
+        mountPath: /var/run/netns
+        mountPropagation: HostToContainer
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    name: multus-main
+  patch: |-
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: multus-main
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: dhcp-cleanup
+            image: busybox
+            command: ["/bin/sh"]
+            args: ["-c", "rm -f /host/run/cni/dhcp.sock; rm -f /host/opt/cni/bin/multus-shim"]
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - name: dhcp-socketpath
+              mountPath: /host/run/cni
+            - name: multus-shim-bin
+              mountPath: /host/opt/cni/bin
+          containers:
+          - name: main
+            securityContext:
+              privileged: true
+          - name: dhcp-daemon
+            image: ghcr.io/angelnu/cni-plugins
+            command:
+            - /plugins/dhcp
+            args:
+            - daemon
+            - -hostprefix
+            - /host
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "50Mi"
+              limits:
+                cpu: "100m"
+                memory: "50Mi"
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - name: dhcp-socketpath
+              mountPath: /host/run/cni
+            - name: procpath
+              mountPath: /host/proc
+            - name: host-run-netns
+              mountPath: /host/var/run/netns
+              mountPropagation: HostToContainer
+          volumes:
+          - name: dhcp-socketpath
+            hostPath:
+              path: /run/cni
+          - name: procpath
+            hostPath:
+              path: /proc
+          - name: multus-shim-bin
+            hostPath:
+              path: /opt/cni/bin

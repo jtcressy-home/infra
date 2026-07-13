@@ -1,0 +1,117 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+patches:
+- target:
+    group: monitoring.coreos.com
+    version: v1
+    kind: PodMonitor
+    name: nats
+  patch: |-
+    apiVersion: monitoring.coreos.com/v1
+    kind: PodMonitor
+    metadata:
+      name: nats
+    spec:
+      podMetricsEndpoints:
+      - port: prom-metrics
+        relabelings:
+        - action: replace
+          regex: nats_(.*)
+          replacement: gnatsd_$1
+          sourceLabels:
+          - __name__
+          targetLabel: __name__
+
+helmCharts:
+
+- name: surveyor
+  repo: https://nats-io.github.io/k8s/helm/charts/
+  version: 0.20.0
+  releaseName: surveyor
+  valuesInline:
+    serviceMonitor:
+      enabled: true
+    config:
+      expectedServers: 3 # needs to match config.cluster.replicas of the nats chart
+      jetstream:
+        enabled: true
+- name: nats
+  repo: https://nats-io.github.io/k8s/helm/charts/
+  version: 1.3.7
+  releaseName: nats
+  valuesInline:
+    config:
+      cluster:
+        enabled: true
+        replicas: 3
+      jetstream:
+        enabled: true
+        merge:
+          domain: nats
+        fileStore:
+          pvc:
+            storageClassName: longhorn-strict-local-standalone-wait
+            size: 10Gi
+      mqtt:
+        enabled: true
+    service:
+      ports:
+        monitor:
+          enabled: true
+      merge:
+        metadata:
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: "nats.home.arpa"
+        spec:
+          type: LoadBalancer
+          externalTrafficPolicy: Local
+    promExporter:
+      enabled: true
+      port: 7777
+      podMonitor:
+        enabled: true
+    podTemplate:
+      # topologySpreadConstraints:
+      #   kubernetes.io/hostname:
+      #     maxSkew: 1
+      #     whenUnsatisfiable: ScheduleAnyway
+      merge:
+        # metadata:
+        #   annotations:
+        #     prometheus.io/scrape: "true"
+        #     prometheus.io/port: "7777"
+        #     prometheus.io/path: "/metrics"
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: topology.kubernetes.io/region
+                    operator: In
+                    values:
+                    - home
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values:
+                    - home-office-rack
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                    - nats
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                    - nats
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                    - nats
+                topologyKey: kubernetes.io/hostname
+    natsBox:
+      enabled: true

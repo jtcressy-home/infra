@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/instance: main-server
+
+namePrefix: main-server-
+
+resources:
+- ../../../../base
+
+patches:
+- patch: |-
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: se-server
+    spec:
+      template:
+        metadata:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |-
+              [
+                {
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
+                  "interface": "eth1",
+                  "mac": "4a:c1:8d:28:f6:95"
+                }
+              ]
+        spec:
+          containers:
+          - name: server
+            env:
+            - name: INSTANCE_NAME
+              value: "MainServer"
+  target:
+    kind: StatefulSet
+    name: se-server

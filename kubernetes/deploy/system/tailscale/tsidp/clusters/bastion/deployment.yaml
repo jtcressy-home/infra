@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tsidp
+  labels:
+    app.kubernetes.io/name: tsidp
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tsidp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tsidp
+    spec:
+      securityContext:
+        fsGroup: 65533
+      containers:
+        - name: tsidp
+          image: ghcr.io/tailscale/tsidp:latest
+          args:
+            - -hostname
+            - tsidp
+            - -dir
+            - /data
+            - -port
+            - "443"
+          env:
+            - name: TAILSCALE_USE_WIP_CODE
+              value: "1"
+            - name: TSIDP_USE_FUNNEL
+              value: "1"
+          envFrom:
+            - secretRef:
+                name: tsidp-secret
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 10m
+              devic.es/tun: "1"
+            limits:
+              memory: 128Mi
+              devic.es/tun: "1"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: tsidp

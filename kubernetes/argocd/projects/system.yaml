@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: system
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: System apps targeting all clusters
+  destinations:
+    - namespace: cert-manager
+      name: '*'
+      server: '*'
+    - namespace: external-secrets
+      name: '*'
+      server: '*'
+    - namespace: kube-system
+      name: '*'
+      server: '*'
+    - namespace: rook-ceph
+      name: '*'
+      server: '*'
+    - namespace: piraeus-datastore
+      name: '*'
+      server: '*'
+    - namespace: metallb-system
+      name: '*'
+      server: '*'
+    - namespace: longhorn-system
+      name: '*'
+      server: '*'
+    - namespace: tailscale
+      name: '*'
+      server: '*'
+    - name: '*'
+      namespace: system-upgrade
+      server: '*'
+    - name: '*'
+      namespace: minio-operator
+      server: '*'
+    - name: "*"
+      namespace: agent-sandbox-system
+      server: "*"
+    - name: "*"
+      namespace: envoy-gateway-system
+      server: "*"
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - 'https://github.com/jtcressy-home/infra'

@@ -1,0 +1,25 @@
+# OCI Provider Authentication
+# These values should be set as GitHub secrets for CI/CD workflows
+oci_tenancy_ocid = "ocid1.tenancy.oc1..example"
+oci_user_ocid    = "ocid1.user.oc1..example"
+oci_fingerprint  = "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99"
+oci_region       = "us-ashburn-1"
+
+# OCI private key should be stored as a multi-line secret
+# oci_private_key = "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+
+# OCI Compute Configuration
+oci_compartment_ocid     = "ocid1.compartment.oc1..example"
+oci_availability_domain  = "aBCD:US-ASHBURN-AD-1"
+
+# SSH Configuration
+ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ... user@host"
+
+# Tailscale Configuration
+tailscale_auth_key = "tskey-auth-xxxxxxxxxxxxxxxxxxxxx"
+
+# Cloudflare R2 Backend Configuration
+# Set these as environment variables or GitHub secrets:
+# AWS_ACCESS_KEY_ID=<your-r2-access-key>
+# AWS_SECRET_ACCESS_KEY=<your-r2-secret-key>
+# AWS_ENDPOINT_URL_S3=https://<account-id>.r2.cloudflarestorage.com

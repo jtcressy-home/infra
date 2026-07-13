@@ -1,0 +1,16 @@
+ollama:
+  enabled: false
+pipelines:
+  enabled: false
+ollamaUrls: ["http://ollama.default.svc.cluster.local:11434"]
+ingress:
+  enabled: true
+  class: "tailscale"
+  host: "ollama"
+  tls: true
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClass: longhorn-sticky
+  accessModes:
+    - ReadWriteOnce

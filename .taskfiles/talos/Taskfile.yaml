@@ -1,0 +1,272 @@
+---
+version: "3"
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task -l
+
+  autovars:
+    internal: true
+    env: &commonenv
+      TALOSCONFIG: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
+      clusterName: "{{.cluster}}"
+    vars:
+      node: &nodevar '{{ or .node (fail "variable `node` is required. Use `task talos:nodes cluster=<name>` to list available nodes.") }}'
+      nodes: &nodesvar '{{ or .nodes (fail "variable `nodes` is required (comma-separated). Use `task talos:nodes cluster=<name>` to list available nodes.") }}'
+
+  clusters:
+    desc: "List available Talos cluster names"
+    silent: true
+    cmds:
+      - ls {{.PROJECT_DIR}}/kubernetes/clusters
+
+  nodes:
+    desc: "List available node names for a cluster (requires: cluster)"
+    silent: true
+    requires:
+      vars: [cluster]
+    cmds:
+      - ls {{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/*.yaml | xargs -n1 basename | sed 's/.yaml//g' | sed 's/{{.cluster}}-//g'
+
+  ctl:
+    desc: "Run talosctl with automatic config selection (requires: cluster, nodes; pass args after --)"
+    summary: |
+      Runs talosctl with automatic cluster/node selection.
+      Use <TAB> to select multiple nodes.
+      example:
+        task talos:ctl -- disks
+    silent: false
+    requires:
+      vars: [cluster]
+    vars:
+      nodes: *nodesvar
+    env: *commonenv
+    deps:
+      - genconfig
+    cmds:
+      - talosctl -n {{.nodes}} {{.CLI_ARGS}}
+
+  gensecret:
+    desc: Generate talos secrets and store in a new doppler config
+    internal: true
+    summary: |
+      Uses talhelper to generate secrets for a new cluster,
+        storing them in a new doppler branch config that branches from "{{.dopplerConfig}}"
+
+      This task also uses "{{.dopplerProject}}" for the doppler project.
+    requires:
+      vars: [cluster]
+    env:
+      secretsJson:
+        sh: talhelper gensecret | yq '. | tojson'
+    vars:
+      secretMappings: |
+        .cluster.id=CLUSTERID
+        .cluster.secret=CLUSTERSECRET
+        .trustdinfo.token=TRUSTDINFOTOKEN
+        .certs.k8saggregator.crt=K8SAGGREGATORCERT
+        .certs.k8saggregatorkey=K8SAGGREGATORCERTKEY
+        .certs.k8s.crt=CLUSTERCERT
+        .certs.k8s.key=CLUSTERCERTKEY
+        .certs.etcd.crt=ETCDCERT
+        .certs.etcd.key=ETCDCERTKEY
+        .certs.k8sserviceaccount.key=K8SSERVICEACCOUNTKEY
+        .certs.os.crt=MACHINECERT
+        .certs.os.key=MACHINECERTKEY
+        .secrets.bootstraptoken=BOOTSTRAPTOKEN
+        .secrets.secretboxencryptionsecret=SECRETBOXENCRYPTIONSECRET
+    cmds:
+      - for:
+          var: secretMappings
+        cmd: echo $secretsJson | jq -r '{{index (.ITEM | splitList "=") 0}}' | doppler --silent -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} secrets set {{index (.ITEM | splitList "=") 1 | shellQuote}}
+    preconditions:
+      - sh: doppler -p {{.dopplerProject}} configs create {{.dopplerConfig}}_{{.cluster}}
+        msg: |-
+          Failed to create doppler config "{{.dopplerConfig}}_{{.cluster}}" in project "{{.dopplerProject}}". Make sure it doesn't already exist.
+
+  genconfig:
+    label: 'genconfig-{{.cluster}}'
+    desc: "Generate talos config files via talhelper + doppler (requires: cluster)"
+    silent: true
+    dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    sources:
+      - talconfig.yaml
+      - '*.yaml'
+    generates:
+      - clusterconfig/*.yaml
+      - clusterconfig/talosconfig
+    cmds:
+      - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper genconfig
+
+  gencommand:
+    label: 'gencommand-{{.cluster}}'
+    desc: "Generate talos commands via talhelper (requires: cluster; pass args after --)"
+    silent: false
+    dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    cmds:
+      - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand {{.CLI_ARGS}}
+
+  checkcerts:
+    label: "checkcerts-{{.cluster}}"
+    desc: "Decode and display talos certificate details from doppler (requires: cluster)"
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    dir: "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    vars:
+      script: |
+        echo "Checking Cluster Cert:"
+        echo $CLUSTERCERT | base64 -d | openssl x509 -noout -text
+        echo "Checking ETCD Cert:"
+        echo $ETCDCERT | base64 -d | openssl x509 -noout -text
+        echo "Checking Service Account Key:"
+        echo $K8SSERVICEACCOUNTKEY | base64 -d | openssl ec -noout -text
+        echo "Checking Machine Cert:"
+        echo $MACHINECERT | base64 -d | openssl x509 -noout -text
+    cmds:
+      - doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- bash -c {{.script | shellQuote}}
+
+  mergeclientconfig:
+    desc: "Merge cluster talosconfig into ~/.talos/config (requires: cluster)"
+    requires:
+      vars: [cluster]
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    deps:
+      - genconfig
+    cmds:
+      - talosctl config merge --context={{.cluster}} --talosconfig=$HOME/.talos/config "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/talosconfig"
+
+  bootstrap:
+    desc: Bootstrap talos cluster
+    internal: true
+    requires:
+      vars: [cluster]
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    vars:
+      node: *nodevar
+    deps:
+      - genconfig
+    cmds:
+      - talosctl bootstrap -n {{.node}}
+
+  disks:
+    desc: "List disks on a node via insecure talosctl connection (requires: cluster, ip)"
+    dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    deps:
+      - genconfig
+    requires:
+      vars: [cluster, ip]
+    cmds:
+      - talosctl -n {{.ip}} disks --insecure
+
+  get-iso-url:
+    desc: "Get talos ISO download URL for a node (requires: cluster, node)"
+    silent: true
+    env: *commonenv
+    deps:
+      - genconfig
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    vars:
+      node: *nodevar
+    cmds:
+      - |
+        cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
+        doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper genurl iso -n {{.node}}
+
+  join-node:
+    desc: Apply talos config on a new node in maintenance mode
+    internal: true
+    # dir: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos"
+    env: *commonenv
+    deps:
+      - genconfig
+    requires:
+      vars: [cluster, ip, dopplerProject, dopplerConfig]
+    vars:
+      node: *nodevar
+      extraFlags: '--insecure -e {{.ip}} -n {{.ip}}'
+    cmds:
+      - |
+        cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
+        eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.node}} --extra-flags="{{.extraFlags}}")
+
+  apply:
+    desc: "Apply talos config on nodes (requires: cluster, nodes; optional: mode=auto|staged|reboot|try|no-reboot, dryrun=true|false)"
+    summary: |
+      args:
+        mode: auto, interactive, no-reboot, reboot, staged, try (default: auto)
+    env: *commonenv
+    deps:
+      - genconfig
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    vars:
+      nodes: *nodesvar
+      mode: '{{ .mode | default "auto" }}'
+      dryrun: '{{ .dryrun | default "false" }}'
+      extraFlags: '{{if eq .dryrun "true"}}--dry-run {{end}}-m {{.mode}}'
+    cmds:
+      - for:
+          var: nodes
+          split: ','
+        cmd: |
+          cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && \
+          eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand apply -n {{.ITEM}} --extra-flags="{{.extraFlags}} {{.CLI_ARGS}}")
+    preconditions:
+      - for:
+          var: nodes
+          split: ','
+        cmd: talosctl -n {{.ITEM}} get mc
+      # - talosctl -n {{.node}} get mc
+
+  upgrade-talos:
+    label: 'upgrade-talos-{{.cluster}}-{{.node}}'
+    desc: Upgrade talos on a node
+    internal: true
+    silent: false
+    env: *commonenv
+    requires:
+      vars: [cluster, dopplerProject, dopplerConfig]
+    vars:
+      node: *nodevar
+      configfile: "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/clusterconfig/{{.cluster}}-{{.node}}.yaml"
+      # image:
+      #   sh: yq -r '.machine.install.image' "{{.configfile}}"
+    deps:
+      - genconfig
+    cmds:
+      # - talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true
+      - cd "/{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos" && eval $(doppler run -p {{.dopplerProject}} -c {{.dopplerConfig}}_{{.cluster}} -- talhelper gencommand upgrade -n {{.node}} --extra-flags="--preserve=true")
+    preconditions:
+      - talosctl -n {{.node}} health
+      - talosctl -n {{.node}} get mc
+
+  upgrade-k8s:
+    desc: Upgrade k8s on a node
+    internal: true
+    requires:
+      vars: [cluster]
+    env: *commonenv
+    vars:
+      node: *nodevar
+      to:
+        sh: yq -r '.kubernetesVersion' "{{.PROJECT_DIR}}/kubernetes/clusters/{{.cluster}}/talos/talconfig.yaml"
+    deps:
+      - genconfig
+    cmds:
+      - talosctl -n {{.node}} upgrade-k8s --to {{.to}}
+    preconditions:
+      - talosctl -n {{.node}} health
+      - talosctl -n {{.node}} get mc

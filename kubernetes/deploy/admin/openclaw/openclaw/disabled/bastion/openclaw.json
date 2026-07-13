@@ -1,0 +1,41 @@
+{
+  "gateway": {
+    "auth": {
+      "rateLimit": {
+        "maxAttempts": 10,
+        "windowMs": 60000,
+        "lockoutMs": 300000
+      }
+    },
+    "reload": {
+      "mode": "hot"
+    }
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "groupAllowFrom": []
+    }
+  },
+  "agents": {
+    "defaults": {
+      "models": {
+        "openai-codex/gpt-5.5": {
+          "agentRuntime": {
+            "id": "pi"
+          }
+        }
+      },
+      "model": {
+        "primary": "openai-codex/gpt-5.5"
+      },
+      "memorySearch": {
+        "provider": "openai",
+        "model": "openai/text-embedding-3-small",
+        "remote": {
+          "baseUrl": "https://openrouter.ai/api/v1"
+        }
+      }
+    }
+  }
+}

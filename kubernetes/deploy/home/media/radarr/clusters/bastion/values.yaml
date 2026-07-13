@@ -1,0 +1,106 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.2.0/charts/other/app-template/values.schema.json
+
+controllers:
+  radarr:
+    initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: 18
+        envFrom: &envFrom
+          - secretRef:
+              name: radarr-secret
+      # pgloader:
+      #   image:
+      #     repository: ghcr.io/roxedus/pgloader
+      #     tag: latest
+      #   envFrom: *envFrom
+      #   args:
+      #     - --with
+      #     - "quote identifiers"
+      #     - --with
+      #     - "data only"
+      #     - /config/radarr.db
+      #     - postgresql://$(RADARR__POSTGRES__USER):$(RADARR__POSTGRES__PASSWORD)@$(RADARR__POSTGRES__HOST)/$(RADARR__POSTGRES__MAINDB)
+    containers:
+      app: &appcontainer
+        image:
+          repository: ghcr.io/home-operations/radarr
+          tag: rolling@sha256:09979c77f9be3f324c133e1e73fea2b5c7eed37b586ed7c8a8a60c9b6932f175
+        env:
+          RADARR__APP__INSTANCENAME: Radarr
+          RADARR__APP__THEME: dark
+          RADARR__AUTH__METHOD: External
+          RADARR__AUTH__REQUIRED: DisabledForLocalAddresses
+          RADARR__LOG__LEVEL: info
+          RADARR__SERVER__PORT: &port 7878
+          RADARR__UPDATE__BRANCH: develop
+          TZ: America/Chicago
+        envFrom: *envFrom
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                port: *port
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probes
+        resources:
+          requests:
+            cpu: 10m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+persistence:
+  config:
+    existingClaim: &app radarr
+  logs:
+    type: emptyDir
+    globalMounts:
+      - path: /config/logs
+  media:
+    type: nfs
+    server: truenas-purplebox.private.home
+    path: /mnt/purple/general/media
+  tmp:
+    type: emptyDir
+ingress:
+  app:
+    enabled: true
+    className: tailscale
+    hosts:
+      - host: *app
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+    tls:
+      - hosts:
+          - *app
+service:
+  app:
+    controller: *app
+    ports:
+      http:
+        port: *port

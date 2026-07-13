@@ -1,0 +1,12 @@
+namespace: kube-system
+resources:
+  - daemonset.yaml
+
+configMapGenerator:
+- name: ts-route-setter-code
+  options:
+    disableNameSuffixHash: true
+  files:
+    - go.mod
+    - go.sum
+    - main.go

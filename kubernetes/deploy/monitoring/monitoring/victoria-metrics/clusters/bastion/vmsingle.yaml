@@ -1,0 +1,78 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmsingle_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMSingle
+metadata:
+  name: victoria
+  namespace: monitoring
+spec:
+  # useStrictSecurity: true # enables apparmor, which we can only use after upgrading to talos 1.8.0+
+  retentionPeriod: "6" # months if no unit specified
+  extraArgs:
+    dedup.minScrapeInterval: 60s
+    maxLabelsPerTimeseries: "40"
+    search.minStalenessInterval: 5m
+    vmalert.proxyURL: http://vmalert-victoria.monitoring.svc.cluster.local:8080
+  serviceSpec:
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "victoria.monitoring.home.arpa"
+    spec:
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+  storage:
+    storageClassName: zfs-nvme
+    accessModes: [ReadWriteOnce]
+    volumeMode: Filesystem
+    resources:
+      requests:
+        storage: 200Gi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 2Gi
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmsingle_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMSingle
+metadata:
+  name: alerts
+  namespace: monitoring
+  annotations:
+    description: "VMSingle that can schedule on any node in RollingUpdate fashion to have the highest availability for VMAlerts to process"
+spec:
+  # useStrictSecurity: true
+  retentionPeriod: 2d
+  extraArgs:
+    dedup.minScrapeInterval: 60s
+    maxLabelsPerTimeseries: "40"
+    search.minStalenessInterval: 5m
+    storageDataPath: &path /vmdata
+    vmalert.proxyURL: http://vmalert-victoria.svc.cluster.local:8080
+  serviceSpec:
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "victoria-alerts.monitoring.home.arpa"
+    spec:
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+  volumes:
+    - name: &vol vmsingle-data
+      emptyDir:
+        #medium: Memory
+        #sizeLimit: 2Gi
+        sizeLimit: 5Gi
+  volumeMounts:
+    - name: *vol
+      mountPath: *path
+  terminationGracePeriodSeconds: 60
+  resources:
+    requests:
+      cpu: 200m
+      memory: 1Gi
+    limits:
+      cpu: 1
+      memory: 2Gi

@@ -1,0 +1,36 @@
+---
+version: "3"
+
+vars:
+  PROJECT_DIR:
+    sh: "git rev-parse --show-toplevel"
+
+includes:
+  talos:
+    taskfile: .taskfiles/talos/Taskfile.yaml
+    vars:
+      dopplerProject: jtcressy-home-infra
+      dopplerConfig: cluster
+  eso:
+    taskfile: .taskfiles/eso/Taskfile.yaml
+    vars:
+      dopplerProject: jtcressy-home-infra
+      dopplerConfig: eso
+  restic:
+    taskfile: .taskfiles/restic/Taskfile.yaml
+    vars:
+      dopplerProject: restic-backups
+      dopplerConfig: cloudflare-r2
+  volsync:
+    taskfile: .taskfiles/volsync/Taskfile.yaml
+  apps:
+    taskfile: .taskfiles/apps/Taskfile.yaml
+  tools:
+    taskfile: .taskfiles/tools/Taskfile.yaml
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task -l
+

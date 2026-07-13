@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ./monitoring
+
+helmCharts:
+- name: rook-ceph
+  repo: https://charts.rook.io/release
+  version: v1.18.7
+  releaseName: rook-ceph-operator
+  namespace: rook-ceph
+  valuesInline:
+    crds:
+      enabled: true
+    csi:
+      kubeletDirPath: /var/lib/kubelet
+      enableCSIHostNetwork: true
+      enableGrpcMetrics: true
+      enableCSIEncryption: false
+      provisionerReplicas: 1
+      # cephFSKernelMountOptions: ms_mode=secure # Necessary, otherwise PVC won't be able to be mounted to Pod. You'll see errors like stderr: unable to get monitor info from DNS SRV with service name: ceph-mon, failed for service _ceph-mon._tcp
+      csiAddons:
+        enabled: false
+      serviceMonitor:
+        enabled: true
+    monitoring:
+      enabled: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 1500m
+        memory: 512Mi

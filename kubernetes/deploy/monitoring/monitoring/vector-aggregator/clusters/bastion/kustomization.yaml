@@ -1,0 +1,183 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+- name: vector
+  repo: https://helm.vector.dev
+  version: 0.51.0
+  releaseName: &app vector-aggregator
+  namespace: monitoring
+  valuesInline:
+    role: Stateless-Aggregator
+    replicas: 1
+    service:
+      type: LoadBalancer
+      externalTrafficPolicy: Cluster
+    podMonitor:
+      enabled: true
+    customConfig:
+      data_dir: /vector-data-dir
+      api:
+        enabled: true
+        address: 0.0.0.0:8686
+        playground: true
+      sources:
+        internal_metrics:
+          type: internal_metrics
+          
+        kubernetes_logs:
+          address: 0.0.0.0:6000
+          type: vector
+          version: "2"
+
+        talos_kernel_logs:
+          address: 0.0.0.0:6001
+          type: socket
+          mode: udp
+          max_length: 102400
+          decoding:
+            codec: json
+          host_key: __host
+
+        talos_service_logs:
+          address: 0.0.0.0:6002
+          type: socket
+          mode: udp
+          max_length: 102400
+          decoding:
+            codec: json
+          host_key: __host
+
+        unifi_kernel_logs:
+          address: 0.0.0.0:6003
+          type: syslog
+          mode: udp
+          max_length: 102400
+
+        proxox_syslogs:
+          address: 0.0.0.0:6004
+          type: syslog
+          mode: udp
+          max_length: 102400
+
+      transforms:
+        kubernetes_transform:
+          type: remap
+          inputs:
+            - kubernetes_logs
+          source: |-
+            del(.kubernetes.node_labels)
+            .app = .pod_labels."app.kubernetes.io/name" || .pod_labels.app || .pod_labels."k8s-app" || "unknown"
+            .container = del(.container_name)
+            .namespace = .kubernetes.pod_namespace
+            .node = .kubernetes.pod_node_name
+
+        talos_kernel_transform:
+          type: remap
+          inputs:
+            - talos_kernel_logs
+          source: |-
+            .namespace = "talos:kernel"
+            . = map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
+
+        talos_service_transform:
+          type: remap
+          inputs:
+            - talos_service_logs
+          source: |-
+            .namespace = "talos:service"
+            . = map_keys(., recursive: true) -> |key| { replace(key, "-", "_") }
+
+        unifi_kernel_transform:
+          type: remap
+          inputs:
+            - unifi_kernel_logs
+          source: |-
+            .timestamp = now()
+            .namespace = "unifi:kernel"
+
+        proxmox_syslog_transform:
+          type: remap
+          inputs:
+            - proxox_syslogs
+          source: |-
+            .timestamp = now()
+            .namespace = "proxmox:syslog"
+            
+      sinks:
+        prom_exporter:
+          type: prometheus_exporter
+          inputs: [internal_metrics]
+          address: 0.0.0.0:9090
+
+        kubernetes:
+          type: elasticsearch
+          inputs:
+            - kubernetes_transform
+          endpoints:
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+          mode: bulk
+          api_version: v8
+          healthcheck:
+            enabled: false
+          query:
+            _msg_field: message
+            _time_field: timestamp
+            _stream_fields: namespace,node,app,container
+
+        talos:
+          type: elasticsearch
+          inputs:
+            - talos_service_transform
+            - talos_kernel_transform
+          endpoints: 
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+          mode: bulk
+          api_version: v8
+          healthcheck:
+            enabled: false
+          query:
+            _msg_field: msg
+            _time_field: talos_time
+            _stream_fields: namespace,node,talos_service,talos_level
+
+        unifi_kernel:
+          type: elasticsearch
+          inputs:
+            - unifi_kernel_transform
+          endpoints:
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+          mode: bulk
+          api_version: v8
+          healthcheck:
+            enabled: false
+          query:
+            _msg_field: message
+            _time_field: timestamp
+            _stream_fields: namespace,appname,facility,hostname
+
+        proxmox_syslog:
+          type: elasticsearch
+          inputs:
+            - proxmox_syslog_transform
+          endpoints:
+            - "http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch/"
+          mode: bulk
+          api_version: v8
+          healthcheck:
+            enabled: false
+          query:
+            _msg_field: message
+            _time_field: timestamp
+            _stream_fields: namespace,appname,facility,hostname
+
+patches: # apply hostname to LB service, NOT HEADLESS SERVICE.
+- target:
+    group: ""
+    version: v1
+    kind: Service
+    name: *app
+  patch: |-
+    - op: add
+      path: /metadata/annotations/external-dns.alpha.kubernetes.io~1hostname
+      value: "vector.home.arpa"

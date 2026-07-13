@@ -1,0 +1,25 @@
+# Egress allow: openclaw-gw pod → rainbowtank:11434 (Ollama inference).
+#
+# Rainbowtank's tailnet IP: 100.120.142.7. Pod reaches it via the cluster's
+# tailscale routing. The operator-managed default egress NetworkPolicy
+# only allows 53/443/6443, so this additional policy is needed for
+# outbound Ollama API traffic. NetworkPolicies are additive.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openclaw-gw-egress-ollama
+  namespace: openclaw
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: openclaw
+      app.kubernetes.io/instance: openclaw-gw
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 100.120.142.7/32
+      ports:
+        - protocol: TCP
+          port: 11434

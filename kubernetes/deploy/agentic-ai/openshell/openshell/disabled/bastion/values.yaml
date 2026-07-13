@@ -1,0 +1,33 @@
+grpcRoute:
+  enabled: true
+  hostnames:
+    - "openshell-gw.tailnet-4d89.ts.net"
+  gateway:
+    create: false           # repo-managed Gateway in gateway.yaml
+    name: openshell-gateway
+    namespace: openshell
+
+server:
+  sandboxNamespace: ""      # defaults to release namespace (openshell); Phase 3 will add per-track routing
+  # Reverse-proxy mode: Envoy terminates tailnet TLS (cert-manager internal-ca) and forwards
+  # plaintext gRPC in-cluster; without this the server expects TLS/mTLS and rejects Envoy's
+  # plaintext connections (PR #839 review). In-cluster hop is bounded by NetworkPolicy.
+  disableTls: true
+  oidc:
+    issuer: "https://tsidp.tailnet-4d89.ts.net"
+    audience: "openshell-cli"
+    jwksTtl: 3600
+
+# Note: with certManager.enabled=true the chart's certgen hook automatically runs in
+# JWT-only mode (creates openshell-jwt-keys; cert-manager does not manage that secret).
+# cert-manager takes precedence for all TLS secrets — no pkiInitJob override needed (v0.0.59).
+certManager:
+  enabled: true
+  serverDnsNames:
+    - openshell
+    - openshell.openshell.svc
+    - openshell.openshell.svc.cluster.local
+    - localhost
+
+networkPolicy:
+  enabled: true

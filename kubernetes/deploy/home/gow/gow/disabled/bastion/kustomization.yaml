@@ -1,0 +1,284 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- persistence.yaml
+# - xorg-conf.yaml
+
+helmCharts:
+- name: games-on-whales
+  repo: https://angelnu.github.io/helm-charts
+  version: 2.0.0
+  releaseName: gow
+  valuesInline:
+    controller:
+      replicas: 0
+
+    nodeSelector:
+      nvidia.com/gpu.product: NVIDIA-GeForce-RTX-4070-Ti
+
+    # graphic_resources:
+    #   nvidia.com/gpu: 1
+
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerClass: io.cilium/l2-announcer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: gow.home.arpa
+          # allows the service to share the same external IP address
+          lbipam.cilium.io/sharing-key: games-on-whales
+      udp:
+        type: LoadBalancer
+        loadBalancerClass: io.cilium/l2-announcer
+        annotations:
+          lbipam.cilium.io/sharing-key: games-on-whales
+
+    ingress:
+      # -- Enable and configure ingress settings for the chart under this key.
+      # @default -- See values.yaml
+      main:
+        enabled: true
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: controller
+          hajimari.io/info: Stream games
+          hajimari.io/group: games
+        ingressClassName: tailscale
+        hosts:
+        - host: gamestream
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - gamestream
+          
+    persistence:
+      home:
+        type: pvc
+        existingClaim: games-on-whales
+      software:
+        enabled: true
+        type: custom
+        subPath: software
+        volumeSpec:
+          nfs: 
+            server: truenas-purplebox.private.home
+            path: /mnt/purple/general/media
+      nvidia-drv:
+        enabled: true
+        type: hostPath
+        # hostPathType: Directory
+        readOnly: true
+        mountPath: /nvidia/xorg
+        # hostPath: /usr/local/lib/nvidia/xorg # for 535.x.x nvidia drivers (lts)
+        hostPath: /usr/local/glibc/lib/nvidia/xorg # for 550.x.x+ nvidia drivers (production)
+    sunshine:
+      image:
+        repository: ghcr.io/games-on-whales/sunshine
+        tag: sha-80c1a8e
+        pullPolicy: Always
+      user: admin
+      password: admin
+    xorg:
+      image:
+        repository: ghcr.io/games-on-whales/xorg
+        tag: sha-80c1a8e
+        pullPolicy: IfNotPresent
+      refreshrate: 120
+      resolution: 3840x2160
+    pulseaudio:
+      image:
+        repository: ghcr.io/games-on-whales/pulseaudio
+        tag: 1.0.0
+        pullPolicy: IfNotPresent
+    retroarch:
+      enabled: false
+      image:
+        repository: ghcr.io/angelnu/retroarch
+        tag: sha-fc9d5ae
+        pullPolicy: IfNotPresent
+      logLevel: info
+      volumeMounts:
+        - name: software
+          mountPath: /home/retro/software
+          #readOnly: true
+    steam:
+      enabled: true
+      image:
+        repository: ghcr.io/angelnu/steam
+        tag: sha-c387cd3
+        pullPolicy: IfNotPresent
+      protonLog: 1
+    firefox:
+      enabled: false
+      image:
+        repository: andrewmackrodt/firefox-x11
+        tag: 1.0.0
+        pullPolicy: IfNotPresent
+      volumeMounts: []
+    mkhomeretrodirs:
+      image:
+        repository: busybox
+        tag: 1.37.0
+        pullPolicy: IfNotPresent
+
+    # securityContext:
+    #   runAsUser: 0
+    # command:
+    # - /bin/sh
+    # - -c
+    # - while true; do
+    #   sleep 600 &
+    #   wait $!;
+    #   done
+    # additionalContainers:
+    #   steam:
+    #     # Enable the following to debug retro arch
+    #     securityContext:
+    #       runAsUser: 0
+    #     command:
+    #     - /bin/sh
+    #     - -c
+    #     - while true; do
+    #       sleep 600 &
+    #       wait $!;
+    #       done
+    #   gnome:
+    #     image: x11docker/gnome:latest
+    #     imagePullPolicy: IfNotPresent
+    #     securityContext:
+    #       privileged: true
+    #     env:
+    #     - name: DISPLAY
+    #       value: ":99"
+    #     - name: PULSE_SERVER
+    #       value: "/tmp/pulse/pulse-socket"
+    #     - name: NVIDIA_DRIVER_CAPABILITIES
+    #       value: all
+    #     - name: NVIDIA_VISIBLE_DEVICES
+    #       value: all
+    #     volumeMounts:
+    #     - name: audio-socket
+    #       mountPath: /tmp/pulse
+    #     - name: xorg
+    #       mountPath: /tmp/.X11-unix
+
+configMapGenerator:
+  - name: gow-games-on-whales-xorg-conf
+    files:
+      - ./config/xorg/xorg-screen.conf
+      - ./config/xorg/edid.txt
+  - name: gow-games-on-whales-sunshine-conf
+    files:
+      - ./config/sunshine/sunshine.conf
+      - ./config/sunshine/apps.json
+
+patches:
+- target:
+    group: ""
+    version: v1
+    kind: Service
+    name: gow-games-on-whales
+  patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: gow-games-on-whales
+    spec:
+      ports:
+        - name: https
+          port: 47991
+          protocol: TCP
+          targetPort: sunshine-tcp7
+- target:
+    group: networking.k8s.io
+    version: v1
+    kind: Ingress
+    name: gow-games-on-whales
+  patch: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: gow-games-on-whales
+    spec:
+      rules:
+        - host: gamestream
+          http:
+            paths:
+            - backend:
+                service:
+                  name: gow-games-on-whales
+                  port:
+                    name: https
+              path: /
+              pathType: Prefix
+- target:
+    group: ""
+    version: v1
+    kind: Service
+    annotationSelector: lbipam.cilium.io/sharing-key=games-on-whales
+  patch: |
+    - op: replace
+      path: /spec/externalTrafficPolicy
+      value: Cluster
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: gow-games-on-whales
+  patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: gow-games-on-whales
+    spec:
+      template:
+        metadata:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |-
+              [
+                {
+                  "name": "macvlan-conf-dhcp",
+                  "namespace": "kube-system",
+                  "interface": "eth1",
+                  "mac": "4a:c1:8d:28:f4:97"
+                }
+              ]
+        spec:
+          runtimeClassName: nvidia
+          hostNetwork: false
+          hostname: gamestream
+          containers:
+            - name: xorg
+              volumeMounts:
+                - name: nvidia-drv
+                  mountPath: /nvidia/xorg
+                  readOnly: true
+                - name: xorg-conf
+                  mountPath: /etc/X11/xorg.conf.d/xorg-screen.conf
+                  subPath: xorg-screen.conf
+                - name: xorg-conf
+                  mountPath: /opt/config/edid.txt
+                  subPath: edid.txt
+            - name: gow-games-on-whales # sunshine container
+              volumeMounts:
+                - name: sunshine-conf
+                  mountPath: /cfg
+              resources:
+                limits:
+                  squat.ai/uinput: 1
+                requests:
+                  squat.ai/uinput: 1
+            - name: steam
+              volumeMounts:
+                - name: dev-input
+                  mountPath: /dev/input
+                  readOnly: false
+          volumes:
+          - name: xorg-conf
+            configMap:
+              name: gow-games-on-whales-xorg-conf
+          - name: sunshine-conf
+            configMap:
+              name: gow-games-on-whales-sunshine-conf

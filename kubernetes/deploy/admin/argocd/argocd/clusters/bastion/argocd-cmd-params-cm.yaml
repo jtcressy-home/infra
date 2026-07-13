@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+data:
+  controller.log.level: "info"
+  server.log.level: "info"
+  reposerver.log.level: "info"
+  # The infra repo tracks .planning as a private submodule. Argo CD only needs
+  # the public GitOps tree, so do not initialize submodules during target-state
+  # generation.
+  reposerver.enable.git.submodule: "false"
+  applicationsetcontroller.enable.git.submodule: "false"
+  applicationsetcontroller.log.level: "info"
+  notificationscontroller.log.level: "info"

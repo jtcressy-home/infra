@@ -1,0 +1,35 @@
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+resources:
+- ../../../../base
+
+patches:
+- target:
+    group: upgrade.cattle.io
+    version: v1
+    kind: Plan
+    name: talos
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: talos-vm-basic
+    - op: add
+      path: /spec/upgrade/envs/-
+      value:
+        name: SCHEMATIC_ID
+        value: 077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2
+    - op: add
+      path: /spec/nodeSelector/matchExpressions/-
+      value:
+        key: factory.talos.dev/schematic-id.part-0
+        operator: In
+        values:
+          - 077514df2c1b6436460bc60faabc9766
+    - op: add
+      path: /spec/nodeSelector/matchExpressions/-
+      value:
+        key: factory.talos.dev/schematic-id.part-1
+        operator: In
+        values:
+          - 87b16193b8a1290fda4366c69024fec2

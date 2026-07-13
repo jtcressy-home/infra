@@ -1,0 +1,82 @@
+image:
+  repository: n8nio/n8n
+  tag: 2.13.0@sha256:34fd08a7958bcb1e10f0756c58ce83a0df282cff5ddcb295139ac8d0955558e7
+
+timezone: America/Chicago
+
+db:
+  type: postgresdb
+
+externalPostgresql:
+  host: teslamate-db-rw.teslamate.svc.cluster.local
+  port: 5432
+  database: n8n
+  username: n8n
+  existingSecret: n8n-secret
+
+existingEncryptionKeySecret: n8n-secret
+
+diagnostics:
+  enabled: false
+
+versionNotifications:
+  enabled: false
+
+main:
+  resources:
+    requests:
+      cpu: 10m
+    limits:
+      memory: 512Mi
+
+  persistence:
+    enabled: true
+    existingClaim: n8n
+
+  extraEnvVars:
+    EXTERNAL_HOOK_FILES: /hooks/hooks.js
+    N8N_ADDITIONAL_NON_UI_ROUTES: auth
+    EXTERNAL_FRONTEND_HOOKS_URLS: /assets/oidc-frontend-hook.js
+    OIDC_ISSUER_URL: https://tsidp.tailnet-4d89.ts.net
+    OIDC_REDIRECT_URI: https://n8n.tailnet-4d89.ts.net/auth/oidc/callback
+    OIDC_SCOPES: openid email profile
+    N8N_TRUST_PROXY: "true"
+    N8N_PROTOCOL: https
+
+  extraSecretNamesForEnvFrom:
+    - n8n-secret
+
+  volumes:
+    - name: oidc-hooks
+      configMap:
+        name: n8n-oidc-hooks
+
+  volumeMounts:
+    - name: oidc-hooks
+      mountPath: /hooks
+      readOnly: true
+
+  initContainers:
+    - name: init-db
+      image: ghcr.io/home-operations/postgres-init:18
+      envFrom:
+        - secretRef:
+            name: n8n-secret
+
+ingress:
+  enabled: true
+  className: tailscale
+  hosts:
+    - host: n8n
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - n8n
+
+worker:
+  mode: regular
+
+webhook:
+  mode: regular

@@ -1,0 +1,91 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.2.0/charts/other/app-template/values.schema.json
+
+controllers:
+  overseerr:
+    initContainers:
+      init-db:
+        image:
+          repository: ghcr.io/home-operations/postgres-init
+          tag: 18
+        envFrom: &envFrom
+          - secretRef:
+              name: overseerr-secret
+    containers:
+      app:
+        image:
+          repository: ghcr.io/fallenbagel/jellyseerr
+          tag: latest@sha256:9cc9e9ee6cd5cf5a23feb45c37742ba34cfd6314d81d259cddb373a97ac92cdd
+        env:
+          LOG_LEVEL: info
+          PORT: &port 5055
+          TZ: America/Chicago
+        envFrom: *envFrom
+        probes:
+          liveness: &probes
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: &path /api/v1/status
+                port: *port
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness: *probes
+        resources:
+          requests:
+            cpu: 10m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+defaultPodOptions:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 568
+    runAsGroup: 568
+    fsGroup: 568
+    fsGroupChangePolicy: OnRootMismatch
+persistence:
+  config:
+    existingClaim: &app overseerr
+    globalMounts:
+      - path: /app/config
+  config-cache:
+    existingClaim: overseerr-cache
+    globalMounts:
+      - path: /app/config/cache
+  logs:
+    type: emptyDir
+    globalMounts:
+      - path: /app/config/logs
+  tmp:
+    type: emptyDir
+ingress:
+  app:
+    enabled: true
+    className: tailscale
+    hosts:
+      - host: *app
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+    tls:
+      - hosts:
+          - *app
+service:
+  app:
+    controller: *app
+    ports:
+      http:
+        port: *port
