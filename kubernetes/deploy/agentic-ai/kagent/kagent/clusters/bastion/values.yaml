@@ -1,16 +1,45 @@
 database:
   postgres:
+    urlFile: /etc/kagent-database/uri
     bundled:
-      enabled: true
-      storage: 500Mi
-      storageClassName: zfs-nvme
+      enabled: false
 
 providers:
-  default: openAI
   openAI:
-    apiKeySecretRef: kagent-openai
-    apiKeySecretKey: OPENAI_API_KEY
+    apiKeySecretRef: ""
+    apiKeySecretKey: ""
 
-querydoc:
-  openai:
-    secretRef: kagent-openai
+controller:
+  volumes:
+    - name: database
+      secret:
+        secretName: kagent-db-app
+        items:
+          - key: uri
+            path: uri
+  volumeMounts:
+    - name: database
+      mountPath: /etc/kagent-database
+      readOnly: true
+
+# Official kagent minimal profile: install the platform without bundled agents.
+k8s-agent:
+  enabled: false
+kgateway-agent:
+  enabled: false
+istio-agent:
+  enabled: false
+promql-agent:
+  enabled: false
+observability-agent:
+  enabled: false
+argo-rollouts-agent:
+  enabled: false
+helm-agent:
+  enabled: false
+cilium-policy-agent:
+  enabled: false
+cilium-manager-agent:
+  enabled: false
+cilium-debug-agent:
+  enabled: false
