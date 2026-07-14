@@ -1,0 +1,16 @@
+database:
+  postgres:
+    bundled:
+      enabled: true
+      storage: 500Mi
+      storageClassName: zfs-nvme
+
+providers:
+  default: openAI
+  openAI:
+    apiKeySecretRef: kagent-openai
+    apiKeySecretKey: OPENAI_API_KEY
+
+querydoc:
+  openai:
+    secretRef: kagent-openai

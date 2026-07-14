@@ -30,6 +30,9 @@ spec:
     - name: '*'
       namespace: hermes
       server: '*'
+    - name: '*'
+      namespace: kagent
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
