@@ -5,9 +5,17 @@ database:
       enabled: false
 
 providers:
+  default: openAI
   openAI:
-    apiKeySecretRef: ""
-    apiKeySecretKey: ""
+    provider: OpenAI
+    model: anthropic/claude-sonnet-4.6
+    apiKeySecretRef: kagent-openrouter
+    apiKeySecretKey: OPENROUTER_API_KEY
+    config:
+      baseUrl: https://openrouter.ai/api/v1
+
+querydoc:
+  enabled: false
 
 controller:
   volumes:
