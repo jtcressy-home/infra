@@ -10,29 +10,35 @@ function findCodexSignal({
   triggeredAt,
   botLogin = DEFAULT_BOT_LOGIN,
 }) {
-  const review = reviews.find(
-    (candidate) =>
-      candidate.user?.login === botLogin &&
-      candidate.commit_id === headSha &&
-      candidate.state !== "DISMISSED",
+  const signals = [
+    ...reviews
+      .filter(
+        (candidate) =>
+          candidate.user?.login === botLogin &&
+          candidate.commit_id === headSha &&
+          candidate.state !== "DISMISSED",
+      )
+      .map((review) => ({
+        type: "findings",
+        createdAt: review.submitted_at,
+      })),
+    ...reactions
+      .filter(
+        (candidate) =>
+          candidate.user?.login === botLogin &&
+          candidate.content === "+1" &&
+          Date.parse(candidate.created_at) >= triggeredAt,
+      )
+      .map((reaction) => ({
+        type: "approved",
+        createdAt: reaction.created_at,
+      })),
+  ];
+
+  return (
+    signals.sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))[0] ||
+    null
   );
-
-  if (review) {
-    return { type: "findings", createdAt: review.submitted_at };
-  }
-
-  const reaction = reactions.find(
-    (candidate) =>
-      candidate.user?.login === botLogin &&
-      candidate.content === "+1" &&
-      Date.parse(candidate.created_at) >= triggeredAt,
-  );
-
-  if (reaction) {
-    return { type: "approved", createdAt: reaction.created_at };
-  }
-
-  return null;
 }
 
 async function run({ github, context, core }) {
