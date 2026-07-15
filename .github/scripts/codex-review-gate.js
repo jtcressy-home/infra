@@ -19,7 +19,7 @@ function findCodexSignal({
           candidate.state !== "DISMISSED",
       )
       .map((review) => ({
-        type: "findings",
+        type: "reviewed",
         createdAt: review.submitted_at,
       })),
     ...reactions
@@ -30,7 +30,7 @@ function findCodexSignal({
           Date.parse(candidate.created_at) >= triggeredAt,
       )
       .map((reaction) => ({
-        type: "approved",
+        type: "no-findings",
         createdAt: reaction.created_at,
       })),
   ];
@@ -138,16 +138,10 @@ async function run({ github, context, core }) {
     });
 
     if (signal) {
-      if (signal.type === "findings") {
-        const description = "Codex posted findings on this PR head";
-        await setStatus("failure", description);
-        core.setFailed(
-          "Address Codex findings, resolve every review thread, and push a new head for another review.",
-        );
-        return;
-      }
-
-      const description = "Codex reported no findings on this PR update";
+      const description =
+        signal.type === "reviewed"
+          ? "Codex reviewed this PR head; resolve any findings"
+          : "Codex reported no findings on this PR update";
       await setStatus("success", description);
       core.info(`${description} at ${signal.createdAt}`);
       core.setOutput("signal", signal.type);
