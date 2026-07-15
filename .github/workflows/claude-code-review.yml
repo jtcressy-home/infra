@@ -38,7 +38,7 @@ jobs:
           audience: ${{ vars.TAILSCALE_AUDIENCE }}
           tags: ${{ vars.TAILSCALE_TAGS || 'tag:ghactions' }}
           # renovate: datasource=github-releases depName=tailscale/tailscale
-          version: 1.60.1
+          version: 1.98.8
 
       - name: Run Claude Code Review
         id: claude-review
