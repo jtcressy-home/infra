@@ -7,7 +7,6 @@ function findCodexSignal({
   reviews,
   reactions,
   headSha,
-  triggeredAt,
   botLogin = DEFAULT_BOT_LOGIN,
 }) {
   const signals = [
@@ -26,8 +25,7 @@ function findCodexSignal({
       .filter(
         (candidate) =>
           candidate.user?.login === botLogin &&
-          candidate.content === "+1" &&
-          Date.parse(candidate.created_at) >= triggeredAt,
+          candidate.content === "+1",
       )
       .map((reaction) => ({
         type: "no-findings",
@@ -56,8 +54,6 @@ async function run({ github, context, core }) {
     process.env.CODEX_POLL_INTERVAL_MS || DEFAULT_POLL_INTERVAL_MS,
   );
   const timeoutMs = Number(process.env.CODEX_TIMEOUT_MS || DEFAULT_TIMEOUT_MS);
-  const eventTimestamp =
-    Date.parse(pullRequest.updated_at || pullRequest.created_at) - 1_000;
   const deadline = Date.now() + timeoutMs;
   const targetUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
@@ -73,6 +69,14 @@ async function run({ github, context, core }) {
     });
 
   await setStatus("pending", "Waiting for Codex App review");
+
+  const { data: reviewRequest } = await github.rest.issues.createComment({
+    owner,
+    repo,
+    issue_number: pullNumber,
+    body: `@codex review\n\n<!-- codex-review-gate head=${headSha} run=${context.runId} -->`,
+  });
+  core.info(`Requested Codex review for ${headSha} in comment ${reviewRequest.id}`);
 
   while (Date.now() < deadline) {
     const { data: currentPullRequest } = await github.rest.pulls.get({
@@ -91,49 +95,25 @@ async function run({ github, context, core }) {
       return;
     }
 
-    const [reviews, issueReactions, comments] = await Promise.all([
+    const [reviews, reactions] = await Promise.all([
       github.paginate(github.rest.pulls.listReviews, {
         owner,
         repo,
         pull_number: pullNumber,
         per_page: 100,
       }),
-      github.paginate(github.rest.reactions.listForIssue, {
+      github.paginate(github.rest.reactions.listForIssueComment, {
         owner,
         repo,
-        issue_number: pullNumber,
-        per_page: 100,
-      }),
-      github.paginate(github.rest.issues.listComments, {
-        owner,
-        repo,
-        issue_number: pullNumber,
+        comment_id: reviewRequest.id,
         per_page: 100,
       }),
     ]);
-
-    const reviewRequestComments = comments.filter(
-      (comment) =>
-        Date.parse(comment.created_at) >= eventTimestamp &&
-        /@codex\s+review\b/i.test(comment.body || ""),
-    );
-    const reviewRequestReactionPages = await Promise.all(
-      reviewRequestComments.map((comment) =>
-        github.paginate(github.rest.reactions.listForIssueComment, {
-          owner,
-          repo,
-          comment_id: comment.id,
-          per_page: 100,
-        }),
-      ),
-    );
-    const reactions = issueReactions.concat(...reviewRequestReactionPages);
 
     const signal = findCodexSignal({
       reviews,
       reactions,
       headSha,
-      triggeredAt: eventTimestamp,
       botLogin,
     });
 

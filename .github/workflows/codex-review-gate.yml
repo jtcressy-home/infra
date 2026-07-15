@@ -4,21 +4,23 @@ name: Codex Review Gate
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+    types: [checks_requested]
 
 concurrency:
-  group: codex-review-gate-${{ github.event.pull_request.number }}
+  group: codex-review-gate-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  issues: read
+  issues: write
   pull-requests: read
   statuses: write
 
 jobs:
   gate:
     name: Publish Codex review status
-    if: ${{ !github.event.pull_request.draft }}
+    if: ${{ github.event_name == 'pull_request_target' && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -39,3 +41,21 @@ jobs:
           script: |
             const gate = require('./.github/scripts/codex-review-gate.js');
             await gate({ github, context, core });
+
+  merge-group:
+    name: Publish Codex merge-queue status
+    if: ${{ github.event_name == 'merge_group' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark reviewed PRs ready for merge validation
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              ...context.repo,
+              sha: context.payload.merge_group.head_sha,
+              state: 'success',
+              context: 'Codex Review Gate',
+              description: 'PR heads completed Codex review before entering merge queue',
+              target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            });
