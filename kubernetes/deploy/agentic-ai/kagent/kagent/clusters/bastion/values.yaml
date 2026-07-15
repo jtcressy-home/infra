@@ -17,6 +17,9 @@ providers:
 querydoc:
   enabled: false
 
+grafana-mcp:
+  enabled: false
+
 controller:
   volumes:
     - name: database
