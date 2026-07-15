@@ -85,7 +85,7 @@ async function run({ github, context, core }) {
       return;
     }
 
-    const [reviews, reactions] = await Promise.all([
+    const [reviews, issueReactions, comments] = await Promise.all([
       github.paginate(github.rest.pulls.listReviews, {
         owner,
         repo,
@@ -98,7 +98,30 @@ async function run({ github, context, core }) {
         issue_number: pullNumber,
         per_page: 100,
       }),
+      github.paginate(github.rest.issues.listComments, {
+        owner,
+        repo,
+        issue_number: pullNumber,
+        per_page: 100,
+      }),
     ]);
+
+    const reviewRequestComments = comments.filter(
+      (comment) =>
+        Date.parse(comment.created_at) >= eventTimestamp &&
+        /@codex\s+review\b/i.test(comment.body || ""),
+    );
+    const reviewRequestReactionPages = await Promise.all(
+      reviewRequestComments.map((comment) =>
+        github.paginate(github.rest.reactions.listForIssueComment, {
+          owner,
+          repo,
+          comment_id: comment.id,
+          per_page: 100,
+        }),
+      ),
+    );
+    const reactions = issueReactions.concat(...reviewRequestReactionPages);
 
     const signal = findCodexSignal({
       reviews,
