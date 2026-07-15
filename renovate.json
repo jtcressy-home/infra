@@ -21,7 +21,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "/\\.yaml$/"
+        "/\\.ya?ml$/"
       ],
       "matchStrings": [
         "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s  version: (?<currentValue>.*)\\s",
@@ -168,6 +168,18 @@
       "addLabels": [
         "renovate:automerge"
       ]
+    },
+    {
+      "matchPackageNames": [
+        "tailscale/**",
+        "tailscale.com",
+        "tailscale-operator",
+        "ghcr.io/tailscale/**"
+      ],
+      "groupName": "tailscale",
+      "groupSlug": "tailscale",
+      "separateMajorMinor": false,
+      "automerge": false
     }
   ],
   "autoApprove": true,
