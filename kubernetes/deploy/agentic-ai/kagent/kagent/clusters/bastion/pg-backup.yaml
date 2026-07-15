@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: kagent-db-backup
+spec:
+  schedule: "7 0 0 * * *"
+  immediate: true
+  suspend: false
+  cluster:
+    name: kagent-db
