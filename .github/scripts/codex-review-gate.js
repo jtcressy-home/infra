@@ -15,7 +15,9 @@ function findCodexSignal({
         (candidate) =>
           candidate.user?.login === botLogin &&
           candidate.commit_id === headSha &&
-          candidate.state !== "DISMISSED",
+          candidate.state !== "DISMISSED" &&
+          candidate.state !== "PENDING" &&
+          Boolean(candidate.submitted_at),
       )
       .map((review) => ({
         type: "reviewed",
