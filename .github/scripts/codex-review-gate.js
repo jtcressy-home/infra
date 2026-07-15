@@ -18,7 +18,7 @@ function findCodexSignal({
   );
 
   if (review) {
-    return { type: "review", createdAt: review.submitted_at };
+    return { type: "findings", createdAt: review.submitted_at };
   }
 
   const reaction = reactions.find(
@@ -29,7 +29,7 @@ function findCodexSignal({
   );
 
   if (reaction) {
-    return { type: "no-findings", createdAt: reaction.created_at };
+    return { type: "approved", createdAt: reaction.created_at };
   }
 
   return null;
@@ -109,10 +109,16 @@ async function run({ github, context, core }) {
     });
 
     if (signal) {
-      const description =
-        signal.type === "review"
-          ? "Codex reviewed the current PR head"
-          : "Codex reported no findings on this PR update";
+      if (signal.type === "findings") {
+        const description = "Codex posted findings on this PR head";
+        await setStatus("failure", description);
+        core.setFailed(
+          "Address Codex findings, resolve every review thread, and push a new head for another review.",
+        );
+        return;
+      }
+
+      const description = "Codex reported no findings on this PR update";
       await setStatus("success", description);
       core.info(`${description} at ${signal.createdAt}`);
       core.setOutput("signal", signal.type);
@@ -131,4 +137,3 @@ async function run({ github, context, core }) {
 
 module.exports = run;
 module.exports.findCodexSignal = findCodexSignal;
-

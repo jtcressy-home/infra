@@ -28,7 +28,7 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
-      - name: Wait for Codex App review
+      - name: Require Codex no-findings result
         uses: actions/github-script@v8
         env:
           CODEX_BOT_LOGIN: chatgpt-codex-connector[bot]
