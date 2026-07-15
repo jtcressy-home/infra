@@ -1,0 +1,41 @@
+name: Codex Review Gate
+
+# Use the trusted default-branch workflow and never check out pull request code.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: codex-review-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  gate:
+    name: Publish Codex review status
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted gate implementation
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Wait for Codex App review
+        uses: actions/github-script@v8
+        env:
+          CODEX_BOT_LOGIN: chatgpt-codex-connector[bot]
+          CODEX_STATUS_CONTEXT: Codex Review Gate
+          CODEX_POLL_INTERVAL_MS: "15000"
+          CODEX_TIMEOUT_MS: "480000"
+        with:
+          script: |
+            const gate = require('./.github/scripts/codex-review-gate.js');
+            await gate({ github, context, core });
