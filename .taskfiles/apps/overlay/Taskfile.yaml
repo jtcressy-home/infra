@@ -202,7 +202,7 @@ tasks:
             exit $exitCode
           fi
     preconditions:
-      - sh: argocd app get "{{.appName}}"
+      - sh: argocd app get "{{.appName}}" --grpc-web
         msg: "App '{{.appName}}' not found in ArgoCD Server or not authorized. Check credentials or whether the app exists in ArgoCD."
   diff-pr:
     desc: "Run ArgoCD app diff for multiple apps, output as markdown (requires: apps as comma-separated list)"
@@ -245,13 +245,16 @@ tasks:
     silent: true
     vars:
       apps:
-        sh: argocd app list -o name
+        sh: argocd app list --grpc-web -o name
       outputFile: '{{ .outputFile | default (list .PROJECT_DIR ".local/diff-pr-all.md" | join "/") }}'
     cmds:
       - task: diff-pr
         vars:
-          apps: '{{.apps | splitLines | join ","}}'
+          apps: '{{.apps | trim | splitLines | join ","}}'
           outputFile: "{{.outputFile}}"
+    preconditions:
+      - sh: test -n "{{.apps | trim}}"
+        msg: "No ArgoCD applications were returned. Check credentials and gRPC-web connectivity."
   orphaned:
     desc: "List ArgoCD applications without corresponding enabled overlays in git"
     summary: |
