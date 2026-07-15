@@ -1,12 +1,12 @@
 name: ArgoCD Diff
 
-on:
-  pull_request:
-    branches:
-      - main
+# Disabled while a changed-app replacement is designed. The previous workflow
+# diffed every live ArgoCD application serially and took about 14 minutes per PR.
+on: workflow_dispatch
 
 jobs:
   argocd-diff:
+    if: ${{ false }}
     name: Generate ArgoCD Diff
     runs-on: ubuntu-latest
     permissions:
