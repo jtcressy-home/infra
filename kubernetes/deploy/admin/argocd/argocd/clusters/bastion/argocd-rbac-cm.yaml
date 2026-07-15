@@ -8,9 +8,9 @@ data:
     g, jtcressy@github, role:admin
     g, joel@jtcressy.net, role:admin
 
-    # Branch-based GitHub Actions groups
-    g, refs/heads/main, role:gh_actions_main
-    g, refs/pull/*, role:gh_actions_pr
+    # Repository-scoped GitHub Actions OIDC subjects
+    g, repo:jtcressy-home/infra:ref:refs/heads/main, role:gh_actions_main
+    g, repo:jtcressy-home/infra:pull_request, role:gh_actions_pr
 
     # gh_actions_main role (admin access for main branch)
     p, role:gh_actions_main, applications, *, */*, allow

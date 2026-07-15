@@ -43,7 +43,7 @@ data:
         userIDKey: sub
         userNameKey: actor
         claimMapping:
-          groups: ref
+          groups: sub
   resource.customizations: |
     apiextensions.k8s.io_CustomResourceDefinition:
       syncOptions:
