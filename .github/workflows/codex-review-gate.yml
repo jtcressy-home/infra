@@ -27,7 +27,6 @@ jobs:
       - name: Check out trusted gate implementation
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
       - name: Wait for Codex review completion
