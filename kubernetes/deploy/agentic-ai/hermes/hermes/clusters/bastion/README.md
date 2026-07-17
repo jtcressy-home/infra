@@ -146,3 +146,23 @@ browser tooling.
       (deleting and re-registering the client is the only recovery path).
    4. Revoke the `allow_dcr` grant afterward if it was added just for this
       one-time registration.
+
+## PVC backups (VolSync)
+
+`volsync.yaml` backs up the `hermes-data` PVC nightly (02:15) via a restic
+`ReplicationSource` to the shared R2 restic repository (1Password item
+`volsync-restic-template`), retaining 7 daily + 4 weekly snapshots. The
+repository suffix is `hermes-data` to keep it separate from the CNPG barman
+backups already stored under the `hermes/` prefix.
+
+Restore procedure (the live PVC predates VolSync, so it has no
+`dataSourceRef` bootstrap — restores are manual):
+
+1. Scale the `hermes` deployment to 0.
+2. Create a `ReplicationDestination` with `trigger.manual`, pointing at
+   `hermes-restic-secret` (see the metamcp overlay's `persistence.yaml` for
+   the shape).
+3. Recreate the PVC with `dataSourceRef` referencing that
+   `ReplicationDestination`, or copy the restored snapshot's contents onto a
+   fresh PVC.
+4. Scale the deployment back up.
