@@ -1,21 +1,82 @@
 name: ArgoCD Diff
 
-# Disabled while a changed-app replacement is designed. The previous workflow
-# diffed every live ArgoCD application serially and took about 14 minutes per PR.
-on: workflow_dispatch
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - kubernetes/**
+      - .taskfiles/apps/**
+      - .github/scripts/argocd_diff_pr.py
+      - .github/scripts/test_argocd_diff_pr.py
+      - .github/workflows/argocd-diff.yml
+
+concurrency:
+  group: argocd-diff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   argocd-diff:
-    if: ${{ false }}
-    name: Generate ArgoCD Diff
+    name: Changed ArgoCD Applications
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
-      id-token: write
       contents: read
+      id-token: write
       pull-requests: write
+    env:
+      OUTPUT_DIR: ${{ github.workspace }}/.local/argocd-diff
+      ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
     steps:
-      - uses: actions/checkout@v6
-      - uses: tailscale/github-action@v4
+      - name: Check out base
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          path: base
+
+      - name: Check out head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          path: head
+
+      - uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: 5.7.1
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.18.4
+
+      - name: Test lifecycle planner
+        working-directory: head
+        run: task apps:overlays:diff-pr-test
+
+      - name: Render and compare base with head
+        id: plan
+        continue-on-error: true
+        working-directory: head
+        run: |
+          task apps:overlays:diff-pr-plan \
+            baseDir="${GITHUB_WORKSPACE}/base" \
+            headDir="${GITHUB_WORKSPACE}/head" \
+            baseSha="${{ github.event.pull_request.base.sha }}" \
+            headSha="${{ github.event.pull_request.head.sha }}" \
+            outputDir="${OUTPUT_DIR}"
+          echo "needs_live=$(jq '[.applications[] | select((.head.state == "enabled" and .transition != "added" and .transition != "enabled") or (.base.state == "enabled" and (.head == null or .head.state != "enabled")))] | length > 0' "${OUTPUT_DIR}/result.json")" >> "${GITHUB_OUTPUT}"
+
+      - name: Connect to Tailscale
+        id: tailscale
+        if: steps.plan.outcome == 'success' && steps.plan.outputs.needs_live == 'true'
+        continue-on-error: true
+        uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ vars.TAILSCALE_OAUTH_CLIENT_ID }}
           audience: ${{ vars.TAILSCALE_AUDIENCE }}
@@ -23,34 +84,66 @@ jobs:
           # renovate: datasource=github-releases depName=tailscale/tailscale
           version: 1.98.8
 
-      - uses: arduino/setup-task@v1
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install ArgoCD CLI
+      - name: Compare affected live Applications
+        id: live
+        if: steps.tailscale.outcome == 'success'
+        continue-on-error: true
         run: |
-          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.10.2/argocd-linux-amd64
+          # renovate: datasource=github-releases depName=argoproj/argo-cd
+          ARGOCD_VERSION=v3.2.1
+          curl -sSfL -o /usr/local/bin/argocd "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
           chmod +x /usr/local/bin/argocd
           argocd version --client
-
-      - name: Authenticate with ArgoCD
-        id: argocd-auth
-        run: |
-          chmod +x .github/scripts/argocd-oidc-login.sh
-          ARGOCD_AUTH_TOKEN=$(.github/scripts/argocd-oidc-login.sh)
+          ARGOCD_AUTH_TOKEN=$(head/.github/scripts/argocd-oidc-login.sh)
           echo "::add-mask::${ARGOCD_AUTH_TOKEN}"
-          echo "ARGOCD_AUTH_TOKEN=${ARGOCD_AUTH_TOKEN}" >> $GITHUB_ENV
-        env:
-          ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
+          export ARGOCD_AUTH_TOKEN
+          cd head
+          task apps:overlays:diff-pr-live outputDir="${OUTPUT_DIR}"
 
-      - run: task apps:overlays:diff-pr-all -- --grpc-web --revision ${{ github.event.pull_request.head.sha }}
-        env:
-          ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
-          outputFile: "${{ github.workspace }}/.local/diff-pr-all.md"
+      - name: Record live infrastructure failure
+        if: >-
+          always() && steps.plan.outcome == 'success' && steps.plan.outputs.needs_live == 'true' &&
+          (steps.tailscale.outcome == 'failure' || steps.live.outcome == 'failure')
+        working-directory: head
+        run: >-
+          task apps:overlays:diff-pr-failure
+          outputDir="${OUTPUT_DIR}"
+          message="live setup or comparison failed; see the failed workflow step"
 
-      - name: Post diff in comment
+      - name: Add job summary
+        if: always() && hashFiles('.local/argocd-diff/summary.md') != ''
+        run: cat "${OUTPUT_DIR}/summary.md" >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Check result freshness
+        id: freshness
+        if: always() && hashFiles('.local/argocd-diff/summary.md') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          current=$(curl -sSfL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}" | jq -r .head.sha)
+          test "${current}" = "${{ github.event.pull_request.head.sha }}"
+
+      - name: Update PR comment
+        if: always() && steps.freshness.outcome == 'success'
         uses: mshick/add-pr-comment@v3
         with:
-          message-id: argocd-diff
-          message-path: "${{ github.workspace }}/.local/diff-pr-all.md"
+          message-id: argocd-diff-v2
+          message-path: ${{ github.workspace }}/.local/argocd-diff/summary.md
+
+      - name: Upload sanitized evidence
+        if: always() && hashFiles('.local/argocd-diff/result.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: argocd-diff-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          path: ${{ github.workspace }}/.local/argocd-diff
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Enforce technical result
+        if: always()
+        working-directory: head
+        run: task apps:overlays:diff-pr-check outputDir="${OUTPUT_DIR}"

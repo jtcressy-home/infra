@@ -240,6 +240,50 @@ tasks:
           </details>
           EOF
       - cmd: echo "Diff markdown comment output saved to {{.outputFile}}"
+  diff-pr-plan:
+    desc: "Plan and render ArgoCD changes between two Git checkouts"
+    silent: true
+    requires:
+      vars: [baseDir, headDir, baseSha, headSha, outputDir]
+    cmds:
+      - >-
+        python3 "{{.PROJECT_DIR}}/.github/scripts/argocd_diff_pr.py" plan
+        --base-dir "{{.baseDir}}"
+        --head-dir "{{.headDir}}"
+        --base-sha "{{.baseSha}}"
+        --head-sha "{{.headSha}}"
+        --output-dir "{{.outputDir}}"
+  diff-pr-live:
+    desc: "Add read-only live ArgoCD evidence to a changed-source plan"
+    silent: true
+    requires:
+      vars: [outputDir]
+    cmds:
+      - python3 "{{.PROJECT_DIR}}/.github/scripts/argocd_diff_pr.py" live --output-dir "{{.outputDir}}"
+  diff-pr-check:
+    desc: "Fail when an ArgoCD changed-source result contains blocking errors"
+    silent: true
+    requires:
+      vars: [outputDir]
+    cmds:
+      - python3 "{{.PROJECT_DIR}}/.github/scripts/argocd_diff_pr.py" check --output-dir "{{.outputDir}}"
+  diff-pr-failure:
+    internal: true
+    silent: true
+    requires:
+      vars: [outputDir, message]
+    cmds:
+      - >-
+        python3 "{{.PROJECT_DIR}}/.github/scripts/argocd_diff_pr.py" failure
+        --output-dir "{{.outputDir}}"
+        --message "{{.message}}"
+  diff-pr-test:
+    desc: "Test ArgoCD PR diff lifecycle scoping and redaction"
+    silent: true
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    cmds:
+      - python3 "{{.PROJECT_DIR}}/.github/scripts/test_argocd_diff_pr.py"
   diff-pr-all:
     desc: "Run ArgoCD app diff for ALL apps, output as markdown"
     silent: true
