@@ -3,6 +3,10 @@
   "extends": [
     "config:recommended"
   ],
+  "rebaseWhen": "conflicted",
+  "platformAutomerge": false,
+  "stopUpdatingLabel": "renovate:snooze",
+  "keepUpdatedLabel": "renovate:ready",
   "ignorePaths": [
     "**/disabled/**",
     "**/old/**"
@@ -34,12 +38,44 @@
   ],
   "packageRules": [
     {
+      "description": "Use ingress-nginx's controller-prefixed release tags",
       "matchPackageNames": [
         "kubernetes/ingress-nginx"
       ],
       "versioning": "regex:^controller-v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$"
     },
     {
+      "description": "Keep cluster-wide, shared, and recovery infrastructure attended",
+      "matchFileNames": [
+        "kubernetes/clusters/**",
+        "kubernetes/deploy/admin/**",
+        "kubernetes/deploy/database/**",
+        "kubernetes/deploy/misc/**",
+        "kubernetes/deploy/monitoring/**",
+        "kubernetes/deploy/system/**"
+      ],
+      "automerge": false,
+      "labels": [
+        "renovate:attended"
+      ]
+    },
+    {
+      "description": "Keep stateful and controller-owning application updates attended",
+      "matchFileNames": [
+        "kubernetes/deploy/agentic-ai/ark-system/**",
+        "kubernetes/deploy/agentic-ai/hermes/**",
+        "kubernetes/deploy/agentic-ai/kagent/**",
+        "kubernetes/deploy/agentic-ai/metamcp/**",
+        "kubernetes/deploy/agentic-ai/n8n/**",
+        "kubernetes/deploy/home/teslamate/**"
+      ],
+      "automerge": false,
+      "labels": [
+        "renovate:attended"
+      ]
+    },
+    {
+      "description": "Group attended Talos dependencies into one reminder",
       "matchFileNames": [
         "kubernetes/clusters/*/talos/*.yaml"
       ],
@@ -57,6 +93,7 @@
       "groupSlug": "talos"
     },
     {
+      "description": "Keep Kubernetes upgrades as a grouped attended reminder",
       "matchPackageNames": [
         "siderolabs/kubelet"
       ],
@@ -69,8 +106,21 @@
       "groupSlug": "kubernetes"
     },
     {
+      "description": "Automerge isolated home media application images after a stability delay",
       "matchFileNames": [
         "kubernetes/deploy/home/media/*/clusters/*/*.yaml"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/fallenbagel/jellyseerr",
+        "ghcr.io/home-operations/lidarr",
+        "ghcr.io/home-operations/prowlarr",
+        "ghcr.io/home-operations/radarr",
+        "ghcr.io/home-operations/sabnzbd",
+        "ghcr.io/home-operations/sonarr",
+        "ghcr.io/home-operations/tautulli",
+        "ghcr.io/navidrome/navidrome",
+        "ghcr.io/raydak-labs/configarr",
+        "ghcr.io/recyclarr/recyclarr"
       ],
       "matchUpdateTypes": [
         "major",
@@ -81,11 +131,64 @@
       "groupName": "home media apps",
       "groupSlug": "home-media-apps",
       "automerge": true,
-      "addLabels": [
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
         "renovate:automerge"
       ]
     },
     {
+      "description": "Automerge non-major shared media helper updates after a stability delay",
+      "matchFileNames": [
+        "kubernetes/deploy/home/media/*/clusters/*/*.yaml"
+      ],
+      "matchPackageNames": [
+        "app-template",
+        "ghcr.io/home-operations/postgres-init"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "groupName": "home media apps",
+      "groupSlug": "home-media-apps",
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "description": "Keep major shared media platform helpers attended",
+      "matchFileNames": [
+        "kubernetes/deploy/home/media/*/clusters/*/*.yaml"
+      ],
+      "matchPackageNames": [
+        "app-template",
+        "ghcr.io/home-operations/postgres-init"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "home media platform majors",
+      "groupSlug": "home-media-platform-majors",
+      "automerge": false,
+      "rebaseWhen": "conflicted",
+      "labels": [
+        "renovate:attended"
+      ]
+    },
+    {
+      "description": "Automerge the internally controlled Dograh release set",
       "matchPackageNames": [
         "ghcr.io/dograh-hq/dograh-api",
         "ghcr.io/dograh-hq/dograh-ui"
@@ -99,11 +202,13 @@
       "groupName": "dograh",
       "groupSlug": "dograh",
       "automerge": true,
-      "addLabels": [
+      "rebaseWhen": "behind-base-branch",
+      "labels": [
         "renovate:automerge"
       ]
     },
     {
+      "description": "Automerge non-runtime task tooling after a stability delay",
       "matchFileNames": [
         ".taskfiles/**"
       ],
@@ -115,61 +220,162 @@
       "groupName": "taskfiles",
       "groupSlug": "taskfiles",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "ignoreTests": true,
-      "addLabels": [
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
         "renovate:automerge"
       ]
     },
     {
+      "description": "Automerge the disposable development container after a stability delay",
       "matchFileNames": [
         ".devcontainer/**"
       ],
       "groupName": "devcontainer",
       "groupSlug": "devcontainer",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "ignoreTests": true,
-      "addLabels": [
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
         "renovate:automerge"
       ]
     },
     {
+      "description": "Automerge non-runtime Go tooling after a stability delay",
+      "matchFileNames": [
+        "magefiles/**"
+      ],
       "matchDatasources": [
         "go"
       ],
       "groupName": "golang modules",
       "groupSlug": "golang-modules",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "ignoreTests": true,
-      "addLabels": [
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
         "renovate:automerge"
       ]
     },
     {
+      "description": "Keep the Tailscale-critical generic device plugin attended",
       "matchPackageNames": [
         "ghcr.io/squat/generic-device-plugin"
       ],
-      "matchUpdateTypes": [
-        "major",
-        "minor",
-        "patch",
-        "digest"
-      ],
-      "automerge": true,
-      "addLabels": [
-        "renovate:automerge"
+      "automerge": false,
+      "rebaseWhen": "conflicted",
+      "labels": [
+        "renovate:attended"
       ]
     },
     {
+      "description": "Automerge non-major OpenClaw application updates",
       "matchPackageNames": [
         "ghcr.io/openclaw/openclaw"
       ],
-      "ignoreUnstable": true,
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true,
-      "addLabels": [
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
         "renovate:automerge"
       ]
     },
     {
+      "description": "Keep credentialed and repository-writing GitHub Actions updates attended",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "automerge": false,
+      "rebaseWhen": "conflicted",
+      "labels": [
+        "renovate:attended"
+      ]
+    },
+    {
+      "description": "Automerge only the isolated Homer application image",
+      "matchFileNames": [
+        "kubernetes/deploy/home/default/homer/clusters/*/values.yaml"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/bastienwirtz/homer"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "groupName": "homer",
+      "groupSlug": "homer",
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "description": "Interpret SearXNG date-plus-commit image tags",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "docker.io/searxng/searxng"
+      ],
+      "versioning": "regex:^(?<major>\\d{4})\\.(?<minor>\\d{1,2})\\.(?<patch>\\d{1,2})-[a-f0-9]+$"
+    },
+    {
+      "description": "Automerge only the isolated SearXNG application image",
+      "matchFileNames": [
+        "kubernetes/deploy/home/searxng/searxng/clusters/*/deployment.yaml"
+      ],
+      "matchPackageNames": [
+        "docker.io/searxng/searxng"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "groupName": "searxng",
+      "groupSlug": "searxng",
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "description": "Keep the shared Tailscale dependency family attended",
       "matchPackageNames": [
         "tailscale/**",
         "tailscale.com",
@@ -179,10 +385,12 @@
       "groupName": "tailscale",
       "groupSlug": "tailscale",
       "separateMajorMinor": false,
-      "automerge": false
+      "automerge": false,
+      "labels": [
+        "renovate:attended"
+      ]
     }
   ],
-  "autoApprove": true,
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0
 }
