@@ -9,6 +9,8 @@ resources:
   - rbac.yaml
   - externalsecret.yaml
   - hermes-pvc.yaml
+  # Nightly volsync restic backup + restore target for hermes-data.
+  - persistence.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
