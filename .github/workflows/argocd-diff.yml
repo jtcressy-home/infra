@@ -51,7 +51,7 @@ jobs:
         with:
           kustomize-version: 5.7.1
 
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v5
         with:
           version: v3.18.4
 
