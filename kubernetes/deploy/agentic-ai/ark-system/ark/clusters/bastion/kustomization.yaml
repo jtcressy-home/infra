@@ -20,7 +20,7 @@ resources:
 helmCharts:
   - name: ark-controller
     repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
-    version: 0.1.64
+    version: 0.1.66
     releaseName: ark-controller
     namespace: ark-system
     valuesFile: values-controller.yaml
