@@ -4,7 +4,7 @@ namespace: dograh
 helmCharts:
   - name: valkey
     repo: https://valkey.io/valkey-helm/
-    version: 0.9.4
+    version: 0.10.0
     releaseName: dograh-valkey
     valuesInline:
       fullnameOverride: dograh-valkey
