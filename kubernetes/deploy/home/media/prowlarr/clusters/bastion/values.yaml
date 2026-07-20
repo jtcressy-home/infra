@@ -15,7 +15,7 @@ controllers:
       app: &appcontainer
         image:
           repository: ghcr.io/home-operations/prowlarr
-          tag: rolling@sha256:91af7cbc8e357dede960033c9ecfb3a65e145d90d4e495e13adb2fbc6a546807
+          tag: rolling@sha256:53b9cccebceab12825be1a22f2f9c2a2e8fa5e4c6a0aa78286fbe90a317fa070
         env:
           PROWLARR__APP__INSTANCENAME: Prowlarr
           PROWLARR__APP__THEME: dark
