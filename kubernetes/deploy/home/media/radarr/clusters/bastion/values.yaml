@@ -27,7 +27,7 @@ controllers:
       app: &appcontainer
         image:
           repository: ghcr.io/home-operations/radarr
-          tag: rolling@sha256:09979c77f9be3f324c133e1e73fea2b5c7eed37b586ed7c8a8a60c9b6932f175
+          tag: rolling@sha256:c82ca292d70ac798bc993421fa7467b0c760238db646a1abc7789115d4359d5c
         env:
           RADARR__APP__INSTANCENAME: Radarr
           RADARR__APP__THEME: dark
