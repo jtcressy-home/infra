@@ -40,7 +40,7 @@ helmCharts:
     namespace: ark-system
   - name: ark-api
     repo: oci://ghcr.io/mckinsey/agents-at-scale-ark/charts
-    version: 0.1.64
+    version: 0.1.66
     releaseName: ark-api
     namespace: ark-system
   - name: ark-dashboard
