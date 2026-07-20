@@ -103,7 +103,7 @@ Output: .planning/codebase/ folder with 7 structured documents about the codebas
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/map-codebase.md
+@../../gsd-core/workflows/map-codebase.md
 </execution_context>
 
 <flags>

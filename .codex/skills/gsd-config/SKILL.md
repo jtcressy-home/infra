@@ -111,14 +111,14 @@ Mode routing:
 | (none) | Interactive 5-question common-case config prompt | settings |
 | --advanced | Power-user knobs: planning, execution, discussion, cross-AI, git, runtime | settings-advanced |
 | --integrations | API keys (Brave/Firecrawl/Exa), review CLI routing, agent skills | settings-integrations |
-| --profile &lt;name&gt; | Switch model profile without interactive prompt | node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query config-set-model-profile |
+| --profile &lt;name&gt; | Switch model profile without interactive prompt | "$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query config-set-model-profile |
 
 </routing>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/settings.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/settings-advanced.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/settings-integrations.md
+@../../gsd-core/workflows/settings.md
+@../../gsd-core/workflows/settings-advanced.md
+@../../gsd-core/workflows/settings-integrations.md
 </execution_context>
 
 <context>
@@ -129,7 +129,7 @@ Parse the first token of {{GSD_ARGS}}:
 - If it is `--integrations`: strip the flag, execute settings-integrations workflow
 - If it starts with `--profile`: extract the profile name (remainder after `--profile`), then:
   1. Verify `gsd-tools` is on PATH via `command -v gsd-tools`; if absent, emit the install hint `Install GSD via 'npm i -g @opengsd/gsd-core'` and stop.
-  2. Run: `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query config-set-model-profile <profile-name> --raw` and display the output verbatim.
+  2. Run: `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query config-set-model-profile <profile-name> --raw` and display the output verbatim.
 - Otherwise: execute settings workflow (no argument needed)
 </context>
 

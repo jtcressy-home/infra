@@ -26,7 +26,7 @@ If the prompt contains a `<required_reading>` block, you MUST use the `Read` too
 
 **Project skills:** Check `.codex/skills/` or `.agents/skills/` directory if either exists:
 
-**agent_skills:** self-load per @/Users/jtcressy/workspace/infra/.codex/gsd-core/references/agent-skills-bootstrap.md
+**agent_skills:** self-load per @.codex/gsd-core/references/agent-skills-bootstrap.md
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)
 3. Load specific `rules/*.md` files as needed during implementation
@@ -432,11 +432,11 @@ This annotation is consumed by downstream workflows (`new-project`, `progress`) 
 | 2. Name | 0/2 | Not started | - |
 ```
 
-Reference full template: `/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/roadmap.md`
+Reference full template: `.codex/gsd-core/templates/roadmap.md`
 
 ## STATE.md Structure
 
-Use template from `/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/state.md`.
+Use template from `.codex/gsd-core/templates/state.md`.
 
 Key sections:
 - Project Reference (core value, current focus)
@@ -620,7 +620,7 @@ When files are written and returning to orchestrator:
 
 ### Files Ready for Review
 
-User can review actual files in the editor or via SDK queries (e.g. `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query roadmap.analyze` and `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query state.load`) instead of ad-hoc shell `cat`.
+User can review actual files in the editor or via SDK queries (e.g. `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query roadmap.analyze` and `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query state.load`) instead of ad-hoc shell `cat`.
 
 {If gaps found during creation:}
 

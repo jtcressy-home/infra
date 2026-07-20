@@ -103,8 +103,8 @@ Output: {phase_num}-UAT.md tracking all test results. If issues found: diagnosed
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/verify-work.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/UAT.md
+@../../gsd-core/workflows/verify-work.md
+@../../gsd-core/templates/UAT.md
 </execution_context>
 
 <context>

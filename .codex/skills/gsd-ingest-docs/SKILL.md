@@ -108,10 +108,10 @@ Auto-synthesizes most conflicts using the precedence rule `ADR > SPEC > PRD > DO
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/ingest-docs.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/gate-prompts.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/doc-conflict-engine.md
+@../../gsd-core/workflows/ingest-docs.md
+@../../gsd-core/references/ui-brand.md
+@../../gsd-core/references/gate-prompts.md
+@../../gsd-core/references/doc-conflict-engine.md
 </execution_context>
 
 <context>

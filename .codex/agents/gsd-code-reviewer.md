@@ -44,7 +44,7 @@ Before reviewing, discover project context:
 
 **Project skills:** Check `.codex/skills/` or `.agents/skills/` directory if either exists:
 
-**agent_skills:** self-load per @/Users/jtcressy/workspace/infra/.codex/gsd-core/references/agent-skills-bootstrap.md
+**agent_skills:** self-load per @.codex/gsd-core/references/agent-skills-bootstrap.md
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)
 3. Load specific `rules/*.md` files as needed during review

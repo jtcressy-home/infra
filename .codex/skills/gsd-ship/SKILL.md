@@ -101,7 +101,7 @@ Closes the plan → execute → verify → ship loop.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/ship.md
+@../../gsd-core/workflows/ship.md
 </execution_context>
 
-Execute the ship workflow from @/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/ship.md end-to-end.
+Execute the ship workflow from @../../gsd-core/workflows/ship.md end-to-end.

@@ -27,7 +27,7 @@
    `git fetch` or `worktree.baseRef:"head"` config).
 
    **To avoid this degrade across all waves:** set `worktree.baseRef:"head"` in
-   `.codex/settings.local.json` (or run `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" worktree set-baseref`). This tells
+   `.codex/settings.local.json` (or run `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" worktree set-baseref`). This tells
    Claude Code to fork from the live HEAD instead of `origin/HEAD`, so each wave's new
    worktrees always start from the correct post-merge base. See #683 for the base-ref
    configuration detail.

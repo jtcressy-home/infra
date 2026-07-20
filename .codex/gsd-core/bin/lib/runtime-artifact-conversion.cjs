@@ -1292,7 +1292,7 @@ function convertSlashCommandsToCodexSkillMentions(content) {
     });
     return converted;
 }
-const CODEX_GSD_TOOLS_INVOCATION = 'node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs"';
+const CODEX_GSD_TOOLS_INVOCATION = '"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run"';
 function rewriteBareGsdToolsCommandsForCodex(content) {
     return content
         .replace(/(^[ \t]*)gsd-tools(?=\s)/gm, `$1${CODEX_GSD_TOOLS_INVOCATION}`)

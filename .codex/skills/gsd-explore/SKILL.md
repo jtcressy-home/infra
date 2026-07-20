@@ -103,7 +103,7 @@ Accepts an optional topic argument: `$gsd-explore authentication strategy`
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/explore.md
+@../../gsd-core/workflows/explore.md
 </execution_context>
 
 <process>

@@ -104,8 +104,8 @@ Output: Milestone archived (roadmap + requirements), PROJECT.md evolved, git tag
 <execution_context>
 **Load these files NOW (before proceeding):**
 
-- @/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/complete-milestone.md (main workflow)
-- @/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/milestone-archive.md (archive template)
+- @../../gsd-core/workflows/complete-milestone.md (main workflow)
+- @../../gsd-core/templates/milestone-archive.md (archive template)
   </execution_context>
 
 <context>

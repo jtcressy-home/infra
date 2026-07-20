@@ -105,7 +105,7 @@ you could describe in one sentence and execute in under 2 minutes.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/fast.md
+@../../gsd-core/workflows/fast.md
 </execution_context>
 
 <process>

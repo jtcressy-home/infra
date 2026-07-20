@@ -104,9 +104,9 @@ Three modes:
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/undo.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/gate-prompts.md
+@../../gsd-core/workflows/undo.md
+@../../gsd-core/references/ui-brand.md
+@../../gsd-core/references/gate-prompts.md
 </execution_context>
 
 <context>

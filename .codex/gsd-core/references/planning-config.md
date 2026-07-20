@@ -57,19 +57,19 @@ Configuration options for `.planning/` directory behavior.
 - User must add `.planning/` to `.gitignore`
 - Useful for: OSS contributions, client projects, keeping planning private
 
-**Using `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query` (preferred):**
+**Using `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query` (preferred):**
 
 ```bash
 # Commit with automatic commit_docs + gitignore checks:
-node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query commit "docs: update state" --files .planning/STATE.md
+"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query commit "docs: update state" --files .planning/STATE.md
 
 # Load config via state load (returns JSON):
-INIT=$(node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query state.load)
+INIT=$("$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query state.load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # commit_docs is available in the JSON output
 
 # Or use init commands which include commit_docs:
-INIT=$(node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query init.execute-phase "1")
+INIT=$("$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query init.execute-phase "1")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # commit_docs is included in all init command outputs
 ```
@@ -79,7 +79,7 @@ if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 **Commit via CLI (handles checks automatically):**
 
 ```bash
-node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query commit "docs: update state" --files .planning/STATE.md
+"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query commit "docs: update state" --files .planning/STATE.md
 ```
 
 The CLI checks `commit_docs` config and gitignore status internally — no manual conditionals needed.
@@ -167,14 +167,14 @@ To use uncommitted mode:
 
 Use `init execute-phase` which returns all config as JSON:
 ```bash
-INIT=$(node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query init.execute-phase "1")
+INIT=$("$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query init.execute-phase "1")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # JSON output includes: branching_strategy, phase_branch_template, milestone_branch_template
 ```
 
 Or use `state load` for the config values:
 ```bash
-INIT=$(node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query state.load)
+INIT=$("$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query state.load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # Parse branching_strategy, phase_branch_template, milestone_branch_template from JSON
 ```

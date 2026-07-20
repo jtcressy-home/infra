@@ -101,8 +101,8 @@ Output: {phase_num}-UI-REVIEW.md
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/ui-review.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/ui-review.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <context>

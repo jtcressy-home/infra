@@ -107,7 +107,7 @@ Routes to the update workflow which handles:
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/update.md
+@../../gsd-core/workflows/update.md
 </execution_context>
 
 <flags>
@@ -126,6 +126,6 @@ Parse the first token of {{GSD_ARGS}}:
 </process>
 
 <execution_context_extended>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/sync-skills.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/reapply-patches.md
+@../../gsd-core/workflows/sync-skills.md
+@../../gsd-core/workflows/reapply-patches.md
 </execution_context_extended>

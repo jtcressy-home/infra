@@ -103,7 +103,7 @@ Output: Test files committed with message `test(phase-{N}): add unit and E2E tes
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/add-tests.md
+@../../gsd-core/workflows/add-tests.md
 </execution_context>
 
 <context>

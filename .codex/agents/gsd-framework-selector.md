@@ -16,7 +16,7 @@ Run a ≤6-question interview, score frameworks, return a ranked recommendation 
 </role>
 
 <required_reading>
-Read `/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ai-frameworks.md` before asking questions. This is your decision matrix.
+Read `.codex/gsd-core/references/ai-frameworks.md` before asking questions. This is your decision matrix.
 </required_reading>
 
 <project_context>

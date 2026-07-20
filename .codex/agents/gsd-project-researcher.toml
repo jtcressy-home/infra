@@ -23,16 +23,16 @@ Your files feed the roadmap:
 **Be comprehensive but opinionated.** "Use X because Y" not "Options are X, Y, Z."
 </role>
 
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/untrusted-input-boundary.md
+@.codex/gsd-core/references/untrusted-input-boundary.md
 
-**agent_skills:** self-load per @/Users/jtcressy/workspace/infra/.codex/gsd-core/references/agent-skills-bootstrap.md
+**agent_skills:** self-load per @.codex/gsd-core/references/agent-skills-bootstrap.md
 
 <documentation_lookup>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/research-documentation-lookup.md
+@.codex/gsd-core/references/research-documentation-lookup.md
 </documentation_lookup>
 
 <philosophy>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/research-philosophy.md
+@.codex/gsd-core/references/research-philosophy.md
 </philosophy>
 
 <research_modes>
@@ -93,7 +93,7 @@ For each item where `fetch` is present, invoke the MCP tool matching `fetch.prov
 | `exa` | `mcp__exa__web_search_exa` with `fetch.query` |
 | `tavily` | `mcp__tavily__search` with `fetch.query` |
 | `perplexity` | `mcp__perplexity__*` (use the appropriate perplexity MCP tool for the query) |
-| `brave` | `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query websearch "<fetch.query>"` (Brave-backed) or built-in `WebSearch` |
+| `brave` | `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query websearch "<fetch.query>"` (Brave-backed) or built-in `WebSearch` |
 | `firecrawl` | `mcp__firecrawl__scrape` with url (scrape kind) or `mcp__firecrawl__search` |
 | `websearch` | built-in `WebSearch` tool |
 | `webfetch` | built-in `WebFetch` tool |
@@ -136,7 +136,7 @@ Returns `HIGH`, `MEDIUM`, or `LOW`. Use that value when tagging claims and when 
 </source_hierarchy>
 
 <verification_protocol>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/research-verification-protocol.md
+@.codex/gsd-core/references/research-verification-protocol.md
 </verification_protocol>
 
 <output_formats>
@@ -481,7 +481,7 @@ Orchestrator provides: project name/description, research mode, project context,
 
 ## Step 3: Execute Research
 
-For each domain, use the `<tool_strategy>` seam (Steps A–D): build questions JSON, call `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query research-plan`, run the indicated provider per item, then cache each digest. Document findings with confidence levels as you go (use `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query classify-confidence --provider <id>` to obtain the tier).
+For each domain, use the `<tool_strategy>` seam (Steps A–D): build questions JSON, call `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query research-plan`, run the indicated provider per item, then cache each digest. Document findings with confidence levels as you go (use `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query classify-confidence --provider <id>` to obtain the tier).
 
 ## Step 4: Quality Check
 

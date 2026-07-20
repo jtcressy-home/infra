@@ -112,8 +112,8 @@ Context budget: ~15% orchestrator, 100% fresh per subagent.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/execute-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/execute-phase.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <runtime_note>
@@ -135,7 +135,7 @@ Phase: {{GSD_ARGS}}
 - If none of these tokens appear, run the standard full-phase execution flow with no flag-specific filtering
 - Do not infer that a flag is active just because it is documented in this prompt
 
-Context files are resolved inside the workflow via `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query init.execute-phase` and per-subagent `<files_to_read>` blocks.
+Context files are resolved inside the workflow via `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query init.execute-phase` and per-subagent `<files_to_read>` blocks.
 </context>
 
 <process>

@@ -96,7 +96,7 @@ Result parsing:
 
 **STOP -- DO NOT READ THIS FILE. You are already reading it. This prompt was injected into your context by Claude Code's command system. Using the Read tool on this file wastes tokens. Begin executing Step 0 immediately.**
 
-**CJS-only (graphify):** `graphify` subcommands are not registered on `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query`. Use the `gsd_run` launcher shim (defined in each bash block below) or invoke the binary directly: `node <runtime-home>/gsd-core/bin/gsd-tools.cjs graphify …` where `<runtime-home>` is your runtime's config directory (e.g. `~/.codex`, `~/.hermes`, `~/.cursor`). See `docs/CLI-TOOLS.md` for details. Other tooling may still use `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query` where a handler exists.
+**CJS-only (graphify):** `graphify` subcommands are not registered on `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query`. Use the `gsd_run` launcher shim (defined in each bash block below) or invoke the binary directly: `node <runtime-home>/gsd-core/bin/gsd-tools.cjs graphify …` where `<runtime-home>` is your runtime's config directory (e.g. `~/.codex`, `~/.hermes`, `~/.cursor`). See `docs/CLI-TOOLS.md` for details. Other tooling may still use `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query` where a handler exists.
 
 ## Step 0 -- Banner
 
@@ -270,7 +270,7 @@ If the chain succeeds:
 
 ## MVP-Mode Node Rendering
 
-**MVP-mode rendering.** When a phase has `**Mode:** mvp` in ROADMAP.md (resolved via `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query roadmap.get-phase --pick mode`), render its graph node with two distinct visual signals:
+**MVP-mode rendering.** When a phase has `**Mode:** mvp` in ROADMAP.md (resolved via `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query roadmap.get-phase --pick mode`), render its graph node with two distinct visual signals:
 
 1. **Distinct fill color.** Use `#22c55e` (green) for MVP-mode phase nodes. Standard phases keep the default fill color. Two-channel signaling (color + label) handles color-blind and grayscale renders.
 2. **`MVP` label suffix.** Append ` (MVP)` to the node's label text. Example: a phase originally labeled `Phase 1: User Auth` renders as `Phase 1: User Auth (MVP)`.
@@ -287,4 +287,4 @@ When the phase mode is null/absent, render with the standard color and label —
 2. DO NOT pass `run_in_background: true` for the build chain -- the operation is fast and must complete in the foreground.
 3. DO NOT modify graph files directly -- always go through `graphify update .` and the snapshot CLI.
 4. DO NOT skip the config gate check.
-5. DO NOT use `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" config get-value` for the config gate -- it exits on missing keys.
+5. DO NOT use `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" config get-value` for the config gate -- it exits on missing keys.

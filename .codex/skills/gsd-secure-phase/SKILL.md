@@ -104,7 +104,7 @@ Output: updated SECURITY.md.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/secure-phase.md
+@../../gsd-core/workflows/secure-phase.md
 </execution_context>
 
 <context>

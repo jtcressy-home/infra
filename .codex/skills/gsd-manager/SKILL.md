@@ -107,19 +107,19 @@ Designed for power users who want to parallelize work across phases from one ter
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/manager.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/manager.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <context>
 No arguments required. Requires an active milestone with ROADMAP.md and STATE.md.
 
-Project context, phase list, dependencies, and recommendations are resolved inside the workflow using `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query init.manager`. No upfront context loading needed.
+Project context, phase list, dependencies, and recommendations are resolved inside the workflow using `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query init.manager`. No upfront context loading needed.
 </context>
 
 <process>
 If `--analyze-deps` is in {{GSD_ARGS}}:
-Read and execute `/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/analyze-dependencies.md` end-to-end.
+Read and execute `../../gsd-core/workflows/analyze-dependencies.md` end-to-end.
 
 Execute end-to-end.
 Maintain the dashboard refresh loop until the user exits or all phases complete.

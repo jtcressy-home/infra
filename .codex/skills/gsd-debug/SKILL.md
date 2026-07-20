@@ -112,7 +112,7 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 </available_agent_types>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/debug.md
+@../../gsd-core/workflows/debug.md
 </execution_context>
 
 <context>

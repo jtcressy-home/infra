@@ -99,7 +99,7 @@ Extract structured learnings from completed phase artifacts (PLAN.md, SUMMARY.md
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/extract-learnings.md
+@../../gsd-core/workflows/extract-learnings.md
 </execution_context>
 
-Execute the extract-learnings workflow from @/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/extract-learnings.md end-to-end.
+Execute the extract-learnings workflow from @../../gsd-core/workflows/extract-learnings.md end-to-end.

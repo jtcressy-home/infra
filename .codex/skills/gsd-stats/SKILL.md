@@ -99,7 +99,7 @@ Display comprehensive project statistics including phase progress, plan executio
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/stats.md
+@../../gsd-core/workflows/stats.md
 </execution_context>
 
 <process>

@@ -106,7 +106,7 @@ Routes to the pause-work workflow which handles:
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/pause-work.md
+@../../gsd-core/workflows/pause-work.md
 </execution_context>
 
 <context>
@@ -115,7 +115,7 @@ State and phase progress are gathered in-workflow with targeted reads.
 
 <process>
 If `--report` is in {{GSD_ARGS}}:
-Read and execute `/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/session-report.md` end-to-end.
+Read and execute `../../gsd-core/workflows/session-report.md` end-to-end.
 
 **Follow the pause-work workflow**.
 

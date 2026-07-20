@@ -103,7 +103,7 @@ changes that are irrelevant to code review.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/pr-branch.md
+@../../gsd-core/workflows/pr-branch.md
 </execution_context>
 
 <process>

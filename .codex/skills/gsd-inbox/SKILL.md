@@ -104,7 +104,7 @@ and optionally applies labels or closes non-compliant submissions.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/inbox.md
+@../../gsd-core/workflows/inbox.md
 </execution_context>
 
 <context>

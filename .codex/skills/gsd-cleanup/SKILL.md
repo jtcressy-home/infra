@@ -101,7 +101,7 @@ Use when `.planning/phases/` has accumulated directories from past milestones.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/cleanup.md
+@../../gsd-core/workflows/cleanup.md
 </execution_context>
 
 <process>

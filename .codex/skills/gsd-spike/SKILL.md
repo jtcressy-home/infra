@@ -108,9 +108,9 @@ Does not require prior new-project setup — auto-creates `.planning/spikes/` if
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/spike.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/spike-wrap-up.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/spike.md
+@../../gsd-core/workflows/spike-wrap-up.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <runtime_note>

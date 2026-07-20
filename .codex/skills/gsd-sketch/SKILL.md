@@ -108,13 +108,13 @@ Does not require prior new-project setup — auto-creates `.planning/sketches/` 
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/sketch.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/sketch-wrap-up.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/sketch-theme-system.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/sketch-interactivity.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/sketch-tooling.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/sketch-variant-patterns.md
+@../../gsd-core/workflows/sketch.md
+@../../gsd-core/workflows/sketch-wrap-up.md
+@../../gsd-core/references/ui-brand.md
+@../../gsd-core/references/sketch-theme-system.md
+@../../gsd-core/references/sketch-interactivity.md
+@../../gsd-core/references/sketch-tooling.md
+@../../gsd-core/references/sketch-variant-patterns.md
 </execution_context>
 
 <runtime_note>

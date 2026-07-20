@@ -120,7 +120,7 @@ milestone sequence or remove stale entries.
    - Find the next sequential phase number in the active milestone
    - Rename the directory from `999.x-slug` to `{new_num}-slug`:
      ```bash
-     NEW_NUM=$(node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query phase.add "${DESCRIPTION}" --raw)
+     NEW_NUM=$("$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query phase.add "${DESCRIPTION}" --raw)
      ```
    - Move accumulated artifacts to the new phase directory
    - Update ROADMAP.md: move the entry from `## Backlog` section to the active phase list
@@ -133,7 +133,7 @@ milestone sequence or remove stale entries.
 
 6. **Commit changes:**
    ```bash
-   node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query commit "docs: review backlog — promoted N, removed M" --files .planning/ROADMAP.md
+   "$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query commit "docs: review backlog — promoted N, removed M" --files .planning/ROADMAP.md
    ```
 
 7. **Report summary:**

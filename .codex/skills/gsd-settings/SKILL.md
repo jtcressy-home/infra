@@ -106,7 +106,7 @@ Routes to the settings workflow which handles:
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/settings.md
+@../../gsd-core/workflows/settings.md
 </execution_context>
 
 <process>

@@ -69,7 +69,7 @@ Each item disabled removes its schema from every subsequent turn for the rest of
 
 ### How to toggle
 
-The keys live in `.codex/settings.json` (project) or `/Users/jtcressy/workspace/infra/.codex/settings.json` (global) — **not** in `.planning/config.json`:
+The keys live in `.codex/settings.json` (project) or `.codex/settings.json` (global) — **not** in `.planning/config.json`:
 
 ```json
 {

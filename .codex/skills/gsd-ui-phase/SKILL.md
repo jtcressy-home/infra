@@ -101,8 +101,8 @@ Flow: Validate → Research UI → Verify UI-SPEC → Done
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/ui-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/ui-phase.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <context>

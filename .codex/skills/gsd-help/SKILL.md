@@ -105,7 +105,7 @@ Output ONLY the reference content of the chosen tier. Do NOT add:
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/help.md
+@../../gsd-core/workflows/help.md
 </execution_context>
 
 <context>
@@ -113,5 +113,5 @@ Arguments: {{GSD_ARGS}}
 </context>
 
 <process>
-Follow /Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/help.md with {{GSD_ARGS}}.
+Follow ../../gsd-core/workflows/help.md with {{GSD_ARGS}}.
 </process>

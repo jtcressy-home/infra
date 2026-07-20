@@ -20,7 +20,7 @@ Not sure where to start? `$gsd-next` reads your project state and routes you to 
 **`$gsd-next`**
 The state-aware front door. Detects your current situation and presents a short menu of the right next actions.
 
-- Reads `.planning/STATE.md`, git state, and verification signals via `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" smart-entry`
+- Reads `.planning/STATE.md`, git state, and verification signals via `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" smart-entry`
 - Classifies your situation (no-project, paused, blocked, planning, executing, needs-verify, idle, complete, …)
 - Shows a situation-appropriate menu with one recommended action, then dispatches
 - Launcher/router only — it never does the work itself; falls back to `$gsd-progress` if detection is unavailable
@@ -396,7 +396,7 @@ Usage: `$gsd-capture Add auth token refresh`
 **`$gsd-capture --note <text>`**
 Zero-friction note capture — one command, instant save, no questions.
 
-- Saves timestamped note to `.planning/notes/` (or `/Users/jtcressy/workspace/infra/.codex/notes/` globally)
+- Saves timestamped note to `.planning/notes/` (or `.codex/notes/` globally)
 - Three subcommands: append (default), list, promote
 - Promote converts a note into a structured todo
 - Works without a project (falls back to global scope)

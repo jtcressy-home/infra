@@ -95,9 +95,9 @@ Result parsing:
 </codex_skill_adapter>
 
 <objective>
-Manage the runtime skill surface without reinstall. Reads/writes `/Users/jtcressy/workspace/infra/.codex/.gsd-surface.json`
-(sibling to `/Users/jtcressy/workspace/infra/.codex/.gsd-profile`) and re-stages the active skills directory in place.
-Skill dirs live at `/Users/jtcressy/workspace/infra/.codex/skills/gsd-*/`.
+Manage the runtime skill surface without reinstall. Reads/writes `.codex/.gsd-surface.json`
+(sibling to `.codex/.gsd-profile`) and re-stages the active skills directory in place.
+Skill dirs live at `.codex/skills/gsd-*/`.
 
 Sub-commands: list · status · profile · disable · enable · reset
 </objective>
@@ -207,18 +207,18 @@ Valid cluster names: `core_loop`, `audit_review`, `milestone`, `research_ideate`
 
 ## runtimeConfigDir resolution
 
-The `runtimeConfigDir` for `applySurface` is the **base the agent config directory**
-(`~/.codex`), NOT the skills sub-directory (`/Users/jtcressy/workspace/infra/.codex/skills`).
+The `runtimeConfigDir` for `applySurface` is the repository's **base Codex config directory**
+(`<git-root>/.codex`), NOT the skills sub-directory (`.codex/skills`).
 
 This matches `installRuntimeArtifacts` and `uninstallRuntimeArtifacts`, which also
-receive `~/.codex` as `configDir`. The skill dirs themselves live at
-`/Users/jtcressy/workspace/infra/.codex/skills/gsd-*/` because the `claude global` layout has `destSubpath =
+receive the repo-local `.codex` directory as `configDir`. The skill dirs themselves live at
+`.codex/skills/gsd-*/` because the Codex local layout has `destSubpath =
 'skills'` — they are derived from `configDir`, not the root for it.
 
 ```bash
-# Claude Code — global install
-RUNTIME_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.codex}"
-SCOPE="global"
+# Codex — repository-local install
+RUNTIME_CONFIG_DIR="$(git rev-parse --show-toplevel)/.codex"
+SCOPE="local"
 
 # Artifact destinations are derived from runtime layout
 # via resolveRuntimeArtifactLayout(runtime, RUNTIME_CONFIG_DIR, SCOPE)
@@ -226,9 +226,9 @@ SCOPE="global"
 ```
 
 Surface state is stored at `${RUNTIME_CONFIG_DIR}/.gsd-surface.json`
-(i.e. `/Users/jtcressy/workspace/infra/.codex/.gsd-surface.json`).
+(i.e. `.codex/.gsd-surface.json`).
 
-All paths can be overridden by reading the `CLAUDE_CONFIG_DIR` env var if set.
+Resolve paths from the active Git worktree so parallel worktrees stay isolated.
 
 ---
 
@@ -239,9 +239,9 @@ All paths can be overridden by reading the `CLAUDE_CONFIG_DIR` env var if set.
 - Missing `surface.cjs` → prompt: "Run `npm i -g @opengsd/gsd-core` to reinstall GSD."
 
 <execution_context>
-Surface state file: `/Users/jtcressy/workspace/infra/.codex/.gsd-surface.json`
-Install profile marker: `/Users/jtcressy/workspace/infra/.codex/.gsd-profile`
-Skill dirs: `/Users/jtcressy/workspace/infra/.codex/skills/gsd-*/`
-Engine module: `/Users/jtcressy/workspace/infra/.codex/gsd-core/bin/lib/surface.cjs`
-Cluster definitions: `/Users/jtcressy/workspace/infra/.codex/gsd-core/bin/lib/clusters.cjs`
+Surface state file: `.codex/.gsd-surface.json`
+Install profile marker: `.codex/.gsd-profile`
+Skill dirs: `.codex/skills/gsd-*/`
+Engine module: `../../gsd-core/bin/lib/surface.cjs`
+Cluster definitions: `../../gsd-core/bin/lib/clusters.cjs`
 </execution_context>

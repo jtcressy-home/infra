@@ -116,10 +116,10 @@ Mode routing:
 </routing>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/add-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/insert-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/remove-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/edit-phase.md
+@../../gsd-core/workflows/add-phase.md
+@../../gsd-core/workflows/insert-phase.md
+@../../gsd-core/workflows/remove-phase.md
+@../../gsd-core/workflows/edit-phase.md
 </execution_context>
 
 <context>

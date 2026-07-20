@@ -103,7 +103,7 @@ planning via $gsd-plan-phase --reviews.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/review.md
+@../../gsd-core/workflows/review.md
 </execution_context>
 
 <context>

@@ -99,7 +99,7 @@ Scan all phases for pending, skipped, blocked, and human_needed UAT items. Cross
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/audit-uat.md
+@../../gsd-core/workflows/audit-uat.md
 </execution_context>
 
 <context>

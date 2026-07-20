@@ -120,13 +120,13 @@ Mode routing:
 </routing>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/add-todo.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/note.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/add-backlog.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/plant-seed.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/check-todos.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/list-seeds.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/add-todo.md
+@../../gsd-core/workflows/note.md
+@../../gsd-core/workflows/add-backlog.md
+@../../gsd-core/workflows/plant-seed.md
+@../../gsd-core/workflows/check-todos.md
+@../../gsd-core/workflows/list-seeds.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <context>

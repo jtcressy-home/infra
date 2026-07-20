@@ -102,10 +102,10 @@ Import external plan files into the GSD planning system with conflict detection 
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/import.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/gate-prompts.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/doc-conflict-engine.md
+@../../gsd-core/workflows/import.md
+@../../gsd-core/references/ui-brand.md
+@../../gsd-core/references/gate-prompts.md
+@../../gsd-core/references/doc-conflict-engine.md
 </execution_context>
 
 <context>

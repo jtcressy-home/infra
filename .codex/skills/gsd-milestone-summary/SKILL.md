@@ -102,7 +102,7 @@ Output: MILESTONE_SUMMARY written to `.planning/reports/`, presented inline, opt
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/milestone-summary.md
+@../../gsd-core/workflows/milestone-summary.md
 </execution_context>
 
 <context>

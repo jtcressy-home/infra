@@ -110,8 +110,8 @@ Create executable phase prompts (PLAN.md files) for a roadmap phase with integra
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/plan-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/plan-phase.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <runtime_note>

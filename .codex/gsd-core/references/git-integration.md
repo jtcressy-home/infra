@@ -51,7 +51,7 @@ Phases:
 What to commit:
 
 ```bash
-node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query commit "docs: initialize [project-name] ([N] phases)" --files .planning/
+"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query commit "docs: initialize [project-name] ([N] phases)" --files .planning/
 ```
 
 </format>
@@ -136,7 +136,7 @@ SUMMARY: .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md
 What to commit:
 
 ```bash
-node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query commit "docs({phase}-{plan}): complete [plan-name] plan" --files .planning/phases/XX-name/{phase}-{plan}-PLAN.md .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md .planning/STATE.md .planning/ROADMAP.md
+"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query commit "docs({phase}-{plan}): complete [plan-name] plan" --files .planning/phases/XX-name/{phase}-{plan}-PLAN.md .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md .planning/STATE.md .planning/ROADMAP.md
 ```
 
 **Note:** Code files NOT included - already committed per-task.
@@ -156,7 +156,7 @@ Current: [task name]
 What to commit:
 
 ```bash
-node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query commit "wip: [phase-name] paused at task [X]/[Y]" --files .planning/
+"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query commit "wip: [phase-name] paused at task [X]/[Y]" --files .planning/
 ```
 
 </format>
@@ -287,7 +287,7 @@ Set `commit_docs: false` so planning docs stay local and are not committed to an
 Instead of the standard `commit` command, use `commit-to-subrepo` when `sub_repos` is configured:
 
 ```bash
-node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query commit-to-subrepo "feat(02-01): add user API" \
+"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query commit-to-subrepo "feat(02-01): add user API" \
   --files backend/src/api/users.ts backend/src/types/user.ts frontend/src/components/UserForm.tsx
 ```
 

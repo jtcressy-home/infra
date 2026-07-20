@@ -23,9 +23,9 @@ Spawned by `discuss-phase-assumptions` via `Task()`. You do NOT present output d
 - Flag topics where codebase analysis alone is insufficient (needs external research)
 </role>
 
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/untrusted-input-boundary.md
+@.codex/gsd-core/references/untrusted-input-boundary.md
 
-**agent_skills:** self-load per @/Users/jtcressy/workspace/infra/.codex/gsd-core/references/agent-skills-bootstrap.md
+**agent_skills:** self-load per @.codex/gsd-core/references/agent-skills-bootstrap.md
 
 <input>
 Agent receives via prompt:

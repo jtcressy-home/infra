@@ -167,7 +167,7 @@ None - no external service configuration required.
 </frontmatter_guidance>
 
 <coverage_guidance>
-**Purpose (#1602):** The `coverage:` block is a per-deliverable Requirements Traceability Matrix. It lets `verify-work`'s `extract_tests` step route deliverables DETERMINISTICALLY — auto-passing those proven by passing tests and reserving human UAT for genuine judgment — instead of re-deriving coverage from prose. Consumed via `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" uat classify-coverage --summary <SUMMARY>`.
+**Purpose (#1602):** The `coverage:` block is a per-deliverable Requirements Traceability Matrix. It lets `verify-work`'s `extract_tests` step route deliverables DETERMINISTICALLY — auto-passing those proven by passing tests and reserving human UAT for genuine judgment — instead of re-deriving coverage from prose. Consumed via `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" uat classify-coverage --summary <SUMMARY>`.
 
 **Field semantics:**
 

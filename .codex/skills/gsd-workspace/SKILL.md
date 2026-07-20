@@ -114,10 +114,10 @@ Mode routing:
 </routing>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/new-workspace.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/list-workspaces.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/remove-workspace.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/new-workspace.md
+@../../gsd-core/workflows/list-workspaces.md
+@../../gsd-core/workflows/remove-workspace.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <context>

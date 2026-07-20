@@ -105,8 +105,8 @@ Requirements: Claude Code v2.1.91+, claude.ai account, GitHub repository.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/ultraplan-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/ultraplan-phase.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <context>

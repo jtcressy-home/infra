@@ -107,7 +107,7 @@ Flag handling rule:
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/docs-update.md
+@../../gsd-core/workflows/docs-update.md
 </execution_context>
 
 <context>

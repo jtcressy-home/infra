@@ -114,10 +114,10 @@ Three modes:
 </flags>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/progress.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/next.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/do.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/progress.md
+@../../gsd-core/workflows/next.md
+@../../gsd-core/workflows/do.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <process>

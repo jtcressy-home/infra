@@ -108,8 +108,8 @@ Uses ROADMAP.md phase discovery and Skill() flat invocations for each phase comm
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/autonomous.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
+@../../gsd-core/workflows/autonomous.md
+@../../gsd-core/references/ui-brand.md
 </execution_context>
 
 <context>
@@ -123,7 +123,7 @@ Optional flags:
 
 When `--converge` or `--cross-ai` is set, reviewer selector flags supported by `gsd-plan-review-convergence` may be passed through: `--codex`, `--gemini`, `--claude`, `--opencode`, `--ollama`, `--lm-studio`, `--llama-cpp`, `--all`, and `--max-cycles N`.
 
-Project context, phase list, and state are resolved inside the workflow using init commands (`node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query init.milestone-op`, `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query roadmap.analyze`). No upfront context loading needed.
+Project context, phase list, and state are resolved inside the workflow using init commands (`"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query init.milestone-op`, `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query roadmap.analyze`). No upfront context loading needed.
 </context>
 
 <process>

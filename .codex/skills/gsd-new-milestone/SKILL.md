@@ -110,11 +110,11 @@ Brownfield equivalent of new-project. Project exists, PROJECT.md has history. Ga
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/new-milestone.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/questioning.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-brand.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/project.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/requirements.md
+@../../gsd-core/workflows/new-milestone.md
+@../../gsd-core/references/questioning.md
+@../../gsd-core/references/ui-brand.md
+@../../gsd-core/templates/project.md
+@../../gsd-core/templates/requirements.md
 </execution_context>
 
 <context>

@@ -101,8 +101,8 @@ Produces EVAL-REVIEW.md with score, verdict, gaps, and remediation plan.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/eval-review.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ai-evals.md
+@../../gsd-core/workflows/eval-review.md
+@../../gsd-core/references/ai-evals.md
 </execution_context>
 
 <context>

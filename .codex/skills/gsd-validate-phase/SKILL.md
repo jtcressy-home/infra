@@ -104,7 +104,7 @@ Output: updated VALIDATION.md + generated test files.
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/validate-phase.md
+@../../gsd-core/workflows/validate-phase.md
 </execution_context>
 
 <context>

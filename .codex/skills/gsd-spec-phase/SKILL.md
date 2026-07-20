@@ -111,8 +111,8 @@ Clarify phase requirements through structured Socratic questioning with quantita
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/spec-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/spec.md
+@../../gsd-core/workflows/spec-phase.md
+@../../gsd-core/templates/spec.md
 </execution_context>
 
 <runtime_note>

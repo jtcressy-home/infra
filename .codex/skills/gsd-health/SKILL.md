@@ -97,7 +97,7 @@ Result parsing:
 <objective>
 Validate `.planning/` directory integrity and report actionable issues. Checks for missing files, invalid configurations, inconsistent state, and orphaned plans.
 
-`--context` runs an orthogonal check: the running session's context utilization. The workflow asks for the model's tokensUsed + contextWindow, calls `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query validate.context`, and renders one of three states:
+`--context` runs an orthogonal check: the running session's context utilization. The workflow asks for the model's tokensUsed + contextWindow, calls `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query validate.context`, and renders one of three states:
 
 | Utilization | State    | Action                                                |
 |-------------|----------|-------------------------------------------------------|
@@ -107,7 +107,7 @@ Validate `.planning/` directory integrity and report actionable issues. Checks f
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/health.md
+@../../gsd-core/workflows/health.md
 </execution_context>
 
 <process>

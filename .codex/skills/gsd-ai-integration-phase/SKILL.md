@@ -101,9 +101,9 @@ Flow: Select Framework → Research Docs → Research Domain → Design Eval Str
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/ai-integration-phase.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ai-frameworks.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ai-evals.md
+@../../gsd-core/workflows/ai-integration-phase.md
+@../../gsd-core/references/ai-frameworks.md
+@../../gsd-core/references/ai-evals.md
 </execution_context>
 
 <context>

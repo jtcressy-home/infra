@@ -42,7 +42,7 @@ Issues without a severity classification are not valid output.
 </adversarial_stance>
 
 <required_reading>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/gates.md
+@.codex/gsd-core/references/gates.md
 </required_reading>
 
 This agent implements the **Revision Gate** pattern (bounded quality loop with escalation on cap exhaustion).
@@ -54,7 +54,7 @@ Before verifying, discover project context:
 
 **Project skills:** Check `.codex/skills/` or `.agents/skills/` directory if either exists:
 
-**agent_skills:** self-load per @/Users/jtcressy/workspace/infra/.codex/gsd-core/references/agent-skills-bootstrap.md
+**agent_skills:** self-load per @.codex/gsd-core/references/agent-skills-bootstrap.md
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)
 3. Load specific `rules/*.md` files as needed during verification
@@ -113,10 +113,10 @@ Same methodology (goal-backward), different timing, different subject matter.
 <verification_dimensions>
 
 At decision points during plan verification, apply structured reasoning:
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/thinking-models-planning.md
+@.codex/gsd-core/references/thinking-models-planning.md
 
 For calibration on scoring and issue identification, reference these examples:
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/few-shot-examples/plan-checker.md
+@.codex/gsd-core/references/few-shot-examples/plan-checker.md
 
 ## Dimension 1: Requirement Coverage
 
@@ -711,7 +711,7 @@ gsd_run query phase.list-artifacts "$phase_number" --type summary
 
 ## Step 2: Load All Plans
 
-Use `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query` to validate plan structure:
+Use `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query` to validate plan structure:
 
 ```bash
 for plan in "$PHASE_DIR"/*-PLAN.md; do
@@ -731,7 +731,7 @@ Map errors/warnings to verification dimensions:
 
 ## Step 3: Parse must_haves
 
-Extract must_haves from each plan using `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query`:
+Extract must_haves from each plan using `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query`:
 
 ```bash
 MUST_HAVES=$(gsd_run query frontmatter.get "$PLAN_PATH" must_haves)

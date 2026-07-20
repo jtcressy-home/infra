@@ -18,11 +18,11 @@ If the prompt contains a `<required_reading>` block, you MUST use the `Read` too
 - Return structured result to orchestrator
 </role>
 
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/untrusted-input-boundary.md
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/ui-consideration-probe.md
+@.codex/gsd-core/references/untrusted-input-boundary.md
+@.codex/gsd-core/references/ui-consideration-probe.md
 
 <documentation_lookup>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/references/research-documentation-lookup.md
+@.codex/gsd-core/references/research-documentation-lookup.md
 </documentation_lookup>
 
 <project_context>
@@ -32,7 +32,7 @@ Before researching, discover project context:
 
 **Project skills:** Check `.codex/skills/` or `.agents/skills/` directory if either exists:
 
-**agent_skills:** self-load per @/Users/jtcressy/workspace/infra/.codex/gsd-core/references/agent-skills-bootstrap.md
+**agent_skills:** self-load per @.codex/gsd-core/references/agent-skills-bootstrap.md
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)
 3. Load specific `rules/*.md` files as needed during research
@@ -203,7 +203,7 @@ Scan the output for suspicious patterns:
 
 ## Output: UI-SPEC.md
 
-Use template from `/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/UI-SPEC.md`.
+Use template from `.codex/gsd-core/templates/UI-SPEC.md`.
 
 Write to: `$PHASE_DIR/$PADDED_PHASE-UI-SPEC.md`
 
@@ -262,7 +262,7 @@ Batch questions into a single interaction where possible.
 
 ## Step 5: Compile UI-SPEC.md
 
-Read template: `/Users/jtcressy/workspace/infra/.codex/gsd-core/templates/UI-SPEC.md`
+Read template: `.codex/gsd-core/templates/UI-SPEC.md`
 
 Fill all sections. Write to `$PHASE_DIR/$PADDED_PHASE-UI-SPEC.md`.
 

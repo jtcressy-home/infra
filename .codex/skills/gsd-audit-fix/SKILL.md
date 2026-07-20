@@ -106,7 +106,7 @@ Flags:
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/audit-fix.md
+@../../gsd-core/workflows/audit-fix.md
 </execution_context>
 
 <process>

@@ -114,7 +114,7 @@ Output: {padded_phase}-REVIEW.md in phase directory + inline summary of findings
 </objective>
 
 <execution_context>
-@/Users/jtcressy/workspace/infra/.codex/gsd-core/workflows/code-review.md
+@../../gsd-core/workflows/code-review.md
 </execution_context>
 
 <context>
@@ -124,7 +124,7 @@ Optional flags parsed from {{GSD_ARGS}}:
 - `--depth=VALUE` — Depth override (quick|standard|deep). If provided, overrides workflow.code_review_depth config.
 - `--files=file1,file2,...` — Explicit file list override. Has highest precedence for file scoping per D-08. When provided, workflow skips SUMMARY.md extraction and git diff fallback entirely.
 
-Context files (AGENTS.md, SUMMARY.md, phase state) are resolved inside the workflow via `node "$HOME/.codex/gsd-core/bin/gsd-tools.cjs" query init.phase-op` and delegated to agent via `<files_to_read>` blocks.
+Context files (AGENTS.md, SUMMARY.md, phase state) are resolved inside the workflow via `"$(git rev-parse --show-toplevel)/.codex/gsd-core/bin/gsd_run" query init.phase-op` and delegated to agent via `<files_to_read>` blocks.
 </context>
 
 <process>
