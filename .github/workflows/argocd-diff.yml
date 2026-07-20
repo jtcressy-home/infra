@@ -29,14 +29,14 @@ jobs:
       ARGOCD_SERVER: argocd.tailnet-4d89.ts.net
     steps:
       - name: Check out base
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
           path: base
 
       - name: Check out head
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
