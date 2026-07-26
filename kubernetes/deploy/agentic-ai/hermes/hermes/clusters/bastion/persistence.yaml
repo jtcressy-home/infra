@@ -1,0 +1,83 @@
+---
+# Restic repository credentials for volsync backup of the hermes-data PVC.
+# Sourced from the shared volsync-restic-template 1Password item; the repo
+# path is namespaced to /hermes so it does not collide with other apps.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: hermes-restic
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: hermes-restic-secret
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/hermes"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: volsync-restic-template
+---
+# Nightly restic backup of hermes-data (provider logins, session history,
+# runtime config that is not sourced from ESO). Added after the 2026-07-13
+# incident, where hermes-data was the only stateful app volume in the
+# recovery set with no backup source and had to be rebuilt from scratch.
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: hermes-data
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  sourcePVC: hermes-data
+  trigger:
+    schedule: "0 2 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: hermes-restic-secret
+    retain:
+      daily: 7
+      weekly: 4
+    copyMethod: Snapshot
+    storageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
+    # hermes runs as UID/GID 10000 (fsGroup 10000; /opt/data/.env is chown'd
+    # 10000:10000 mode 0600). The mover must match or it can't read 0600 files.
+    moverSecurityContext:
+      runAsUser: 10000
+      runAsGroup: 10000
+      fsGroup: 10000
+---
+# Restore target for hermes-data — same pattern as every other app overlay.
+# The hermes-data PVC provisions from this via dataSourceRef. volsync restic
+# restore is restore-or-empty: if the repo has a backup it restores the latest
+# snapshot; on a net-new empty repo the mover completes and leaves the volume
+# empty, so the PVC binds and the app starts fresh (then the ReplicationSource
+# begins nightly backups). The manual trigger fires once and then stays idle.
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: hermes-data-rdst
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  trigger:
+    manual: restore-zfs-snapshot
+  restic:
+    repository: hermes-restic-secret
+    copyMethod: Snapshot
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: zfs-nvme
+    cacheStorageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
+    moverSecurityContext:
+      runAsUser: 10000
+      runAsGroup: 10000
+      fsGroup: 10000
+    capacity: 10Gi
