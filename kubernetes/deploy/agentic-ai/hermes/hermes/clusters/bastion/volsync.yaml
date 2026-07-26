@@ -1,0 +1,46 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: hermes-restic
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: hermes-restic-secret
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        # "hermes-data" (not "hermes") to avoid colliding with the CNPG barman
+        # backups already stored under the hermes/ prefix (see pg-cluster.yaml).
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/hermes-data"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: volsync-restic-template
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: hermes-data
+  labels:
+    app.kubernetes.io/name: hermes
+spec:
+  sourcePVC: hermes-data
+  trigger:
+    schedule: "15 2 * * *"
+  restic:
+    pruneIntervalDays: 7
+    repository: hermes-restic-secret
+    retain:
+      daily: 7
+      weekly: 4
+    copyMethod: Snapshot
+    storageClassName: zfs-nvme
+    volumeSnapshotClassName: zfs-nvme-snapshot
