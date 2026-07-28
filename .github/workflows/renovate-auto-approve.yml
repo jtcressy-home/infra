@@ -1,0 +1,69 @@
+name: Renovate auto-approve
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+
+permissions: {}
+
+concurrency:
+  group: renovate-auto-approve-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  approve:
+    if: >-
+      github.event.pull_request.user.login == 'renovate[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'renovate:automerge')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Verify every changed file is allowlisted
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          files="$(
+            gh api --paginate \
+              "/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+              --jq '.[].filename'
+          )"
+
+          if [[ -z "${files}" ]]; then
+            echo "No changed files found; refusing approval." >&2
+            exit 1
+          fi
+
+          while IFS= read -r file; do
+            case "${file}" in
+              kubernetes/deploy/agentic-ai/dograh/dograh/clusters/*/app/*.yaml | \
+              kubernetes/deploy/agentic-ai/hermes/hermes/clusters/*/deployment.yaml | \
+              kubernetes/deploy/home/media/*/clusters/*/*.yaml)
+                ;;
+              *)
+                echo "Refusing approval: ${file} is outside the automerge allowlist." >&2
+                exit 1
+                ;;
+            esac
+          done <<< "${files}"
+
+      - name: Approve Renovate pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST \
+            "/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews" \
+            -f event=APPROVE \
+            -f body="Automatically approved: Renovate automerge PR changed only allowlisted application files."

@@ -105,6 +105,24 @@
     },
     {
       "matchFileNames": [
+        "kubernetes/deploy/agentic-ai/hermes/**"
+      ],
+      "matchPackageNames": [
+        "nousresearch/hermes-agent"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "matchFileNames": [
         ".taskfiles/**"
       ],
       "matchUpdateTypes": [
