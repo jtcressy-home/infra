@@ -80,7 +80,7 @@ spec:
               memory: 128Mi
       containers:
         - name: dograh-api
-          image: ghcr.io/dograh-hq/dograh-api:1.42.0@sha256:ff89c4c301d4b5fd1aaad111b30253697497c0c7c4a44fe0a7f33d8062a753bb
+          image: ghcr.io/dograh-hq/dograh-api:1.43.0@sha256:9ba3b63cccaca41cf7d051f9ccc2f91f1879cb23dddb4b1e3fbc6939c458a244
           ports:
             - containerPort: 8000
               name: http
