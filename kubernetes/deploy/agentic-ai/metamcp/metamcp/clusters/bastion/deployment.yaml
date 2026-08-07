@@ -167,7 +167,7 @@ spec:
             limits:
               memory: 512Mi
         - name: obsidian-sync
-          image: ghcr.io/belphemur/obsidian-headless-sync-docker:latest@sha256:2e8731a6cc246af383579478e2719b56efec0a63ac5baae731e88b13b1cc9ab7
+          image: ghcr.io/belphemur/obsidian-headless-sync-docker:latest@sha256:fe239b322426a060de9c2ded70aae23ff175e0b5d57d9a36dec11534b69bb719
           command:
             - /bin/sh
             - -c
