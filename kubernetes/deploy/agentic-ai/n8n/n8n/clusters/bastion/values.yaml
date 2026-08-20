@@ -1,6 +1,6 @@
 image:
   repository: n8nio/n8n
-  tag: 2.13.0@sha256:34fd08a7958bcb1e10f0756c58ce83a0df282cff5ddcb295139ac8d0955558e7
+  tag: 2.36.3@sha256:c5efca72ca61b893e6571064eaaae62d54cc3daf5cdeba4e24864c860f5f9b55
 
 timezone: America/Chicago
 
