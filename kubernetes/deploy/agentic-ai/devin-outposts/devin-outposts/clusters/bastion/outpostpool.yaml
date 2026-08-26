@@ -14,7 +14,8 @@ spec:
   maxConcurrentSessions: 3
 
   resume:
-    policy: StartFresh
+    policy: FilesystemSnapshot
+    storageClassName: zfs-nvme
 
   worker:
     template:
