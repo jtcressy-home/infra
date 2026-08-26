@@ -4,8 +4,8 @@ kind: OutpostPool
 metadata:
   name: bastion
 spec:
-  # Upstream pool ID from Settings -> Environment -> Outposts (pool_...).
-  poolId: "REPLACE_WITH_POOL_ID"
+  # Upstream outpost ID from Settings -> Environment -> Outposts.
+  poolId: "outpost_env-19840323a58d46bda9b27fa90eba01e6"
 
   tokenSecretRef:
     name: devin-outposts-pool-token
