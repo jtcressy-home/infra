@@ -11,12 +11,12 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-logr/logr v1.4.4
 	github.com/kastenhq/kubestr v0.4.49
-	github.com/lainio/err2 v1.2.3
+	github.com/lainio/err2 v1.3.0
 	github.com/magefile/mage v1.17.2
 	github.com/samber/lo v1.53.0
 	github.com/xuri/excelize/v2 v2.11.0
-	k8s.io/api v0.36.3
-	k8s.io/apimachinery v0.36.3
+	k8s.io/api v0.36.4
+	k8s.io/apimachinery v0.36.4
 	k8s.io/klog/v2 v2.140.0
 	tailscale.com v1.100.0
 )
