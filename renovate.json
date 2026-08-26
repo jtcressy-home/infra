@@ -181,6 +181,86 @@
       ]
     },
     {
+      "matchFileNames": [
+        "kubernetes/deploy/agentic-ai/kagent/kagent/clusters/*/kustomization.yaml"
+      ],
+      "matchPackageNames": [
+        "kagent",
+        "kagent-crds"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "kagent",
+      "groupSlug": "kagent",
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "matchFileNames": [
+        "kubernetes/deploy/home/teslamate/teslamate/clusters/*/values.yaml"
+      ],
+      "matchPackageNames": [
+        "tobiasehlert/teslamateapi"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "matchFileNames": [
+        "kubernetes/deploy/agentic-ai/metamcp/metamcp/clusters/*/deployment.yaml"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/jtcressy/bluepopcorn-mcp",
+        "ghcr.io/belphemur/obsidian-headless-sync-docker"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": true,
+      "addLabels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "github actions",
+      "groupSlug": "github-actions",
+      "automerge": true
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "helm/helm",
+        "helm"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
       "matchPackageNames": [
         "ghcr.io/squat/generic-device-plugin"
       ],
