@@ -5,7 +5,8 @@ kind: Kustomization
 # (no published helm repo/OCI chart). To update:
 #   helm template devin-outposts charts/devin-outposts-k8s \
 #     --namespace devin-outposts --set fullnameOverride=devin-outposts > operator.yaml
-#   cp charts/devin-outposts-k8s/crds/outpostpool.yaml crd-outpostpool.yaml
+#   yq -P charts/devin-outposts-k8s/crds/outpostpool.yaml > crd-outpostpool.yaml
+# (upstream ships the CRD as JSON; convert to YAML for readability)
 resources:
   - crd-outpostpool.yaml
   - operator.yaml
