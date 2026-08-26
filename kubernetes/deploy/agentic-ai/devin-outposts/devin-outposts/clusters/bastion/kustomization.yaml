@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Vendored from https://github.com/CognitionAI/devin-outpost-k8s @ 992f807
+# (no published helm repo/OCI chart). To update:
+#   helm template devin-outposts charts/devin-outposts-k8s \
+#     --namespace devin-outposts --set fullnameOverride=devin-outposts > operator.yaml
+#   yq -P charts/devin-outposts-k8s/crds/outpostpool.yaml > crd-outpostpool.yaml
+# (upstream ships the CRD as JSON; convert to YAML for readability)
+resources:
+  - crd-outpostpool.yaml
+  - operator.yaml
+  - externalsecret.yaml
+  - outpostpool.yaml
+
+patches:
+  - target:
+      group: apiextensions.k8s.io
+      version: v1
+      kind: CustomResourceDefinition
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-options
+        value: ServerSideApply=true

@@ -1,0 +1,32 @@
+---
+apiVersion: outposts.cognition.com/v1alpha1
+kind: OutpostPool
+metadata:
+  name: bastion
+spec:
+  # Upstream pool ID from Settings -> Environment -> Outposts (pool_...).
+  poolId: "REPLACE_WITH_POOL_ID"
+
+  tokenSecretRef:
+    name: devin-outposts-pool-token
+    key: token
+
+  maxConcurrentSessions: 3
+
+  resume:
+    policy: FilesystemSnapshot
+    storageClassName: zfs-nvme
+
+  worker:
+    template:
+      spec:
+        containers:
+          - name: devin-worker
+            imagePullPolicy: IfNotPresent
+            resources:
+              requests:
+                cpu: "1"
+                memory: 2Gi
+              limits:
+                cpu: "2"
+                memory: 4Gi
