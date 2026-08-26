@@ -10,6 +10,9 @@ spec:
   description: Agentic AI apps
   destinations:
     - name: '*'
+      namespace: devin-outposts
+      server: '*'
+    - name: '*'
       namespace: dograh
       server: '*'
     - name: '*'
