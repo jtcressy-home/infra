@@ -34,7 +34,7 @@ spec:
       # to run as root; only /init is privileged.
       initContainers:
         - name: seed-env
-          image: nousresearch/hermes-agent:v2026.8.19@sha256:3811ed13da874fba2ac99b6d492db9a203d34cb6dccf90d886948c00d0ccec09
+          image: nousresearch/hermes-agent:v2026.8.27@sha256:e0df6adebddf29b91112aefc999d4aaf6846c9eb544faca5672a16a13590ff79
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 0
@@ -54,7 +54,7 @@ spec:
               readOnly: true
       containers:
         - name: hermes
-          image: nousresearch/hermes-agent:v2026.8.19@sha256:3811ed13da874fba2ac99b6d492db9a203d34cb6dccf90d886948c00d0ccec09
+          image: nousresearch/hermes-agent:v2026.8.27@sha256:e0df6adebddf29b91112aefc999d4aaf6846c9eb544faca5672a16a13590ff79
           imagePullPolicy: IfNotPresent
           # Pass the gateway subcommand as the container CMD; the image
           # entrypoint (/init + main-wrapper.sh) turns this into
