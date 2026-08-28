@@ -3,6 +3,10 @@
   "extends": [
     "config:recommended"
   ],
+  "rebaseWhen": "conflicted",
+  "platformAutomerge": false,
+  "stopUpdatingLabel": "renovate:snooze",
+  "keepUpdatedLabel": "renovate:ready",
   "ignorePaths": [
     "**/disabled/**",
     "**/old/**"
@@ -81,6 +85,7 @@
       "groupName": "home media apps",
       "groupSlug": "home-media-apps",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -99,6 +104,7 @@
       "groupName": "dograh",
       "groupSlug": "dograh",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -117,6 +123,7 @@
         "digest"
       ],
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -135,6 +142,7 @@
         "digest"
       ],
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -151,6 +159,7 @@
       "groupName": "taskfiles",
       "groupSlug": "taskfiles",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "ignoreTests": true,
       "addLabels": [
         "renovate:automerge"
@@ -163,6 +172,7 @@
       "groupName": "devcontainer",
       "groupSlug": "devcontainer",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "ignoreTests": true,
       "addLabels": [
         "renovate:automerge"
@@ -175,6 +185,7 @@
       "groupName": "golang modules",
       "groupSlug": "golang-modules",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "ignoreTests": true,
       "addLabels": [
         "renovate:automerge"
@@ -196,6 +207,7 @@
       "groupName": "kagent",
       "groupSlug": "kagent",
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -213,6 +225,7 @@
         "digest"
       ],
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -229,6 +242,7 @@
         "digest"
       ],
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -245,7 +259,8 @@
       ],
       "groupName": "github actions",
       "groupSlug": "github-actions",
-      "automerge": true
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch"
     },
     {
       "matchManagers": [
@@ -271,6 +286,7 @@
         "digest"
       ],
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
@@ -281,6 +297,7 @@
       ],
       "ignoreUnstable": true,
       "automerge": true,
+      "rebaseWhen": "behind-base-branch",
       "addLabels": [
         "renovate:automerge"
       ]
