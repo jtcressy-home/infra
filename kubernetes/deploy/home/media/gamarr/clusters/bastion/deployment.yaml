@@ -1,0 +1,104 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamarr
+  labels:
+    app.kubernetes.io/name: gamarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gamarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gamarr
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gamarr
+          image: ghcr.io/jeremiahm37/gamarr:v1.2.0@sha256:0833d25493f551c3e411e249feeb0e20287d2148e154fda6561bff99eb6a7a64
+          ports:
+            - containerPort: 5001
+              name: http
+          env:
+            - name: GAMARR_PORT
+              value: "5001"
+            - name: DATA_DIR
+              value: /data/gamarr
+            - name: METRICS_ENABLED
+              value: "true"
+            - name: PROWLARR_URL
+              value: http://prowlarr.media.svc.cluster.local:9696
+            - name: SABNZBD_URL
+              value: http://sabnzbd.media.svc.cluster.local:8080
+            - name: SABNZBD_CATEGORY
+              value: games
+            - name: QB_SAVE_PATH
+              value: /media/downloads/games
+            - name: WATCHER_ENABLED
+              value: "false"
+            - name: GAMES_VAULT_PATH
+              value: /media/games/vault
+            - name: GAMES_ROMS_PATH
+              value: /media/games/roms
+            - name: EXTRACT_ARCHIVES
+              value: "false"
+            - name: TZ
+              value: America/Chicago
+          envFrom:
+            - secretRef:
+                name: gamarr-secret
+          volumeMounts:
+            - name: data
+              mountPath: /data/gamarr
+            - name: media
+              mountPath: /media
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: gamarr-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: purplebox-nfs-media
+        - name: tmp
+          emptyDir: {}
