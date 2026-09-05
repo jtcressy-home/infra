@@ -52,7 +52,7 @@ spec:
           envFrom:
             - secretRef:
                 name: searxng-secret
-          image: docker.io/searxng/searxng:2025.2.17-cc9dbde2e@sha256:00c9b06f711a8c975ee1229e7893583f0a8fc36f4458b522d92989f0c5dd2fbc
+          image: docker.io/searxng/searxng:2026.9.5-242dc6e39@sha256:7cb6a0673eb815adf351c7bc2874f6c998afd6b98627494112aaafb471d2ae37
           name: app
           ports:
             - containerPort: 8080
