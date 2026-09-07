@@ -507,6 +507,114 @@
       ]
     },
     {
+      "description": "Automerge non-major ARK chart updates after a stability delay",
+      "matchFileNames": [
+        "kubernetes/deploy/agentic-ai/ark-system/ark/clusters/*/kustomization.yaml"
+      ],
+      "matchPackageNames": [
+        "ark-api",
+        "ark-completions",
+        "ark-controller",
+        "ark-dashboard",
+        "ark-tenant"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "ark",
+      "groupSlug": "ark",
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "description": "Automerge non-major updates of the platform charts classified low risk to upgrade in place",
+      "matchFileNames": [
+        "kubernetes/deploy/system/cert-manager/cert-manager/clusters/*/kustomization.yaml",
+        "kubernetes/deploy/system/external-secrets/eso/clusters/*/kustomization.yaml",
+        "kubernetes/deploy/system/kube-system/external-dns-unifi/clusters/*/kustomization.yaml",
+        "kubernetes/deploy/system/kube-system/spegel/clusters/*/kustomization.yaml"
+      ],
+      "matchPackageNames": [
+        "cert-manager",
+        "external-secrets",
+        "external-dns",
+        "spegel"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "description": "Automerge non-major SearXNG valkey chart updates after a stability delay",
+      "matchFileNames": [
+        "kubernetes/deploy/home/searxng/searxng/clusters/*/kustomization.yaml"
+      ],
+      "matchPackageNames": [
+        "valkey"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "searxng",
+      "groupSlug": "searxng",
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
+        "renovate:automerge"
+      ]
+    },
+    {
+      "description": "Automerge non-major build-time Go toolchain updates after a stability delay",
+      "matchFileNames": [
+        "magefiles/go.mod",
+        "scratch/**"
+      ],
+      "matchPackageNames": [
+        "go",
+        "golang"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "go toolchain",
+      "groupSlug": "go-toolchain",
+      "automerge": true,
+      "rebaseWhen": "behind-base-branch",
+      "minimumReleaseAge": "3 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "prCreation": "not-pending",
+      "internalChecksFilter": "strict",
+      "labels": [
+        "renovate:automerge"
+      ]
+    },
+    {
       "description": "Keep the shared Tailscale dependency family attended",
       "matchPackageNames": [
         "tailscale/**",
