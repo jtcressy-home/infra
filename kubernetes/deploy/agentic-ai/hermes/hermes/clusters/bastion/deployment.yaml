@@ -106,14 +106,15 @@ spec:
               value: "1"
             # mem0 self-hosted memory backend runs from deps
             # (mem0ai/psycopg2/ollama) delivered by the read-only `mem0-deps`
-            # image volume mounted at /opt/mem0-deps (built by
+            # image volume mounted at /opt/mem0-deps, with packages in
+            # its pydeps subdirectory (built by
             # ghcr.io/jtcressy/hermes-mem0-deps). PYTHONPATH lets the gateway's
             # Python import them. This replaces the former PVC-resident install
             # at /opt/data/pydeps so the deps are durable and reproducible from
             # Git. Only $HERMES_HOME/mem0.json remains PVC-resident runtime
             # state; the deps are no longer baked into or written to the PVC.
             - name: PYTHONPATH
-              value: /opt/mem0-deps
+              value: /opt/mem0-deps/pydeps
             # mem0ai phones home to PostHog by default; disable it so nothing
             # about memory contents or usage leaves the network.
             - name: MEM0_TELEMETRY
@@ -175,7 +176,7 @@ spec:
             - name: PATH
               value: /opt/data/.local/bin:/opt/hermes/bin:/opt/hermes/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             - name: PYTHONPATH
-              value: /opt/mem0-deps
+              value: /opt/mem0-deps/pydeps
             - name: MEM0_TELEMETRY
               value: "False"
           resources:
