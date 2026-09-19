@@ -13,8 +13,17 @@ resources:
   - service.yaml
   - ingress.yaml
   - netpol.yaml
+  - acp.yaml
   - camofox.yaml
   # mem0 self-hosted memory backend: dedicated CNPG Postgres + pgvector.
   - pg-r2-externalsecret.yaml
   - pg-cluster.yaml
   - pg-backup.yaml
+
+configMapGenerator:
+  - name: hermes-acp-config
+    files:
+      - acp/package.json
+      - acp/package-lock.json
+      - acp/launch.mjs
+      - acp/nginx.conf.template
