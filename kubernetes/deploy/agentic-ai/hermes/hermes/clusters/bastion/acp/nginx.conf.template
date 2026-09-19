@@ -1,4 +1,6 @@
 # The token is supplied only at runtime by the hermes-acp-auth Secret.
+# Accommodate the Authorization key (Bearer plus a 256-bit URL-safe token).
+map_hash_bucket_size 128;
 map $http_authorization $acp_authorized {
     default 0;
     "Bearer ${ACP_BEARER_TOKEN}" 1;
