@@ -146,3 +146,45 @@ browser tooling.
       (deleting and re-registering the client is the only recovery path).
    4. Revoke the `allow_dcr` grant afterward if it was added just for this
       one-time registration.
+
+## Agmente / Agent Client Protocol
+
+Hermes ACP runs beside the gateway, sharing `/opt/data` (provider credentials,
+configuration, skills, and session database). It does not run a second gateway.
+Agmente's recommended `@rebornix/stdio-to-ws` bridge is pinned to 0.2.0 with an
+npm lockfile. An init container installs it with lifecycle scripts disabled;
+startup requires access to registry.npmjs.org. The bridge retains a disconnected
+agent for seven days and supports `X-Client-Id` reconnects. Pod restarts terminate
+in-memory processes; Hermes' session database remains on the PVC.
+
+Agmente server settings:
+
+- Agent protocol: **ACP**
+- Connection scheme: **wss**
+- Host: **hermes-acp.tailnet-4d89.ts.net**
+- Working directory: **/opt/data**
+- Bearer token: the raw token from the `hermes-acp-auth` Secret, without a `Bearer ` prefix
+
+The iPad must be connected to the tailnet. TLS terminates at the Tailscale ingress.
+The nginx sidecar requires `Authorization: Bearer <token>` before proxying a
+WebSocket upgrade; absent/incorrect tokens return HTTP 401. Port 8766 is an
+internal unauthenticated transport and has no Service or NetworkPolicy ingress
+allowance. Only nginx on port 8765 is exposed. ACP payload logging is disabled.
+
+### Credential provisioning
+
+Provision `Secret/hermes-acp-auth` in namespace `hermes` before syncing the
+Deployment, with key `bearer-token`. Use a dedicated URL-safe random token with
+at least 256 bits of entropy (43 characters), with no trailing newline. The token
+must not be committed. Empty/malformed credentials cause the auth sidecar to
+fail closed.
+
+The initial credential is provisioned separately so the owner can save it into
+1Password afterward. Save it as a concealed `ACP_BEARER_TOKEN` field in the
+existing `hermes` item. This field is not yet wired to ExternalSecrets: copying
+it into 1Password alone does not rotate the live Secret. A future ESO adoption
+must preserve the existing token and target `hermes-acp-auth` / `bearer-token`.
+
+For rotation, update the Secret securely and restart the Deployment during a
+suitable maintenance window; nginx consumes the token at startup. Update the
+Agmente server entry to match. Do not reuse the OpenAI-compatible API key.

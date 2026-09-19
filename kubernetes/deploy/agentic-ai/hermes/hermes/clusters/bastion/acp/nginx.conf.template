@@ -1,0 +1,28 @@
+# The token is supplied only at runtime by the hermes-acp-auth Secret.
+map $http_authorization $acp_authorized {
+    default 0;
+    "Bearer ${ACP_BEARER_TOKEN}" 1;
+}
+
+server {
+    listen 8765;
+    server_tokens off;
+    access_log off;
+
+    location = /healthz {
+        return 204;
+    }
+
+    location / {
+        if ($acp_authorized = 0) { return 401; }
+        proxy_pass http://127.0.0.1:8766;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Authorization "";
+        proxy_set_header X-Client-Id $http_x_client_id;
+        proxy_buffering off;
+        proxy_read_timeout 604800s;
+        proxy_send_timeout 604800s;
+    }
+}

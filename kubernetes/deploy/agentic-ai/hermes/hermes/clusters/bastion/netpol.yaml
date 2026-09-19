@@ -1,10 +1,12 @@
 ---
-# Restrict inbound pod traffic to the hermes gateway to the two paths it
+# Restrict inbound pod traffic to the hermes gateway to the paths it
 # actually serves over the pod network:
 #   - 8642 (API): the Dograh voice-glue integration calls the gateway
 #     Service directly from the dograh namespace (not through Ingress).
 #   - 9119 (dashboard): only reachable via the tailscale Ingress, so only
 #     the tailscale-operator ProxyGroup pods need pod-network access.
+#   - 8765 (ACP): bearer-authenticated WebSocket through Tailscale only.
+#     The unauthenticated bridge port 8766 is deliberately not admitted.
 # Egress is intentionally left unrestricted: the gateway needs outbound
 # internet access for model APIs (OpenAI/etc.) and messaging (Discord).
 apiVersion: networking.k8s.io/v1
@@ -33,6 +35,8 @@ spec:
       ports:
         - protocol: TCP
           port: 9119
+        - protocol: TCP
+          port: 8765
 ---
 # Camofox ingress: only the hermes gateway pod (same namespace) should ever
 # reach the browser sidecar's port. Inert for now — camofox.yaml is not yet

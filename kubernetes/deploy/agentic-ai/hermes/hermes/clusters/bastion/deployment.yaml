@@ -52,6 +52,33 @@ spec:
             - name: hermes-env
               mountPath: /env
               readOnly: true
+        - name: acp-deps
+          image: nousresearch/hermes-agent:v2026.8.27@sha256:e0df6adebddf29b91112aefc999d4aaf6846c9eb544faca5672a16a13590ff79
+          command: [sh, -ec]
+          args:
+            - |
+              cp /config/package.json /config/package-lock.json /opt/acp/
+              npm ci --prefix /opt/acp --omit=dev --ignore-scripts --no-audit --no-fund
+          securityContext:
+            runAsUser: 10000
+            runAsGroup: 10000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: HOME
+              value: /tmp
+            - name: npm_config_cache
+              value: /tmp/npm-cache
+          volumeMounts:
+            - name: acp-config
+              mountPath: /config
+              readOnly: true
+            - name: acp-deps
+              mountPath: /opt/acp
       containers:
         - name: hermes
           image: nousresearch/hermes-agent:v2026.8.27@sha256:e0df6adebddf29b91112aefc999d4aaf6846c9eb544faca5672a16a13590ff79
@@ -125,7 +152,108 @@ spec:
               port: 8642
             periodSeconds: 10
             failureThreshold: 3
+        # Shares the existing Hermes home and provider credentials. This runs
+        # ACP only, never a second gateway against the same data directory.
+        - name: acp-bridge
+          image: nousresearch/hermes-agent:v2026.8.27@sha256:e0df6adebddf29b91112aefc999d4aaf6846c9eb544faca5672a16a13590ff79
+          command: [node, /config/launch.mjs]
+          workingDir: /opt/data
+          securityContext:
+            runAsUser: 10000
+            runAsGroup: 10000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: HOME
+              value: /opt/data
+            - name: HERMES_HOME
+              value: /opt/data
+            - name: PATH
+              value: /opt/data/.local/bin:/opt/hermes/bin:/opt/hermes/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            - name: PYTHONPATH
+              value: /opt/mem0-deps
+            - name: MEM0_TELEMETRY
+              value: "False"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            tcpSocket:
+              port: 8766
+          volumeMounts:
+            - name: hermes-data
+              mountPath: /opt/data
+            - name: mem0-deps
+              mountPath: /opt/mem0-deps
+              readOnly: true
+            - name: acp-config
+              mountPath: /config
+              readOnly: true
+            - name: acp-deps
+              mountPath: /opt/acp
+              readOnly: true
+        - name: acp-auth
+          image: nginxinc/nginx-unprivileged:1.30.5-alpine@sha256:daa17b944bac2b578e962da4c61ad72a59233b3c63abea17113acaf4e6b9aea4
+          command: [sh, -ec]
+          args:
+            - |
+              # Fail closed before rendering nginx config, including on an
+              # empty or malformed bootstrap Secret. Never echo the token.
+              case "$ACP_BEARER_TOKEN" in
+                ""|*[!A-Za-z0-9_-]*) exit 1 ;;
+              esac
+              test "${#ACP_BEARER_TOKEN}" -ge 43
+              envsubst '$ACP_BEARER_TOKEN' < /config/nginx.conf.template > /etc/nginx/conf.d/default.conf
+              exec nginx -g 'daemon off;'
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 101
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: ACP_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-acp-auth
+                  key: bearer-token
+          ports:
+            - name: acp
+              containerPort: 8765
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: acp
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: acp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: acp-config
+              mountPath: /config
+              readOnly: true
       volumes:
+        - name: acp-config
+          configMap:
+            name: hermes-acp-config
+        - name: acp-deps
+          emptyDir: {}
         - name: hermes-data
           persistentVolumeClaim:
             claimName: hermes-data

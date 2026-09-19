@@ -1,0 +1,8 @@
+{
+  "name": "hermes-acp-transport",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "@rebornix/stdio-to-ws": "0.2.0"
+  }
+}
