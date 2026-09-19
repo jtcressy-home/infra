@@ -67,6 +67,12 @@ Rules the maintainer has confirmed are safe to approve and merge without asking.
   `helm release external-dns`, `helm release spegel` — patch and minor: approve
   and merge. Maintainer classified these as low risk to upgrade in place.
   (2026-08-26)
+- Stateful leaf applications — in-major bumps only (same major version):
+  approve and merge, then watch the app in ArgoCD after the merge. Covers the
+  `n8n` chart, the `teslamate` image inside 3.x and the
+  `ghcr.io/cloudnative-pg/postgresql` image inside a single Postgres major.
+  Cross-major bumps of these imply a data migration and are still asked about.
+  (2026-09-07)
 <!-- END AUTO-APPROVE RULES -->
 
 ## Always ask rules
@@ -97,6 +103,19 @@ not lost. Newest first. Each entry records the dependency, the update, the answe
 and the reasoning given.
 
 <!-- BEGIN DECISION LOG -->
+- **2026-09-07 — Standing rules moved into Renovate automerge.** The triage agent
+  can only approve, so the 2026-08-26 rules for the ark charts, cert-manager,
+  external-secrets, external-dns, spegel, the searxng valkey chart and the Go
+  toolchain left 15 approved PRs sitting unmerged. They are now expressed as
+  `automerge: true` package rules in `renovate.json` with the matching paths in
+  the auto-approve workflow allowlist, so Renovate lands them without a triage
+  run.
+- **2026-09-07 — Transient `argocd-diff` failures.** A failed "Changed ArgoCD
+  Applications" check whose log shows the live-cluster setup step failing (e.g.
+  HTTP 500 while downloading the `argocd` binary) is an infrastructure flake, not
+  a policy failure. The PR is still left alone until the check is re-run — the
+  triage agent cannot re-run workflow jobs (`Resource not accessible by
+  integration`).
 - **2026-08-26 — bjw-s `app-template` v4.6.2 → v5.1.0 (#742).** Close it. The
   chart is legacy in this repo and the ArgoCD diff check fails on the bump.
 - **2026-08-26 — Envoy Gateway `gateway-helm` v1.8.1 → 1.9.0 (#876).** Left open,

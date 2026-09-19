@@ -51,7 +51,16 @@ jobs:
               kubernetes/deploy/home/media/*/clusters/*/*.yaml | \
               kubernetes/deploy/agentic-ai/kagent/kagent/clusters/*/kustomization.yaml | \
               kubernetes/deploy/agentic-ai/metamcp/metamcp/clusters/*/deployment.yaml | \
-              kubernetes/deploy/home/teslamate/teslamate/clusters/*/values.yaml)
+              kubernetes/deploy/home/teslamate/teslamate/clusters/*/values.yaml | \
+              kubernetes/deploy/agentic-ai/ark-system/ark/clusters/*/kustomization.yaml | \
+              kubernetes/deploy/system/cert-manager/cert-manager/clusters/*/kustomization.yaml | \
+              kubernetes/deploy/system/external-secrets/eso/clusters/*/kustomization.yaml | \
+              kubernetes/deploy/system/kube-system/external-dns-unifi/clusters/*/kustomization.yaml | \
+              kubernetes/deploy/system/kube-system/spegel/clusters/*/kustomization.yaml | \
+              kubernetes/deploy/home/searxng/searxng/clusters/*/kustomization.yaml | \
+              magefiles/go.mod | \
+              magefiles/go.sum | \
+              scratch/*/daemonset.yaml)
                 ;;
               *)
                 echo "Refusing approval: ${file} is outside the automerge allowlist." >&2
