@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/huh/v2 v2.0.3
 	github.com/charmbracelet/lipgloss/v2 v2.0.6
 	github.com/charmbracelet/log/v2 v2.0.1
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/go-logr/logr v1.4.4
 	github.com/kastenhq/kubestr v0.4.49
 	github.com/lainio/err2 v1.3.0
