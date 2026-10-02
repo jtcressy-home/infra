@@ -63,7 +63,6 @@
       "description": "Keep stateful and controller-owning application updates attended",
       "matchFileNames": [
         "kubernetes/deploy/agentic-ai/ark-system/**",
-        "kubernetes/deploy/agentic-ai/hermes/**",
         "kubernetes/deploy/agentic-ai/kagent/**",
         "kubernetes/deploy/agentic-ai/metamcp/**",
         "kubernetes/deploy/agentic-ai/n8n/**",
@@ -210,30 +209,6 @@
       "groupSlug": "dograh",
       "automerge": true,
       "rebaseWhen": "behind-base-branch",
-      "labels": [
-        "renovate:automerge"
-      ]
-    },
-    {
-      "description": "Automerge only the official Hermes image in its deployment after a stability delay",
-      "matchFileNames": [
-        "kubernetes/deploy/agentic-ai/hermes/**"
-      ],
-      "matchPackageNames": [
-        "nousresearch/hermes-agent"
-      ],
-      "matchUpdateTypes": [
-        "major",
-        "minor",
-        "patch",
-        "digest"
-      ],
-      "automerge": true,
-      "rebaseWhen": "behind-base-branch",
-      "minimumReleaseAge": "3 days",
-      "minimumReleaseAgeBehaviour": "timestamp-optional",
-      "prCreation": "not-pending",
-      "internalChecksFilter": "strict",
       "labels": [
         "renovate:automerge"
       ]

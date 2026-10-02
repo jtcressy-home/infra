@@ -10,5 +10,4 @@ resources:
   - ingress
   - asterisk
   - jellyseerr-adapter
-  - hermes-adapter
   - backups
