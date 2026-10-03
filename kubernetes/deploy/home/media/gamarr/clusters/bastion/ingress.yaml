@@ -1,0 +1,21 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gamarr
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - gamarr
+  rules:
+    - host: gamarr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gamarr
+                port:
+                  number: 5001
