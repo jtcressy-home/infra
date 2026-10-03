@@ -34,7 +34,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: simplyprint-client
-          image: docker.io/simplyprint/simplyprint-client:production-stable@sha256:d4fd3b75693f98b5149b770235586e8754b8ebd7202b4abc4b30edc950804f64
+          image: docker.io/simplyprint/simplyprint-client:production-stable@sha256:1c483decae710aaf661c5e9d484e4173e2879360f4ead62254717d4b3e5c1b86
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
