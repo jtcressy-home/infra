@@ -198,12 +198,6 @@ def sanitize_diff(text: str) -> str:
     return text
 
 
-def sanitize_live_output(text: str) -> str:
-    if re.search(r"(?im)^[+\- ]*kind:\s*Secret\s*$", text):
-        return "Live output contained a Secret resource and was redacted.\n"
-    return sanitize_diff(text)
-
-
 def inventory(rendered: str) -> list[dict[str, str]]:
     items: list[dict[str, str]] = []
     for document in re.split(r"(?m)^---\s*$", rendered):
@@ -269,6 +263,32 @@ def build_summary(result: dict, output_dir: Path) -> None:
     errors = result.get("errors", [])
     status = "failure" if errors or any(app.get("errors") for app in apps) else "success"
     result["status"] = status
+    # Public sinks receive only this projection. Never include live resource
+    # names, output files, manifests, arbitrary error text or inventory payloads.
+    def enum(value: str, allowed: set[str]) -> str:
+        return value if value in allowed else "unknown"
+
+    def revision(value: str) -> str:
+        return value if re.fullmatch(r"[0-9a-f]{40,64}", value) else "unknown"
+
+    public = {
+        "status": status,
+        "base_sha": revision(result["base_sha"]),
+        "head_sha": revision(result["head_sha"]),
+        "error_count": len(errors),
+        "applications": [],
+    }
+    for app in apps:
+        key = app["key"]
+        public["applications"].append({
+            "source": key if re.fullmatch(r"[a-zA-Z0-9_.:-]+", key) else "invalid-source",
+            "transition": enum(app["transition"], {"added", "enabled", "disabled", "deleted", "disabled-deleted", "disabled-added", "dormant-changed", "changed", "unchanged"}),
+            "risk": enum(app["risk"], {"normal", "high"}),
+            "local": enum(app.get("local", {}).get("status", "not-run"), {"not-run", "changed", "no-change", "error"}),
+            "live": [enum(item.get("status", "unknown"), {"no-change", "changed", "error", "inventory"}) for item in app.get("live", [])],
+            "error_count": len(app.get("errors", [])),
+        })
+    apps = public["applications"]
     counts: dict[str, int] = {}
     for app in apps:
         counts[app["transition"]] = counts.get(app["transition"], 0) + 1
@@ -276,8 +296,8 @@ def build_summary(result: dict, output_dir: Path) -> None:
         "## Argo CD changed-source diff",
         "",
         f"**Status:** {status}  ",
-        f"**Base:** `{result['base_sha']}`  ",
-        f"**Head:** `{result['head_sha']}`  ",
+        f"**Base:** `{public['base_sha']}`  ",
+        f"**Head:** `{public['head_sha']}`  ",
         f"**Affected sources:** {len(apps)}",
         "",
     ]
@@ -287,35 +307,20 @@ def build_summary(result: dict, output_dir: Path) -> None:
         lines.append("")
     if errors:
         lines.extend(("### Blocking errors", ""))
-        lines.extend(f"- {error}" for error in errors)
+        lines.append(f"{len(errors)} technical error(s); raw diagnostics are not published.")
         lines.append("")
     if apps:
-        lines.extend(("### Sources", "", "| Source | Transition | Risk | Local | Live |", "|---|---|---|---|---|"))
+        lines.extend(("### Sources", "", "| Source | Transition | Risk | Local | Live | Errors |", "|---|---|---|---|---|---|"))
         for app in apps:
-            local = app.get("local", {}).get("status", "not-run")
-            live = ", ".join(item["status"] for item in app.get("live", [])) or "not-needed"
-            lines.append(f"| `{app['key']}` | {app['transition']} | {app['risk']} | {local} | {live} |")
+            live = ", ".join(app["live"]) or "not-needed"
+            lines.append(f"| `{app['source']}` | {app['transition']} | {app['risk']} | {app['local']} | {live} | {app['error_count']} |")
         lines.append("")
-    for app in apps:
-        details: list[str] = []
-        diff_file = app.get("local", {}).get("diff_file")
-        if diff_file and (output_dir / diff_file).is_file():
-            details.append((output_dir / diff_file).read_text()[:6000])
-        for item in app.get("live", []):
-            if item.get("output_file") and (output_dir / item["output_file"]).is_file():
-                details.append((output_dir / item["output_file"]).read_text()[:6000])
-        if details or app.get("errors"):
-            lines.extend((f"<details><summary>{app['key']} — {app['transition']}</summary>", ""))
-            if app.get("errors"):
-                lines.extend(f"- **Error:** {error}" for error in app["errors"])
-                lines.append("")
-            for detail in details:
-                lines.extend(("```diff", detail.rstrip(), "```", ""))
-            lines.extend(("</details>", ""))
+    lines.append("Live manifests, resource identifiers and raw diagnostics are excluded from public evidence.")
     summary = "\n".join(lines)
     if len(summary) > 60000:
-        summary = summary[:59000] + "\n\n_Output truncated; download the workflow artifact for complete sanitized evidence._\n"
+        summary = summary[:59000] + "\n\n_Output truncated; download the workflow artifact for the complete public summary._\n"
     (output_dir / "summary.md").write_text(summary)
+    write_json(output_dir / "public-result.json", public)
 
 
 def plan_application(
@@ -418,13 +423,14 @@ def run_live_operation(app_name: str, mode: str, revision: str, output_dir: Path
         proc = command(["argocd", "app", "diff", app_name, "--grpc-web", "--revision", revision, "--diff-exit-code", "20"], timeout=APP_TIMEOUT)
         status = "no-change" if proc.returncode == 0 else "changed" if proc.returncode == 20 else "error"
     else:
-        proc = command(["argocd", "app", "resources", app_name, "--grpc-web", "-o", "json"], timeout=APP_TIMEOUT)
+        # Argo CD v3.2.1 resources supports --output tree, not -o/json.
+        # Include controller dependents, but exclude unrelated namespace orphans.
+        # This is review evidence, not proof of exclusive storage ownership.
+        proc = command(["argocd", "app", "resources", app_name, "--grpc-web", "--output", "tree", "--orphaned=false"], timeout=APP_TIMEOUT)
         status = "inventory" if proc.returncode == 0 else "error"
-    relative = f"diffs/{slug(key)}-{slug(app_name)}-{mode}.txt"
-    output = sanitize_live_output(proc.stdout + proc.stderr)
-    (output_dir / relative).parent.mkdir(parents=True, exist_ok=True)
-    (output_dir / relative).write_text(output)
-    item = {"application": app_name, "mode": mode, "status": status, "output_file": relative}
+    # Raw stdout/stderr may contain credentials or runtime details in any diff
+    # syntax. Discard them instead of attempting regex-based publication.
+    item = {"application": app_name, "mode": mode, "status": status}
     if status == "error":
         item["error"] = f"argocd {mode} exited {proc.returncode}"
     return item
