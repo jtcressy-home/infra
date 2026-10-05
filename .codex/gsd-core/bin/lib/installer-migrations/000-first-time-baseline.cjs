@@ -29,7 +29,6 @@ const RUNTIME_SURFACES = {
     augment: ['gsd-core', 'skills', 'agents'],
     trae: ['gsd-core', 'skills', 'agents', 'rules'],
     qwen: ['gsd-core', 'skills', 'agents'],
-    hermes: ['gsd-core', 'skills/gsd', 'agents'],
     cline: ['gsd-core', 'skills', 'agents'],
     codebuddy: ['gsd-core', 'skills', 'agents'],
 };

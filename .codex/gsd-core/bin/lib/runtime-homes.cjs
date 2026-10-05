@@ -10,8 +10,6 @@
  * byte-for-behaviour from the prior hand-written .cjs; only types are added.
  *
  * Runtime-specific notes:
- *   hermes  — GSD skills nest under skills/gsd/<skillName>/ (not the flat
- *             skills/<skillName>/ layout used by all other runtimes).
  *   cline   — Skills-capable since v3.48.0 (#782). SKILL.md files live at
  *             ~/.cline/skills/<skillName>/SKILL.md (same flat layout as cursor/codex).
  *             .clinerules is also emitted (rules-based compatibility layer).

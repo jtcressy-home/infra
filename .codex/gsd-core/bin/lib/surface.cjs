@@ -383,7 +383,7 @@ function applySurface(runtimeConfigDir, layout, manifest, clusterMap, registry, 
  *     the prefix but are NOT in the manifest are treated as user-owned and
  *     preserved — this prevents data loss for user-created gsd-* directories.
  *     A warning is written to stderr when such a dir is encountered.
- *   - Empty prefix (Hermes): dir name appears as a canonical skill stem in the
+ *   - Empty prefix: dir name appears as a canonical skill stem in the
  *     manifest. User dirs not in the manifest are preserved.
  *   - Empty prefix without manifest, or manifest not a Map: conservative; no
  *     dirs are removed.
@@ -393,8 +393,8 @@ function applySurface(runtimeConfigDir, layout, manifest, clusterMap, registry, 
  *
  * @param skillsDir        directory that contains the gsd-STEM sub-dirs
  * @param retainedNames    set of directory names to keep (e.g. 'gsd-help')
- * @param prefix           GSD dir prefix, e.g. 'gsd-' (or '' for Hermes)
- * @param manifest         optional; required for Hermes empty-prefix case
+ * @param prefix           GSD dir prefix, e.g. 'gsd-' (or '' for an unprefixed layout)
+ * @param manifest         optional; required for empty-prefix case
  *                         and for manifest-membership gate in prefixed case.
  *                         Must be a Map; any other type is treated as missing.
  */
@@ -404,7 +404,7 @@ function pruneSkillDirs(skillsDir, retainedNames, prefix, manifest) {
     // Finding 2: guard against callers passing a truthy non-Map as manifest.
     // A non-Map manifest would throw on .keys(); treat it as absent and be conservative.
     const safeManifest = (manifest instanceof Map) ? manifest : null;
-    // Build the canonical stem set from the manifest (used for both prefixed and Hermes paths).
+    // Build the canonical stem set from the manifest (used for both prefixed and unprefixed paths).
     // Deletion requires manifest membership — without a valid manifest, be conservative.
     const canonicalStems = safeManifest
         ? new Set([...safeManifest.keys()].filter(k => !k.startsWith('_calls_agents_')))
@@ -433,7 +433,7 @@ function pruneSkillDirs(skillsDir, retainedNames, prefix, manifest) {
             isGsdOwned = true;
         }
         else if (canonicalStems) {
-            // Hermes: GSD-owned iff the directory name appears in the canonical manifest.
+            // Unprefixed path: GSD-owned iff the directory name appears in the canonical manifest.
             isGsdOwned = canonicalStems.has(entry);
         }
         else {
@@ -441,7 +441,7 @@ function pruneSkillDirs(skillsDir, retainedNames, prefix, manifest) {
             continue;
         }
         if (!isGsdOwned)
-            continue; // Hermes path only: preserve user-owned dirs not in manifest
+            continue; // Unprefixed paths only: preserve user-owned dirs not in manifest
         if (retainedNames.has(entry))
             continue; // GSD-owned and in retain set
         try {
@@ -461,7 +461,7 @@ function pruneSkillDirs(skillsDir, retainedNames, prefix, manifest) {
  *   by copying recursively; remove dirs not in staged set. Preserves dirs not matching
  *   the prefix (user-owned skills). Pruning is delegated to pruneSkillDirs().
  *
- * For Hermes (empty prefix): uses manifest membership to discriminate GSD-owned vs
+ * For an empty prefix: uses manifest membership to discriminate GSD-owned vs
  * user-owned dirs. GSD-owned = stem in manifest; removal targets = in manifest AND
  * not in staged set. User-owned (not in manifest) are always preserved.
  */
