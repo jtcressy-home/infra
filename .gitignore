@@ -21,10 +21,6 @@ kubernetes/oldapps/**
 # worktrees
 .worktrees/
 
-# GSD private planning state lives in a private submodule.
-# Track only the submodule gitlink in this public repo.
-.planning/*
-
 # Claude Code sandbox artifacts (0-byte placeholders)
 .bash_profile
 .bashrc
