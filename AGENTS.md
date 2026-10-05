@@ -1,5 +1,12 @@
 # AGENTS.md
 
+## Repository scope
+
+`jtcressy-home/infra` is for deployment and GitOps configuration only. Do not add
+bespoke application or service implementations here. Custom service code belongs
+in a discrete, dedicated project repository; this repository holds its deployment
+configuration. If proposed work has unclear scope, ask the owner before adding it.
+
 ## Task Runner
 
 This repo uses **Task** (`Taskfile.yml`) as the primary build tool. Always prefer task commands over raw CLI invocations.
