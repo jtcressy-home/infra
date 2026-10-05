@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
 - external-secret.yaml
 - proxyclass.yaml
+- rbac.yaml
 
 helmCharts:
   - name: tailscale-operator
