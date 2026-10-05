@@ -31,12 +31,6 @@ fi
 
 log_info "GitHub OIDC token obtained successfully"
 
-# Optional: Decode and display token claims for debugging
-if [[ "${ACTIONS_STEP_DEBUG:-false}" == "true" ]]; then
-    log_info "GitHub OIDC Token Claims:"
-    echo "${GITHUB_OIDC_TOKEN}" | cut -d. -f2 | base64 -d 2>/dev/null | jq '.' >&2 || true
-fi
-
 # Step 2: Exchange GitHub OIDC token with Dex
 # Use existing argo-cd-cli public client (no secret required)
 log_info "Exchanging GitHub OIDC token with Dex using argo-cd-cli client..."
@@ -55,7 +49,6 @@ HTTP_CODE=$(curl -sS -w "%{http_code}" -o /tmp/dex_response.json \
 
 if [[ "${HTTP_CODE}" != "200" ]]; then
     log_error "Dex token exchange failed with HTTP ${HTTP_CODE}"
-    log_error "Response: $(cat /tmp/dex_response.json)"
     rm -f /tmp/dex_response.json
     exit 1
 fi
@@ -67,17 +60,10 @@ DEX_TOKEN=$(echo "${DEX_TOKEN_RESPONSE}" | jq -r '.access_token // .id_token')
 
 if [[ -z "${DEX_TOKEN}" || "${DEX_TOKEN}" == "null" ]]; then
     log_error "Failed to extract token from Dex response"
-    log_error "Response: ${DEX_TOKEN_RESPONSE}"
     exit 1
 fi
 
 log_info "Dex token obtained successfully"
-
-# Optional: Display Dex token claims for debugging
-if [[ "${ACTIONS_STEP_DEBUG:-false}" == "true" ]]; then
-    log_info "Dex Token Claims:"
-    echo "${DEX_TOKEN}" | cut -d. -f2 | base64 -d 2>/dev/null | jq '.' >&2 || true
-fi
 
 # Step 3: Use Dex token directly with ArgoCD
 # ArgoCD accepts the OIDC token from Dex directly as a Bearer token

@@ -9,6 +9,8 @@ on:
       - .taskfiles/apps/**
       - .github/scripts/argocd_diff_pr.py
       - .github/scripts/test_argocd_diff_pr.py
+      - .github/scripts/argocd-oidc-login.sh
+      - .github/scripts/test_oidc_log_safety.py
       - .github/workflows/argocd-diff.yml
 
 concurrency:
@@ -58,6 +60,10 @@ jobs:
       - name: Test lifecycle planner
         working-directory: head
         run: task apps:overlays:diff-pr-test
+
+      - name: Test mocked OIDC login output
+        working-directory: head
+        run: python3 -m unittest discover -s .github/scripts -p test_oidc_log_safety.py
 
       - name: Render and compare base with head
         id: plan
@@ -134,12 +140,14 @@ jobs:
           message-id: argocd-diff-v2
           message-path: ${{ github.workspace }}/.local/argocd-diff/summary.md
 
-      - name: Upload sanitized evidence
+      - name: Upload public summary
         if: always() && hashFiles('.local/argocd-diff/result.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: argocd-diff-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-          path: ${{ github.workspace }}/.local/argocd-diff
+          path: |
+            ${{ github.workspace }}/.local/argocd-diff/summary.md
+            ${{ github.workspace }}/.local/argocd-diff/public-result.json
           retention-days: 14
           if-no-files-found: error
 
