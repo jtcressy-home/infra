@@ -9,6 +9,8 @@ on:
       - .taskfiles/apps/**
       - .github/scripts/argocd_diff_pr.py
       - .github/scripts/test_argocd_diff_pr.py
+      - .github/scripts/argocd-oidc-login.sh
+      - .github/scripts/test_oidc_log_safety.py
       - .github/workflows/argocd-diff.yml
 
 concurrency:
@@ -58,6 +60,10 @@ jobs:
       - name: Test lifecycle planner
         working-directory: head
         run: task apps:overlays:diff-pr-test
+
+      - name: Test mocked OIDC login output
+        working-directory: head
+        run: python3 -m unittest discover -s .github/scripts -p test_oidc_log_safety.py
 
       - name: Render and compare base with head
         id: plan
