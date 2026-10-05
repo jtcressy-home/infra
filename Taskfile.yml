@@ -6,6 +6,8 @@ vars:
     sh: "git rev-parse --show-toplevel"
 
 includes:
+  alerting:
+    taskfile: .taskfiles/alerting/Taskfile.yaml
   talos:
     taskfile: .taskfiles/talos/Taskfile.yaml
     vars:

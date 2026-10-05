@@ -1,0 +1,18 @@
+version: '3'
+tasks:
+  validate:
+    desc: Render and validate the staged Alertmanager intake without network delivery
+    requires:
+      vars: [outputDir]
+    cmds:
+      - mkdir -p '{{.outputDir}}'
+      - task apps:overlays:render project=system namespace=kube-system app=kube-prometheus-stack cluster=bastion > '{{.outputDir}}/stack.yaml'
+      - task apps:overlays:render project=monitoring namespace=monitoring app=victoria-metrics cluster=bastion > '{{.outputDir}}/victoria.yaml'
+      - python3 .github/scripts/check_alerting.py '{{.outputDir}}/stack.yaml' '{{.outputDir}}/victoria.yaml' --config-output '{{.outputDir}}/alertmanager.yaml'
+      - amtool check-config '{{.outputDir}}/alertmanager.yaml'
+  adapter-test:
+    desc: Test incident state and MCP delivery using synthetic fixtures only
+    env:
+      PYTHONPATH: services/incident-adapter/src
+    cmds:
+      - python3 -m unittest discover -s services/incident-adapter/tests -v

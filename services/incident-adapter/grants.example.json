@@ -1,0 +1,10 @@
+{
+  "replace-with-approved-agent-subject": {
+    "kind": "agent",
+    "scopes": ["monitoring:read", "monitoring:ack"]
+  },
+  "replace-with-approved-human-subject": {
+    "kind": "human",
+    "scopes": ["monitoring:read", "monitoring:ack"]
+  }
+}

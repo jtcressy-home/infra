@@ -18,18 +18,10 @@ spec:
     url: http://vmsingle-victoria.monitoring.svc:8429
   remoteWrite:
     url: http://vmagent-victoria.monitoring.svc:8429
+  # Service rendered by the existing kube-prometheus-stack release.
+  # Phase 1 is intake only; see docs/bastion-alerting.md before activation.
   notifiers:
-    - url: http://alertmanager.monitoring.svc:9093
-    - url: http://alertmanager-local-0.monitoring.svc:9093
-    - url: http://alertmanager-local-1.monitoring.svc:9093
-    - url: http://alertmanager-local-2.monitoring.svc:9093
-  # notifiers:
-  #   - selector:
-  #       namespaceSelector:
-  #         matchNames: [monitoring]
-  #       labelSelector:
-  #         matchLabels:
-  #             app.kubernetes.io/name: alertmanager
+    - url: http://kps-alertmanager.kube-system.svc:9093
   resources:
     requests:
       cpu: 20m

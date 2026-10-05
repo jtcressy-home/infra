@@ -1,0 +1,43 @@
+name: Validate staged alerting
+on:
+  pull_request:
+    paths:
+      - 'kubernetes/deploy/system/kube-system/kube-prometheus-stack/**'
+      - 'kubernetes/deploy/monitoring/monitoring/victoria-metrics/**'
+      - '.github/scripts/check_alerting.py'
+      - '.github/workflows/alerting-validation.yml'
+      - '.taskfiles/alerting/**'
+      - 'Taskfile.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: 5.7.1
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install validation tools
+        run: |
+          python -m pip install PyYAML==6.0.2
+          version=0.31.1
+          archive="alertmanager-${version}.linux-amd64.tar.gz"
+          curl -fsSL "https://github.com/prometheus/alertmanager/releases/download/v${version}/${archive}" -o "${RUNNER_TEMP}/${archive}"
+          curl -fsSL "https://github.com/prometheus/alertmanager/releases/download/v${version}/sha256sums.txt" -o "${RUNNER_TEMP}/sha256sums.txt"
+          cd "${RUNNER_TEMP}"
+          grep " ${archive}$" sha256sums.txt | sha256sum -c -
+          tar -xzf "${archive}"
+          echo "${RUNNER_TEMP}/alertmanager-${version}.linux-amd64" >> "${GITHUB_PATH}"
+      - name: Validate rendered intake
+        run: task alerting:validate outputDir="${RUNNER_TEMP}/alerting-validation"

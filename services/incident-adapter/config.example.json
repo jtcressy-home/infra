@@ -1,0 +1,17 @@
+{
+  "database": "/data/incidents.sqlite",
+  "listen": "0.0.0.0",
+  "port": 8080,
+  "issuer": "https://approved-issuer.example.invalid",
+  "resource": "https://approved-adapter.example.invalid/mcp",
+  "jwks_url": "https://approved-issuer.example.invalid/jwks",
+  "grants_file": "/run/secrets/principal-grants.json",
+  "encryption_key_file": "/run/secrets/subscription-encryption-key",
+  "alertmanager_token_file": "/run/secrets/alertmanager-webhook-token",
+  "discord_webhook_file": "/run/secrets/discord-webhook-url",
+  "jira_origin": "https://approved-jira.example.invalid",
+  "alertmanager_url": "http://kps-alertmanager.kube-system.svc:9093",
+  "vmalert_url": "http://vmalert-victoria.monitoring.svc:8080",
+  "metrics_url": "http://vmsingle-victoria.monitoring.svc:8429",
+  "required_telemetry_query": "REPLACE_WITH_APPROVED_REQUIRED_SIGNAL_HEALTH_QUERY"
+}

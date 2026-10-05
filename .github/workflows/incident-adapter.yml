@@ -1,0 +1,27 @@
+name: Test incident adapter
+on:
+  pull_request:
+    paths:
+      - 'services/incident-adapter/**'
+      - '.github/workflows/incident-adapter.yml'
+      - '.taskfiles/alerting/Taskfile.yaml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install pinned adapter dependencies
+        run: python -m pip install -r services/incident-adapter/requirements.txt
+      - name: Test synthetic delivery and failure paths
+        run: task alerting:adapter-test
+      - name: Build container locally without publishing
+        run: docker build -t incident-adapter:test services/incident-adapter

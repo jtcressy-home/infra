@@ -4,6 +4,18 @@ kind: Kustomization
 namespace: kube-system
 
 patches:
+# Nil selectors keep phase 1 on its explicit staging config. Empty selectors
+# would import existing AlertmanagerConfig resources and could enable delivery.
+- target:
+    group: monitoring.coreos.com
+    version: v1
+    kind: Alertmanager
+    name: kps
+  patch: |-
+    - op: remove
+      path: /spec/alertmanagerConfigSelector
+    - op: remove
+      path: /spec/alertmanagerConfigNamespaceSelector
 - target:
     group: apiextensions.k8s.io
     version: v1
@@ -47,7 +59,44 @@ helmCharts:
     cleanPrometheusOperatorObjectNames: true
     namespaceOverride: kube-system
     alertmanager:
-      enabled: false
+      enabled: true
+      # Phase 1 restores intake only. Outbound delivery requires the reviewed
+      # incident adapter and separate activation approval; never infer delivery
+      # health from a successful VMAlert POST to this staging receiver.
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          receiver: staging-no-delivery
+          group_by: ['cluster', 'namespace', 'alertname']
+          group_wait: 10s
+          group_interval: 1m
+          repeat_interval: 1h
+          routes: []
+        receivers:
+          - name: staging-no-delivery
+        inhibit_rules: []
+      alertmanagerSpec:
+        image:
+          registry: quay.io
+          repository: prometheus/alertmanager
+          tag: v0.31.1
+        replicas: 1
+        retention: 120h
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: local
+              accessModes: [ReadWriteOnce]
+              resources:
+                requests:
+                  storage: 1Gi
     grafana:
       enabled: false
       forceDeployDashboards: true
