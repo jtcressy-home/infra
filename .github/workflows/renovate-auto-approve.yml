@@ -46,7 +46,6 @@ jobs:
           while IFS= read -r file; do
             case "${file}" in
               kubernetes/deploy/agentic-ai/dograh/dograh/clusters/*/app/*.yaml | \
-              kubernetes/deploy/agentic-ai/hermes/hermes/clusters/*/deployment.yaml | \
               kubernetes/deploy/home/simplyprint/simplyprint-client/clusters/*/deployment.yaml | \
               kubernetes/deploy/home/media/*/clusters/*/*.yaml | \
               kubernetes/deploy/agentic-ai/kagent/kagent/clusters/*/kustomization.yaml | \
