@@ -38,6 +38,7 @@ const FALLBACK_ALIASES = {
     augment: ['augment', 'augment-code', 'augment-cli'],
     trae: ['trae', 'trae-cli'],
     qwen: ['qwen', 'qwen-code', 'qwen-cli'],
+    hermes: ['hermes', 'hermes-agent', 'hermes-cli'],
     kimi: ['kimi'],
     codebuddy: ['codebuddy', 'codebuddy-cli'],
     cline: ['cline', 'cline-cli'],
@@ -245,6 +246,7 @@ const RUNTIME_LABELS = {
     augment: 'Augment',
     trae: 'Trae',
     qwen: 'Qwen Code',
+    hermes: 'Hermes Agent',
     kimi: 'Kimi CLI',
     codebuddy: 'CodeBuddy',
     cline: 'Cline',
@@ -297,6 +299,7 @@ const GLOBAL_CONFIG_HOME_FRAGMENTS = {
     augment: "'.augment'",
     trae: "'.trae'",
     qwen: "'.qwen'",
+    hermes: "'.hermes'",
     codebuddy: "'.codebuddy'",
     cline: "'.cline'",
     kimi: "'.config', 'agents'",
@@ -334,7 +337,7 @@ function getGlobalConfigHomeFragment(runtime) {
 // folds the shared-hooks-install skip).
 const RUNTIME_FLAG_IDS = Object.freeze([
     'opencode', 'kilo', 'codex', 'copilot', 'antigravity', 'cursor',
-    'windsurf', 'augment', 'trae', 'qwen', 'codebuddy', 'cline', 'kimi', 'zcode', 'pi',
+    'windsurf', 'augment', 'trae', 'qwen', 'hermes', 'codebuddy', 'cline', 'kimi', 'zcode', 'pi',
 ]);
 /**
  * Return a frozen map of `is<Runtime>` boolean predicates for the given runtime

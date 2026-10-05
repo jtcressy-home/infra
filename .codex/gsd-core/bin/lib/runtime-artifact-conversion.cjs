@@ -413,7 +413,7 @@ function convertClaudeCommandToClaudeSkill(content, skillName, runtime = null, c
         return content;
     // #3583: rewrite any /gsd:<cmd> or gsd:<cmd> in the body to the canonical
     // hyphen form (gsd-<cmd>) so installed SKILL.md bodies match the hyphen
-    // `name:` Claude Code (and Qwen) register under (#2808). `cmdNames`
+    // `name:` Claude Code (and Qwen/Hermes) register under (#2808). `cmdNames`
     // is optional and pre-computed by the caller for performance; direct test
     // calls fall back to reading the list.
     const names = cmdNames || readGsdCommandNames();
@@ -437,9 +437,17 @@ function convertClaudeCommandToClaudeSkill(content, skillName, runtime = null, c
     // Reconstruct frontmatter in Claude skill format
     const frontmatterName = skillFrontmatterName(skillName);
     let fm = `---\nname: ${frontmatterName}\ndescription: ${yamlQuote(description)}\n`;
+    // Hermes' SKILL.md spec lists `version` as a required frontmatter field.
+    // Track GSD's package version so Hermes' skill_view() reports a stable
+    // identifier per install.
+    if (runtime === 'hermes') {
+        const version = gsdVersion();
+        if (version)
+            fm += `version: ${yamlQuote(version)}\n`;
+    }
     // #778 (b) — numeric priority for /skills ordering, declared on the runtime
     // descriptor (runtime.hostBehaviors.skillPriorityFrontmatter). Scoped to
-    // runtimes that declare the flag so Claude skill frontmatter is
+    // runtimes that declare the flag so Claude/Hermes skill frontmatter is
     // unchanged (they ignore the field, but we keep their output byte-stable).
     // skillName is the `gsd-<stem>` dir name. (ADR-1239 / #2092)
     if (_hostBehaviors(runtime).skillPriorityFrontmatter) {
@@ -2290,7 +2298,7 @@ function _applyRuntimeRewrites(content, runtime, pathPrefix, isGlobal = false, a
             content = content.replace(/\.\/\.claude\//g, `./${dirName}/`);
             content = processAttribution(content, attribution);
             break;
-        // Descriptor-driven brand literals (ADR-1239 / #2092): the qwen
+        // Descriptor-driven brand literals (ADR-1239 / #2092): the qwen/hermes
         // brand VALUES (CLAUDE.md/Claude Code/.claude/ replacements) now read from
         // runtime.hostBehaviors.brandingRewrites instead of hardcoded literals.
         // EXACT regexes/order preserved — only the replacement values changed.
@@ -2317,6 +2325,30 @@ function _applyRuntimeRewrites(content, runtime, pathPrefix, isGlobal = false, a
             }
             content = content.replace(/\.\/\.claude\//g, `./${dirName}/`);
             content = content.replace(/\.\/\.qwen\//g, `./${dirName}/`);
+            content = processAttribution(content, attribution);
+            break;
+        }
+        case 'hermes': {
+            // Guarded (post-review #2092): see qwen case above — same degrade-closed
+            // rationale.
+            const _b = _hostBehaviors(runtime).brandingRewrites;
+            if (_b) {
+                content = content.replace(/CLAUDE\.md/g, _b['CLAUDE.md']);
+                content = content.replace(/\bClaude Code\b/g, _b['Claude Code']);
+            }
+            content = content.replace(/~\/\.claude\//g, pathPrefix);
+            content = content.replace(/\$HOME\/\.claude\//g, pathPrefix);
+            content = content.replace(/~\/\.hermes\//g, pathPrefix);
+            content = content.replace(/\$HOME\/\.hermes\//g, pathPrefix);
+            content = content.replace(/~\/\.claude(?![\w-])/g, normalizedPathPrefix);
+            content = content.replace(/\$HOME\/\.claude(?![\w-])/g, normalizedPathPrefix);
+            content = content.replace(/~\/\.hermes(?![\w-])/g, normalizedPathPrefix);
+            content = content.replace(/\$HOME\/\.hermes(?![\w-])/g, normalizedPathPrefix);
+            if (_b) {
+                content = content.replace(/\.claude\//g, _b['.claude/']);
+            }
+            content = content.replace(/\.\/\.claude\//g, `./${dirName}/`);
+            content = content.replace(/\.\/\.hermes\//g, `./${dirName}/`);
             content = processAttribution(content, attribution);
             break;
         }
@@ -2471,7 +2503,7 @@ function rewriteStagedCommandBodies(stagedDir, opts) {
 /**
  * Normalize `/gsd:<cmd>` colon refs in the agent body to `/gsd-<cmd>` for
  * runtimes that declare `runtime.hostBehaviors.hyphenNameAgentBody` on their
- * descriptor (claude / qwen use hyphen-`name:` frontmatter;
+ * descriptor (claude / qwen / hermes use hyphen-`name:` frontmatter;
  * cursor/windsurf/etc self-convert and don't declare the flag). Descriptor-
  * driven (ADR-1239 / #2092) — folded from the hardcoded
  * `HYPHEN_NAME_AGENT_RUNTIMES` allow-list set. Mirrors the per-file call in

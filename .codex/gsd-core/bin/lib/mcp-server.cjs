@@ -2,8 +2,8 @@
  * Companion MCP server (ADR-1239 Phase C-2, #1681 slice 3a).
  *
  * A minimal stdio JSON-RPC 2.0 server exposing two of the six interface points
- * so any MCP-consuming host (Claude/Codex/OpenCode/VS Code/Gemini/Cursor/Cline)
- * can drive GSD with NO bespoke plugin:
+ * so any MCP-consuming host (Claude/Codex/OpenCode/VS Code/Gemini/Cursor/Cline/
+ * Hermes) can drive GSD with NO bespoke plugin:
  *
  *   - point 1 (command): tool `gsd_invoke_command` → `dispatchGsdCommand`
  *     (src/shell-command-projection.cts), a bounded subprocess-shim to

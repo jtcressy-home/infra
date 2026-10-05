@@ -220,7 +220,7 @@ function kimiAgentsKind(destSubpath, prefix, configDir) {
  * @param destSubpath
  * @param prefix
  * @param converterName  name of converter function in Runtime Artifact Conversion exports
- * @param runtime        canonical runtime ID (gates Qwen branding in converter)
+ * @param runtime        canonical runtime ID (gates Hermes/Qwen branding in converter)
  * @param configDir      runtime config dir (for .gsd-source marker resolution)
  * @param nested         if true, nest concrete skills under their ns-* routers (#69)
  * @param scope          install scope; converted to isGlobal and passed as 5th positional

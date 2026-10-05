@@ -2035,7 +2035,7 @@ function buildSkillManifest(cwd, skillsDir = null) {
                     skillCount++;
             }
             // Nested layout: <entry>/skills/<stem>/SKILL.md
-            // Used by cline, qwen, augment, trae, antigravity (#69 nested=true).
+            // Used by cline, qwen, hermes, augment, trae, antigravity (#69 nested=true).
             // Descend exactly one level into <entry>/skills/ — no deeper recursion.
             // Scope to gsd-ns-* routers only: never vacuum up an unrelated user skill
             // that happens to have its own `skills/` subdirectory.

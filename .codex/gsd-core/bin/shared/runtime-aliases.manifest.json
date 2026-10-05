@@ -55,6 +55,11 @@
     "qwen-code",
     "qwen-cli"
   ],
+  "hermes": [
+    "hermes",
+    "hermes-agent",
+    "hermes-cli"
+  ],
   "kimi": [
     "kimi"
   ],
