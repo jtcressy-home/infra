@@ -20,6 +20,8 @@ kubernetes/oldapps/**
 
 # worktrees
 .worktrees/
+# Keep legacy private planning checkouts out of this repository.
+/.planning/
 
 # Claude Code sandbox artifacts (0-byte placeholders)
 .bash_profile
