@@ -15,7 +15,7 @@ controllers:
       app: &appcontainer
         image:
           repository: ghcr.io/home-operations/lidarr
-          tag: rolling@sha256:cd237339c1fef890437e1f5e896cb25e7c0b2abbe71abd1a614122f8aa13f89d
+          tag: rolling@sha256:b4c60ae24ff264bcdfd8d5562982d99105c17b82c28a6986498f6fb215b7f42e
         env:
           LIDARR__APP__INSTANCENAME: Lidarr
           LIDARR__APP__THEME: dark
