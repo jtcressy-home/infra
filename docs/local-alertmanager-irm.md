@@ -25,10 +25,22 @@ Do not print endpoint values in logs, CI, PRs, or this document.
 
 ## Routing and grouping
 
-The initial route sends only alerts with `irm_notify="true"` to IRM. No existing
-rules are opted in by this change. All other ordinary alerts go to the null
-receiver. Review firing alerts and approve specific rule labels before enabling
-paging; restoring the transport alone does not activate general incident delivery.
+The initial route sends only alerts with `irm_notify="true"` to IRM. Three
+`CNPGPrimaryUnavailable` rules opt in database-primary health for
+`dograh/dograh-db`, `kagent/kagent-db`, and `teslamate/teslamate-db`.
+Each requires five minutes without a pod that is simultaneously scraped
+successfully, has a healthy collector, and reports primary role. The signals
+join on k8s_cluster, namespace, job, and pod, then collapse to stable database
+identity. Explicit output labels survive complete series loss and exclude pod
+names and IPs, so primary replacement does not change the database incident.
+
+Missing-series detection also depends on datasource staleness/lookback before
+the five-minute pending period; the alerts VMSingle sets a five-minute minimum
+staleness interval. These rules detect loss of observable primary health, which
+can reflect a database failure or loss of its monitoring path.
+
+All other ordinary alerts go to the null receiver. Broad Kubernetes and backup
+backlogs are not opted in. Review firing alerts before any further opt-ins.
 
 `group_by: ['...']` gives each complete alert label set its own group. This avoids
 acknowledging one failing instance or workload and masking a different failure.
@@ -56,7 +68,11 @@ and outbound connectivity, not every scrape target.
 The Alertmanager Config workflow checks out the exact PR head, renders with the
 repository Task command, validates the config with the same Alertmanager image,
 and tests routing with offline amtool commands in a container with no network.
-These commands do not create or send alerts. The existing ArgoCD Diff workflow
+Promtool also evaluates 50 offline CNPG scenarios covering healthy primaries,
+missing/zero metrics, replicas, mismatched pods and selectors, the five-minute
+threshold, recovery and stable database identity. These commands do not create
+or send live alerts. Promtool tests standard PromQL semantics, not the live
+VictoriaMetrics engine. The existing ArgoCD Diff workflow
 compares the affected source and attempts a read-only live diff.
 
 CI rendering does not run the operator, validate admission against installed

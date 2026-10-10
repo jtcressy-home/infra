@@ -6,6 +6,7 @@ on:
     paths:
       - kubernetes/deploy/monitoring/monitoring/victoria-metrics/**
       - .github/workflows/alertmanager-config.yml
+      - .github/scripts/test_cnpg_primary.py
 
 permissions:
   contents: read
@@ -67,3 +68,9 @@ jobs:
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=ApprovedFailure irm_notify=true instance=node-b
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm-heartbeat alertname=Watchdog irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=InfoInhibitor irm_notify=true
+      - name: Test CNPG primary availability and stable database identity
+        run: |
+          python3 .github/scripts/test_cnpg_primary.py /tmp/monitoring.yaml /tmp/cnpg-fixtures
+          docker run --rm --network none --entrypoint /bin/promtool \
+            -v /tmp/cnpg-fixtures:/fixtures:ro \
+            prom/prometheus:v3.5.0 test rules /fixtures/tests.yml
