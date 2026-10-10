@@ -6,3 +6,4 @@ resources:
 - vmalert.yaml
 - vmagent.yaml
 - ingress.yaml
+- vmalertmanager.yaml

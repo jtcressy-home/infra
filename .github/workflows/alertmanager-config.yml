@@ -1,0 +1,66 @@
+name: Alertmanager Config
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - kubernetes/deploy/monitoring/monitoring/victoria-metrics/**
+      - .github/workflows/alertmanager-config.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+      - uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: 5.7.1
+      - name: Render the affected overlay
+        run: |
+          task -l
+          task apps:overlays:render project=monitoring namespace=monitoring app=victoria-metrics cluster=bastion > /tmp/monitoring.yaml
+      - name: Extract config and check secret references
+        run: |
+          python3 -m pip install PyYAML==6.0.3
+          python3 - <<'PY'
+          from pathlib import Path
+          import yaml
+          docs = list(yaml.safe_load_all(Path("/tmp/monitoring.yaml").read_text()))
+          am = next(d for d in docs if d and d.get("kind") == "VMAlertmanager")
+          alert = next(d for d in docs if d and d.get("kind") == "VMAlert")
+          spec = am["spec"]
+          assert spec["secrets"] == ["grafana-irm-endpoints"]
+          assert alert["spec"]["notifiers"] == [{"url": "http://vmalertmanager-local.monitoring.svc:9093"}]
+          config = yaml.safe_load(spec["configRawYaml"])
+          assert config["route"]["group_by"] == ["..."]
+          assert config["route"]["repeat_interval"] == "12h"
+          receivers = {r["name"]: r for r in config["receivers"]}
+          for name, key, resolved in [("grafana-irm", "integration_url", True), ("grafana-irm-heartbeat", "heartbeat_url", False)]:
+              webhook = receivers[name]["webhook_configs"][0]
+              assert webhook["send_resolved"] is resolved
+              assert webhook["url_file"] == "/etc/vm/secrets/grafana-irm-endpoints/" + key
+              assert "url" not in webhook
+          Path("/tmp/alertmanager.yml").write_text(spec["configRawYaml"])
+          Path("/tmp/am-image").write_text(spec["image"]["repository"] + ":" + spec["image"]["tag"])
+          PY
+      - name: Validate configuration and routing without sending alerts
+        run: |
+          amtool() {
+            docker run --rm --network none --entrypoint /bin/amtool \
+              -v /tmp/alertmanager.yml:/tmp/alertmanager.yml:ro \
+              "$(cat /tmp/am-image)" "$@"
+          }
+          amtool check-config /tmp/alertmanager.yml
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=ExistingFailure severity=critical
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=ApprovedFailure irm_notify=true instance=node-a
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=ApprovedFailure irm_notify=true instance=node-b
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm-heartbeat alertname=Watchdog irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=InfoInhibitor irm_notify=true
