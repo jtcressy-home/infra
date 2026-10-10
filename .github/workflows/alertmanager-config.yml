@@ -37,6 +37,9 @@ jobs:
           am = next(d for d in docs if d and d.get("kind") == "VMAlertmanager")
           alert = next(d for d in docs if d and d.get("kind") == "VMAlert")
           spec = am["spec"]
+          assert spec["useVMConfigReloader"] is False
+          assert spec["disableAutomountServiceAccountToken"] is True
+          assert spec["serviceAccountName"] == "default"
           assert spec["secrets"] == ["grafana-irm-endpoints"]
           assert alert["spec"]["notifiers"] == [{"url": "http://vmalertmanager-local.monitoring.svc:9093"}]
           config = yaml.safe_load(spec["configRawYaml"])

@@ -3,7 +3,9 @@
 The VictoriaMetrics overlay creates one standard Prometheus Alertmanager through
 the existing VM operator. VMAlert sends to the operator's internal service,
 `http://vmalertmanager-local.monitoring.svc:9093`. There is no ingress, public
-service, additional monitoring stack, or payload transformer.
+service, additional monitoring stack, or payload transformer. The file-watching
+reloader uses the existing default service account with token automount disabled;
+the operator does not add a config-watcher Role or RoleBinding.
 
 ## Secret prerequisite
 

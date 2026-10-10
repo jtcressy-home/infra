@@ -7,6 +7,10 @@ metadata:
   namespace: monitoring
 spec:
   replicaCount: 1
+  # File-watching reloader needs no Kubernetes API permissions or token.
+  useVMConfigReloader: false
+  serviceAccountName: default
+  disableAutomountServiceAccountToken: true
   # Match the default of the existing operator v0.66.1; supports webhook url_file.
   image:
     repository: prom/alertmanager
