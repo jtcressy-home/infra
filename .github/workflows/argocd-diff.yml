@@ -55,7 +55,7 @@ jobs:
 
       - uses: azure/setup-helm@v4
         with:
-          version: v3.22.0
+          version: v3.22.1
 
       - name: Test lifecycle planner
         working-directory: head
