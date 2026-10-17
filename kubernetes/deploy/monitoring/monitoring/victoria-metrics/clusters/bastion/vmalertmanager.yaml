@@ -1,0 +1,61 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmalertmanager_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlertmanager
+metadata:
+  name: local
+  namespace: monitoring
+spec:
+  replicaCount: 1
+  # File-watching reloader needs no Kubernetes API permissions or token.
+  useVMConfigReloader: false
+  serviceAccountName: default
+  disableAutomountServiceAccountToken: true
+  # Match the default of the existing operator v0.66.1; supports webhook url_file.
+  image:
+    repository: prom/alertmanager
+    tag: v0.29.0
+  selectAllByDefault: false
+  # Required, provisioned separately through the approved secret store.
+  secrets:
+    - grafana-irm-endpoints
+  configRawYaml: |
+    route:
+      receiver: "null"
+      # One group per complete alert identity. An ACK cannot hide another instance.
+      group_by: ['...']
+      group_wait: 30s
+      group_interval: 5m
+      # Transport refresh only. IRM owns immediate + five hourly notifications.
+      repeat_interval: 12h
+      routes:
+        # Reuse kube-prometheus-stack's existing vector(1) Watchdog.
+        - receiver: grafana-irm-heartbeat
+          matchers:
+            - alertname="Watchdog"
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 1m
+        - receiver: "null"
+          matchers:
+            - alertname="InfoInhibitor"
+        # Explicit opt-in prevents paging the existing backlog during rollout.
+        - receiver: grafana-irm
+          matchers:
+            - irm_notify="true"
+    receivers:
+      - name: "null"
+      - name: grafana-irm
+        webhook_configs:
+          - url_file: /etc/vm/secrets/grafana-irm-endpoints/integration_url
+            send_resolved: true
+      - name: grafana-irm-heartbeat
+        webhook_configs:
+          - url_file: /etc/vm/secrets/grafana-irm-endpoints/heartbeat_url
+            send_resolved: false
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
