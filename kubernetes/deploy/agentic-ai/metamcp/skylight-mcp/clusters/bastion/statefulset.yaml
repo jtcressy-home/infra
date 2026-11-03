@@ -20,6 +20,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: skylight-mcp
+        app.kubernetes.io/part-of: metamcp
     spec:
       serviceAccountName: skylight-mcp
       automountServiceAccountToken: false
