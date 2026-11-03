@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: skylight-mcp
+spec:
+  replicas: 1
+  serviceName: skylight-mcp
+  # One ordinal is replaced in place. A Deployment maxSurge would run two
+  # writers against the same token cache.
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  persistentVolumeClaimRetentionPolicy:
+    whenScaled: Delete
+    whenDeleted: Delete
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: skylight-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: skylight-mcp
+    spec:
+      serviceAccountName: skylight-mcp
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: skylight-mcp
+          image: ghcr.io/jtcressy-home/skylight-mcp:1.4.7@sha256:a3a1d94a3892ee9e2f8e0195e92a6a9812610faa3143643f18cf265821202227
+          command:
+            - /bin/sh
+            - -c
+          args:
+            # Credentials are read from the mounted dotenv file. Do not set
+            # MCP_CONFIRM_MODE, SKYLIGHT_BASE_URL, or SKYLIGHT_REFRESH_TOKEN.
+            - |
+              readlink /secrets/..data > /tmp/skylight-secret-gen
+              exec catatonit -- mcp-proxy --host 0.0.0.0 --port 8080 \
+                --allowed-host skylight-mcp:8080 \
+                --allowed-host skylight-mcp.metamcp:8080 \
+                --allowed-host skylight-mcp.metamcp.svc:8080 \
+                --allowed-host skylight-mcp.metamcp.svc.cluster.local:8080 \
+                --env DOTENV_PATH /secrets/skylight.env \
+                --env MCP_DATA_DIR /data \
+                --env SKYLIGHT_UPLOAD_DIR /data/uploads \
+                --env HOME /tmp \
+                --cwd /data \
+                -- node /opt/skylight-mcp/dist/index.js
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          # mcp-proxy rejects kubelet httpGet because Host is the pod IP.
+          startupProbe:
+            exec:
+              command:
+                - wget
+                - -q
+                - -T
+                - "3"
+                - -O
+                - /dev/null
+                - http://127.0.0.1:8080/healthz
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            exec:
+              command:
+                - wget
+                - -q
+                - -T
+                - "3"
+                - -O
+                - /dev/null
+                - http://127.0.0.1:8080/healthz
+            periodSeconds: 10
+          # Mismatch with the startup symlink restarts the container only.
+          # Mount the secret directory, not a subPath, or ..data never updates.
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - '[ "$(readlink /secrets/..data)" = "$(cat /tmp/skylight-secret-gen)" ] && wget -q -T 3 -O /dev/null http://127.0.0.1:8080/healthz'
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 25m
+              memory: 160Mi
+            limits:
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: secrets
+          secret:
+            secretName: skylight-mcp
+            defaultMode: 0440
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: zfs-nvme
+        resources:
+          requests:
+            storage: 1Gi

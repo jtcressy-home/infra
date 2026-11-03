@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: metamcp
+
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/name: skylight-mcp
+      app.kubernetes.io/part-of: metamcp
+
+resources:
+  - serviceaccount.yaml
+  - externalsecret.yaml
+  - statefulset.yaml
+  - service.yaml
+  - ciliumnetworkpolicy-egress.yaml
+  - ciliumnetworkpolicy-ingress.yaml

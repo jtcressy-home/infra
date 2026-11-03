@@ -1,0 +1,19 @@
+# Ingress is default-deny once this policy selects the pod.
+# Only MetaMCP pods in this namespace may call the bridge.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: skylight-mcp-ingress
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: skylight-mcp
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: metamcp
+            app.kubernetes.io/name: metamcp
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
