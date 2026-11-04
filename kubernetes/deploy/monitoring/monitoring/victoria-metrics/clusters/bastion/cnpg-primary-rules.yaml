@@ -1,0 +1,71 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: cnpg-primary-availability
+  namespace: monitoring
+spec:
+  groups:
+    - name: cnpg-primary-availability
+      interval: 1m
+      rules:
+        # Require one pod to be scraped, have a healthy collector, and be primary.
+        # absent collapses pod identity; explicit labels survive missing series.
+        - alert: CNPGPrimaryUnavailable
+          expr: |
+            absent(
+              (cnpg_collector_up{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"} == 1)
+              and on (k8s_cluster, namespace, job, pod)
+              (cnpg_pg_replication_in_recovery{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"} == 0)
+              and on (k8s_cluster, namespace, job, pod)
+              (up{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db",container="postgres",endpoint="metrics"} == 1)
+            )
+          for: 5m
+          labels:
+            k8s_cluster: bastion
+            namespace: dograh
+            job: dograh/dograh-db
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: No healthy CNPG primary for dograh/dograh-db
+            description: No pod has a successful metrics scrape, healthy collector, and primary role for five minutes. Check database availability and the monitoring path.
+        - alert: CNPGPrimaryUnavailable
+          expr: |
+            absent(
+              (cnpg_collector_up{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"} == 1)
+              and on (k8s_cluster, namespace, job, pod)
+              (cnpg_pg_replication_in_recovery{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"} == 0)
+              and on (k8s_cluster, namespace, job, pod)
+              (up{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db",container="postgres",endpoint="metrics"} == 1)
+            )
+          for: 5m
+          labels:
+            k8s_cluster: bastion
+            namespace: kagent
+            job: kagent/kagent-db
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: No healthy CNPG primary for kagent/kagent-db
+            description: No pod has a successful metrics scrape, healthy collector, and primary role for five minutes. Check database availability and the monitoring path.
+        - alert: CNPGPrimaryUnavailable
+          expr: |
+            absent(
+              (cnpg_collector_up{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"} == 1)
+              and on (k8s_cluster, namespace, job, pod)
+              (cnpg_pg_replication_in_recovery{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"} == 0)
+              and on (k8s_cluster, namespace, job, pod)
+              (up{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db",container="postgres",endpoint="metrics"} == 1)
+            )
+          for: 5m
+          labels:
+            k8s_cluster: bastion
+            namespace: teslamate
+            job: teslamate/teslamate-db
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: No healthy CNPG primary for teslamate/teslamate-db
+            description: No pod has a successful metrics scrape, healthy collector, and primary role for five minutes. Check database availability and the monitoring path.
