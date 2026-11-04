@@ -18,6 +18,7 @@ spec:
     url: http://vmsingle-victoria.monitoring.svc:8429
   remoteWrite:
     url: http://vmagent-victoria.monitoring.svc:8429
+  # VMAlertmanager/local. The previous alertmanager(-local-0..2) names do not resolve.
   notifiers:
     - url: http://vmalertmanager-local.monitoring.svc:9093
   resources:

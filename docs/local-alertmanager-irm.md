@@ -1,103 +1,136 @@
 # Local Alertmanager to Grafana Cloud IRM
 
-The VictoriaMetrics overlay creates one standard Prometheus Alertmanager through
-the existing VM operator. VMAlert sends to the operator's internal service,
-`http://vmalertmanager-local.monitoring.svc:9093`. There is no ingress, public
-service, additional monitoring stack, or payload transformer. The file-watching
-reloader uses the existing default service account with token automount disabled;
-the operator does not add a config-watcher Role or RoleBinding.
+Bastion VMAlert evaluates the in-cluster rules and sends them to one
+Alertmanager run by the existing VictoriaMetrics operator. That Alertmanager
+delivers to Grafana IRM integration **C254NSW1QG433** ("Home infrastructure
+Alertmanager"). There is no ingress, public service, or payload transformer.
 
-## Secret prerequisite
+VMAlert's notifier is `http://vmalertmanager-local.monitoring.svc:9093`, the
+Service the operator creates for `VMAlertmanager/local`. The previous
+notifiers (`alertmanager.monitoring.svc` and `alertmanager-local-0..2`) do not
+resolve, which is why firing alerts were dropped.
 
-Before any separately approved rollout, provide Kubernetes Secret
-`monitoring/grafana-irm-endpoints` through the approved secret store:
+The Alertmanager image is `prom/alertmanager:v0.29.0` pinned by digest, and the
+file-watching config reloader is
+`quay.io/prometheus-operator/prometheus-config-reloader:v0.82.1` pinned by
+digest. `useVMConfigReloader: false` keeps the reloader on file watches, so the
+pod uses the default service account with token automount disabled and the
+operator does not add a config-watcher Role. Operator v0.66.1 joins
+`image.repository` and `image.tag` with a colon, so the digest lives in the
+tag (`v0.29.0@sha256:…`). That string is not valid semver, so the operator
+skips its own version check; `extraArgs.enable-feature=utf8-strict-mode` keeps
+the flag that v0.29.0 would otherwise get. The reloader field on this operator
+is `configReloaderImageTag`, and it is the full image reference.
 
-| Key | Value source |
+This is a single replica with ephemeral storage. Replacing the pod drops local
+silences and the notification log, so a still-firing alert can be sent again.
+IRM keeps the incident identity from the alert group key.
+
+## 1Password item
+
+The integration URL contains a token and is not stored in git. External Secrets
+reads it from the existing `onepassword` ClusterSecretStore (vault
+`jtcressy-net-infra`) and writes Secret
+`monitoring/grafana-irm-alertmanager-bastion`.
+
+| 1Password | Value |
 | --- | --- |
-| `integration_url` | Sensitive Terraform output `irm_alertmanager_integration_url` from the separate IRM repository. Preserve the URL exactly, including its trailing slash. |
-| `heartbeat_url` | Native heartbeat endpoint configured separately in IRM for that integration. Provider 4.49 has no heartbeat resource/output. |
+| Vault | `jtcressy-net-infra` |
+| Item title | `grafana-irm-alertmanager-bastion` |
+| Field label | `url` |
 
-This PR only references the Secret. It does not create credentials, an
-ExternalSecret with an invented remote item, or endpoint values. The operator
-mounts these keys under `/etc/vm/secrets/grafana-irm-endpoints/`.
-Both keys are required; a missing Secret prevents the Alertmanager pod starting.
-Do not print endpoint values in logs, CI, PRs, or this document.
+The field value is the inbound URL of integration C254NSW1QG433, copied
+exactly, including a trailing slash. Joel creates the item. The operator mounts
+the key at `/etc/vm/secrets/grafana-irm-alertmanager-bastion/url`. Both the
+page receiver and the Watchdog receiver read that file. Each webhook sends at
+most 100 alerts, which is the cap Grafana documents for this integration.
+Leave the IRM grouping template at `payload.groupKey` so resolution still
+matches these groups. A missing item leaves
+the ExternalSecret not Ready, the Secret absent, and the Alertmanager pod
+unable to start. Do not print the URL in logs, CI, PRs, or this document.
 
-## Routing and grouping
+Watchdog is the heartbeat. A later change turns it into an IRM dead-man's
+switch (page only after it stops arriving, 3 minute timeout, configured
+outside this repository). This change only makes sure Watchdog is delivered.
 
-The initial route sends only alerts with `irm_notify="true"` to IRM. Three
-`CNPGPrimaryUnavailable` rules opt in database-primary health for
-`dograh/dograh-db`, `kagent/kagent-db`, and `teslamate/teslamate-db`.
-Each requires five minutes without a pod that is simultaneously scraped
-successfully, has a healthy collector, and reports primary role. The signals
-join on k8s_cluster, namespace, job, and pod, then collapse to stable database
-identity. Explicit output labels survive complete series loss and exclude pod
-names and IPs, so primary replacement does not change the database incident.
+## Routing
 
-Missing-series detection also depends on datasource staleness/lookback before
-the five-minute pending period; the alerts VMSingle sets a five-minute minimum
-staleness interval. These rules detect loss of observable primary health, which
-can reflect a database failure or loss of its monitoring path.
+Alerts are delivered by default. `irm_notify` is still set on the three
+`CNPGPrimaryUnavailable` rules, but it is not a route gate.
 
-All other ordinary alerts go to the null receiver. Broad Kubernetes and backup
-backlogs are not opted in. Review firing alerts before any further opt-ins.
+| Timers | Value |
+| --- | --- |
+| `group_by` | `alertname`, `namespace`, `cluster` |
+| `group_wait` | 30s |
+| `group_interval` | 5m |
+| `repeat_interval` | 4h |
+| Watchdog repeat | 1m, `group_wait` 0s, resolved notifications off |
 
-`group_by: ['...']` gives each complete alert label set its own group. This avoids
-acknowledging one failing instance or workload and masking a different failure.
-The supplied rules identify resources using labels such as alertname, cluster,
-namespace, pod, instance, and workload. Keep changing values and timestamps in
-annotations, never identity labels. Labels must remain stable across repeats.
-A changed identity creates a new group; changing grouping later can create new
-incidents. Retain the native IRM groupKey and resolved-status templates.
+Grouping is what keeps the alerts firing today from opening one IRM incident
+per series. A critical alert inhibits the warning with the same `alertname`
+and `namespace`. `InfoInhibitor` goes to the null receiver.
 
-Alertmanager sends resolved notifications and refreshes unchanged firing alerts
-every 12 hours. IRM owns immediate notification plus five additional hourly
-attempts, six total at 0h through +5h, until ACK. The Alertmanager refresh is not
-the user reminder schedule.
+Known-broken noise is routed to the null receiver, with a TODO in
+`vmalertmanager.yaml` that points at the monitoring gap inventory (batch 0,
+2026-11-03). The rules stay in place.
 
-The existing kube-prometheus-stack 82.10.5 general rules include
-`Watchdog: vector(1)`; general rules are enabled by default and not overridden.
-No duplicate rule is added. Watchdog goes only to the native heartbeat receiver
-every minute, with no resolved heartbeat. Configure a three-minute IRM heartbeat
-timeout after the path is ready. Confirm VMAlert actually evaluates Watchdog
-before enabling the heartbeat alarm. This checks rule evaluation, local delivery,
-and outbound connectivity, not every scrape target.
+| Noise | Why it matches |
+| --- | --- |
+| lidarr CrashLoop | `namespace=media` and `pod=~lidarr-.+` or `deployment=lidarr` |
+| recyclarr | `namespace=media` and `job_name` or `pod` starting with `recyclarr` |
+| spegel | `namespace=kube-system` and `daemonset=spegel`, `pod=~spegel-.+`, or TargetDown for service/job `spegel` |
+| Retired-node TargetDown | kubelet only. The stock rule aggregates by job, namespace, and service and has no node label, so `service=kps-kubelet` (job `kubelet` or `kps-kubelet`) is suppressed until `talos-master-1`, `talos-master-2`, `talos-worker-gpu-1`, and the stale 100.x master-0 endpoint are removed |
 
-## Validation and rollout limits
+Other firing alerts are still delivered, one group per alert name and
+namespace. That includes VolSync out of sync, `dograh-minio-r2-backup` job
+failures, and `KubeNodeNotReady` for nodes that are still NotReady. Those are
+not in the inventory's do-not-page list.
 
-The Alertmanager Config workflow checks out the exact PR head, renders with the
-repository Task command, validates the config with the same Alertmanager image,
-and tests routing with offline amtool commands in a container with no network.
-Promtool also evaluates 50 offline CNPG scenarios covering healthy primaries,
-missing/zero metrics, replicas, mismatched pods and selectors, the five-minute
-threshold, recovery and stable database identity. These commands do not create
-or send live alerts. Promtool tests standard PromQL semantics, not the live
-VictoriaMetrics engine. The existing ArgoCD Diff workflow
-compares the affected source and attempts a read-only live diff.
+The CNPG rules page when a database has no pod that is scraped, has a healthy
+collector, and is primary for five minutes. They keep a stable database
+identity (no pod name or IP). The alerts VMSingle minimum staleness is five
+minutes, so a missing series is also bounded by that lookback before `for: 5m`.
 
-CI rendering does not run the operator, validate admission against installed
-CRDs, resolve secret values, or prove delivery and ACK behavior. Before rollout,
-verify the installed VMAlertmanager CRD/operator, absence of another Alertmanager,
-the Secret's key names without reading values, and the existing Watchdog rule.
-No deployment, merge, apply, live configuration, or test alert is authorized here.
+## How to verify
 
-This minimal single replica uses the operator's default ephemeral storage.
-Pod replacement can lose local silences and the notification log and resend a
-firing alert. Native IRM grouping preserves incident identity, but persistence
-and availability need separate review before relying on local silences.
+CI renders this overlay with `task apps:overlays:render`, checks the image
+digests and the ExternalSecret item name, runs `amtool check-config` on
+Alertmanager v0.29.0, and checks the routes above with `amtool config routes`
+in a container that has no network. Promtool runs the offline CNPG scenarios.
+None of that sends a live alert or reads the 1Password value.
 
-After deployment is separately approved, coordinate an end-to-end test:
-1. An approved firing alert creates one IRM group and follows the six-attempt
-   schedule, unless acknowledged or resolved.
-2. ACK stops remaining reminders. Repeated payloads with identical labels retain
-   the same group and ACK.
-3. A different instance, pod, namespace, or workload creates a different group
-   and notifies even while the first is acknowledged.
-4. Resolution resolves the matching group.
-5. A coordinated loss of Watchdog causes the external heartbeat alarm after
-   three minutes and recovery clears it. Do not interrupt monitoring unannounced.
+Before relying on pages, after the item exists and a sync is approved:
+
+1. ExternalSecret `grafana-irm-alertmanager-bastion` is Ready. Confirm the
+   Secret has a key named `url`. Do not print the value.
+2. Pods for `VMAlertmanager/local` are Ready and VMAlert's notifier is
+   `http://vmalertmanager-local.monitoring.svc:9093`.
+3. Integration C254NSW1QG433 shows a firing Watchdog group within about a
+   minute, and it keeps updating. It should not be treated as a page until
+   the dead-man's switch exists.
+4. A lidarr, recyclarr, spegel, or kubelet TargetDown alert does not open an
+   IRM incident. A different firing alert, such as VolSync, does, as one group
+   per alert name and namespace.
+5. Resolving an alert resolves the matching IRM group (`send_resolved` is on
+   for the page receiver, off for Watchdog).
+
+`amtool` route tests do not simulate inhibition. Inhibition is asserted from
+the rendered config: critical suppresses warning when `alertname` and
+`namespace` match. CI does not run the operator, admit the CRD, or resolve
+the Secret.
+
+## Rollback
+
+Revert this change and sync the `victoria-metrics` application. That removes
+`VMAlertmanager/local` and the ExternalSecret, and points VMAlert back at
+`alertmanager.monitoring.svc` and `alertmanager-local-0..2`, which do not
+exist. Delivery stops again. The Secret's deletion policy is Retain, so
+delete `monitoring/grafana-irm-alertmanager-bastion` by hand if the credential
+should go too. Leave the 1Password item unless the integration itself is
+retired. Do not print the URL while cleaning up.
 
 References:
+
 - [VMAlertmanager](https://docs.victoriametrics.com/operator/resources/vmalertmanager/)
 - [Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)
-- [Native integration and heartbeat](https://grafana.com/docs/oncall/latest/configure/integrations/references/alertmanager/)
+- [Grafana Alertmanager integration](https://grafana.com/docs/grafana-cloud/alerting-and-irm/irm/integrations/alert-sources/alertmanager/)

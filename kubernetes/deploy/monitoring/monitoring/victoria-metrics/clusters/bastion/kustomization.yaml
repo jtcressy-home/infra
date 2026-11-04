@@ -7,4 +7,5 @@ resources:
 - vmagent.yaml
 - ingress.yaml
 - vmalertmanager.yaml
+- externalsecret.yaml
 - cnpg-primary-rules.yaml
