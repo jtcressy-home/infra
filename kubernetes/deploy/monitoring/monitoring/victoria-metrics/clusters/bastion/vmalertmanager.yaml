@@ -39,8 +39,8 @@ spec:
       group_interval: 5m
       repeat_interval: 4h
       routes:
-        # Heartbeat endpoint, not the paging URL. Repeat stays under the
-        # integration's 600s heartbeat timeout. send_resolved is false.
+        # Arms IRM heartbeat BE9RQ16WK6VIV (600s). A longer gap pages.
+        # Repeat stays inside that timeout. send_resolved is false.
         - receiver: grafana-irm-watchdog
           matchers:
             - alertname="Watchdog"
@@ -76,6 +76,7 @@ spec:
             - deployment="lidarr"
         - receiver: "null"
           matchers:
+            - obj_namespace="media"
             - obj_name=~"(lidarr|recyclarr)-rsrc"
         - receiver: "null"
           matchers:
@@ -85,9 +86,6 @@ spec:
           matchers:
             - namespace="media"
             - pod=~"recyclarr-.+|volsync-src-recyclarr-rsrc-.+"
-        - receiver: "null"
-          matchers:
-            - pod=~"volsync-src-(lidarr|recyclarr)-rsrc-.+"
         - receiver: "null"
           matchers:
             - namespace="kube-system"

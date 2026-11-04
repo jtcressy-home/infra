@@ -61,7 +61,7 @@ jobs:
           }]
           assert es["spec"]["target"]["template"]["data"] == {
               "url": "{{ .url }}",
-              "heartbeat_url": "{{ .url }}heartbeat/",
+              "heartbeat_url": '{{ .url | trimSuffix "/" }}/heartbeat/',
           }
           raw = spec["configRawYaml"]
           assert "https://" not in raw and "http://" not in raw
@@ -143,11 +143,12 @@ jobs:
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=media pod=lidarr-abc container=app severity=warning irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=media pod=volsync-src-lidarr-rsrc-abc severity=warning irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeDeploymentReplicasMismatch namespace=media deployment=lidarr severity=warning irm_notify=true
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=VolSyncVolumeOutOfSync obj_name=lidarr-rsrc severity=critical irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=VolSyncVolumeOutOfSync obj_namespace=media obj_name=lidarr-rsrc severity=critical irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=VolSyncVolumeOutOfSync obj_namespace=other obj_name=lidarr-rsrc severity=critical irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeJobFailed namespace=media job_name=recyclarr-123 severity=warning job=kube-state-metrics irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodNotReady namespace=media pod=recyclarr-123-abc severity=warning irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodNotReady namespace=media pod=volsync-src-recyclarr-rsrc-abc severity=warning irm_notify=true
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=VolSyncVolumeOutOfSync obj_name=recyclarr-rsrc severity=critical irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=VolSyncVolumeOutOfSync obj_namespace=media obj_name=recyclarr-rsrc severity=critical irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeDaemonSetRolloutStuck namespace=kube-system daemonset=spegel severity=warning irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=kube-system pod=spegel-xyz severity=warning irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubeDaemonSetRolloutStuck namespace=kube-system daemonset=cloudflared severity=warning irm_notify=true

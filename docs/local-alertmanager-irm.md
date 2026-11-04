@@ -40,19 +40,21 @@ Pending.
 | Field label | `url` |
 
 The field value is the inbound URL of integration C254NSW1QG433, copied
-exactly, including a trailing slash. ExternalSecret
-`monitoring/grafana-irm-alertmanager-bastion` templates two Secret keys from
-that field:
+exactly. ExternalSecret `monitoring/grafana-irm-alertmanager-bastion`
+templates two Secret keys from that field:
 
 | Secret key | Value |
 | --- | --- |
 | `url` | the 1Password field, unchanged |
-| `heartbeat_url` | that URL plus `heartbeat/` |
+| `heartbeat_url` | the field with one trailing slash removed, then `/heartbeat/` |
 
-The page receiver reads `url`. Watchdog reads `heartbeat_url`, which is
-Grafana's Alertmanager heartbeat endpoint and is not on the escalation chain.
-Each webhook sends at most 100 alerts. Leave the IRM grouping template at
-`payload.groupKey`. Do not print the URL in logs, CI, PRs, or this document.
+The page receiver reads `url`. Watchdog reads `heartbeat_url`. The first
+Watchdog post arms IRM heartbeat **BE9RQ16WK6VIV** on that integration. The
+heartbeat timeout is 600 seconds. After it is armed, any gap longer than 10
+minutes pages through the default escalation chain. A revert, an Argo prune,
+or a pod that stays Pending is enough. Each webhook sends at most 100 alerts.
+Leave the IRM grouping template at `payload.groupKey`. Do not print the URL
+in logs, CI, PRs, or this document.
 
 `creationPolicy: Owner` sets an ownerReference on the Secret. Deleting the
 ExternalSecret deletes the Secret with it. `deletionPolicy: Retain` only
@@ -72,9 +74,10 @@ rules and nowhere else, so the rest of the firing set does not page.
 | `repeat_interval` | 4h |
 | Watchdog | `group_interval` 1m, `repeat_interval` 50s, `group_wait` 0s, `send_resolved` false |
 
-Watchdog is posted to the heartbeat URL about every 50 seconds so it stays
-inside the integration's 600 second heartbeat timeout. It does not page.
-Resolved notifications are off for that receiver.
+Watchdog is posted to the heartbeat URL about every 50 seconds so a healthy
+pipeline stays inside the 600 second timeout on BE9RQ16WK6VIV. Resolved
+notifications are off for that receiver. Stopping those posts does not stay
+quiet: once the heartbeat is armed, a gap longer than 10 minutes pages.
 
 When `VolSyncVolumeOutOfSync` is opted in later, give that alert its own route
 grouped by `obj_namespace` and `obj_name`. The default `namespace` group would
@@ -91,8 +94,8 @@ later opt-in still cannot page it. The rules stay. The TODO in
 
 | Noise | Why it matches |
 | --- | --- |
-| lidarr | `namespace=media` and `deployment=lidarr`, or a pod named `lidarr-*` or `volsync-src-lidarr-rsrc-*`, or `obj_name=lidarr-rsrc` |
-| recyclarr | `namespace=media` and `job_name` or pod starting with `recyclarr`, or `volsync-src-recyclarr-rsrc-*`, or `obj_name=recyclarr-rsrc` |
+| lidarr | `namespace=media` and `deployment=lidarr` or pod `lidarr-*` / `volsync-src-lidarr-rsrc-*`, or `obj_namespace=media` and `obj_name=lidarr-rsrc` |
+| recyclarr | `namespace=media` and `job_name` or pod starting with `recyclarr` / `volsync-src-recyclarr-rsrc-*`, or `obj_namespace=media` and `obj_name=recyclarr-rsrc` |
 | spegel | `namespace=kube-system` and `daemonset=spegel`, `pod=~spegel-.+`, or TargetDown for service/job `spegel` |
 | Retired kubelet endpoints | `TargetDown` with `namespace=kube-system` and `service=kube-prometheus-stack-kubelet` only. That is the legacy orphaned Endpoints object. The live kubelet Service is not matched |
 
@@ -118,8 +121,10 @@ Before relying on pages, after the item exists and a sync is approved:
    Secret has keys `url` and `heartbeat_url`. Do not print the values.
 2. Pods for `VMAlertmanager/local` are Ready and VMAlert's notifier is
    `http://vmalertmanager-local.monitoring.svc:9093`.
-3. Integration C254NSW1QG433 shows a fresh heartbeat and does not escalate
-   Watchdog. A missing heartbeat is the later dead-man's switch, not this page.
+3. Integration C254NSW1QG433 shows heartbeat BE9RQ16WK6VIV staying under its
+   600 second timeout. The first Watchdog post arms that heartbeat. After
+   that, a gap longer than 10 minutes pages through the default chain. A
+   revert, an Argo prune, or a Pending pod does that.
 4. An alert without `irm_notify` does not open an IRM incident. A
    `CNPGPrimaryUnavailable` alert does.
 5. Resolving a paged alert resolves the matching IRM group. Watchdog does not
@@ -138,9 +143,15 @@ Two ways to stop pages without reverting the branch:
    `"null"`. The root receiver is already `"null"`, so that one line is the
    paging gate.
 
-Reverting the change and syncing `victoria-metrics` also stops delivery. It
-removes `VMAlertmanager/local` and the ExternalSecret, and points VMAlert back
-at `alertmanager.monitoring.svc` and `alertmanager-local-0..2`, which do not
+Before reverting this change or removing the Alertmanager, turn on IRM
+maintenance mode on integration C254NSW1QG433, or disable heartbeat
+BE9RQ16WK6VIV. The first Watchdog post arms that heartbeat. After it is
+armed, a revert, an Argo prune, or a Pending pod leaves a gap, and a gap
+longer than 10 minutes pages through the default chain.
+
+Reverting and syncing `victoria-metrics` removes `VMAlertmanager/local` and
+the ExternalSecret, and points VMAlert back at
+`alertmanager.monitoring.svc` and `alertmanager-local-0..2`, which do not
 exist. `creationPolicy: Owner` deletes Secret
 `monitoring/grafana-irm-alertmanager-bastion` together with the ExternalSecret.
 Leave the 1Password item unless the integration itself is retired. Do not
