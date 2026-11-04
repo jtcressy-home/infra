@@ -9,3 +9,4 @@ resources:
 - vmalertmanager.yaml
 - externalsecret.yaml
 - cnpg-primary-rules.yaml
+- media-apps-down-rules.yaml
