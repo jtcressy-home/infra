@@ -82,6 +82,22 @@ jobs:
           assert watchdog["repeat_interval"] == "50s"
           paging = [r for r in route["routes"] if r.get("receiver") == "grafana-irm"]
           assert paging == [{"receiver": "grafana-irm", "matchers": ['irm_notify="true"']}]
+          silence = {
+              "receiver": "null",
+              "continue": False,
+              "matchers": [
+                  'alertname="CPUThrottlingHigh"',
+                  'namespace="kube-system"',
+                  'pod="ts-serve-advertise-talos-master-0"',
+              ],
+          }
+          irm_idx = next(
+              i for i, r in enumerate(route["routes"])
+              if r == {"receiver": "grafana-irm", "matchers": ['irm_notify="true"']}
+          )
+          assert irm_idx == len(route["routes"]) - 1
+          assert route["routes"][irm_idx - 1] == silence
+          assert sum(r == silence for r in route["routes"]) == 1
           assert {
               "receiver": "null",
               "matchers": [
@@ -155,6 +171,9 @@ jobs:
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=TargetDown namespace=kube-system service=kube-prometheus-stack-kubelet severity=warning irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=TargetDown namespace=kube-system service=kps-kubelet severity=warning irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=TargetDown namespace=kube-system service=spegel job=spegel severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=CPUThrottlingHigh namespace=kube-system pod=ts-serve-advertise-talos-master-0 severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=CPUThrottlingHigh namespace=kube-system pod=ts-serve-advertise-talos-master-1 severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubePodNotReady namespace=kube-system pod=ts-serve-advertise-talos-master-0 severity=warning irm_notify=true
       - name: Test CNPG primary availability and stable database identity
         run: |
           python3 .github/scripts/test_cnpg_primary.py /tmp/monitoring.yaml /tmp/cnpg-fixtures

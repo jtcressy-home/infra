@@ -106,6 +106,15 @@ spec:
             - alertname="TargetDown"
             - namespace="kube-system"
             - job=~".*spegel.*"
+        # Permanent silence by Joel's decision (Nov 4, 2026). The real fix
+        # is infra#1055 (removing the CPU limit via Talos machine config,
+        # intentionally left unapplied).
+        - receiver: "null"
+          continue: false
+          matchers:
+            - alertname="CPUThrottlingHigh"
+            - namespace="kube-system"
+            - pod="ts-serve-advertise-talos-master-0"
         - receiver: grafana-irm
           matchers:
             - irm_notify="true"
