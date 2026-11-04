@@ -1,0 +1,37 @@
+name: ExternalDNS rules
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - kubernetes/deploy/monitoring/monitoring/victoria-metrics/clusters/bastion/external-dns-rules.yaml
+      - .github/scripts/test_external_dns_sync.py
+      - .github/workflows/external-dns-rules.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+      - uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: 5.7.1
+      - name: Render the bastion victoria-metrics overlay
+        run: |
+          task apps:overlays:render project=monitoring namespace=monitoring app=victoria-metrics cluster=bastion > /tmp/monitoring.yaml
+      - name: Test external-dns sync stale rule
+        run: |
+          python3 -m pip install PyYAML==6.0.3
+          python3 .github/scripts/test_external_dns_sync.py /tmp/monitoring.yaml /tmp/external-dns-fixtures
+          docker run --rm --network none --entrypoint /bin/promtool \
+            -v /tmp/external-dns-fixtures:/fixtures:ro \
+            prom/prometheus:v3.5.0 check rules /fixtures/rules.yml
+          docker run --rm --network none --entrypoint /bin/promtool \
+            -v /tmp/external-dns-fixtures:/fixtures:ro \
+            prom/prometheus:v3.5.0 test rules /fixtures/tests.yml
