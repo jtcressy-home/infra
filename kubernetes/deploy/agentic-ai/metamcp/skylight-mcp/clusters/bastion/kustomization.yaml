@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: metamcp
+
+# Metadata labels only. includeSelectors would copy these into the
+# StatefulSet selector, which is immutable. Match labels are set on the
+# resources, the same way the other metamcp manifests do.
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/name: skylight-mcp
+      app.kubernetes.io/part-of: metamcp
+
+resources:
+  - serviceaccount.yaml
+  - externalsecret.yaml
+  - statefulset.yaml
+  - service.yaml
+  - ciliumnetworkpolicy-egress.yaml
+  - ciliumnetworkpolicy-ingress.yaml
