@@ -59,13 +59,17 @@ jobs:
               "secretKey": "url",
               "remoteRef": {"key": "grafana-irm-alertmanager-bastion", "property": "url"},
           }]
+          assert es["spec"]["target"]["template"]["data"] == {
+              "url": "{{ .url }}",
+              "heartbeat_url": "{{ .url }}heartbeat/",
+          }
           raw = spec["configRawYaml"]
           assert "https://" not in raw and "http://" not in raw
           assert "grafana.net" not in raw.lower()
           assert "TODO(monitoring-gap-inventory)" in raw
           config = yaml.safe_load(raw)
           route = config["route"]
-          assert route["receiver"] == "grafana-irm"
+          assert route["receiver"] == "null"
           assert route["group_by"] == ["alertname", "namespace", "cluster"]
           assert route["group_wait"] == "30s"
           assert route["group_interval"] == "5m"
@@ -74,20 +78,46 @@ jobs:
           assert watchdog["receiver"] == "grafana-irm-watchdog"
           assert watchdog["matchers"] == ['alertname="Watchdog"']
           assert watchdog["group_wait"] == "0s"
-          assert watchdog["repeat_interval"] == "1m"
-          assert config["inhibit_rules"] == [{
-              "source_matchers": ['severity="critical"'],
-              "target_matchers": ['severity="warning"'],
-              "equal": ["alertname", "namespace"],
-          }]
+          assert watchdog["group_interval"] == "1m"
+          assert watchdog["repeat_interval"] == "50s"
+          paging = [r for r in route["routes"] if r.get("receiver") == "grafana-irm"]
+          assert paging == [{"receiver": "grafana-irm", "matchers": ['irm_notify="true"']}]
+          assert {
+              "receiver": "null",
+              "matchers": [
+                  'alertname="TargetDown"',
+                  'namespace="kube-system"',
+                  'service="kube-prometheus-stack-kubelet"',
+              ],
+          } in route["routes"]
+          assert not any(
+              "kps-kubelet" in m or 'job=~"kubelet' in m
+              for r in route["routes"]
+              for m in r.get("matchers", [])
+          )
+          assert config["inhibit_rules"] == [
+              {
+                  "source_matchers": ['severity="critical"'],
+                  "target_matchers": ['severity="warning"'],
+                  "equal": ["alertname", "namespace"],
+              },
+              {
+                  "source_matchers": ['alertname="InfoInhibitor"'],
+                  "target_matchers": ['severity="info"'],
+                  "equal": ["namespace"],
+              },
+          ]
           receivers = {r["name"]: r for r in config["receivers"]}
-          secret_file = "/etc/vm/secrets/grafana-irm-alertmanager-bastion/url"
-          for name, resolved in [("grafana-irm", True), ("grafana-irm-watchdog", False)]:
-              webhook = receivers[name]["webhook_configs"][0]
-              assert webhook["send_resolved"] is resolved
-              assert webhook["url_file"] == secret_file
-              assert webhook["max_alerts"] == 100
-              assert "url" not in webhook
+          page = receivers["grafana-irm"]["webhook_configs"][0]
+          beat = receivers["grafana-irm-watchdog"]["webhook_configs"][0]
+          assert page["send_resolved"] is True
+          assert page["url_file"] == "/etc/vm/secrets/grafana-irm-alertmanager-bastion/url"
+          assert page["max_alerts"] == 100
+          assert "url" not in page
+          assert beat["send_resolved"] is False
+          assert beat["url_file"] == "/etc/vm/secrets/grafana-irm-alertmanager-bastion/heartbeat_url"
+          assert beat["max_alerts"] == 100
+          assert "url" not in beat
           assert receivers["null"] == {"name": "null"}
           Path("/tmp/alertmanager.yml").write_text(raw)
           Path("/tmp/am-image").write_text(spec["image"]["repository"] + ":" + spec["image"]["tag"])
@@ -100,23 +130,30 @@ jobs:
               "$(cat /tmp/am-image)" "$@"
           }
           amtool check-config /tmp/alertmanager.yml
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=ExistingFailure severity=critical namespace=apps
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=ExistingFailure severity=critical namespace=apps
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=ExistingFailure severity=critical namespace=apps irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=CNPGPrimaryUnavailable namespace=teslamate severity=critical irm_notify=true
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubeDeploymentReplicasMismatch namespace=media deployment=sonarr severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubeJobFailed namespace=media job_name=configarr-123 severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=TargetDown namespace=media job=media/overseerr service=overseerr severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubeDaemonSetRolloutStuck namespace=kube-system daemonset=cloudflared severity=warning
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeDeploymentReplicasMismatch namespace=media deployment=sonarr severity=warning
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubeDeploymentReplicasMismatch namespace=media deployment=sonarr severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeJobFailed namespace=media job_name=configarr-123 severity=warning
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=VolSyncVolumeOutOfSync obj_name=radarr-rsrc severity=critical irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm-watchdog alertname=Watchdog severity=none cluster=bastion
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm-watchdog alertname=Watchdog severity=none irm_notify=true
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=InfoInhibitor namespace=media severity=none irm_notify=true
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=media pod=lidarr-abc container=app severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeDeploymentReplicasMismatch namespace=media deployment=lidarr severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeJobFailed namespace=media job_name=recyclarr-123 severity=warning job=kube-state-metrics
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodNotReady namespace=media pod=recyclarr-123-abc severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeDaemonSetRolloutStuck namespace=kube-system daemonset=spegel severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=kube-system pod=spegel-xyz severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=TargetDown namespace=kube-system job=kubelet service=kps-kubelet severity=warning cluster=bastion
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=TargetDown namespace=kube-system job=kps-kubelet service=kps-kubelet severity=warning
-          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=TargetDown namespace=kube-system service=spegel job=spegel severity=warning
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=media pod=lidarr-abc container=app severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=media pod=volsync-src-lidarr-rsrc-abc severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeDeploymentReplicasMismatch namespace=media deployment=lidarr severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=VolSyncVolumeOutOfSync obj_name=lidarr-rsrc severity=critical irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeJobFailed namespace=media job_name=recyclarr-123 severity=warning job=kube-state-metrics irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodNotReady namespace=media pod=recyclarr-123-abc severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodNotReady namespace=media pod=volsync-src-recyclarr-rsrc-abc severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=VolSyncVolumeOutOfSync obj_name=recyclarr-rsrc severity=critical irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubeDaemonSetRolloutStuck namespace=kube-system daemonset=spegel severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=KubePodCrashLooping namespace=kube-system pod=spegel-xyz severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubeDaemonSetRolloutStuck namespace=kube-system daemonset=cloudflared severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=TargetDown namespace=kube-system service=kube-prometheus-stack-kubelet severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=TargetDown namespace=kube-system service=kps-kubelet severity=warning irm_notify=true
+          amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=null alertname=TargetDown namespace=kube-system service=spegel job=spegel severity=warning irm_notify=true
       - name: Test CNPG primary availability and stable database identity
         run: |
           python3 .github/scripts/test_cnpg_primary.py /tmp/monitoring.yaml /tmp/cnpg-fixtures
