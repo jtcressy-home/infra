@@ -1,0 +1,144 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmalertmanager_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlertmanager
+metadata:
+  name: local
+  namespace: monitoring
+spec:
+  replicaCount: 1
+  # File-watching prometheus config-reloader needs no Kubernetes API token.
+  # Operator v0.66.1 defaults this image when useVMConfigReloader is false.
+  useVMConfigReloader: false
+  serviceAccountName: default
+  disableAutomountServiceAccountToken: true
+  # Operator v0.66.1 default Alertmanager. Tag includes the multi-arch digest.
+  # The operator joins repository and tag with ":", which yields
+  # prom/alertmanager:v0.29.0@sha256:.... A digest is not valid semver, so the
+  # operator skips its version check; extraArgs keeps utf8-strict-mode on.
+  image:
+    repository: prom/alertmanager
+    tag: v0.29.0@sha256:88743b63b3e09ea6e31e140ced5bf45f4a8e82c617c2a963f78841f4995ad1d7
+  extraArgs:
+    enable-feature: utf8-strict-mode
+  # Despite the field name, operator v0.66.1 uses this as the full image.
+  configReloaderImageTag: quay.io/prometheus-operator/prometheus-config-reloader:v0.82.1@sha256:22558a49909bf31d75b6a340064c553598bfd66103626868daeb107fe171f124
+  selectAllByDefault: false
+  # Keys url and heartbeat_url from the ExternalSecret template.
+  secrets:
+    - grafana-irm-alertmanager-bastion
+  configRawYaml: |
+    route:
+      receiver: "null"
+      # Collapse an opted-in alert by identity. Pod and job names stay out
+      # of the group key. When VolSyncVolumeOutOfSync is opted in later,
+      # give it a route grouped by obj_namespace and obj_name so each
+      # ReplicationSource stays its own incident.
+      group_by: ['alertname', 'namespace', 'cluster']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        # Arms IRM heartbeat BE9RQ16WK6VIV (600s). A longer gap pages.
+        # Repeat stays inside that timeout. send_resolved is false.
+        - receiver: grafana-irm-watchdog
+          matchers:
+            - alertname="Watchdog"
+          group_by: ['alertname', 'cluster']
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 50s
+        - receiver: "null"
+          matchers:
+            - alertname="InfoInhibitor"
+        # TODO(monitoring-gap-inventory): drop these null routes after the
+        # batch 0 noise is fixed or retired. Do not delete the VMRules.
+        # They sit above the irm_notify route so a later opt-in cannot page
+        # them. Inventory 2026-11-03: lidarr CrashLoopBackOff in media,
+        # recyclarr CronJob with no successful run, spegel CrashLooping in
+        # kube-system, and TargetDown for the legacy orphaned Endpoints
+        # object service kube-prometheus-stack-kubelet (retired nodes
+        # talos-master-1, talos-master-2, talos-worker-gpu-1, plus a stale
+        # 100.x talos-master-0 endpoint). The live kubelet Service is not
+        # this name; do not match it here.
+        - receiver: "null"
+          matchers:
+            - alertname="TargetDown"
+            - namespace="kube-system"
+            - service="kube-prometheus-stack-kubelet"
+        - receiver: "null"
+          matchers:
+            - namespace="media"
+            - pod=~"lidarr-.+|volsync-src-lidarr-rsrc-.+"
+        - receiver: "null"
+          matchers:
+            - namespace="media"
+            - deployment="lidarr"
+        - receiver: "null"
+          matchers:
+            - obj_namespace="media"
+            - obj_name=~"(lidarr|recyclarr)-rsrc"
+        - receiver: "null"
+          matchers:
+            - namespace="media"
+            - job_name=~"recyclarr(-.+)?"
+        - receiver: "null"
+          matchers:
+            - namespace="media"
+            - pod=~"recyclarr-.+|volsync-src-recyclarr-rsrc-.+"
+        - receiver: "null"
+          matchers:
+            - namespace="kube-system"
+            - daemonset="spegel"
+        - receiver: "null"
+          matchers:
+            - namespace="kube-system"
+            - pod=~"spegel-.+"
+        - receiver: "null"
+          matchers:
+            - alertname="TargetDown"
+            - namespace="kube-system"
+            - service="spegel"
+        - receiver: "null"
+          matchers:
+            - alertname="TargetDown"
+            - namespace="kube-system"
+            - job=~".*spegel.*"
+        - receiver: grafana-irm
+          matchers:
+            - irm_notify="true"
+    inhibit_rules:
+      # Critical suppresses the warning of the same alert in the same namespace.
+      - source_matchers:
+          - severity="critical"
+        target_matchers:
+          - severity="warning"
+        equal:
+          - alertname
+          - namespace
+      # InfoInhibitor is the stock inhibitor for severity=info.
+      - source_matchers:
+          - alertname="InfoInhibitor"
+        target_matchers:
+          - severity="info"
+        equal:
+          - namespace
+    receivers:
+      - name: "null"
+      - name: grafana-irm
+        webhook_configs:
+          - url_file: /etc/vm/secrets/grafana-irm-alertmanager-bastion/url
+            send_resolved: true
+            # IRM asks for fewer than 100 alerts per webhook.
+            max_alerts: 100
+      - name: grafana-irm-watchdog
+        webhook_configs:
+          - url_file: /etc/vm/secrets/grafana-irm-alertmanager-bastion/heartbeat_url
+            send_resolved: false
+            max_alerts: 100
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
