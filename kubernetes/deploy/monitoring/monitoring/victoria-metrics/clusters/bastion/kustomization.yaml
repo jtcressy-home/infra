@@ -9,3 +9,4 @@ resources:
 - vmalertmanager.yaml
 - externalsecret.yaml
 - cnpg-primary-rules.yaml
+- talos-var-low-rules.yaml
