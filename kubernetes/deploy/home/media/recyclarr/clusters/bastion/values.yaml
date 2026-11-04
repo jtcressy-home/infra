@@ -10,6 +10,8 @@ controllers:
       concurrencyPolicy: Forbid
       successfulJobsHistory: 1
       failedJobsHistory: 1
+      # Finished Jobs otherwise stay forever, so KubeJobFailed never clears.
+      ttlSecondsAfterFinished: 86400
     containers:
       app:
         image:
