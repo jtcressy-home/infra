@@ -46,9 +46,9 @@ jobs:
           assert spec["secrets"] == ["grafana-irm-alertmanager-bastion"]
           assert spec["image"]["repository"] == "prom/alertmanager"
           assert re.fullmatch(r"v0\.29\.0@sha256:[0-9a-f]{64}", spec["image"]["tag"])
-          assert re.fullmatch(
-              r"quay\.io/prometheus-operator/prometheus-config-reloader:v0\.82\.1@sha256:[0-9a-f]{64}",
-              spec["configReloaderImageTag"],
+          assert spec["configReloaderImageTag"] == (
+              "ghcr.io/jimmidyson/configmap-reload:v0.15.0"
+              "@sha256:b578b7599d65c0279f6e1aad201bba737b9b15e6a4f308281d9e26f765e6657f"
           )
           assert spec["extraArgs"]["enable-feature"] == "utf8-strict-mode"
           assert alert["spec"]["notifiers"] == [{"url": "http://vmalertmanager-local.monitoring.svc:9093"}]
