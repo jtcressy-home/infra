@@ -43,13 +43,18 @@ spec:
       routes:
         # Arms IRM heartbeat BE9RQ16WK6VIV (600s). A longer gap pages.
         # Repeat stays inside that timeout. send_resolved is false.
+        # IRMHeartbeat stops when webhook delivery fails or local Alertmanager is down.
         - receiver: grafana-irm-watchdog
           matchers:
-            - alertname="Watchdog"
+            - alertname="IRMHeartbeat"
           group_by: ['alertname', 'cluster']
           group_wait: 0s
           group_interval: 1m
           repeat_interval: 50s
+        # Stock Watchdog keeps firing through a delivery failure, so it must not arm IRM.
+        - receiver: "null"
+          matchers:
+            - alertname="Watchdog"
         - receiver: "null"
           matchers:
             - alertname="InfoInhibitor"

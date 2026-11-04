@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: irm-heartbeat
+  namespace: monitoring
+spec:
+  groups:
+    - name: irm-heartbeat
+      interval: 1m
+      rules:
+        # vector(1) has no labels. unless on() drops it when the other side
+        # has any series: webhook failures in 15m, or no scrape of local Alertmanager.
+        # Stock Watchdog stays firing in both cases, so it cannot arm IRM.
+        - alert: IRMHeartbeat
+          expr: vector(1) unless on() (sum(increase(alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}[15m])) > 0) unless on() absent(up{job="vmalertmanager-local"} == 1)
+          labels:
+            k8s_cluster: bastion
+            severity: none
+          annotations:
+            summary: IRM delivery heartbeat for bastion
+            description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+    - name: vmalertmanager-local
+      interval: 1m
+      rules:
+        # max() drops series labels. These replace kube-prometheus-stack
+        # alertmanager.rules for the local Alertmanager. They do not page.
+        - alert: AlertmanagerConfigReloadFailed
+          expr: max(alertmanager_config_last_reload_successful{job="vmalertmanager-local"}) == 0
+          for: 10m
+          labels:
+            k8s_cluster: bastion
+            namespace: monitoring
+            job: vmalertmanager-local
+            severity: warning
+          annotations:
+            summary: Local Alertmanager config reload failed
+            description: alertmanager_config_last_reload_successful for vmalertmanager-local has been 0 for 10 minutes. The running config is stale.
+        - alert: AlertmanagerLocalDown
+          expr: up{job="vmalertmanager-local"} == 0
+          for: 5m
+          labels:
+            k8s_cluster: bastion
+            severity: warning
+          annotations:
+            summary: Local Alertmanager is down
+            description: vmalertmanager-local has been down for 5 minutes. IRMHeartbeat stops while that Alertmanager is not up.
