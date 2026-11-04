@@ -50,7 +50,7 @@ spec:
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
-    cacheCapacity: 8Gi # restic metadata cache outgrew the 1Gi volsync default (repo is ~9.4GiB / 50k files)
+    cacheCapacity: 24Gi # restic metadata cache outgrew 8Gi (repo is 81k files / 15.7 GiB)
     volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
@@ -73,7 +73,7 @@ spec:
     accessModes: ["ReadWriteOnce"]
     storageClassName: zfs-nvme
     cacheStorageClassName: zfs-nvme
-    cacheCapacity: 8Gi # restic metadata cache outgrew the 1Gi volsync default (repo is ~9.4GiB / 50k files)
+    cacheCapacity: 24Gi # restic metadata cache outgrew 8Gi (repo is 81k files / 15.7 GiB)
     volumeSnapshotClassName: zfs-nvme-snapshot
     moverSecurityContext:
       runAsUser: 568
