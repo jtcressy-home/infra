@@ -67,6 +67,7 @@ spec:
   trigger:
     schedule: "15 */8 * * *"
   restic:
+    unlock: "2026-11-04-stale-lock"
     pruneIntervalDays: 7
     repository: recyclarr-restic-secret
     copyMethod: Snapshot
