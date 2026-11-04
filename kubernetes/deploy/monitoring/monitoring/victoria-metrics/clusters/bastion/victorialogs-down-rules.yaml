@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: victorialogs-down
+  namespace: monitoring
+spec:
+  groups:
+    - name: victorialogs-down
+      interval: 1m
+      rules:
+        # absent() drops series labels; the alert labels keep the target identity.
+        # No irm_notify label: this warning stays on the null receiver and does not page.
+        - alert: VictoriaLogsDown
+          expr: up{job="victoria-logs-victoria-logs-single-server"} == 0 or absent(up{job="victoria-logs-victoria-logs-single-server"})
+          for: 10m
+          labels:
+            k8s_cluster: bastion
+            namespace: monitoring
+            job: victoria-logs-victoria-logs-single-server
+            severity: warning
+          annotations:
+            summary: VictoriaLogs is down
+            description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
