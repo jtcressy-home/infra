@@ -1,0 +1,1222 @@
+# Promtool unit tests for cnpg-backup-age-rules.yaml.
+# Omit rule_files. test/vmrules injects the VMRule groups.
+evaluation_interval: 1m
+tests:
+- name: fresh backups stay quiet
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x99
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 31m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 31m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: verified live age of about 4.1h stays quiet
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: -14760+60x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -14760+60x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: -14760+60x79
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: all backups 31h old page after 30m and are not absent
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: -111600+0x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -111600+0x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: -111600+0x79
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: age of exactly 30h does not page until the next minute holds
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: -108000+0x39
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -108000+0x39
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: -108000+0x39
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 31m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 31m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: age of 29h is still equal to 30h at 60m and pages only at 91m
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: -104400+0x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -104400+0x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: -104400+0x99
+  alert_rule_test:
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 90m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 90m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 91m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 91m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'dograh: only this backup is 31h old'
+  interval: 1m
+  input_series:
+  - &id001
+    series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: 0+60x99
+  - &id002
+    series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: -111600+0x79
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'dograh: metric missing pages after 1h'
+  interval: 1m
+  input_series:
+  - *id001
+  - *id002
+  alert_rule_test:
+  - eval_time: 59m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 59m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for dograh/dograh-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for dograh/dograh-db for one hour, so backup age cannot be evaluated.
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for dograh/dograh-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for dograh/dograh-db for one hour, so backup age cannot be evaluated.
+- name: 'dograh: stale for 20m never reaches the 30m hold'
+  interval: 1m
+  input_series:
+  - *id001
+  - *id002
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: -111600+0x19 1200+60x50
+  alert_rule_test:
+  - eval_time: 19m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 19m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'dograh: fresh for 10m then 31h old pages at 40m'
+  interval: 1m
+  input_series:
+  - *id001
+  - *id002
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: 0+60x9 -111600+0x80
+  alert_rule_test:
+  - eval_time: 39m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 39m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 40m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 50m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'dograh: 31h old recovers at 40m and the page clears'
+  interval: 1m
+  input_series:
+  - *id001
+  - *id002
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: -111600+0x39 2400+60x40
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 39m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 39m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'kagent: only this backup is 31h old'
+  interval: 1m
+  input_series:
+  - &id003
+    series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: 0+60x99
+  - &id004
+    series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -111600+0x79
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'kagent: metric missing pages after 1h'
+  interval: 1m
+  input_series:
+  - *id003
+  - *id004
+  alert_rule_test:
+  - eval_time: 59m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 59m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for kagent/kagent-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for kagent/kagent-db for one hour, so backup age cannot be evaluated.
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for kagent/kagent-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for kagent/kagent-db for one hour, so backup age cannot be evaluated.
+- name: 'kagent: stale for 20m never reaches the 30m hold'
+  interval: 1m
+  input_series:
+  - *id003
+  - *id004
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -111600+0x19 1200+60x50
+  alert_rule_test:
+  - eval_time: 19m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 19m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'kagent: fresh for 10m then 31h old pages at 40m'
+  interval: 1m
+  input_series:
+  - *id003
+  - *id004
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: 0+60x9 -111600+0x80
+  alert_rule_test:
+  - eval_time: 39m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 39m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 40m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 50m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'kagent: 31h old recovers at 40m and the page clears'
+  interval: 1m
+  input_series:
+  - *id003
+  - *id004
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -111600+0x39 2400+60x40
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 39m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 39m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'teslamate: only this backup is 31h old'
+  interval: 1m
+  input_series:
+  - &id005
+    series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: 0+60x99
+  - &id006
+    series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: -111600+0x79
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'teslamate: metric missing pages after 1h'
+  interval: 1m
+  input_series:
+  - *id005
+  - *id006
+  alert_rule_test:
+  - eval_time: 59m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 59m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for teslamate/teslamate-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for teslamate/teslamate-db for one hour, so backup age cannot be evaluated.
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for teslamate/teslamate-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for teslamate/teslamate-db for one hour, so backup age cannot be evaluated.
+- name: 'teslamate: stale for 20m never reaches the 30m hold'
+  interval: 1m
+  input_series:
+  - *id005
+  - *id006
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: -111600+0x19 1200+60x50
+  alert_rule_test:
+  - eval_time: 19m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 19m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'teslamate: fresh for 10m then 31h old pages at 40m'
+  interval: 1m
+  input_series:
+  - *id005
+  - *id006
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x9 -111600+0x80
+  alert_rule_test:
+  - eval_time: 39m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 39m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 40m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 50m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 50m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: 'teslamate: 31h old recovers at 40m and the page clears'
+  interval: 1m
+  input_series:
+  - *id005
+  - *id006
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: -111600+0x39 2400+60x40
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 39m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for teslamate/teslamate-db is older than 30 hours
+        description: The last available backup for teslamate/teslamate-db is more
+          than 30 hours old and has remained so for 30 minutes. Daily backups run
+          just after midnight UTC. Check the ScheduledBackup and the object-store
+          destination.
+  - eval_time: 39m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: dograh missing and kagent stale page on their own clocks
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: -111600+0x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x99
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 59m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 59m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup for kagent/kagent-db is older than 30 hours
+        description: The last available backup for kagent/kagent-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for dograh/dograh-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for dograh/dograh-db for one hour, so backup age cannot be evaluated.
+- name: a stale and a fresh series for one database page only the stale pod
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db",pod="stale"}
+    values: -111600+0x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db",pod="fresh"}
+    values: 0+60x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x99
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+        pod: stale
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+        pod: stale
+      exp_annotations:
+        summary: CNPG backup for dograh/dograh-db is older than 30 hours
+        description: The last available backup for dograh/dograh-db is more than 30
+          hours old and has remained so for 30 minutes. Daily backups run just after
+          midnight UTC. Check the ScheduledBackup and the object-store destination.
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: wrong k8s_cluster does not match the age rule and still satisfies absent
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="other",namespace="dograh",job="dograh/dograh-db"}
+    values: -111600+0x79
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x99
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+- name: all three metrics missing retain three distinct identities
+  interval: 1m
+  input_series: []
+  alert_rule_test:
+  - eval_time: 59m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 59m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for dograh/dograh-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for dograh/dograh-db for one hour, so backup age cannot be evaluated.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for kagent/kagent-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for kagent/kagent-db for one hour, so backup age cannot be evaluated.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for teslamate/teslamate-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for teslamate/teslamate-db for one hour, so backup age cannot be evaluated.
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for dograh/dograh-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for dograh/dograh-db for one hour, so backup age cannot be evaluated.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kagent
+        job: kagent/kagent-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for kagent/kagent-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for kagent/kagent-db for one hour, so backup age cannot be evaluated.
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: teslamate
+        job: teslamate/teslamate-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for teslamate/teslamate-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for teslamate/teslamate-db for one hour, so backup age cannot be evaluated.
+- name: absent clears when the series returns
+  interval: 1m
+  input_series:
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="dograh",job="dograh/dograh-db"}
+    values: stale stale stale stale stale stale stale stale stale stale stale stale
+      stale stale stale stale stale stale stale stale stale stale stale stale stale
+      stale stale stale stale stale stale stale stale stale stale stale stale stale
+      stale stale stale stale stale stale stale stale stale stale stale stale stale
+      stale stale stale stale stale stale stale stale stale stale stale stale stale
+      stale stale stale stale stale stale 4200
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="kagent",job="kagent/kagent-db"}
+    values: 0+60x99
+  - series: cnpg_collector_last_available_backup_timestamp{k8s_cluster="bastion",namespace="teslamate",job="teslamate/teslamate-db"}
+    values: 0+60x99
+  alert_rule_test:
+  - eval_time: 59m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 59m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 60m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: dograh
+        job: dograh/dograh-db
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: CNPG backup metric missing for dograh/dograh-db
+        description: cnpg_collector_last_available_backup_timestamp has been absent
+          for dograh/dograh-db for one hour, so backup age cannot be evaluated.
+  - eval_time: 70m
+    alertname: CNPGBackupTooOld
+    exp_alerts: []
+  - eval_time: 70m
+    alertname: CNPGBackupMetricAbsent
+    exp_alerts: []

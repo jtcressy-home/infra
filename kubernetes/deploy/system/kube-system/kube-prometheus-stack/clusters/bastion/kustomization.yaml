@@ -48,6 +48,11 @@ helmCharts:
     namespaceOverride: kube-system
     alertmanager:
       enabled: false
+    # Bastion evaluates alerts with VictoriaMetrics vmalertmanager. This chart's
+    # alertmanager.rules group targets an Alertmanager that is not deployed.
+    defaultRules:
+      rules:
+        alertmanager: false
     grafana:
       enabled: false
       forceDeployDashboards: true
