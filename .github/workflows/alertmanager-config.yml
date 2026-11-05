@@ -50,7 +50,7 @@ jobs:
               "ghcr.io/jimmidyson/configmap-reload:v0.15.0"
               "@sha256:b578b7599d65c0279f6e1aad201bba737b9b15e6a4f308281d9e26f765e6657f"
           )
-          assert spec["extraArgs"]["enable-feature"] == "utf8-strict-mode"
+          assert spec["extraArgs"]["enable-feature"] == "utf8-strict-mode,receiver-name-in-metrics"
           assert alert["spec"]["notifiers"] == [{"url": "http://vmalertmanager-local.monitoring.svc:9093"}]
           assert es["metadata"]["namespace"] == "monitoring"
           assert es["spec"]["secretStoreRef"] == {"kind": "ClusterSecretStore", "name": "onepassword"}

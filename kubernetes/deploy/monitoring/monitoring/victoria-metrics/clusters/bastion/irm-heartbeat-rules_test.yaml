@@ -7,7 +7,7 @@ tests:
   input_series:
   - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
     values: 1+0x40
-  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name="grafana-irm"}
     values: 0+0x40
   - series: alertmanager_config_last_reload_successful{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
     values: 1+0x40
@@ -20,7 +20,7 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
   - eval_time: 16m
     alertname: IRMHeartbeat
     exp_alerts:
@@ -29,19 +29,19 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
   - eval_time: 5m
     alertname: AlertmanagerLocalDown
     exp_alerts: []
   - eval_time: 10m
     alertname: AlertmanagerConfigReloadFailed
     exp_alerts: []
-- name: webhook delivery failures silence the heartbeat until they age out
+- name: grafana-irm webhook failures silence the heartbeat until they age out of 5m
   interval: 1m
   input_series:
   - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
     values: 1+0x40
-  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name="grafana-irm"}
     values: 0x5 3x36
   alert_rule_test:
   - eval_time: 4m
@@ -52,14 +52,14 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
   - eval_time: 6m
     alertname: IRMHeartbeat
     exp_alerts: []
-  - eval_time: 19m
+  - eval_time: 9m
     alertname: IRMHeartbeat
     exp_alerts: []
-  - eval_time: 22m
+  - eval_time: 12m
     alertname: IRMHeartbeat
     exp_alerts:
     - exp_labels:
@@ -67,13 +67,43 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+- name: grafana-irm-watchdog failures silence the heartbeat
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 1+0x20
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name="grafana-irm-watchdog"}
+    values: 0x5 2x16
+  alert_rule_test:
+  - eval_time: 6m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+- name: non-irm webhook failures do not silence the heartbeat
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 1+0x30
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name="grafana-irm"}
+    values: 0+0x30
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name="other-webhook"}
+    values: 0x5 4x26
+  alert_rule_test:
+  - eval_time: 8m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
 - name: non-webhook failures do not silence the heartbeat
   interval: 1m
   input_series:
   - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
     values: 1+0x30
-  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name="grafana-irm"}
     values: 0+0x30
   - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="email"}
     values: 0x5 4x26
@@ -86,7 +116,7 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
 - name: alertmanager down stops the heartbeat immediately and warns after 5m
   interval: 1m
   input_series:
@@ -162,7 +192,7 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
   - eval_time: 7m
     alertname: AlertmanagerLocalDown
     exp_alerts: []
@@ -171,7 +201,7 @@ tests:
   input_series:
   - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
     values: 1+0x20
-  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name="grafana-irm"}
     values: 0+0x20
   - series: alertmanager_config_last_reload_successful{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
     values: 0+0x20
@@ -184,7 +214,7 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
   - eval_time: 9m
     alertname: AlertmanagerConfigReloadFailed
     exp_alerts: []
@@ -196,7 +226,7 @@ tests:
         severity: none
       exp_annotations:
         summary: IRM delivery heartbeat for bastion
-        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+        description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
   - eval_time: 10m
     alertname: AlertmanagerConfigReloadFailed
     exp_alerts:

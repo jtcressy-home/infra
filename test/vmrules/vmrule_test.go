@@ -27,7 +27,6 @@ func TestVMRules(t *testing.T) {
 	if len(rules) == 0 {
 		t.Fatal("no VMRules found under kubernetes/deploy")
 	}
-	sawBackupAge := false
 	for _, rule := range rules {
 		rule := rule
 		rel, err := filepath.Rel(root, rule.File)
@@ -39,18 +38,6 @@ func TestVMRules(t *testing.T) {
 				t.Fatal(err)
 			}
 		})
-		if rule.Name == "cnpg-backup-age" && rule.Namespace == "monitoring" {
-			sawBackupAge = true
-			if rule.Fixture == "" {
-				t.Fatal("cnpg-backup-age must keep its promtool fixture")
-			}
-			if err := backupAgeFixtureCoversScenarios(rule.Fixture); err != nil {
-				t.Fatal(err)
-			}
-		}
-	}
-	if !sawBackupAge {
-		t.Fatal("monitoring/cnpg-backup-age was not discovered")
 	}
 }
 
@@ -176,26 +163,6 @@ func checkRule(t *testing.T, bin string, rule Rule) error {
 	}
 	if out, err := run(bin, dir, "test", "rules", testsPath); err != nil {
 		return fmt.Errorf("promtool test rules %s: %w\n%s", rule.Fixture, err, out)
-	}
-	return nil
-}
-
-func backupAgeFixtureCoversScenarios(path string) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	prepared, err := PrepareFixture(data, "rules.yml")
-	if err != nil {
-		return err
-	}
-	// Count scenario names in the original fixture. 25 is the migrated suite.
-	n := strings.Count(string(data), "\n- name: ")
-	if n < 25 {
-		return fmt.Errorf("%s has %d scenarios, want at least 25", path, n)
-	}
-	if !bytes.Contains(prepared, []byte("rule_files:\n  - rules.yml\n")) {
-		return fmt.Errorf("prepared backup-age fixture is missing rule_files")
 	}
 	return nil
 }

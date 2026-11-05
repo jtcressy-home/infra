@@ -21,8 +21,9 @@ prometheus-operator reloader treats `-webhook-url` as the short flag `-w` and
 exits. Operator v0.66.1 joins `image.repository` and `image.tag` with a colon,
 so the Alertmanager digest lives in the tag (`v0.29.0@sha256:…`). That string
 is not valid semver, so the operator skips its own version check;
-`extraArgs.enable-feature=utf8-strict-mode` keeps the flag that v0.29.0 would
-otherwise get. The reloader field on this operator is `configReloaderImageTag`,
+`extraArgs.enable-feature=utf8-strict-mode,receiver-name-in-metrics` keeps
+utf-8 strict mode and adds `receiver_name` to notification metrics. v0.29.0
+does not emit that label unless the feature is enabled. The reloader field on this operator is `configReloaderImageTag`,
 and it is the full image reference.
 
 This is a single replica with ephemeral storage. Replacing the pod drops local
@@ -80,12 +81,15 @@ rules and nowhere else, so the rest of the firing set does not page.
 
 `IRMHeartbeat` is posted to the heartbeat URL about every 50 seconds so a healthy
 pipeline stays inside the 600 second timeout on BE9RQ16WK6VIV. The rule fires
-while `vmalertmanager-local` is up and webhook notifications have not failed
-in the last 15 minutes. A delivery failure or a missing scrape stops the posts.
-The stock `Watchdog` alert keeps firing in those cases, so its route is `null`
-and it does not arm the heartbeat. Resolved notifications are off for the
-heartbeat receiver. Stopping those posts does not stay quiet: once the heartbeat
-is armed, a gap longer than 10 minutes pages.
+while `vmalertmanager-local` is up and Grafana IRM webhook notifications have
+not failed in the last 5 minutes. The failure series must have
+`receiver_name` matching `grafana-irm` or `grafana-irm-watchdog`. The `null`
+receiver has no `webhook_configs`, so it cannot increment that counter. One
+failed post stops the posts for 5 minutes, which is inside the 600 second
+timeout. Sustained failure leaves a gap, and a gap longer than 10 minutes
+pages. The stock `Watchdog` alert keeps firing in those cases, so its route is
+`null` and it does not arm the heartbeat. Resolved notifications are off for
+the heartbeat receiver.
 
 `AlertmanagerConfigReloadFailed` fires when the local Alertmanager config reload
 has been unsuccessful for 10 minutes. `AlertmanagerLocalDown` fires when
