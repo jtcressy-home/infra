@@ -1,0 +1,39 @@
+name: VMRules
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - kubernetes/deploy/**
+      - test/vmrules/**
+      - .github/workflows/vmrules.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: test/vmrules/go.mod
+      - name: Install promtool 3.5.0
+        run: |
+          set -euo pipefail
+          file=prometheus-3.5.0.linux-amd64.tar.gz
+          curl -fsSL -o "/tmp/${file}" \
+            "https://github.com/prometheus/prometheus/releases/download/v3.5.0/${file}"
+          echo "e811827af26d822afb09a4f28314f61b618b12cff5369835a67f674d8b46f39a  /tmp/${file}" | sha256sum -c
+          tar -xzf "/tmp/${file}" -C /tmp
+          echo "/tmp/prometheus-3.5.0.linux-amd64" >> "$GITHUB_PATH"
+      - name: Test VMRules
+        working-directory: test/vmrules
+        env:
+          # This module is separate from the magefiles workspace.
+          GOWORK: "off"
+        run: go test ./...

@@ -9,4 +9,5 @@ resources:
 - vmalertmanager.yaml
 - externalsecret.yaml
 - cnpg-primary-rules.yaml
+- cnpg-backup-age-rules.yaml
 - victorialogs-down-rules.yaml

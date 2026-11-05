@@ -7,8 +7,9 @@ metadata:
   namespace: monitoring
 spec:
   replicaCount: 1
-  # File-watching prometheus config-reloader needs no Kubernetes API token.
-  # Operator v0.66.1 defaults this image when useVMConfigReloader is false.
+  # File watch, no Kubernetes API token. Operator v0.66.1 then passes
+  # configmap-reload flags (-webhook-url, -volume-dir), which the
+  # prometheus-operator reloader rejects as an unknown short flag.
   useVMConfigReloader: false
   serviceAccountName: default
   disableAutomountServiceAccountToken: true
@@ -21,8 +22,9 @@ spec:
     tag: v0.29.0@sha256:88743b63b3e09ea6e31e140ced5bf45f4a8e82c617c2a963f78841f4995ad1d7
   extraArgs:
     enable-feature: utf8-strict-mode
-  # Despite the field name, operator v0.66.1 uses this as the full image.
-  configReloaderImageTag: quay.io/prometheus-operator/prometheus-config-reloader:v0.82.1@sha256:22558a49909bf31d75b6a340064c553598bfd66103626868daeb107fe171f124
+  # Operator v0.66.1 uses this field as the full image. Multi-arch index
+  # digest for ghcr.io/jimmidyson/configmap-reload:v0.15.0.
+  configReloaderImageTag: ghcr.io/jimmidyson/configmap-reload:v0.15.0@sha256:b578b7599d65c0279f6e1aad201bba737b9b15e6a4f308281d9e26f765e6657f
   selectAllByDefault: false
   # Keys url and heartbeat_url from the ExternalSecret template.
   secrets:
