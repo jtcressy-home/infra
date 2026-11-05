@@ -99,7 +99,6 @@ later opt-in still cannot page it. The rules stay. The TODO in
 | --- | --- |
 | lidarr | `namespace=media` and `deployment=lidarr` or pod `lidarr-*` / `volsync-src-lidarr-rsrc-*`, or `obj_namespace=media` and `obj_name=lidarr-rsrc` |
 | recyclarr | `namespace=media` and `job_name` or pod starting with `recyclarr` / `volsync-src-recyclarr-rsrc-*`, or `obj_namespace=media` and `obj_name=recyclarr-rsrc` |
-| spegel | `namespace=kube-system` and `daemonset=spegel`, `pod=~spegel-.+`, or TargetDown for service/job `spegel` |
 | Retired kubelet endpoints | `TargetDown` with `namespace=kube-system` and `service=kube-prometheus-stack-kubelet` only. That is the legacy orphaned Endpoints object. The live kubelet Service is not matched |
 
 The CNPG rules page when a database has no pod that is scraped, has a healthy
