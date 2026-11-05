@@ -1,0 +1,132 @@
+# Promtool unit tests for external-dns-rules.yaml.
+# Omit rule_files. test/vmrules injects the VMRule groups.
+evaluation_interval: 1m
+tests:
+- name: fresh sync stays quiet
+  interval: 1m
+  input_series:
+  - series: external_dns_controller_last_sync_timestamp_seconds{namespace="kube-system",job="external-dns-unifi",pod="external-dns-unifi-0"}
+    values: 0+60x40
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+- name: age of exactly 1800s stays quiet
+  interval: 1m
+  input_series:
+  - series: external_dns_controller_last_sync_timestamp_seconds{namespace="kube-system",job="external-dns-unifi",pod="external-dns-unifi-0"}
+    values: -1800+60x40
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+- name: age of 1801s fires after 10m
+  interval: 1m
+  input_series:
+  - series: external_dns_controller_last_sync_timestamp_seconds{namespace="kube-system",job="external-dns-unifi",pod="external-dns-unifi-0"}
+    values: -1801+60x40
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: ExternalDNSSyncStale
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kube-system
+        job: external-dns-unifi
+        pod: external-dns-unifi-0
+        severity: warning
+      exp_annotations:
+        summary: external-dns last successful sync is older than 30 minutes
+        description: external-dns has not completed a successful DNS sync for 30
+          minutes, and that has continued for 10 minutes. Records from Ingress and
+          Service sources may be stale.
+  - eval_time: 20m
+    alertname: ExternalDNSSyncStale
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kube-system
+        job: external-dns-unifi
+        pod: external-dns-unifi-0
+        severity: warning
+      exp_annotations:
+        summary: external-dns last successful sync is older than 30 minutes
+        description: external-dns has not completed a successful DNS sync for 30
+          minutes, and that has continued for 10 minutes. Records from Ingress and
+          Service sources may be stale.
+- name: stale for 9m then fresh does not fire
+  interval: 1m
+  input_series:
+  - series: external_dns_controller_last_sync_timestamp_seconds{namespace="kube-system",job="external-dns-unifi",pod="external-dns-unifi-0"}
+    values: -1801+60x8 540+60x31
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+- name: absent series does not fire
+  interval: 1m
+  input_series: []
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+- name: only the stale controller fires
+  interval: 1m
+  input_series:
+  - series: external_dns_controller_last_sync_timestamp_seconds{namespace="kube-system",job="external-dns-unifi",pod="external-dns-unifi-a"}
+    values: 0+60x40
+  - series: external_dns_controller_last_sync_timestamp_seconds{namespace="kube-system",job="external-dns-unifi",pod="external-dns-unifi-b"}
+    values: -1801+60x40
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: ExternalDNSSyncStale
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: ExternalDNSSyncStale
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kube-system
+        job: external-dns-unifi
+        pod: external-dns-unifi-b
+        severity: warning
+      exp_annotations:
+        summary: external-dns last successful sync is older than 30 minutes
+        description: external-dns has not completed a successful DNS sync for 30
+          minutes, and that has continued for 10 minutes. Records from Ingress and
+          Service sources may be stale.
+  - eval_time: 20m
+    alertname: ExternalDNSSyncStale
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: kube-system
+        job: external-dns-unifi
+        pod: external-dns-unifi-b
+        severity: warning
+      exp_annotations:
+        summary: external-dns last successful sync is older than 30 minutes
+        description: external-dns has not completed a successful DNS sync for 30
+          minutes, and that has continued for 10 minutes. Records from Ingress and
+          Service sources may be stale.
