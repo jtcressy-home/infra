@@ -145,20 +145,20 @@ controlPlane:
 2. **Apply to control plane nodes sequentially**:
    ```bash
    # Apply to first control plane node
-   task talos:apply-config node=talos-master-0
+   task talos:apply nodes=talos-master-0
 
    # Wait for node to be healthy
    kubectl get nodes -w
 
    # Repeat for other control plane nodes
-   task talos:apply-config node=talos-master-1
-   task talos:apply-config node=talos-master-2
+   task talos:apply nodes=talos-master-1
+   task talos:apply nodes=talos-master-2
    ```
 
 3. **Apply to worker nodes**:
    ```bash
-   task talos:apply-config node=talos-worker-gpu-0
-   task talos:apply-config node=talos-worker-gpu-1
+   task talos:apply nodes=talos-worker-gpu-0
+   task talos:apply nodes=talos-worker-gpu-1
    ```
 
 4. **Verify connectivity**:
@@ -226,7 +226,7 @@ If issues occur, revert the configuration:
 3. **Regenerate and apply**:
    ```bash
    task talos:genconfig
-   task talos:apply-config node=<node-name>
+   task talos:apply nodes=<node-name>
    ```
 
 ## Impact on Existing Applications
