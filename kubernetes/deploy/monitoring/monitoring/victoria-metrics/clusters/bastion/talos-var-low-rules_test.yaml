@@ -1,0 +1,283 @@
+# Promtool unit tests for talos-var-low-rules.yaml.
+# Omit rule_files. test/vmrules injects the VMRule groups.
+evaluation_interval: 1m
+tests:
+- name: 35.9 percent free does not fire
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 359+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+- name: exactly 15 percent free does not fire
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 150+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+- name: below 15 percent fires at 30m
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 140+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+- name: other mountpoint does not fire
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 10+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+- name: other job does not fire
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="kubelet",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 10+0x45
+  - series: node_filesystem_size_bytes{job="kubelet",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+- name: dip shorter than 30m does not fire
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 140+0x19 800+0x26
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 19m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+- name: recovery clears the page
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 140+0x35 800+0x10
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+  - eval_time: 35m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+  - eval_time: 36m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+- name: only the low instance fires
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 140+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-worker-1",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 800+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-worker-1",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+- name: missing size series does not fire
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 140+0x45
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+- name: rule label supplies k8s_cluster
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs"}
+    values: 140+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts:
+    - exp_labels:
+        job: node-exporter
+        mountpoint: /var
+        instance: talos-master-0
+        device: /dev/nvme0n1p6
+        fstype: xfs
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Talos node /var filesystem is below 15% free
+        description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
+- name: mismatched device labels do not pair
+  interval: 1m
+  input_series:
+  - series: node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/nvme0n1p6",fstype="xfs",k8s_cluster="bastion"}
+    values: 140+0x45
+  - series: node_filesystem_size_bytes{job="node-exporter",mountpoint="/var",instance="talos-master-0",device="/dev/sda1",fstype="xfs",k8s_cluster="bastion"}
+    values: 1000+0x45
+  alert_rule_test:
+  - eval_time: 30m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
+  - eval_time: 45m
+    alertname: TalosVarFilesystemLow
+    exp_alerts: []
