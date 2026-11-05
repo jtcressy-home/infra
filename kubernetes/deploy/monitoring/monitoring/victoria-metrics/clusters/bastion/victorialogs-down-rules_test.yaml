@@ -1,0 +1,203 @@
+# Promtool unit tests for victorialogs-down-rules.yaml.
+# Omit rule_files. test/vmrules injects the VMRule groups.
+evaluation_interval: 1m
+tests:
+- name: target up does not fire
+  interval: 1m
+  input_series:
+  - series: up{job="victoria-logs-victoria-logs-single-server",namespace="monitoring"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+- name: target down for ten minutes fires, then recovers
+  interval: 1m
+  input_series:
+  - series: up{job="victoria-logs-victoria-logs-single-server",namespace="monitoring"}
+    values: 0+0x10 1+0x10
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+  - eval_time: 11m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+- name: target down stays firing
+  interval: 1m
+  input_series:
+  - series: up{job="victoria-logs-victoria-logs-single-server",namespace="monitoring"}
+    values: 0+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+- name: scrape target absent for ten minutes fires
+  interval: 1m
+  input_series: []
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+- name: a different job cannot mask or cause this alert
+  interval: 1m
+  input_series:
+  - series: up{job="victoria-logs-victoria-logs-single-server",namespace="monitoring"}
+    values: 1+0x20
+  - series: up{job="other-job",namespace="monitoring"}
+    values: 0+0x20
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+- name: another job being up does not mask an absent target
+  interval: 1m
+  input_series:
+  - series: up{job="other-job",namespace="monitoring"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+- name: only the down instance fires when another instance is up
+  interval: 1m
+  input_series:
+  - series: up{job="victoria-logs-victoria-logs-single-server",namespace="monitoring",instance="10.0.0.1:9428"}
+    values: 0+0x20
+  - series: up{job="victoria-logs-victoria-logs-single-server",namespace="monitoring",instance="10.0.0.2:9428"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+        instance: 10.0.0.1:9428
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: victoria-logs-victoria-logs-single-server
+        severity: warning
+        instance: 10.0.0.1:9428
+      exp_annotations:
+        summary: VictoriaLogs is down
+        description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
+- name: dip shorter than ten minutes does not fire
+  interval: 1m
+  input_series:
+  - series: up{job="victoria-logs-victoria-logs-single-server",namespace="monitoring"}
+    values: 1+0x2 0+0x8 1+0x10
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 11m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 12m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: VictoriaLogsDown
+    exp_alerts: []
