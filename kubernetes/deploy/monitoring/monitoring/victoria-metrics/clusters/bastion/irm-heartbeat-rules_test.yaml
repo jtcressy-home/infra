@@ -1,0 +1,227 @@
+# Promtool unit tests for irm-heartbeat-rules.yaml.
+# Omit rule_files. test/vmrules injects the VMRule groups.
+evaluation_interval: 1m
+tests:
+- name: healthy local alertmanager keeps the heartbeat armed
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 1+0x40
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+    values: 0+0x40
+  - series: alertmanager_config_last_reload_successful{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 1+0x40
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+  - eval_time: 16m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+  - eval_time: 5m
+    alertname: AlertmanagerLocalDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: AlertmanagerConfigReloadFailed
+    exp_alerts: []
+- name: webhook delivery failures silence the heartbeat until they age out
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 1+0x40
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+    values: 0x5 3x36
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+  - eval_time: 6m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 19m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 22m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+- name: non-webhook failures do not silence the heartbeat
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 1+0x30
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+    values: 0+0x30
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="email"}
+    values: 0x5 4x26
+  alert_rule_test:
+  - eval_time: 8m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+- name: alertmanager down stops the heartbeat immediately and warns after 5m
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 0+0x20
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: AlertmanagerLocalDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: AlertmanagerLocalDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: AlertmanagerLocalDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: vmalertmanager-local
+        pod: vmalertmanager-local-0
+        severity: warning
+      exp_annotations:
+        summary: Local Alertmanager is down
+        description: vmalertmanager-local has been down for 5 minutes. IRMHeartbeat stops while that Alertmanager is not up.
+- name: missing scrape stops the heartbeat and does not emit local-down
+  interval: 1m
+  input_series: []
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 6m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 6m
+    alertname: AlertmanagerLocalDown
+    exp_alerts: []
+- name: heartbeat resumes when the local alertmanager is scraped again
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 0x6 1x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: AlertmanagerLocalDown
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: vmalertmanager-local
+        pod: vmalertmanager-local-0
+        severity: warning
+      exp_annotations:
+        summary: Local Alertmanager is down
+        description: vmalertmanager-local has been down for 5 minutes. IRMHeartbeat stops while that Alertmanager is not up.
+  - eval_time: 7m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+  - eval_time: 7m
+    alertname: AlertmanagerLocalDown
+    exp_alerts: []
+- name: failed config reload warns after 10m without stopping the heartbeat
+  interval: 1m
+  input_series:
+  - series: up{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 1+0x20
+  - series: alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook"}
+    values: 0+0x20
+  - series: alertmanager_config_last_reload_successful{job="vmalertmanager-local",namespace="monitoring",pod="vmalertmanager-local-0"}
+    values: 0+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+  - eval_time: 9m
+    alertname: AlertmanagerConfigReloadFailed
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: IRMHeartbeat
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        severity: none
+      exp_annotations:
+        summary: IRM delivery heartbeat for bastion
+        description: Fires while vmalertmanager-local is up and webhook notifications have not failed in the last 15 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+  - eval_time: 10m
+    alertname: AlertmanagerConfigReloadFailed
+    exp_alerts:
+    - exp_labels:
+        k8s_cluster: bastion
+        namespace: monitoring
+        job: vmalertmanager-local
+        severity: warning
+      exp_annotations:
+        summary: Local Alertmanager config reload failed
+        description: alertmanager_config_last_reload_successful for vmalertmanager-local has been 0 for 10 minutes. The running config is stale.
+- name: another alertmanager job does not arm the heartbeat
+  interval: 1m
+  input_series:
+  - series: up{job="kube-prometheus-stack-alertmanager",namespace="monitoring",pod="alertmanager-0"}
+    values: 1+0x20
+  - series: alertmanager_notifications_failed_total{job="kube-prometheus-stack-alertmanager",namespace="monitoring",integration="webhook"}
+    values: 0x3 2x18
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: IRMHeartbeat
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: AlertmanagerLocalDown
+    exp_alerts: []
