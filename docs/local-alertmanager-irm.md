@@ -10,17 +10,20 @@ Service the operator creates for `VMAlertmanager/local`. The previous
 notifiers (`alertmanager.monitoring.svc` and `alertmanager-local-0..2`) do not
 resolve, which is why firing alerts were dropped.
 
-The Alertmanager image is `prom/alertmanager:v0.29.0` pinned by digest, and the
+The Alertmanager image is `prom/alertmanager:v0.29.0` pinned by digest. The
 file-watching config reloader is
-`quay.io/prometheus-operator/prometheus-config-reloader:v0.82.1` pinned by
+`ghcr.io/jimmidyson/configmap-reload:v0.15.0`, pinned by the multi-arch index
 digest. `useVMConfigReloader: false` keeps the reloader on file watches, so the
 pod uses the default service account with token automount disabled and the
-operator does not add a config-watcher Role. Operator v0.66.1 joins
-`image.repository` and `image.tag` with a colon, so the digest lives in the
-tag (`v0.29.0@sha256:…`). That string is not valid semver, so the operator
-skips its own version check; `extraArgs.enable-feature=utf8-strict-mode` keeps
-the flag that v0.29.0 would otherwise get. The reloader field on this operator
-is `configReloaderImageTag`, and it is the full image reference.
+operator does not add a config-watcher Role. Operator v0.66.1 then passes
+`-webhook-url` and `-volume-dir`. Those are configmap-reload flags. The
+prometheus-operator reloader treats `-webhook-url` as the short flag `-w` and
+exits. Operator v0.66.1 joins `image.repository` and `image.tag` with a colon,
+so the Alertmanager digest lives in the tag (`v0.29.0@sha256:…`). That string
+is not valid semver, so the operator skips its own version check;
+`extraArgs.enable-feature=utf8-strict-mode` keeps the flag that v0.29.0 would
+otherwise get. The reloader field on this operator is `configReloaderImageTag`,
+and it is the full image reference.
 
 This is a single replica with ephemeral storage. Replacing the pod drops local
 silences and the notification log, so a still-firing alert can be sent again.
