@@ -6,8 +6,8 @@ Behavior tests are a promtool [unit test file](https://prometheus.io/docs/promet
 
 ## Add tests for a rule
 
-1. Put one `VMRule` in its own manifest, for example `my-rules.yaml`, with `metadata.name`, `metadata.namespace`, and at least one group. `apiVersion` must be `operator.victoriametrics.com/...`.
-2. Add `my-rules_test.yaml` in the same directory (or `my-rules_test.yml`, but not both). Use promtool's test shape: `evaluation_interval`, `tests`, `input_series`, and `alert_rule_test` with `exp_alerts`. Do not set `rule_files`. The runner writes the manifest's groups to `rules.yml` and injects that path.
+1. Put one `VMRule` in its own manifest, for example `my-rules.yaml`, with `metadata.name`, `metadata.namespace`, and at least one group. `apiVersion` must be `operator.victoriametrics.com/...`. Bastion VictoriaMetrics alerts go in `kubernetes/deploy/monitoring/monitoring/victoria-metrics/clusters/bastion/rules/`. Argo CD deploys `*-rules.yaml` from that directory. Do not add the file to `kustomization.yaml`.
+2. Add `my-rules_test.yaml` in the same directory (or `my-rules_test.yml`, but not both). Use promtool's test shape: `evaluation_interval`, `tests`, `input_series`, and `alert_rule_test` with `exp_alerts`. Do not set `rule_files`. The runner writes the manifest's groups to `rules.yml` and injects that path. Fixtures stay next to the manifest, including under `rules/`, and are not deployed.
 3. Install promtool 3.5.0, or point `PROMTOOL` at that binary, and run:
 
 ```sh

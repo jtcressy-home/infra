@@ -94,3 +94,31 @@ spec:
         kind: CSIDriver
         jsonPointers: # https://github.com/argoproj/argo-cd/issues/13585
           - /spec/seLinuxMount
+  # victoria-metrics-bastion only: core manifests stay on the kustomize source,
+  # and VMRules come from <overlay>/rules via a directory include. New alerts are
+  # files in that directory; do not add them to kustomization.yaml.
+  #
+  # Every other app renders an empty patch. ApplicationSet treats that as a no-op,
+  # so those apps keep spec.source.kustomize. source is cleared only for this app
+  # because spec.source and spec.sources cannot both be set.
+  #
+  # argocd.argoproj.io/manifest-generate-paths stays ".". Argo CD joins that
+  # relative path onto every source path, so a commit under the overlay or under
+  # overlay/rules still refreshes victoria-metrics-bastion and no other app.
+  templatePatch: |
+    {{- if and (eq (index .path.segments 4) "victoria-metrics") (eq (index .path.segments 6) "bastion") }}
+    spec:
+      source: null
+      sources:
+        - repoURL: https://github.com/jtcressy-home/infra
+          targetRevision: HEAD
+          path: '{{.path.path}}'
+          kustomize:
+            namespace: '{{ index .path.segments 3 }}'
+        - repoURL: https://github.com/jtcressy-home/infra
+          targetRevision: HEAD
+          path: '{{.path.path}}/rules'
+          directory:
+            recurse: true
+            include: '*-rules.yaml'
+    {{- end }}

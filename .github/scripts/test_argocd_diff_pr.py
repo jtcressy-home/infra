@@ -280,6 +280,83 @@ data:
             self.assertEqual(result["applications"][0]["transition"], "changed")
             self.assertEqual(result["applications"][0]["local"]["status"], "changed")
 
+    def git(self, root: Path, *args: str) -> str:
+        return subprocess.check_output(["git", *args], cwd=root, text=True).strip()
+
+    def init_repo(self, root: Path) -> None:
+        self.git(root, "init", "-q", "-b", "main")
+        self.git(root, "config", "user.name", "test")
+        self.git(root, "config", "user.email", "test@example.com")
+
+    def write_project(self, root: Path) -> None:
+        project = root / "kubernetes/argocd/projects/system.yaml"
+        project.parent.mkdir(parents=True, exist_ok=True)
+        project.write_text("spec:\n  destinations:\n    - namespace: demo\n      name: '*'\n")
+
+    def test_unchanged_overlay_render_failure_is_not_a_new_error(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            head, base, output = root / "head", root / "base", root / "output"
+            overlay = head / "kubernetes/deploy/system/demo/demo/clusters/bastion"
+            overlay.mkdir(parents=True)
+            (overlay / "kustomization.yaml").write_text("resources:\n  - missing.yaml\n")
+            appset = head / "kubernetes/argocd/appsets/apps.yaml"
+            appset.parent.mkdir(parents=True)
+            appset.write_text("name: base\n")
+            self.write_project(head)
+            self.init_repo(head)
+            self.git(head, "add", ".")
+            self.git(head, "commit", "-qm", "base")
+            base_sha = self.git(head, "rev-parse", "HEAD")
+            shutil.copytree(head, base, ignore=shutil.ignore_patterns(".git"))
+            appset.write_text("name: head\n")
+            self.git(head, "commit", "-qam", "appset")
+            head_sha = self.git(head, "rev-parse", "HEAD")
+
+            status = diff.plan(SimpleNamespace(
+                base_dir=str(base), head_dir=str(head), base_sha=base_sha,
+                head_sha=head_sha, output_dir=str(output),
+            ))
+
+            result = json.loads((output / "result.json").read_text())
+            app = next(item for item in result["applications"] if item["key"].startswith("app:"))
+            self.assertEqual(status, 0)
+            self.assertEqual(result["errors"], [])
+            self.assertEqual(app["errors"], [])
+            self.assertTrue(app["local"]["preexisting_render_failure"])
+            self.assertEqual(app["local"]["status"], "error")
+            self.assertTrue(result["global_change"])
+
+    def test_changed_overlay_render_failure_still_blocks(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            head, base, output = root / "head", root / "base", root / "output"
+            overlay = head / "kubernetes/deploy/system/demo/demo/clusters/bastion"
+            overlay.mkdir(parents=True)
+            kustomization = overlay / "kustomization.yaml"
+            kustomization.write_text("resources:\n  - missing.yaml\n")
+            self.write_project(head)
+            self.init_repo(head)
+            self.git(head, "add", ".")
+            self.git(head, "commit", "-qm", "base")
+            base_sha = self.git(head, "rev-parse", "HEAD")
+            shutil.copytree(head, base, ignore=shutil.ignore_patterns(".git"))
+            kustomization.write_text("resources:\n  - other-missing.yaml\n")
+            self.git(head, "commit", "-qam", "edit overlay")
+            head_sha = self.git(head, "rev-parse", "HEAD")
+
+            status = diff.plan(SimpleNamespace(
+                base_dir=str(base), head_dir=str(head), base_sha=base_sha,
+                head_sha=head_sha, output_dir=str(output),
+            ))
+
+            result = json.loads((output / "result.json").read_text())
+            app = result["applications"][0]
+            self.assertEqual(status, 1)
+            self.assertTrue(any(error.startswith("base render:") for error in app["errors"]))
+            self.assertTrue(any(error.startswith("head render:") for error in app["errors"]))
+            self.assertNotIn("preexisting_render_failure", app["local"])
+
 
 if __name__ == "__main__":
     unittest.main()
