@@ -1,0 +1,892 @@
+# Promtool unit tests for media-apps-down-rules.yaml.
+# Omit rule_files. test/vmrules injects the VMRule groups.
+evaluation_interval: 1m
+tests:
+- name: all listed apps have a replica
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: no series for the listed apps
+  interval: 1m
+  input_series: []
+  alert_rule_test:
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: lidarr has no replica and is not in this rule
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="lidarr"}
+    values: 0+0x45
+  alert_rule_test:
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: an unlisted media deployment has no replica
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="bazarr"}
+    values: 0+0x45
+  alert_rule_test:
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: the same names outside the media namespace stay quiet
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: sonarr below one replica for the 30m window
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: sonarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sonarr has no available replicas
+        description: media/sonarr has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: sonarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sonarr has no available replicas
+        description: media/sonarr has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: radarr below one replica for the 30m window
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: radarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/radarr has no available replicas
+        description: media/radarr has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: radarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/radarr has no available replicas
+        description: media/radarr has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: prowlarr below one replica for the 30m window
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: prowlarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/prowlarr has no available replicas
+        description: media/prowlarr has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: prowlarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/prowlarr has no available replicas
+        description: media/prowlarr has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: sabnzbd below one replica for the 30m window
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: sabnzbd
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sabnzbd has no available replicas
+        description: media/sabnzbd has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: sabnzbd
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sabnzbd has no available replicas
+        description: media/sabnzbd has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: navidrome below one replica for the 30m window
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: navidrome
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/navidrome has no available replicas
+        description: media/navidrome has had fewer than one available replica for
+          30 minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: navidrome
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/navidrome has no available replicas
+        description: media/navidrome has had fewer than one available replica for
+          30 minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: tautulli below one replica for the 30m window
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: tautulli
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/tautulli has no available replicas
+        description: media/tautulli has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: tautulli
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/tautulli has no available replicas
+        description: media/tautulli has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: overseerr uses the 15m window only
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 0+0x45
+  alert_rule_test:
+  - eval_time: 14m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 14m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: overseerr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/overseerr has no available replicas
+        description: media/overseerr has had fewer than one available replica for
+          15 minutes.
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: overseerr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/overseerr has no available replicas
+        description: media/overseerr has had fewer than one available replica for
+          15 minutes.
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: overseerr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/overseerr has no available replicas
+        description: media/overseerr has had fewer than one available replica for
+          15 minutes.
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts: []
+- name: overseerr and sonarr pending windows stay independent
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 0+0x45
+  alert_rule_test:
+  - eval_time: 14m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 14m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: overseerr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/overseerr has no available replicas
+        description: media/overseerr has had fewer than one available replica for
+          15 minutes.
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: overseerr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/overseerr has no available replicas
+        description: media/overseerr has had fewer than one available replica for
+          15 minutes.
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: overseerr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/overseerr has no available replicas
+        description: media/overseerr has had fewer than one available replica for
+          15 minutes.
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: sonarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sonarr has no available replicas
+        description: media/sonarr has had fewer than one available replica for 30
+          minutes.
+- name: all six 30m apps fire together while overseerr stays up
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: sonarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sonarr has no available replicas
+        description: media/sonarr has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: radarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/radarr has no available replicas
+        description: media/radarr has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: prowlarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/prowlarr has no available replicas
+        description: media/prowlarr has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: sabnzbd
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sabnzbd has no available replicas
+        description: media/sabnzbd has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: navidrome
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/navidrome has no available replicas
+        description: media/navidrome has had fewer than one available replica for
+          30 minutes.
+    - exp_labels:
+        namespace: media
+        deployment: tautulli
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/tautulli has no available replicas
+        description: media/tautulli has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: sonarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sonarr has no available replicas
+        description: media/sonarr has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: radarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/radarr has no available replicas
+        description: media/radarr has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: prowlarr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/prowlarr has no available replicas
+        description: media/prowlarr has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: sabnzbd
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/sabnzbd has no available replicas
+        description: media/sabnzbd has had fewer than one available replica for 30
+          minutes.
+    - exp_labels:
+        namespace: media
+        deployment: navidrome
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/navidrome has no available replicas
+        description: media/navidrome has had fewer than one available replica for
+          30 minutes.
+    - exp_labels:
+        namespace: media
+        deployment: tautulli
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/tautulli has no available replicas
+        description: media/tautulli has had fewer than one available replica for 30
+          minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: sonarr recovers before 30m
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 0+0x10 1+0x34
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
+- name: overseerr recovers before 15m
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 0+0x10 1+0x34
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
