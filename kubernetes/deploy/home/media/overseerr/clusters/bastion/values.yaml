@@ -15,7 +15,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/fallenbagel/jellyseerr
-          tag: latest@sha256:9cc9e9ee6cd5cf5a23feb45c37742ba34cfd6314d81d259cddb373a97ac92cdd
+          tag: latest@sha256:91edd5620e51ed512ecdfd8b2e157c473faf385edf88c3764dc9ec32d310c0df
         env:
           LOG_LEVEL: info
           PORT: &port 5055
