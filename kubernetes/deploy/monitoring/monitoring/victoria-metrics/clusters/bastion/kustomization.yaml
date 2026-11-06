@@ -12,4 +12,5 @@ resources:
 - cnpg-backup-age-rules.yaml
 - irm-heartbeat-rules.yaml
 - remote-access-rules.yaml
+- media-apps-down-rules.yaml
 - external-dns-rules.yaml
