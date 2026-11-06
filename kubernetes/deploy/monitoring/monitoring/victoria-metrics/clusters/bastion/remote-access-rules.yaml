@@ -1,0 +1,53 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: remote-access-down
+  namespace: monitoring
+spec:
+  groups:
+    - name: remote-access-down
+      interval: 1m
+      rules:
+        # Page when the series exists and is below 1. An absent series does not fire.
+        - alert: TsidpDown
+          expr: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"} < 1
+          for: 5m
+          labels:
+            k8s_cluster: bastion
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: tsidp has no available replicas
+            description: Deployment tailscale/tsidp has had fewer than one available replica for five minutes. Tailnet identity and Funnel OIDC depend on it.
+        - alert: SkylightMcpDown
+          expr: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"} < 1
+          for: 10m
+          labels:
+            k8s_cluster: bastion
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: skylight-mcp has no ready replicas
+            description: StatefulSet metamcp/skylight-mcp has had fewer than one ready replica for ten minutes.
+        - alert: TailscaleProxyDown
+          expr: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset=~"ts-.*"} < 1
+          for: 10m
+          labels:
+            k8s_cluster: bastion
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: 'Tailscale proxy {{ $labels.statefulset }} has no ready replicas'
+            description: 'StatefulSet tailscale/{{ $labels.statefulset }} has had fewer than one ready replica for ten minutes.'
+        - alert: CloudflaredDown
+          expr: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"} < 1
+          for: 5m
+          labels:
+            k8s_cluster: bastion
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: cloudflared has no available pods
+            description: DaemonSet kube-system/cloudflared has had fewer than one available pod for five minutes.
