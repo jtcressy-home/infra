@@ -15,3 +15,4 @@ resources:
 - media-apps-down-rules.yaml
 - external-dns-rules.yaml
 - victorialogs-down-rules.yaml
+- talos-var-low-rules.yaml

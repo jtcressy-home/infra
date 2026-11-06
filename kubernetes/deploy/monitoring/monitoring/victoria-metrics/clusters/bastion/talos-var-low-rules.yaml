@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: talos-var-low
+  namespace: monitoring
+spec:
+  groups:
+    - name: talos-var-low
+      interval: 1m
+      rules:
+        # Pages. talos-master-0 /var was 35.9% free on 2026-11-03, above this threshold.
+        - alert: TalosVarFilesystemLow
+          expr: |
+            node_filesystem_avail_bytes{job="node-exporter",mountpoint="/var"}
+            / node_filesystem_size_bytes{job="node-exporter",mountpoint="/var"}
+            < 0.15
+          for: 30m
+          labels:
+            k8s_cluster: bastion
+            severity: critical
+            irm_notify: "true"
+          annotations:
+            summary: Talos node /var filesystem is below 15% free
+            description: node-exporter reports /var under 15% free for 30 minutes. A full /var on talos-master-0 breaks kubelet, containerd, and etcd.
