@@ -64,9 +64,8 @@ Rules the maintainer has confirmed are safe to approve and merge without asking.
 - Go toolchain directive (`go.mod` `toolchain`, `golang` image tag) — minor and
   patch: approve and merge. Build-time only. (2026-08-26)
 - `helm release cert-manager`, `helm release external-secrets`,
-  `helm release external-dns`, `helm release spegel` — patch and minor: approve
-  and merge. Maintainer classified these as low risk to upgrade in place.
-  (2026-08-26)
+  `helm release external-dns` — patch and minor: approve and merge.
+  Maintainer classified these as low risk to upgrade in place. (2026-08-26)
 - Stateful leaf applications — in-major bumps only (same major version):
   approve and merge, then watch the app in ArgoCD after the merge. Covers the
   `n8n` chart, the `teslamate` image inside 3.x and the
@@ -105,7 +104,7 @@ and the reasoning given.
 <!-- BEGIN DECISION LOG -->
 - **2026-09-07 — Standing rules moved into Renovate automerge.** The triage agent
   can only approve, so the 2026-08-26 rules for the ark charts, cert-manager,
-  external-secrets, external-dns, spegel, the searxng valkey chart and the Go
+  external-secrets, external-dns, the searxng valkey chart and the Go
   toolchain left 15 approved PRs sitting unmerged. They are now expressed as
   `automerge: true` package rules in `renovate.json` with the matching paths in
   the auto-approve workflow allowlist, so Renovate lands them without a triage
@@ -127,7 +126,7 @@ and the reasoning given.
   bumps are therefore approved with post-merge ArgoCD monitoring; majors that
   imply a data migration (`postgresql` 17 → 18, `teslamate` 3 → 4, bitnami
   `valkey` chart 5 → 6, n8n's 2.13 → 2.37 jump) still get asked about.
-- **2026-08-26 — Cluster platform components.** Joel: external-dns, spegel,
+- **2026-08-26 — Cluster platform components.** Joel: external-dns,
   cert-manager and external-secrets are low risk and can be auto-approved.
   kubelet is part of a Kubernetes upgrade and needs planning; cilium affects all
   networking and needs planning; talos governs the machines themselves, requires a

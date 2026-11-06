@@ -64,12 +64,12 @@ spec:
         # batch 0 noise is fixed or retired. Do not delete the VMRules.
         # They sit above the irm_notify route so a later opt-in cannot page
         # them. Inventory 2026-11-03: lidarr CrashLoopBackOff in media,
-        # recyclarr CronJob with no successful run, spegel CrashLooping in
-        # kube-system, and TargetDown for the legacy orphaned Endpoints
-        # object service kube-prometheus-stack-kubelet (retired nodes
-        # talos-master-1, talos-master-2, talos-worker-gpu-1, plus a stale
-        # 100.x talos-master-0 endpoint). The live kubelet Service is not
-        # this name; do not match it here.
+        # recyclarr CronJob with no successful run, and TargetDown for the
+        # legacy orphaned Endpoints object service
+        # kube-prometheus-stack-kubelet (retired nodes talos-master-1,
+        # talos-master-2, talos-worker-gpu-1, plus a stale 100.x
+        # talos-master-0 endpoint). The live kubelet Service is not this
+        # name; do not match it here.
         - receiver: "null"
           matchers:
             - alertname="TargetDown"
@@ -95,24 +95,6 @@ spec:
           matchers:
             - namespace="media"
             - pod=~"recyclarr-.+|volsync-src-recyclarr-rsrc-.+"
-        - receiver: "null"
-          matchers:
-            - namespace="kube-system"
-            - daemonset="spegel"
-        - receiver: "null"
-          matchers:
-            - namespace="kube-system"
-            - pod=~"spegel-.+"
-        - receiver: "null"
-          matchers:
-            - alertname="TargetDown"
-            - namespace="kube-system"
-            - service="spegel"
-        - receiver: "null"
-          matchers:
-            - alertname="TargetDown"
-            - namespace="kube-system"
-            - job=~".*spegel.*"
         # Permanent silence by Joel's decision (Nov 4, 2026). The real fix
         # is infra#1055 (removing the CPU limit via Talos machine config,
         # intentionally left unapplied).
