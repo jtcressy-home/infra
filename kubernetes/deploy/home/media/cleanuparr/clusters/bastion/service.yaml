@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cleanuparr
+  labels:
+    app.kubernetes.io/name: cleanuparr
+spec:
+  selector:
+    app.kubernetes.io/name: cleanuparr
+  ports:
+    - port: 11011
+      targetPort: 11011
+      name: http
+  type: ClusterIP

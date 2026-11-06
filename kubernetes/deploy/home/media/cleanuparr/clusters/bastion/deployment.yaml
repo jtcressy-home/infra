@@ -1,0 +1,96 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cleanuparr
+  labels:
+    app.kubernetes.io/name: cleanuparr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cleanuparr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cleanuparr
+    spec:
+      # 2.10.12 entrypoint.sh skips gosu when uid is not 0 and requires a
+      # writable /config. SQLite, logs, and data-protection keys stay on the
+      # PVC. /tmp holds the single-file bundle extract.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: cleanuparr
+          image: ghcr.io/cleanuparr/cleanuparr:2.10.12@sha256:d0212e4c66bd0522e23c5e5da5d3006bd5ff0e0de1e3ecfcf892e039d55721e2
+          ports:
+            - containerPort: 11011
+              name: http
+          env:
+            - name: PORT
+              value: "11011"
+            - name: TZ
+              value: America/Chicago
+            - name: UMASK
+              value: "022"
+            # Ignored while runAsUser is set. Kept aligned with uid 568 so a
+            # root entrypoint would not chown /config to the image default 1000.
+            - name: PUID
+              value: "568"
+            - name: PGID
+              value: "568"
+            - name: HOME
+              value: /tmp
+            - name: DOTNET_BUNDLE_EXTRACT_BASE_DIR
+              value: /tmp
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 11011
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 11011
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 11011
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: cleanuparr
+        - name: tmp
+          emptyDir: {}

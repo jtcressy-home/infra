@@ -119,7 +119,8 @@
         "ghcr.io/home-operations/tautulli",
         "ghcr.io/navidrome/navidrome",
         "ghcr.io/raydak-labs/configarr",
-        "ghcr.io/recyclarr/recyclarr"
+        "ghcr.io/recyclarr/recyclarr",
+        "ghcr.io/cleanuparr/cleanuparr"
       ],
       "matchUpdateTypes": [
         "major",

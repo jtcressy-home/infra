@@ -14,7 +14,7 @@ spec:
         # lidarr is omitted until its crashloop is fixed.
         - alert: MediaAppDown
           expr: |
-            kube_deployment_status_replicas_available{namespace="media",deployment=~"sonarr|radarr|prowlarr|sabnzbd|navidrome|tautulli"} < 1
+            kube_deployment_status_replicas_available{namespace="media",deployment=~"sonarr|radarr|prowlarr|sabnzbd|navidrome|tautulli|cleanuparr"} < 1
           for: 30m
           labels:
             k8s_cluster: bastion
