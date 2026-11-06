@@ -14,3 +14,4 @@ resources:
 - remote-access-rules.yaml
 - media-apps-down-rules.yaml
 - external-dns-rules.yaml
+- victorialogs-down-rules.yaml
