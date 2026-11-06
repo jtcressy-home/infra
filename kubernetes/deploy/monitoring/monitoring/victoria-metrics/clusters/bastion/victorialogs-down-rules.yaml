@@ -11,7 +11,7 @@ spec:
       interval: 1m
       rules:
         # absent() drops series labels; the alert labels keep the target identity.
-        # No irm_notify label: this warning stays on the null receiver and does not page.
+        # irm_notify wakes CASE through the grafana-irm receiver.
         - alert: VictoriaLogsDown
           expr: up{job="victoria-logs-victoria-logs-single-server"} == 0 or absent(up{job="victoria-logs-victoria-logs-single-server"})
           for: 10m
@@ -20,6 +20,7 @@ spec:
             namespace: monitoring
             job: victoria-logs-victoria-logs-single-server
             severity: warning
+            irm_notify: "true"
           annotations:
             summary: VictoriaLogs is down
             description: The victoria-logs-victoria-logs-single-server scrape has been down or absent for ten minutes. Check the VictoriaLogs server and its ServiceMonitor.
