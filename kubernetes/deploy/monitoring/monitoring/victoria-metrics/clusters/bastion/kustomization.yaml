@@ -11,4 +11,5 @@ resources:
 - cnpg-primary-rules.yaml
 - cnpg-backup-age-rules.yaml
 - irm-heartbeat-rules.yaml
+- remote-access-rules.yaml
 - external-dns-rules.yaml
