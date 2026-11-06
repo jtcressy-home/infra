@@ -10,4 +10,5 @@ resources:
 - externalsecret.yaml
 - cnpg-primary-rules.yaml
 - cnpg-backup-age-rules.yaml
+- irm-heartbeat-rules.yaml
 - talos-var-low-rules.yaml
