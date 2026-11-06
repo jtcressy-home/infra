@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: irm-heartbeat
+  namespace: monitoring
+spec:
+  groups:
+    - name: irm-heartbeat
+      interval: 1m
+      rules:
+        # vector(1) has no labels. unless on() drops it when the other side
+        # has any series: IRM webhook failures in 5m, or no scrape of local Alertmanager.
+        # Alertmanager v0.29 adds receiver_name only with receiver-name-in-metrics,
+        # which VMAlertmanager/local enables. That label is grafana-irm or
+        # grafana-irm-watchdog. null has no webhook_configs. The 5m window is
+        # inside the 600s IRM timeout, so one failed post does not page.
+        # Stock Watchdog stays firing through a delivery failure, so it cannot arm IRM.
+        - alert: IRMHeartbeat
+          expr: vector(1) unless on() (sum(increase(alertmanager_notifications_failed_total{job="vmalertmanager-local",namespace="monitoring",integration="webhook",receiver_name=~"grafana-irm.*"}[5m])) > 0) unless on() absent(up{job="vmalertmanager-local"} == 1)
+          labels:
+            k8s_cluster: bastion
+            severity: none
+          annotations:
+            summary: IRM delivery heartbeat for bastion
+            description: Fires while vmalertmanager-local is up and Grafana IRM webhook notifications have not failed in the last 5 minutes. This alert arms IRM heartbeat BE9RQ16WK6VIV. It does not page by itself.
+    - name: vmalertmanager-local
+      interval: 1m
+      rules:
+        # max() drops series labels. These replace kube-prometheus-stack
+        # alertmanager.rules for the local Alertmanager. They do not page.
+        - alert: AlertmanagerConfigReloadFailed
+          expr: max(alertmanager_config_last_reload_successful{job="vmalertmanager-local"}) == 0
+          for: 10m
+          labels:
+            k8s_cluster: bastion
+            namespace: monitoring
+            job: vmalertmanager-local
+            severity: warning
+          annotations:
+            summary: Local Alertmanager config reload failed
+            description: alertmanager_config_last_reload_successful for vmalertmanager-local has been 0 for 10 minutes. The running config is stale.
+        - alert: AlertmanagerLocalDown
+          expr: up{job="vmalertmanager-local"} == 0
+          for: 5m
+          labels:
+            k8s_cluster: bastion
+            severity: warning
+          annotations:
+            summary: Local Alertmanager is down
+            description: vmalertmanager-local has been down for 5 minutes. IRMHeartbeat stops while that Alertmanager is not up.

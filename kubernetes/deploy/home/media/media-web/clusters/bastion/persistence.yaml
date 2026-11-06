@@ -1,0 +1,12 @@
+---
+# SQLite database for File Browser Quantum. Not a media volume.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-web-config
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: zfs-nvme
