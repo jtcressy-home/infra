@@ -1,0 +1,1124 @@
+# Promtool unit tests for remote-access-rules.yaml.
+# Omit rule_files. test/vmrules injects the VMRule groups.
+evaluation_interval: 1m
+tests:
+- name: "all four workloads healthy"
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "series absent does not page"
+  interval: 1m
+  input_series: []
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TsidpDown: below 1 pages after 5m"
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 0+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        deployment: tsidp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: tsidp has no available replicas
+        description: Deployment tailscale/tsidp has had fewer than one available replica for five minutes. Tailnet identity and Funnel OIDC depend on it.
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        deployment: tsidp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: tsidp has no available replicas
+        description: Deployment tailscale/tsidp has had fewer than one available replica for five minutes. Tailnet identity and Funnel OIDC depend on it.
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TsidpDown: outage shorter than 5m does not page"
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 0+0x4 1+0x16
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TsidpDown: a different namespace does not page"
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="tsidp"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TsidpDown: outage starts at 3m and pages once 5m elapses"
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x2 0+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 7m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 7m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 7m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 7m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: TsidpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        deployment: tsidp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: tsidp has no available replicas
+        description: Deployment tailscale/tsidp has had fewer than one available replica for five minutes. Tailnet identity and Funnel OIDC depend on it.
+  - eval_time: 8m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: TsidpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        deployment: tsidp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: tsidp has no available replicas
+        description: Deployment tailscale/tsidp has had fewer than one available replica for five minutes. Tailnet identity and Funnel OIDC depend on it.
+  - eval_time: 13m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "SkylightMcpDown: below 1 pages after 10m"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: metamcp
+        statefulset: skylight-mcp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: skylight-mcp has no ready replicas
+        description: StatefulSet metamcp/skylight-mcp has had fewer than one ready replica for ten minutes.
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: metamcp
+        statefulset: skylight-mcp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: skylight-mcp has no ready replicas
+        description: StatefulSet metamcp/skylight-mcp has had fewer than one ready replica for ten minutes.
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "SkylightMcpDown: outage shorter than 10m does not page"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 0+0x9 1+0x16
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "SkylightMcpDown: a different namespace does not page"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="other",statefulset="skylight-mcp"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "SkylightMcpDown: outage starts at 3m and pages once 10m elapses"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x2 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 12m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 12m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 12m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 12m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: SkylightMcpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: metamcp
+        statefulset: skylight-mcp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: skylight-mcp has no ready replicas
+        description: StatefulSet metamcp/skylight-mcp has had fewer than one ready replica for ten minutes.
+  - eval_time: 13m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 18m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 18m
+    alertname: SkylightMcpDown
+    exp_alerts:
+    - exp_labels:
+        namespace: metamcp
+        statefulset: skylight-mcp
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: skylight-mcp has no ready replicas
+        description: StatefulSet metamcp/skylight-mcp has had fewer than one ready replica for ten minutes.
+  - eval_time: 18m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 18m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TailscaleProxyDown: below 1 pages after 10m"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-proxy
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-proxy has no ready replicas
+        description: StatefulSet tailscale/ts-proxy has had fewer than one ready replica for ten minutes.
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-proxy
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-proxy has no ready replicas
+        description: StatefulSet tailscale/ts-proxy has had fewer than one ready replica for ten minutes.
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TailscaleProxyDown: outage shorter than 10m does not page"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 0+0x9 1+0x16
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TailscaleProxyDown: a different namespace does not page"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="other",statefulset="ts-proxy"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TailscaleProxyDown: outage starts at 3m and pages once 10m elapses"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x2 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 12m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 12m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 12m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 12m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: TailscaleProxyDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-proxy
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-proxy has no ready replicas
+        description: StatefulSet tailscale/ts-proxy has had fewer than one ready replica for ten minutes.
+  - eval_time: 13m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 18m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 18m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 18m
+    alertname: TailscaleProxyDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-proxy
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-proxy has no ready replicas
+        description: StatefulSet tailscale/ts-proxy has had fewer than one ready replica for ten minutes.
+  - eval_time: 18m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "CloudflaredDown: below 1 pages after 5m"
+  interval: 1m
+  input_series:
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts:
+    - exp_labels:
+        namespace: kube-system
+        daemonset: cloudflared
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: cloudflared has no available pods
+        description: DaemonSet kube-system/cloudflared has had fewer than one available pod for five minutes.
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts:
+    - exp_labels:
+        namespace: kube-system
+        daemonset: cloudflared
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: cloudflared has no available pods
+        description: DaemonSet kube-system/cloudflared has had fewer than one available pod for five minutes.
+- name: "CloudflaredDown: outage shorter than 5m does not page"
+  interval: 1m
+  input_series:
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 0+0x4 1+0x16
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "CloudflaredDown: a different namespace does not page"
+  interval: 1m
+  input_series:
+  - series: kube_daemonset_status_number_available{namespace="other",daemonset="cloudflared"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "CloudflaredDown: outage starts at 3m and pages once 5m elapses"
+  interval: 1m
+  input_series:
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x2 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 7m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 7m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 7m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 7m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 8m
+    alertname: CloudflaredDown
+    exp_alerts:
+    - exp_labels:
+        namespace: kube-system
+        daemonset: cloudflared
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: cloudflared has no available pods
+        description: DaemonSet kube-system/cloudflared has had fewer than one available pod for five minutes.
+  - eval_time: 13m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 13m
+    alertname: CloudflaredDown
+    exp_alerts:
+    - exp_labels:
+        namespace: kube-system
+        daemonset: cloudflared
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: cloudflared has no available pods
+        description: DaemonSet kube-system/cloudflared has had fewer than one available pod for five minutes.
+- name: "TailscaleProxyDown: each ts-* proxy pages and other names do not"
+  interval: 1m
+  input_series:
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-a"}
+    values: 0+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-b"}
+    values: 0+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-healthy"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="not-ts"}
+    values: 0+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="foo-ts-bar"}
+    values: 0+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="tsidp"}
+    values: 0+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="other",statefulset="ts-other"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 9m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 9m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-a
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-a has no ready replicas
+        description: StatefulSet tailscale/ts-a has had fewer than one ready replica for ten minutes.
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-b
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-b has no ready replicas
+        description: StatefulSet tailscale/ts-b has had fewer than one ready replica for ten minutes.
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 15m
+    alertname: TailscaleProxyDown
+    exp_alerts:
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-a
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-a has no ready replicas
+        description: StatefulSet tailscale/ts-a has had fewer than one ready replica for ten minutes.
+    - exp_labels:
+        namespace: tailscale
+        statefulset: ts-b
+        k8s_cluster: bastion
+        severity: critical
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Tailscale proxy ts-b has no ready replicas
+        description: StatefulSet tailscale/ts-b has had fewer than one ready replica for ten minutes.
+  - eval_time: 15m
+    alertname: CloudflaredDown
+    exp_alerts: []
+- name: "TsidpDown: a different deployment does not page"
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="other"}
+    values: 0+0x20
+  - series: kube_deployment_status_replicas_available{namespace="tailscale",deployment="tsidp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="metamcp",statefulset="skylight-mcp"}
+    values: 1+0x20
+  - series: kube_statefulset_status_replicas_ready{namespace="tailscale",statefulset="ts-proxy"}
+    values: 1+0x20
+  - series: kube_daemonset_status_number_available{namespace="kube-system",daemonset="cloudflared"}
+    values: 1+0x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: CloudflaredDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TsidpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: SkylightMcpDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: TailscaleProxyDown
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: CloudflaredDown
+    exp_alerts: []
