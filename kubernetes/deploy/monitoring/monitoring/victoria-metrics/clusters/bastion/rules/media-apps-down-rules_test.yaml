@@ -17,6 +17,8 @@ tests:
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
     values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
+    values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
   alert_rule_test:
@@ -75,6 +77,8 @@ tests:
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
     values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
+    values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="lidarr"}
@@ -112,6 +116,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
@@ -151,6 +157,8 @@ tests:
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="other",deployment="tautulli"}
     values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="other",deployment="cleanuparr"}
+    values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="other",deployment="overseerr"}
     values: 1+0x45
   alert_rule_test:
@@ -186,6 +194,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
@@ -243,6 +253,8 @@ tests:
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
     values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
+    values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
   alert_rule_test:
@@ -298,6 +310,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
@@ -355,6 +369,8 @@ tests:
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
     values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
+    values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
   alert_rule_test:
@@ -410,6 +426,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 0+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
@@ -467,6 +485,8 @@ tests:
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
     values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
+    values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
   alert_rule_test:
@@ -508,6 +528,64 @@ tests:
   - eval_time: 40m
     alertname: OverseerrDown
     exp_alerts: []
+- name: cleanuparr below one replica for the 30m window
+  interval: 1m
+  input_series:
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="radarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="prowlarr"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="sabnzbd"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
+    values: 1+0x45
+  alert_rule_test:
+  - eval_time: 29m
+    alertname: MediaAppDown
+    exp_alerts: []
+  - eval_time: 29m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 30m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: cleanuparr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/cleanuparr has no available replicas
+        description: media/cleanuparr has had fewer than one available replica
+          for 30 minutes.
+  - eval_time: 30m
+    alertname: OverseerrDown
+    exp_alerts: []
+  - eval_time: 40m
+    alertname: MediaAppDown
+    exp_alerts:
+    - exp_labels:
+        namespace: media
+        deployment: cleanuparr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/cleanuparr has no available replicas
+        description: media/cleanuparr has had fewer than one available replica
+          for 30 minutes.
+  - eval_time: 40m
+    alertname: OverseerrDown
+    exp_alerts: []
 - name: overseerr uses the 15m window only
   interval: 1m
   input_series:
@@ -522,6 +600,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 0+0x45
@@ -595,6 +675,8 @@ tests:
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
     values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
+    values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 0+0x45
   alert_rule_test:
@@ -662,7 +744,7 @@ tests:
         summary: Media deployment media/sonarr has no available replicas
         description: media/sonarr has had fewer than one available replica for 30
           minutes.
-- name: all six 30m apps fire together while overseerr stays up
+- name: all seven 30m apps fire together while overseerr stays up
   interval: 1m
   input_series:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="sonarr"}
@@ -676,6 +758,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 0+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 0+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 0+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
@@ -749,6 +833,16 @@ tests:
         summary: Media deployment media/tautulli has no available replicas
         description: media/tautulli has had fewer than one available replica for 30
           minutes.
+    - exp_labels:
+        namespace: media
+        deployment: cleanuparr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/cleanuparr has no available replicas
+        description: media/cleanuparr has had fewer than one available replica
+          for 30 minutes.
   - eval_time: 30m
     alertname: OverseerrDown
     exp_alerts: []
@@ -815,6 +909,16 @@ tests:
         summary: Media deployment media/tautulli has no available replicas
         description: media/tautulli has had fewer than one available replica for 30
           minutes.
+    - exp_labels:
+        namespace: media
+        deployment: cleanuparr
+        k8s_cluster: bastion
+        severity: warning
+        irm_notify: 'true'
+      exp_annotations:
+        summary: Media deployment media/cleanuparr has no available replicas
+        description: media/cleanuparr has had fewer than one available replica
+          for 30 minutes.
   - eval_time: 40m
     alertname: OverseerrDown
     exp_alerts: []
@@ -832,6 +936,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 1+0x45
@@ -868,6 +974,8 @@ tests:
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="navidrome"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="tautulli"}
+    values: 1+0x45
+  - series: kube_deployment_status_replicas_available{namespace="media",deployment="cleanuparr"}
     values: 1+0x45
   - series: kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"}
     values: 0+0x10 1+0x34
