@@ -1,4 +1,5 @@
 ---
+# SQLite database for File Browser Quantum. Not a media volume.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

@@ -17,40 +17,51 @@ spec:
       labels:
         app.kubernetes.io/name: media-web
     spec:
-      # 568 matches navidrome and sabnzbd. supplementalGroups 65536 matches
-      # sabnzbd, which is what grants read-write on purplebox-nfs-media.
+      # Quantum on uid/gid 568. fsGroup is omitted so kubelet does not
+      # recursively chown the media subPaths. supplementalGroups 65536 is the
+      # sabnzbd NFS write group and does not change ownership.
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
         runAsGroup: 568
-        fsGroup: 568
-        fsGroupChangePolicy: OnRootMismatch
         supplementalGroups:
           - 65536
+      initContainers:
+        - name: data-ownership
+          image: docker.io/gtstef/filebrowser:2.0.2-stable@sha256:de2b4c4d18485ea202ab2cdada5bd25d8f0b8ed071712c8216a67194c31285ae
+          # The config PVC is the SQLite directory only. Chown its root so uid
+          # 568 can create the database. Media is not mounted here.
+          command: ["/bin/chown", "568:568", "/home/filebrowser/data"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN"]
+          volumeMounts:
+            - name: data
+              mountPath: /home/filebrowser/data
       containers:
         - name: media-web
-          image: docker.io/filebrowser/filebrowser:v2.63.23@sha256:a469ea076d4a1b4b1d86a41d130f2f536cd9da996a2b1fb39c0d7635f9d89b9a
-          # Image entrypoint is tini -> init.sh, which prepends
-          # --config=/config/settings.json. These args override that file.
-          # --noauth applies only while the database is missing; quick setup
-          # stores auth method noauth in /config/filebrowser.db and later
-          # starts reuse it. There is no app login. Tailscale is the gate.
-          # Non-root cannot bind port 80, so HTTP listens on 8080.
-          args:
-            - --noauth
-            - --root=/data
-            - --database=/config/filebrowser.db
-            - --address=0.0.0.0
-            - --port=8080
-            - --disableExec
+          image: docker.io/gtstef/filebrowser:2.0.2-stable@sha256:de2b4c4d18485ea202ab2cdada5bd25d8f0b8ed071712c8216a67194c31285ae
+          env:
+            - name: HOME
+              value: /tmp
           ports:
             - containerPort: 8080
               name: http
           # Public siblings of purplebox-nfs-media only. The claim root and
-          # private are intentionally not mounted.
+          # private are intentionally not mounted. /data is the Quantum source.
           volumeMounts:
+            - name: data
+              mountPath: /home/filebrowser/data
             - name: config
-              mountPath: /config
+              mountPath: /home/filebrowser/data/config.yaml
+              subPath: config.yaml
+              readOnly: true
             - name: tmp
               mountPath: /tmp
             - name: media
@@ -108,15 +119,21 @@ spec:
               drop: ["ALL"]
           resources:
             requests:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 100m
+              memory: 512Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 10
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
@@ -124,14 +141,16 @@ spec:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
       volumes:
-        - name: config
+        - name: data
           persistentVolumeClaim:
             claimName: media-web-config
+        - name: config
+          configMap:
+            name: media-web
         - name: media
           persistentVolumeClaim:
             claimName: purplebox-nfs-media
