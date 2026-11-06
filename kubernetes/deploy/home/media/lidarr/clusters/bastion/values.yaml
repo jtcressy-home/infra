@@ -57,10 +57,7 @@ defaultPodOptions:
     runAsUser: 568
     runAsGroup: 568
     fsGroup: 568
-    # Always: one recursive chgrp/chmod g+rwX on mount so a restored /config
-    # (hypothesis: gid 568 already set, group-write missing, so OnRootMismatch
-    # skips the chmod) becomes writable. Revert to OnRootMismatch after one healthy start.
-    fsGroupChangePolicy: Always
+    fsGroupChangePolicy: OnRootMismatch
 persistence:
   config:
     existingClaim: &app lidarr

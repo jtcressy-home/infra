@@ -2,7 +2,7 @@
 
 `go test ./...` discovers every `VMRule` under `kubernetes/deploy`, extracts its rule groups, and checks them with promtool `3.5.0` (`promtool check rules`). A manifest with no fixture is still syntax-checked.
 
-Behavior tests are a promtool [unit test file](https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/) next to the manifest. `cnpg-backup-age-rules_test.yaml` is the example. Rules that do not have a fixture yet, including `cnpg-primary-rules.yaml`, are syntax-checked only. Alertmanager route tests stay in `.github/workflows/alertmanager-config.yml`.
+Behavior tests are a promtool [unit test file](https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/) next to the manifest. `cnpg-backup-age-rules_test.yaml` and `irm-heartbeat-rules_test.yaml` are examples. Rules that do not have a fixture yet, including `cnpg-primary-rules.yaml`, are syntax-checked only. Alertmanager route tests stay in `.github/workflows/alertmanager-config.yml`.
 
 ## Add tests for a rule
 

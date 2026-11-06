@@ -10,3 +10,4 @@ resources:
 - externalsecret.yaml
 - cnpg-primary-rules.yaml
 - cnpg-backup-age-rules.yaml
+- irm-heartbeat-rules.yaml
