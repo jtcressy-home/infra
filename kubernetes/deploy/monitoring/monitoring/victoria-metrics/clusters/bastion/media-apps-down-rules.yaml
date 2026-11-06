@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: media-apps-down
+  namespace: monitoring
+spec:
+  groups:
+    - name: media-apps-down
+      interval: 1m
+      rules:
+        # severity stays warning. irm_notify routes these to grafana-irm (CASE wake), not a direct page to Joel.
+        # lidarr is omitted until its crashloop is fixed.
+        - alert: MediaAppDown
+          expr: |
+            kube_deployment_status_replicas_available{namespace="media",deployment=~"sonarr|radarr|prowlarr|sabnzbd|navidrome|tautulli"} < 1
+          for: 30m
+          labels:
+            k8s_cluster: bastion
+            severity: warning
+            irm_notify: "true"
+          annotations:
+            summary: 'Media deployment {{ $labels.namespace }}/{{ $labels.deployment }} has no available replicas'
+            description: '{{ $labels.namespace }}/{{ $labels.deployment }} has had fewer than one available replica for 30 minutes.'
+        - alert: OverseerrDown
+          expr: |
+            kube_deployment_status_replicas_available{namespace="media",deployment="overseerr"} < 1
+          for: 15m
+          labels:
+            k8s_cluster: bastion
+            severity: warning
+            irm_notify: "true"
+          annotations:
+            summary: 'Media deployment {{ $labels.namespace }}/{{ $labels.deployment }} has no available replicas'
+            description: '{{ $labels.namespace }}/{{ $labels.deployment }} has had fewer than one available replica for 15 minutes.'
