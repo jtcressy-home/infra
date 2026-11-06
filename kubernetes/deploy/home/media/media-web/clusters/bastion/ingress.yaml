@@ -1,0 +1,23 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: media-web
+  annotations:
+    tailscale.com/proxy-class: media-web-ingress
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - media-web
+  rules:
+    - host: media-web
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: media-web
+                port:
+                  number: 8080
