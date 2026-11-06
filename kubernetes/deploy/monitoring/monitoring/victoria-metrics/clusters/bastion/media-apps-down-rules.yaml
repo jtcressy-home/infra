@@ -10,7 +10,7 @@ spec:
     - name: media-apps-down
       interval: 1m
       rules:
-        # Warning only: no irm_notify label, so this stays on the null receiver.
+        # severity stays warning. irm_notify routes these to grafana-irm (CASE wake), not a direct page to Joel.
         # lidarr is omitted until its crashloop is fixed.
         - alert: MediaAppDown
           expr: |
@@ -19,6 +19,7 @@ spec:
           labels:
             k8s_cluster: bastion
             severity: warning
+            irm_notify: "true"
           annotations:
             summary: 'Media deployment {{ $labels.namespace }}/{{ $labels.deployment }} has no available replicas'
             description: '{{ $labels.namespace }}/{{ $labels.deployment }} has had fewer than one available replica for 30 minutes.'
@@ -29,6 +30,7 @@ spec:
           labels:
             k8s_cluster: bastion
             severity: warning
+            irm_notify: "true"
           annotations:
             summary: 'Media deployment {{ $labels.namespace }}/{{ $labels.deployment }} has no available replicas'
             description: '{{ $labels.namespace }}/{{ $labels.deployment }} has had fewer than one available replica for 15 minutes.'

@@ -204,6 +204,7 @@ tests:
         deployment: sonarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sonarr has no available replicas
         description: media/sonarr has had fewer than one available replica for 30
@@ -219,6 +220,7 @@ tests:
         deployment: sonarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sonarr has no available replicas
         description: media/sonarr has had fewer than one available replica for 30
@@ -258,6 +260,7 @@ tests:
         deployment: radarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/radarr has no available replicas
         description: media/radarr has had fewer than one available replica for 30
@@ -273,6 +276,7 @@ tests:
         deployment: radarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/radarr has no available replicas
         description: media/radarr has had fewer than one available replica for 30
@@ -312,6 +316,7 @@ tests:
         deployment: prowlarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/prowlarr has no available replicas
         description: media/prowlarr has had fewer than one available replica for 30
@@ -327,6 +332,7 @@ tests:
         deployment: prowlarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/prowlarr has no available replicas
         description: media/prowlarr has had fewer than one available replica for 30
@@ -366,6 +372,7 @@ tests:
         deployment: sabnzbd
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sabnzbd has no available replicas
         description: media/sabnzbd has had fewer than one available replica for 30
@@ -381,6 +388,7 @@ tests:
         deployment: sabnzbd
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sabnzbd has no available replicas
         description: media/sabnzbd has had fewer than one available replica for 30
@@ -420,6 +428,7 @@ tests:
         deployment: navidrome
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/navidrome has no available replicas
         description: media/navidrome has had fewer than one available replica for
@@ -435,6 +444,7 @@ tests:
         deployment: navidrome
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/navidrome has no available replicas
         description: media/navidrome has had fewer than one available replica for
@@ -474,6 +484,7 @@ tests:
         deployment: tautulli
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/tautulli has no available replicas
         description: media/tautulli has had fewer than one available replica for 30
@@ -489,6 +500,7 @@ tests:
         deployment: tautulli
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/tautulli has no available replicas
         description: media/tautulli has had fewer than one available replica for 30
@@ -528,6 +540,7 @@ tests:
         deployment: overseerr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/overseerr has no available replicas
         description: media/overseerr has had fewer than one available replica for
@@ -543,6 +556,7 @@ tests:
         deployment: overseerr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/overseerr has no available replicas
         description: media/overseerr has had fewer than one available replica for
@@ -558,6 +572,7 @@ tests:
         deployment: overseerr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/overseerr has no available replicas
         description: media/overseerr has had fewer than one available replica for
@@ -597,6 +612,7 @@ tests:
         deployment: overseerr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/overseerr has no available replicas
         description: media/overseerr has had fewer than one available replica for
@@ -612,6 +628,7 @@ tests:
         deployment: overseerr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/overseerr has no available replicas
         description: media/overseerr has had fewer than one available replica for
@@ -627,6 +644,7 @@ tests:
         deployment: overseerr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/overseerr has no available replicas
         description: media/overseerr has had fewer than one available replica for
@@ -639,6 +657,7 @@ tests:
         deployment: sonarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sonarr has no available replicas
         description: media/sonarr has had fewer than one available replica for 30
@@ -675,6 +694,7 @@ tests:
         deployment: sonarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sonarr has no available replicas
         description: media/sonarr has had fewer than one available replica for 30
@@ -684,6 +704,7 @@ tests:
         deployment: radarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/radarr has no available replicas
         description: media/radarr has had fewer than one available replica for 30
@@ -693,6 +714,7 @@ tests:
         deployment: prowlarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/prowlarr has no available replicas
         description: media/prowlarr has had fewer than one available replica for 30
@@ -702,6 +724,7 @@ tests:
         deployment: sabnzbd
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sabnzbd has no available replicas
         description: media/sabnzbd has had fewer than one available replica for 30
@@ -711,6 +734,7 @@ tests:
         deployment: navidrome
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/navidrome has no available replicas
         description: media/navidrome has had fewer than one available replica for
@@ -720,6 +744,7 @@ tests:
         deployment: tautulli
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/tautulli has no available replicas
         description: media/tautulli has had fewer than one available replica for 30
@@ -735,6 +760,7 @@ tests:
         deployment: sonarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sonarr has no available replicas
         description: media/sonarr has had fewer than one available replica for 30
@@ -744,6 +770,7 @@ tests:
         deployment: radarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/radarr has no available replicas
         description: media/radarr has had fewer than one available replica for 30
@@ -753,6 +780,7 @@ tests:
         deployment: prowlarr
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/prowlarr has no available replicas
         description: media/prowlarr has had fewer than one available replica for 30
@@ -762,6 +790,7 @@ tests:
         deployment: sabnzbd
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/sabnzbd has no available replicas
         description: media/sabnzbd has had fewer than one available replica for 30
@@ -771,6 +800,7 @@ tests:
         deployment: navidrome
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/navidrome has no available replicas
         description: media/navidrome has had fewer than one available replica for
@@ -780,6 +810,7 @@ tests:
         deployment: tautulli
         k8s_cluster: bastion
         severity: warning
+        irm_notify: 'true'
       exp_annotations:
         summary: Media deployment media/tautulli has no available replicas
         description: media/tautulli has had fewer than one available replica for 30
