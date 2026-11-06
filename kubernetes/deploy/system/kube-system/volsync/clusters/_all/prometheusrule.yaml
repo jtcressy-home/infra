@@ -13,6 +13,7 @@ spec:
           for: 1h
           labels:
             severity: critical
+            irm_notify: "true"
           annotations:
             summary: "VolSync replication {{ $labels.obj_namespace }}/{{ $labels.obj_name }} is out of sync"
             description: >-
@@ -25,6 +26,7 @@ spec:
           for: 30m
           labels:
             severity: warning
+            irm_notify: "true"
           annotations:
             summary: "VolSync mover pod {{ $labels.namespace }}/{{ $labels.pod }} stuck in {{ $labels.phase }}"
             description: >-
