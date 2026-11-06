@@ -323,6 +323,51 @@ def build_summary(result: dict, output_dir: Path) -> None:
     write_json(output_dir / "public-result.json", public)
 
 
+def normalize_render_error(message: str, root: Path) -> str:
+    """Compare render failures without checkout-specific paths or helm temp dirs."""
+    text = message.replace(str(root.resolve()), "ROOT").replace(str(root), "ROOT")
+    text = re.sub(r"/tmp/kustomize-helm-\d+", "/tmp/kustomize-helm-ID", text)
+    text = re.sub(r"/tmp/kustomize-\d+", "/tmp/kustomize-ID", text)
+    return text
+
+
+def overlay_snapshot(root: Path, rel: str) -> tuple | None:
+    path = root / rel
+    if not path.is_dir():
+        return None
+    items = []
+    for file in sorted(path.rglob("*")):
+        rel_file = file.relative_to(path).as_posix()
+        if file.is_symlink():
+            items.append((rel_file, "symlink", str(file.readlink())))
+        elif file.is_file():
+            items.append((rel_file, "file", hashlib.sha256(file.read_bytes()).hexdigest()))
+    return tuple(items)
+
+
+def excuse_preexisting_render_failure(app: dict, base_root: Path, head_root: Path, unchanged_overlay: bool) -> bool:
+    """Drop matching render errors when this PR did not change the overlay.
+
+    An ApplicationSet edit re-renders every enabled overlay. A chart pull that
+    already fails on the base checkout is not a regression. A head-only failure,
+    a changed error, or an overlay this PR edited still blocks.
+    """
+    if not unchanged_overlay:
+        return False
+    base_errors = [error for error in app["errors"] if error.startswith("base render:")]
+    head_errors = [error for error in app["errors"] if error.startswith("head render:")]
+    if len(base_errors) != 1 or len(head_errors) != 1:
+        return False
+    base_message = normalize_render_error(base_errors[0].removeprefix("base render: "), base_root)
+    head_message = normalize_render_error(head_errors[0].removeprefix("head render: "), head_root)
+    if base_message != head_message:
+        return False
+    excused = {base_errors[0], head_errors[0]}
+    app["errors"] = [error for error in app["errors"] if error not in excused]
+    app["local"]["preexisting_render_failure"] = True
+    return True
+
+
 def plan_application(
     key: str,
     base_source: dict | None,
@@ -343,6 +388,14 @@ def plan_application(
         "live": [],
         "errors": [],
     }
+    unchanged_overlay = False
+    if (
+        base_source and head_source
+        and base_source.get("path") == head_source.get("path")
+        and base_source.get("state") == head_source.get("state")
+    ):
+        # Snapshot before kustomize/helm can write charts into the overlay.
+        unchanged_overlay = overlay_snapshot(base_root, base_source["path"]) == overlay_snapshot(head_root, head_source["path"])
     rendered: dict[str, str] = {}
     for side, root, source in (("base", base_root, base_source), ("head", head_root, head_source)):
         if source is None:
@@ -355,7 +408,8 @@ def plan_application(
             app["errors"].append(f"{side} render: {error}")
     if head_source and not project_allows_namespace(head_root, head_source):
         app["errors"].append(f"AppProject {head_source['project']} does not allow namespace {head_source['namespace']}")
-    if not app["errors"]:
+    preexisting = excuse_preexisting_render_failure(app, base_root, head_root, unchanged_overlay)
+    if not app["errors"] and not preexisting:
         before, after = rendered.get("base", ""), rendered.get("head", "")
         local_diff = "".join(difflib.unified_diff(
             before.splitlines(keepends=True), after.splitlines(keepends=True),

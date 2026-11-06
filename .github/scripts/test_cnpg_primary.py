@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate offline promtool fixtures from the rendered CNPG VMRule."""
+"""Generate offline promtool fixtures from the CNPG primary VMRule manifest."""
 import json
 from pathlib import Path
 import sys
@@ -68,9 +68,18 @@ def case(name, series, checks):
 
 
 def main():
-    docs = list(yaml.safe_load_all(Path(sys.argv[1]).read_text()))
-    vmrule = next(d for d in docs if d and d.get("kind") == "VMRule"
-                  and d["metadata"]["name"] == "cnpg-primary-availability")
+    source = Path(sys.argv[1])
+    docs = list(yaml.safe_load_all(source.read_text()))
+    matches = [
+        doc for doc in docs
+        if doc and doc.get("kind") == "VMRule"
+        and doc.get("metadata", {}).get("name") == "cnpg-primary-availability"
+    ]
+    if len(matches) != 1:
+        raise SystemExit(
+            f"{source}: expected one VMRule cnpg-primary-availability, found {len(matches)}"
+        )
+    vmrule = matches[0]
     rules = vmrule["spec"]["groups"][0]["rules"]
     assert len(rules) == 3
     for namespace, rule in zip(DATABASES, rules):

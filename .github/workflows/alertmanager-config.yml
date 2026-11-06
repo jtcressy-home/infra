@@ -184,7 +184,11 @@ jobs:
           amtool config routes test --config.file=/tmp/alertmanager.yml --verify.receivers=grafana-irm alertname=KubePodNotReady namespace=kube-system pod=ts-serve-advertise-talos-master-0 severity=warning irm_notify=true
       - name: Test CNPG primary availability and stable database identity
         run: |
-          python3 .github/scripts/test_cnpg_primary.py /tmp/monitoring.yaml /tmp/cnpg-fixtures
+          # Directory-included VMRules are not in the kustomize build. Validate
+          # the manifest Argo CD applies from bastion/rules.
+          python3 .github/scripts/test_cnpg_primary.py \
+            kubernetes/deploy/monitoring/monitoring/victoria-metrics/clusters/bastion/rules/cnpg-primary-rules.yaml \
+            /tmp/cnpg-fixtures
           docker run --rm --network none --entrypoint /bin/promtool \
             -v /tmp/cnpg-fixtures:/fixtures:ro \
             prom/prometheus:v3.5.0 test rules /fixtures/tests.yml
