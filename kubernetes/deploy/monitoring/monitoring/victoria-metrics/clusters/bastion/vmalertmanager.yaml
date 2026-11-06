@@ -17,11 +17,13 @@ spec:
   # The operator joins repository and tag with ":", which yields
   # prom/alertmanager:v0.29.0@sha256:.... A digest is not valid semver, so the
   # operator skips its version check; extraArgs keeps utf8-strict-mode on.
+  # receiver-name-in-metrics adds receiver_name to notification counters so
+  # IRMHeartbeat can ignore webhooks that are not Grafana IRM.
   image:
     repository: prom/alertmanager
     tag: v0.29.0@sha256:88743b63b3e09ea6e31e140ced5bf45f4a8e82c617c2a963f78841f4995ad1d7
   extraArgs:
-    enable-feature: utf8-strict-mode
+    enable-feature: utf8-strict-mode,receiver-name-in-metrics
   # Operator v0.66.1 uses this field as the full image. Multi-arch index
   # digest for ghcr.io/jimmidyson/configmap-reload:v0.15.0.
   configReloaderImageTag: ghcr.io/jimmidyson/configmap-reload:v0.15.0@sha256:b578b7599d65c0279f6e1aad201bba737b9b15e6a4f308281d9e26f765e6657f
@@ -43,13 +45,18 @@ spec:
       routes:
         # Arms IRM heartbeat BE9RQ16WK6VIV (600s). A longer gap pages.
         # Repeat stays inside that timeout. send_resolved is false.
+        # IRMHeartbeat stops when webhook delivery fails or local Alertmanager is down.
         - receiver: grafana-irm-watchdog
           matchers:
-            - alertname="Watchdog"
+            - alertname="IRMHeartbeat"
           group_by: ['alertname', 'cluster']
           group_wait: 0s
           group_interval: 1m
           repeat_interval: 50s
+        # Stock Watchdog keeps firing through a delivery failure, so it must not arm IRM.
+        - receiver: "null"
+          matchers:
+            - alertname="Watchdog"
         - receiver: "null"
           matchers:
             - alertname="InfoInhibitor"
@@ -88,6 +95,15 @@ spec:
           matchers:
             - namespace="media"
             - pod=~"recyclarr-.+|volsync-src-recyclarr-rsrc-.+"
+        # Permanent silence by Joel's decision (Nov 4, 2026). The real fix
+        # is infra#1055 (removing the CPU limit via Talos machine config,
+        # intentionally left unapplied).
+        - receiver: "null"
+          continue: false
+          matchers:
+            - alertname="CPUThrottlingHigh"
+            - namespace="kube-system"
+            - pod="ts-serve-advertise-talos-master-0"
         - receiver: grafana-irm
           matchers:
             - irm_notify="true"

@@ -21,8 +21,9 @@ prometheus-operator reloader treats `-webhook-url` as the short flag `-w` and
 exits. Operator v0.66.1 joins `image.repository` and `image.tag` with a colon,
 so the Alertmanager digest lives in the tag (`v0.29.0@sha256:…`). That string
 is not valid semver, so the operator skips its own version check;
-`extraArgs.enable-feature=utf8-strict-mode` keeps the flag that v0.29.0 would
-otherwise get. The reloader field on this operator is `configReloaderImageTag`,
+`extraArgs.enable-feature=utf8-strict-mode,receiver-name-in-metrics` keeps
+utf-8 strict mode and adds `receiver_name` to notification metrics. v0.29.0
+does not emit that label unless the feature is enabled. The reloader field on this operator is `configReloaderImageTag`,
 and it is the full image reference.
 
 This is a single replica with ephemeral storage. Replacing the pod drops local
@@ -51,11 +52,12 @@ templates two Secret keys from that field:
 | `url` | the 1Password field, unchanged |
 | `heartbeat_url` | the field with one trailing slash removed, then `/heartbeat/` |
 
-The page receiver reads `url`. Watchdog reads `heartbeat_url`. The first
-Watchdog post arms IRM heartbeat **BE9RQ16WK6VIV** on that integration. The
+The page receiver reads `url`. `IRMHeartbeat` reads `heartbeat_url`. The first
+`IRMHeartbeat` post arms IRM heartbeat **BE9RQ16WK6VIV** on that integration. The
 heartbeat timeout is 600 seconds. After it is armed, any gap longer than 10
 minutes pages through the default escalation chain. A revert, an Argo prune,
-or a pod that stays Pending is enough. Each webhook sends at most 100 alerts.
+a pod that stays Pending, or a stretch of failed webhook delivery is enough.
+Each webhook sends at most 100 alerts.
 Leave the IRM grouping template at `payload.groupKey`. Do not print the URL
 in logs, CI, PRs, or this document.
 
@@ -75,12 +77,24 @@ rules and nowhere else, so the rest of the firing set does not page.
 | `group_wait` | 30s |
 | `group_interval` | 5m |
 | `repeat_interval` | 4h |
-| Watchdog | `group_interval` 1m, `repeat_interval` 50s, `group_wait` 0s, `send_resolved` false |
+| IRMHeartbeat | `group_interval` 1m, `repeat_interval` 50s, `group_wait` 0s, `send_resolved` false |
 
-Watchdog is posted to the heartbeat URL about every 50 seconds so a healthy
-pipeline stays inside the 600 second timeout on BE9RQ16WK6VIV. Resolved
-notifications are off for that receiver. Stopping those posts does not stay
-quiet: once the heartbeat is armed, a gap longer than 10 minutes pages.
+`IRMHeartbeat` is posted to the heartbeat URL about every 50 seconds so a healthy
+pipeline stays inside the 600 second timeout on BE9RQ16WK6VIV. The rule fires
+while `vmalertmanager-local` is up and Grafana IRM webhook notifications have
+not failed in the last 5 minutes. The failure series must have
+`receiver_name` matching `grafana-irm` or `grafana-irm-watchdog`. The `null`
+receiver has no `webhook_configs`, so it cannot increment that counter. One
+failed post stops the posts for 5 minutes, which is inside the 600 second
+timeout. Sustained failure leaves a gap, and a gap longer than 10 minutes
+pages. The stock `Watchdog` alert keeps firing in those cases, so its route is
+`null` and it does not arm the heartbeat. Resolved notifications are off for
+the heartbeat receiver.
+
+`AlertmanagerConfigReloadFailed` fires when the local Alertmanager config reload
+has been unsuccessful for 10 minutes. `AlertmanagerLocalDown` fires when
+`vmalertmanager-local` has been down for 5 minutes. Both are `severity: warning`
+and have no `irm_notify` label, so they do not page.
 
 When `VolSyncVolumeOutOfSync` is opted in later, give that alert its own route
 grouped by `obj_namespace` and `obj_name`. The default `namespace` group would
@@ -113,9 +127,10 @@ digests, the 1Password item name, and the `heartbeat_url` template, runs
 `amtool check-config` on Alertmanager v0.29.0, and checks the routes above
 with `amtool config routes` in a container that has no network. An alert
 without `irm_notify` must resolve to `null`. One with `irm_notify="true"`
-must resolve to `grafana-irm`, unless it is Watchdog or known noise. Promtool
-runs the offline CNPG scenarios. None of that sends a live alert or reads the
-1Password value.
+must resolve to `grafana-irm`, unless it is `IRMHeartbeat`, `Watchdog`, or known
+noise. `IRMHeartbeat` resolves to `grafana-irm-watchdog`. `Watchdog` resolves
+to `null`. Promtool runs the offline CNPG scenarios. None of that sends a live
+alert or reads the 1Password value.
 
 Before relying on pages, after the item exists and a sync is approved:
 
@@ -124,13 +139,15 @@ Before relying on pages, after the item exists and a sync is approved:
 2. Pods for `VMAlertmanager/local` are Ready and VMAlert's notifier is
    `http://vmalertmanager-local.monitoring.svc:9093`.
 3. Integration C254NSW1QG433 shows heartbeat BE9RQ16WK6VIV staying under its
-   600 second timeout. The first Watchdog post arms that heartbeat. After
-   that, a gap longer than 10 minutes pages through the default chain. A
-   revert, an Argo prune, or a Pending pod does that.
+   600 second timeout. The first `IRMHeartbeat` post arms that heartbeat. After
+   merge, it should still be armed 30 minutes later. A gap longer than 10
+   minutes pages through the default chain. A revert, an Argo prune, a Pending
+   pod, or webhook delivery failures do that.
 4. An alert without `irm_notify` does not open an IRM incident. A
-   `CNPGPrimaryUnavailable` alert does.
-5. Resolving a paged alert resolves the matching IRM group. Watchdog does not
-   send resolved.
+   `CNPGPrimaryUnavailable` alert does. `AlertmanagerConfigReloadFailed` and
+   `AlertmanagerLocalDown` do not.
+5. Resolving a paged alert resolves the matching IRM group. `IRMHeartbeat` does
+   not send resolved. `Watchdog` is not delivered.
 
 `amtool` route tests do not simulate inhibition. Inhibition is asserted from
 the rendered config. CI does not run the operator, admit the CRD, or resolve
@@ -147,7 +164,7 @@ Two ways to stop pages without reverting the branch:
 
 Before reverting this change or removing the Alertmanager, turn on IRM
 maintenance mode on integration C254NSW1QG433, or disable heartbeat
-BE9RQ16WK6VIV. The first Watchdog post arms that heartbeat. After it is
+BE9RQ16WK6VIV. The first `IRMHeartbeat` post arms that heartbeat. After it is
 armed, a revert, an Argo prune, or a Pending pod leaves a gap, and a gap
 longer than 10 minutes pages through the default chain.
 
