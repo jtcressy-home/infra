@@ -1,0 +1,139 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-web
+  labels:
+    app.kubernetes.io/name: media-web
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: media-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: media-web
+    spec:
+      # 568 matches navidrome and sabnzbd. supplementalGroups 65536 matches
+      # sabnzbd, which is what grants read-write on purplebox-nfs-media.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 65536
+      containers:
+        - name: media-web
+          image: docker.io/filebrowser/filebrowser:v2.63.23@sha256:a469ea076d4a1b4b1d86a41d130f2f536cd9da996a2b1fb39c0d7635f9d89b9a
+          # Image entrypoint is tini -> init.sh, which prepends
+          # --config=/config/settings.json. These args override that file.
+          # --noauth applies only while the database is missing; quick setup
+          # stores auth method noauth in /config/filebrowser.db and later
+          # starts reuse it. There is no app login. Tailscale is the gate.
+          # Non-root cannot bind port 80, so HTTP listens on 8080.
+          args:
+            - --noauth
+            - --root=/data
+            - --database=/config/filebrowser.db
+            - --address=0.0.0.0
+            - --port=8080
+            - --disableExec
+          ports:
+            - containerPort: 8080
+              name: http
+          # Public siblings of purplebox-nfs-media only. The claim root and
+          # private are intentionally not mounted.
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: tmp
+              mountPath: /tmp
+            - name: media
+              mountPath: /data/downloads
+              subPath: downloads
+              readOnly: false
+            - name: media
+              mountPath: /data/dump
+              subPath: dump
+              readOnly: false
+            - name: media
+              mountPath: /data/game-servers
+              subPath: game-servers
+              readOnly: false
+            - name: media
+              mountPath: /data/home_assistant_config_old
+              subPath: home_assistant_config_old
+              readOnly: false
+            - name: media
+              mountPath: /data/misc
+              subPath: misc
+              readOnly: false
+            - name: media
+              mountPath: /data/movies
+              subPath: movies
+              readOnly: false
+            - name: media
+              mountPath: /data/music
+              subPath: music
+              readOnly: false
+            - name: media
+              mountPath: /data/plex_prerolls
+              subPath: plex_prerolls
+              readOnly: false
+            - name: media
+              mountPath: /data/scrypted
+              subPath: scrypted
+              readOnly: false
+            - name: media
+              mountPath: /data/software
+              subPath: software
+              readOnly: false
+            - name: media
+              mountPath: /data/tv
+              subPath: tv
+              readOnly: false
+            - name: media
+              mountPath: /data/wolf
+              subPath: wolf
+              readOnly: false
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: media-web-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: purplebox-nfs-media
+        - name: tmp
+          emptyDir: {}
