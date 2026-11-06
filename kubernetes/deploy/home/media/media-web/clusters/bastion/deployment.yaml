@@ -1,0 +1,158 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-web
+  labels:
+    app.kubernetes.io/name: media-web
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: media-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: media-web
+    spec:
+      # Quantum on uid/gid 568. fsGroup is omitted so kubelet does not
+      # recursively chown the media subPaths. supplementalGroups 65536 is the
+      # sabnzbd NFS write group and does not change ownership.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        supplementalGroups:
+          - 65536
+      initContainers:
+        - name: data-ownership
+          image: docker.io/gtstef/filebrowser:2.0.2-stable@sha256:de2b4c4d18485ea202ab2cdada5bd25d8f0b8ed071712c8216a67194c31285ae
+          # The config PVC is the SQLite directory only. Chown its root so uid
+          # 568 can create the database. Media is not mounted here.
+          command: ["/bin/chown", "568:568", "/home/filebrowser/data"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN"]
+          volumeMounts:
+            - name: data
+              mountPath: /home/filebrowser/data
+      containers:
+        - name: media-web
+          image: docker.io/gtstef/filebrowser:2.0.2-stable@sha256:de2b4c4d18485ea202ab2cdada5bd25d8f0b8ed071712c8216a67194c31285ae
+          env:
+            - name: HOME
+              value: /tmp
+          ports:
+            - containerPort: 8080
+              name: http
+          # Public siblings of purplebox-nfs-media only. The claim root and
+          # private are intentionally not mounted. /data is the Quantum source.
+          volumeMounts:
+            - name: data
+              mountPath: /home/filebrowser/data
+            - name: config
+              mountPath: /home/filebrowser/data/config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+            - name: media
+              mountPath: /data/downloads
+              subPath: downloads
+              readOnly: false
+            - name: media
+              mountPath: /data/dump
+              subPath: dump
+              readOnly: false
+            - name: media
+              mountPath: /data/game-servers
+              subPath: game-servers
+              readOnly: false
+            - name: media
+              mountPath: /data/home_assistant_config_old
+              subPath: home_assistant_config_old
+              readOnly: false
+            - name: media
+              mountPath: /data/misc
+              subPath: misc
+              readOnly: false
+            - name: media
+              mountPath: /data/movies
+              subPath: movies
+              readOnly: false
+            - name: media
+              mountPath: /data/music
+              subPath: music
+              readOnly: false
+            - name: media
+              mountPath: /data/plex_prerolls
+              subPath: plex_prerolls
+              readOnly: false
+            - name: media
+              mountPath: /data/scrypted
+              subPath: scrypted
+              readOnly: false
+            - name: media
+              mountPath: /data/software
+              subPath: software
+              readOnly: false
+            - name: media
+              mountPath: /data/tv
+              subPath: tv
+              readOnly: false
+            - name: media
+              mountPath: /data/wolf
+              subPath: wolf
+              readOnly: false
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: media-web-config
+        - name: config
+          configMap:
+            name: media-web
+        - name: media
+          persistentVolumeClaim:
+            claimName: purplebox-nfs-media
+        - name: tmp
+          emptyDir: {}

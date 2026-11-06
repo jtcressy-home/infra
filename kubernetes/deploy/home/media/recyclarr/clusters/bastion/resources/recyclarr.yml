@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://schemas.recyclarr.dev/v8/config-schema.json
 ---
 sonarr:
   sonarr:
@@ -5,17 +6,21 @@ sonarr:
     api_key: !env_var SONARR_API_KEY
 
     delete_old_custom_formats: true
-    replace_existing_custom_formats: true
 
-    include:
-      # Comment out any of the following includes to disable them
-      - template: sonarr-quality-definition-series
-      - template: sonarr-v4-quality-profile-web-2160p
-      - template: sonarr-v4-custom-formats-web-2160p
-      - template: sonarr-v4-quality-profile-web-1080p
-      - template: sonarr-v4-custom-formats-web-1080p
+    # v8 replacement for sonarr-quality-definition-series, web-2160p, and web-1080p.
+    quality_definition:
+      type: series
 
     quality_profiles:
+      - trash_id: d1498e7d189fbe6c7110ceaabb7473e6 # WEB-2160p
+        # Keep the existing name so the first sync adopts the profile already in Sonarr.
+        name: WEB-2160p
+        reset_unmatched_scores:
+          enabled: true
+      - trash_id: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p
+        name: WEB-1080p
+        reset_unmatched_scores:
+          enabled: true
       - name: WEB-720p
         reset_unmatched_scores:
           enabled: true
@@ -69,6 +74,20 @@ sonarr:
               - WEBRip-480p
           - name: DVD
           - name: SDTV
+
+    # v8 replacement for the web-2160p / web-1080p custom-format includes.
+    # Default groups for these profiles still sync; these entries are the template opt-ins.
+    custom_format_groups:
+      add:
+        - trash_id: e3f37512790f00d0e89e54fe5e790d1c # [Optional] Golden Rule UHD
+          assign_scores_to:
+            - name: WEB-2160p
+        - trash_id: 158188097a58d7687dee647e04af0da3 # [Optional] Golden Rule HD
+          assign_scores_to:
+            - name: WEB-1080p
+        - trash_id: 74aff4168620ed49dcc67e92b2c2a5b4 # [Optional] Language Profiles
+        - trash_id: 85fae4a2294965b75710ef2989c850eb # [Streaming Services] HD/UHD boost
+        - trash_id: 59c3af66780d08332fdc64e68297098f # [Unwanted] Unwanted Formats
 
     custom_formats:
       - trash_ids: ## This custom format list is the same as sonarr-v4-custom-formats-web-2160p but for the Any profile because it includes WEB-2160p releases
@@ -182,12 +201,27 @@ radarr:
     api_key: !env_var RADARR_API_KEY
 
     delete_old_custom_formats: true
-    replace_existing_custom_formats: true
+
+    # One Radarr. Recyclarr 8.7.1 drops every instance that shares a base_url, and
+    # quality sizes are global, so SQP-1 (sqp-streaming) and SQP-2/3/4 (sqp-uhd)
+    # stay on this instance. sqp-uhd is the size table the old include list applied
+    # last; it is the one that defines the remux sizes SQP-2/3/4 need.
+    quality_definition:
+      type: sqp-uhd
 
     quality_profiles:
-      - name: SQP-1 (2160p)
+      - trash_id: 5128baeb2b081b72126bc8482b2a86a0 # [SQP] SQP-1 (2160p)
+        # Keep the existing name so scores and the live profile stay on SQP-1 (2160p).
+        name: SQP-1 (2160p)
+        reset_unmatched_scores:
+          enabled: true
         # Uncomment the below line if you don't have access to top-tier indexers
         min_format_score: 10
+        # Required when qualities are set. Matches the guide cutoff for SQP-1 (2160p).
+        upgrade:
+          allowed: true
+          until_quality: Bluray-2160p
+          until_score: 10000
         qualities:
           - name: Bluray-2160p
           - name: WEB-2160p
@@ -208,30 +242,32 @@ radarr:
               - TELECINE
           - name: CAM
 
-    include:
-    ## SQP-1
-      # Comment out any of the following includes to disable them
-      - template: radarr-quality-definition-sqp-streaming
+      - trash_id: c3933358ba2356bafc41524f81471069 # [SQP] SQP-2
+        name: SQP-2
+        reset_unmatched_scores:
+          enabled: true
+      - trash_id: 2cf36c1f0106ffac993be003ade51865 # [SQP] SQP-3
+        name: SQP-3
+        reset_unmatched_scores:
+          enabled: true
+      - trash_id: 013f89e6da27519fe56cf482702a2db9 # [SQP] SQP-4
+        name: SQP-4
+        reset_unmatched_scores:
+          enabled: true
 
-      # Choose *one* of the following four options to determine quality profile preference
-      # IMAX-E options also require uncommenting the IMAX Enhanced custom format below
-      # Comment out all four options to disable quality profile sync
-      - template: radarr-quality-profile-sqp-1-2160p-default
-      # - template: radarr-quality-profile-sqp-1-2160p-imax-e
-      # - template: radarr-quality-profile-sqp-1-2160p-4k-only-default
-      # - template: radarr-quality-profile-sqp-1-2160p-4k-only-imax-e
-
-      - template: radarr-custom-formats-sqp-1-2160p
-
-    ## SQP-2
-      # Comment out any of the following includes to disable them
-      - template: radarr-quality-definition-sqp-uhd
-      - template: radarr-quality-profile-sqp-2
-      - template: radarr-quality-profile-sqp-3
-      - template: radarr-quality-profile-sqp-4
-      - template: radarr-custom-formats-sqp-2
-      - template: radarr-custom-formats-sqp-3
-      - template: radarr-custom-formats-sqp-4
+    # v8 replacement for the SQP custom-format includes.
+    # Skip the group whose guide text says to disable it when only one Radarr is used.
+    # x264 for SQP-2/3/4 stays in custom_formats below.
+    custom_format_groups:
+      add:
+        - trash_id: 15b1cf0b6f1a1493856a4355907affee # [Unwanted] Unwanted Formats SQP
+        - trash_id: ff204bbcecdd487d1cefcefdbf0c278d # [Optional] Golden Rule UHD
+          assign_scores_to:
+            - name: SQP-2
+            - name: SQP-3
+            - name: SQP-4
+      skip:
+        - feee39414cb4052dbc55d8752f87e211 # [SQP] Disable if one Radarr
 
 # Custom Formats: https://recyclarr.dev/wiki/yaml/config-reference/custom-formats/
     custom_formats:
