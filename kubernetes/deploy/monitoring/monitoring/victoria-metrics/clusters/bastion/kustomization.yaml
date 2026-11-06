@@ -1,6 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources: 
+# VMRules live in rules/ and are not part of this kustomize build.
+# victoria-metrics-bastion deploys them from a directory source
+# (recurse + include *-rules.yaml). Add an alert by adding a file there.
+resources:
 - persistence.yaml
 - vmsingle.yaml
 - vmalert.yaml
@@ -8,11 +11,3 @@ resources:
 - ingress.yaml
 - vmalertmanager.yaml
 - externalsecret.yaml
-- cnpg-primary-rules.yaml
-- cnpg-backup-age-rules.yaml
-- irm-heartbeat-rules.yaml
-- remote-access-rules.yaml
-- media-apps-down-rules.yaml
-- external-dns-rules.yaml
-- victorialogs-down-rules.yaml
-- talos-var-low-rules.yaml
