@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: media-web
+data:
+  config.yaml: |
+    # File Browser Quantum. Password login is disabled. Tailscale Serve, used by
+    # the tailscale Ingress, injects Tailscale-User-Login. Proxy auth trusts that
+    # header. No password or other secret belongs in this file.
+    http:
+      port: 8080
+      listen: "0.0.0.0"
+      baseURL: "/"
+      externalUrl: "https://media-web.tailnet-4d89.ts.net"
+      trustProxyHeaders: true
+    server:
+      disableUpdateCheck: true
+      cacheDir: /tmp/cache
+      database:
+        path: /home/filebrowser/data/database.sqlite
+      sources:
+        - path: /data
+          name: media
+          config:
+            defaultEnabled: true
+            defaultUserScope: /
+            defaultPermissions:
+              view: true
+              download: true
+              modify: true
+              create: true
+              delete: true
+    auth:
+      methods:
+        password:
+          enabled: false
+        proxy:
+          enabled: true
+          header: Tailscale-User-Login
