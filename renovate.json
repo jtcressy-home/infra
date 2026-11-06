@@ -515,14 +515,12 @@
       "matchFileNames": [
         "kubernetes/deploy/system/cert-manager/cert-manager/clusters/*/kustomization.yaml",
         "kubernetes/deploy/system/external-secrets/eso/clusters/*/kustomization.yaml",
-        "kubernetes/deploy/system/kube-system/external-dns-unifi/clusters/*/kustomization.yaml",
-        "kubernetes/deploy/system/kube-system/spegel/clusters/*/kustomization.yaml"
+        "kubernetes/deploy/system/kube-system/external-dns-unifi/clusters/*/kustomization.yaml"
       ],
       "matchPackageNames": [
         "cert-manager",
         "external-secrets",
-        "external-dns",
-        "spegel"
+        "external-dns"
       ],
       "matchUpdateTypes": [
         "minor",
