@@ -21,7 +21,7 @@ spec:
   # IRMHeartbeat can ignore webhooks that are not Grafana IRM.
   image:
     repository: prom/alertmanager
-    tag: v0.29.0@sha256:88743b63b3e09ea6e31e140ced5bf45f4a8e82c617c2a963f78841f4995ad1d7
+    tag: v0.35.0@sha256:e638797febd034838eca8b98cdbd46f951e9bf7f178777aa8669167406a9946c
   extraArgs:
     enable-feature: utf8-strict-mode,receiver-name-in-metrics
   # Operator v0.66.1 uses this field as the full image. Multi-arch index
