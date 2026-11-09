@@ -3,6 +3,10 @@ apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: cleanuparr-restic
+  annotations:
+    # Same wave as the PVC. The destination restore needs this secret
+    # before the claim can leave Pending.
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   secretStoreRef:
     kind: ClusterSecretStore
@@ -25,6 +29,15 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: cleanuparr
+  annotations:
+    # Wave -1, with the ReplicationDestination that populates it. The
+    # Deployment stays on wave 0, so it is not created while this claim is
+    # still Pending. Same-wave apply hits the default progress deadline on
+    # first sync. argocd-cm ignoreResourceUpdates.all then drops /status,
+    # and a Degraded-to-Healthy transition that lands during an in-flight
+    # reconcile is not replayed. The next sync of this annotation
+    # recomputes Application health from the live objects.
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   accessModes: ["ReadWriteOnce"]
   dataSourceRef:
@@ -40,6 +53,10 @@ apiVersion: volsync.backube/v1alpha1
 kind: ReplicationDestination
 metadata:
   name: cleanuparr-rdst
+  annotations:
+    # Same wave as the PVC. The claim stays Pending until this restore
+    # publishes status.latestImage.
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   trigger:
     manual: restore-zfs-snapshot
