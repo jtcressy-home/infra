@@ -6,7 +6,7 @@ toolchain go1.27.3
 
 require (
 	github.com/charmbracelet/huh/v2 v2.0.3
-	github.com/charmbracelet/lipgloss/v2 v2.0.6
+	github.com/charmbracelet/lipgloss/v2 v2.1.0
 	github.com/charmbracelet/log/v2 v2.0.1
 	github.com/dustin/go-humanize v1.1.0
 	github.com/go-logr/logr v1.4.4
