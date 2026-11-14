@@ -46,9 +46,10 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      backoffLimit: 1
       template:
         spec:
-          restartPolicy: OnFailure
+          restartPolicy: Never
           containers:
             - name: minio-r2-backup
               image: quay.io/minio/mc:RELEASE.2025-04-08T15-39-49Z
@@ -60,6 +61,10 @@ spec:
                 - /bin/sh
                 - -ec
                 - |
+                  echo "step 1: mc alias set local (minio.dograh.svc)"
                   mc alias set local http://minio.dograh.svc.cluster.local:80 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
+                  echo "step 2: mc alias set r2"
                   mc alias set r2 "$R2_ENDPOINT" "$R2_ACCESS_KEY_ID" "$R2_SECRET_ACCESS_KEY"
+                  echo "step 3: mc mirror --overwrite --summary local/voice-audio r2/dograh-voice-audio"
                   mc mirror --overwrite --summary local/voice-audio r2/dograh-voice-audio
+                  echo "step 3: mc mirror complete"
