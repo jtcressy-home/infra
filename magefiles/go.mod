@@ -6,12 +6,12 @@ toolchain go1.27.3
 
 require (
 	github.com/charmbracelet/huh/v2 v2.0.3
-	github.com/charmbracelet/lipgloss/v2 v2.1.0
+	github.com/charmbracelet/lipgloss/v2 v2.1.1
 	github.com/charmbracelet/log/v2 v2.0.1
 	github.com/dustin/go-humanize v1.1.0
 	github.com/go-logr/logr v1.4.4
 	github.com/kastenhq/kubestr v0.4.49
-	github.com/lainio/err2 v1.4.1
+	github.com/lainio/err2 v1.4.2
 	github.com/magefile/mage v1.17.2
 	github.com/samber/lo v1.53.0
 	github.com/xuri/excelize/v2 v2.11.1
