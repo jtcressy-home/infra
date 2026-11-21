@@ -21,7 +21,7 @@ spec:
         fsGroup: 1000
       initContainers:
         - name: init-db
-          image: ghcr.io/home-operations/postgres-init:18
+          image: ghcr.io/home-operations/postgres-init:19
           envFrom:
             - secretRef:
                 name: metamcp-secret
