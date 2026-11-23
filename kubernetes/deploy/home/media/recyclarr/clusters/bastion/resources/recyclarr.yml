@@ -46,18 +46,15 @@ sonarr:
         min_format_score: 0
         quality_sort: top
         qualities:
-          - name: BluRay-2160p
-            qualities:
-              - Bluray-2160p
-              - Bluray-2160p Remux
+          # Remux is ungrouped above the encode. Cutoff stays WEB 2160p.
+          - name: Bluray-2160p Remux
+          - name: Bluray-2160p
           - name: WEB 2160p
             qualities:
               - WEBDL-2160p
               - WEBRip-2160p
-          - name: BluRay-1080p
-            qualities:
-              - Bluray-1080p
-              - Bluray-1080p Remux
+          - name: Bluray-1080p Remux
+          - name: Bluray-1080p
           - name: Web-1080p
             qualities:
               - WEBDL-1080p
@@ -86,24 +83,23 @@ sonarr:
           assign_scores_to:
             - name: WEB-1080p
         - trash_id: 74aff4168620ed49dcc67e92b2c2a5b4 # [Optional] Language Profiles
+          assign_scores_to:
+            - name: WEB-2160p
+            - name: WEB-1080p
+            - name: Any
         - trash_id: 85fae4a2294965b75710ef2989c850eb # [Streaming Services] HD/UHD boost
+          assign_scores_to:
+            - name: WEB-2160p
+            - name: WEB-1080p
+            - name: Any
         - trash_id: 59c3af66780d08332fdc64e68297098f # [Unwanted] Unwanted Formats
+          assign_scores_to:
+            - name: WEB-2160p
+            - name: WEB-1080p
+            - name: Any
 
     custom_formats:
       - trash_ids: ## This custom format list is the same as sonarr-v4-custom-formats-web-2160p but for the Any profile because it includes WEB-2160p releases
-          # HDR Formats
-          - 2b239ed870daba8126a53bd5dc8dc1c8 # DV HDR10Plus
-          - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
-          - 1f733af03141f068a540eec352589a89 # DV HLG
-          - 27954b0a80aab882522a88a4d9eae1cd # DV SDR
-          - 6d0d8de7b57e35518ac0308b0ddf404e # DV
-          - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
-          - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
-          - 3497799d29a085e2ac2df9d468413c94 # HDR10
-          - a3d82cbef5039f8d295478d28a887159 # HDR10+
-          - 17e889ce13117940092308f48b48b45b # HLG
-          - 2a7e3be05d3861d6df7171ec74cad727 # PQ
-
           # Unwanted
           - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
           - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
@@ -134,23 +130,33 @@ sonarr:
           - ae58039e1319178e6be73caab5c42166 # SHO
           - 1efe8da11bfd74fbbcd4d8117ddb9213 # STAN
           - 43b3cf48cb385cd3eac608ee6bca7f09 # UHD Streaming Boost
-          - d2d299244a92b8a52d4921ce3897a256 # UHD Streaming Cut
 
           # HQ Source Groups
           - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
           - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
           - d84935abd3f8556dcd51d4f27e22d0a6 # WEB Tier 03
           - d0c516558625b04b363fa6c5c2c7cfd4 # WEB Scene
+
+          # Remux Source Groups
+          - 9965a052eb87b0d10313b1cea89eb451 # Remux Tier 01
+          - 8a1d0c3d7497e741736761a1da866a2e # Remux Tier 02
         assign_scores_to:
           - name: Any
       # HDR Formats
+      # HDR is 2000 (guide default 500) so non-tier DV/HDR
+      # (2000 + DV Boost 1000 + UHD Streaming Boost 75) beats WEB Tier 01 SDR (1700 + 75).
+      # HLG (17e889ce13117940092308f48b48b45b) is not assigned; Any keeps score 0.
       - trash_ids:
+          - 505d871304820ba7106b693be6fe4a9e # HDR
+        score: 2000
+        assign_scores_to:
+          - name: WEB-2160p
+          - name: Any
+      - trash_ids:
+          - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
+          - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
           # Comment out the next line if you and all of your users' setups are fully DV compatible
-          - 9b27ab6498ec0f31a3353992e19434ca # DV (WEBDL)
-
-          # HDR10+ Boost - Uncomment the next two lines if any of your devices DO support HDR10+
-          - 0dad0a507451acddd754fe6dc3a7f5e7 # HDR10+ Boost
-          - 385e9e8581d33133c3961bdcdeffb7b4 # DV HDR10+ Boost
+          - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback)
         assign_scores_to:
           - name: WEB-2160p
           - name: Any
@@ -194,6 +200,7 @@ sonarr:
           - 83304f261cf516bb208c18c54c0adf97 # SDR (no WEBDL)
         assign_scores_to:
           - name: WEB-2160p
+          - name: Any
 
 radarr:
   radarr:
