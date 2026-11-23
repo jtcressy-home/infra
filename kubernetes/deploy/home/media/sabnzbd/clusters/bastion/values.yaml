@@ -3,6 +3,8 @@
 
 controllers:
   sabnzbd:
+    pod:
+      terminationGracePeriodSeconds: 120
     containers:
       # temp:
       #   image:
@@ -40,7 +42,7 @@ controllers:
                 port: *port
               initialDelaySeconds: 0
               periodSeconds: 10
-              timeoutSeconds: 1
+              timeoutSeconds: 10
               failureThreshold: 3
           readiness: *probes
         resources:
