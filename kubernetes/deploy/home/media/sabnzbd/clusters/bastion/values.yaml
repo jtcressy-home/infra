@@ -5,6 +5,47 @@ controllers:
   sabnzbd:
     pod:
       terminationGracePeriodSeconds: 120
+    initContainers:
+      # ghcr.io/home-operations/sabnzbd entrypoint.sh (image rev f5f7db86,
+      # SABnzbd 5.1.2) writes SABNZBD__API_KEY, SABNZBD__NZB_KEY,
+      # SABNZBD__HOST_WHITELIST_ENTRIES, and SABNZBD__LOCAL_RANGES_ENTRIES only.
+      # An empty misc.permissions leaves completed job folders at mode 700, which
+      # Radarr (uid 1000) cannot read. 755 is owner rwx and group/other rx;
+      # SABnzbd strips the execute bit on files (644). Sonarr is uid 568.
+      permissions:
+        image:
+          repository: ghcr.io/home-operations/sabnzbd
+          tag: rolling@sha256:8172dc78c4e70baf88b18afca851bf77487e2e22802a6bd3502d7ef211dfb8fd
+        env:
+          SABNZBD__PERMISSIONS: &completedPermissions "755"
+        command:
+          - /bin/bash
+          - -ec
+          - |
+            mode="${SABNZBD__PERMISSIONS:?SABNZBD__PERMISSIONS is required}"
+            case "$mode" in
+              [0-7][0-7][0-7]|[0-7][0-7][0-7][0-7]) ;;
+              *)
+                echo "SABNZBD__PERMISSIONS must be 3 or 4 octal digits" >&2
+                exit 1
+                ;;
+            esac
+            ini=/config/sabnzbd.ini
+            if [[ ! -f "$ini" ]]; then
+              cp /defaults/sabnzbd.ini "$ini"
+            fi
+            if grep -q '^permissions *=' "$ini"; then
+              sed -i -e "s|^permissions *=.*$|permissions = ${mode}|" "$ini"
+            else
+              sed -i -e "/^\[misc\]/a permissions = ${mode}" "$ini"
+            fi
+            grep -q "^permissions = ${mode}$" "$ini"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
     containers:
       # temp:
       #   image:
@@ -19,6 +60,9 @@ controllers:
           repository: ghcr.io/home-operations/sabnzbd
           tag: rolling@sha256:8172dc78c4e70baf88b18afca851bf77487e2e22802a6bd3502d7ef211dfb8fd
         env:
+          # Written into sabnzbd.ini by the permissions initContainer. This
+          # image's entrypoint does not map SABNZBD__PERMISSIONS itself.
+          SABNZBD__PERMISSIONS: *completedPermissions
           SABNZBD__PORT: &port 8080
           SABNZBD__HOST_WHITELIST_ENTRIES: >-
             sabnzbd,
