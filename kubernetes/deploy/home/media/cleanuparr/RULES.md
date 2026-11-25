@@ -11,3 +11,5 @@ The process is uid 568 and gid 568 (`runAsUser` / `runAsGroup`), the same owner 
 `cleanuparr-secret` keeps `CLEANUPARR_ADMIN_USER` and `CLEANUPARR_ADMIN_PASS` from item `cleanuparr` (`username` / `password`). The same Owner ExternalSecret maps item `grokbot-doyle-webhooks` (vault `jtcressy-net-infra`, section `CLEANUPARR`): `DOYLE_WEBHOOK_URL` from field `cleanuparr_url`, and `DOYLE_WEBHOOK_KEY` from field `cleanuparr_key`. The secret stays unmounted. 2.10.12 does not read it.
 
 *arr API keys are typed into the UI. `cleanuparr-arr-secret` only copies the existing 1Password keys for CASE.
+
+Usenet malware blocklist. `clusters/bastion/blocklist/usenet-malware.txt` is the list, one pattern per line, with a trailing newline. Kustomize generates ConfigMap `cleanuparr-blocklist` from that file. A separate Deployment serves it read-only at `http://cleanuparr-blocklist.media.svc.cluster.local:8080/usenet-malware.txt` (ClusterIP only, no Ingress, no GitHub URL). Edit the file and sync. The ConfigMap name hash changes, so the blocklist Deployment rolls. The Cleanuparr UI setting that uses this URL is not in git.

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cleanuparr-blocklist
+  labels:
+    app.kubernetes.io/name: cleanuparr-blocklist
+spec:
+  selector:
+    app.kubernetes.io/name: cleanuparr-blocklist
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+  type: ClusterIP

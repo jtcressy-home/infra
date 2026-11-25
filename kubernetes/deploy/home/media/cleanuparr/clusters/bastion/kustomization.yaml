@@ -6,3 +6,11 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - blocklist-deployment.yaml
+  - blocklist-service.yaml
+
+configMapGenerator:
+  - name: cleanuparr-blocklist
+    files:
+      - usenet-malware.txt=./blocklist/usenet-malware.txt
+      - nginx.conf=./blocklist/nginx.conf
