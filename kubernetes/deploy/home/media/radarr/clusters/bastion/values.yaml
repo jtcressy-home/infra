@@ -70,6 +70,10 @@ defaultPodOptions:
     runAsGroup: 1000
     fsGroup: 1000
     fsGroupChangePolicy: OnRootMismatch
+    # SAB completed job dirs are mode 775 and owned by gid 568. Import moves
+    # and unlinks those files, so uid 1000 needs that group. runAsUser stays 1000.
+    supplementalGroups:
+      - 568
 persistence:
   config:
     existingClaim: &app radarr
