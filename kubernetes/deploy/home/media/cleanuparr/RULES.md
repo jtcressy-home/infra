@@ -8,6 +8,6 @@ Downloads mount only. PVC `purplebox-nfs-media` is mounted at `/media/downloads/
 
 The process is uid 568 and gid 568 (`runAsUser` / `runAsGroup`), the same owner SABnzbd uses for completed job dirs (directories 775, files 664). `supplementalGroups: [568]` repeats that group. Group 65536 is not added: Sonarr and Lidarr mount this NFS export as uid/gid 568 without it, and nothing in git shows the export is owned by 65536. `fsGroup: 568` stays the existing config-PVC setting. Do not add an fsGroup for the share.
 
-`cleanuparr-secret` keeps `CLEANUPARR_ADMIN_USER` and `CLEANUPARR_ADMIN_PASS` from item `cleanuparr` (`username` / `password`). Item `DOYLE_WEBHOOK_URL` is extracted in that same ExternalSecret with key prefix `DOYLE_WEBHOOK_URL_`, because its field labels are not verified (Joel: a URL and a key). There is no single key named `DOYLE_WEBHOOK_URL`; pinning a label would fail the admin sync if the label is wrong. The secret stays unmounted. 2.10.12 does not read it.
+`cleanuparr-secret` keeps `CLEANUPARR_ADMIN_USER` and `CLEANUPARR_ADMIN_PASS` from item `cleanuparr` (`username` / `password`). The same Owner ExternalSecret maps item `grokbot-doyle-webhooks` (vault `jtcressy-net-infra`, section `CLEANUPARR`): `DOYLE_WEBHOOK_URL` from field `cleanuparr_url`, and `DOYLE_WEBHOOK_KEY` from field `cleanuparr_key`. The secret stays unmounted. 2.10.12 does not read it.
 
 *arr API keys are typed into the UI. `cleanuparr-arr-secret` only copies the existing 1Password keys for CASE.
