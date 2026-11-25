@@ -20,12 +20,22 @@ spec:
       # 2.10.12 entrypoint.sh skips gosu when uid is not 0 and requires a
       # writable /config. SQLite, logs, and data-protection keys stay on the
       # PVC. /tmp holds the single-file bundle extract.
+      #
+      # SAB writes completed job dirs as uid/gid 568, mode 775 (files 664).
+      # This pod is already that uid and primary gid, so it can unlink those
+      # files. supplementalGroups repeats 568 so the shared group is explicit.
+      # 65536 is not added: Sonarr and Lidarr mount this same NFS export as
+      # uid/gid 568 without it, and git has no export ownership for 65536.
+      # fsGroup 568 is unchanged (config PVC). SAB already uses that same
+      # fsGroup on this subPath. No fsGroup was added for the share.
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 568
       containers:
         - name: cleanuparr
           image: ghcr.io/cleanuparr/cleanuparr:2.10.12@sha256:d0212e4c66bd0522e23c5e5da5d3006bd5ff0e0de1e3ecfcf892e039d55721e2
@@ -56,6 +66,13 @@ spec:
               mountPath: /config
             - name: tmp
               mountPath: /tmp
+            # Downloads only. Orphaned Files Cleaner and Malware Blocker
+            # delete files here, so the mount is read-write. No movies, tv,
+            # or other library subPath.
+            - name: downloads
+              mountPath: /media/downloads/nzbs
+              subPath: downloads/nzbs
+              readOnly: false
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -94,3 +111,6 @@ spec:
             claimName: cleanuparr
         - name: tmp
           emptyDir: {}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: purplebox-nfs-media
