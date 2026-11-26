@@ -2,6 +2,9 @@
 
 `go test ./...` discovers every `VMRule` under `kubernetes/deploy`, extracts its rule groups, and checks them with promtool `3.5.0` (`promtool check rules`). A manifest with no fixture is still syntax-checked.
 
+
+LogsQL groups (`type: vlogs`) cannot be checked or unit-tested with promtool. Put them in their own VMRule, do not add a `*_test.yaml` fixture, and validate the LogsQL against VictoriaLogs. The runner skips promtool for those manifests and rejects a mix of MetricsQL and LogsQL groups in one VMRule.
+
 Behavior tests are a promtool [unit test file](https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/) next to the manifest. `cnpg-backup-age-rules_test.yaml` and `irm-heartbeat-rules_test.yaml` are examples. Rules that do not have a fixture yet, including `cnpg-primary-rules.yaml`, are syntax-checked only. Alertmanager route tests stay in `.github/workflows/alertmanager-config.yml`.
 
 ## Add tests for a rule

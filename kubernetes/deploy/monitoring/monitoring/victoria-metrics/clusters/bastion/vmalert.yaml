@@ -9,7 +9,17 @@ spec:
   # useStrictSecurity: true # enables apparmor, which we can only use after upgrading to talos 1.8.0+
   replicaCount: 1
   evaluationInterval: 1m
+  # selectAllByDefault only applies when both selectors are unset. Keep cluster-wide
+  # discovery (including kube-system kps VMRules) and skip LogsQL rules, which need
+  # VMAlert/victoria-logs.
   selectAllByDefault: true
+  ruleNamespaceSelector: {}
+  ruleSelector:
+    matchExpressions:
+      - key: alerting.jtcressy.net/datasource
+        operator: NotIn
+        values:
+          - victorialogs
   externalLabels:
     cluster: "bastion"
   datasource: &vm

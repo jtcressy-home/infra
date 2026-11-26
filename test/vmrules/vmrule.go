@@ -218,6 +218,32 @@ func encodeGroups(groups *yaml.Node) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// groupKinds counts MetricsQL vs LogsQL (type: vlogs) groups in a rules file.
+type groupKinds struct {
+	Metrics int
+	VLogs   int
+}
+
+func classifyGroups(groupsYAML []byte) (groupKinds, error) {
+	var doc yaml.Node
+	if err := yaml.Unmarshal(groupsYAML, &doc); err != nil {
+		return groupKinds{}, err
+	}
+	groups := mapGet(documentRoot(&doc), "groups")
+	if groups == nil || groups.Kind != yaml.SequenceNode || len(groups.Content) == 0 {
+		return groupKinds{}, fmt.Errorf("no rule groups")
+	}
+	var kinds groupKinds
+	for _, group := range groups.Content {
+		if scalar(mapGet(group, "type")) == "vlogs" {
+			kinds.VLogs++
+			continue
+		}
+		kinds.Metrics++
+	}
+	return kinds, nil
+}
+
 // siblingFixture returns <name>_test.yaml or <name>_test.yml next to the manifest.
 func siblingFixture(rulePath string) (string, error) {
 	ext := filepath.Ext(rulePath)
