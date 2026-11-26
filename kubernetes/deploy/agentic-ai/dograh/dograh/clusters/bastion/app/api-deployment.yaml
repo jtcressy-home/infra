@@ -19,7 +19,7 @@ spec:
     spec:
       initContainers:
         - name: init-db
-          image: ghcr.io/home-operations/postgres-init:18
+          image: ghcr.io/home-operations/postgres-init:19
           env:
             - name: INIT_POSTGRES_DBNAME
               valueFrom:
