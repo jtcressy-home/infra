@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmalert_v1beta1.json
+# Evaluates LogsQL VMRules (type: vlogs) against VictoriaLogs. The existing
+# VMAlert/victoria points at vmsingle-alerts and cannot run these expressions.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlert
+metadata:
+  name: victoria-logs
+  namespace: monitoring
+spec:
+  replicaCount: 1
+  evaluationInterval: 1m
+  selectAllByDefault: false
+  ruleSelector:
+    matchLabels:
+      alerting.jtcressy.net/datasource: victorialogs
+  externalLabels:
+    cluster: "bastion"
+  datasource:
+    url: http://victoria-logs-victoria-logs-single-server.monitoring.svc:9428
+  # Alert state is stored in VictoriaMetrics, same as VMAlert/victoria.
+  remoteRead:
+    url: http://vmsingle-victoria.monitoring.svc:8429
+  remoteWrite:
+    url: http://vmagent-victoria.monitoring.svc:8429
+  notifiers:
+    - url: http://vmalertmanager-local.monitoring.svc:9093
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      cpu: 1
+      memory: 1Gi

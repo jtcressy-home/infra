@@ -151,6 +151,19 @@ groups:
 
 func checkRule(t *testing.T, bin string, rule Rule) error {
 	t.Helper()
+	kinds, err := classifyGroups(rule.GroupsYAML)
+	if err != nil {
+		return fmt.Errorf("%s/%s: %w", rule.Namespace, rule.Name, err)
+	}
+	if kinds.VLogs > 0 && kinds.Metrics > 0 {
+		return fmt.Errorf("%s/%s: mix of MetricsQL and LogsQL groups; split into separate VMRules", rule.Namespace, rule.Name)
+	}
+	if kinds.VLogs > 0 {
+		if rule.Fixture != "" {
+			return fmt.Errorf("%s: LogsQL VMRules cannot use a promtool fixture; validate against VictoriaLogs instead", rule.Fixture)
+		}
+		return nil
+	}
 	dir := t.TempDir()
 	rulesPath := filepath.Join(dir, "rules.yml")
 	if err := os.WriteFile(rulesPath, rule.GroupsYAML, 0o644); err != nil {
@@ -200,7 +213,51 @@ func backupAgeFixtureCoversScenarios(path string) error {
 	return nil
 }
 
+func TestCheckRuleSkipsVLogsAndRejectsMixedGroups(t *testing.T) {
+	vlogs := Rule{
+		File:      "vlogs.yaml",
+		Name:      "vlogs",
+		Namespace: "monitoring",
+		GroupsYAML: []byte(`
+groups:
+  - name: logs
+    type: vlogs
+    rules:
+      - alert: FromLogs
+        expr: '_time:1h app:sonarr | stats count() as n | filter n:>15'
+`),
+	}
+	if err := checkRule(t, "", vlogs); err != nil {
+		t.Fatalf("vlogs-only rule should skip promtool: %v", err)
+	}
+
+	mixed := vlogs
+	mixed.Name = "mixed"
+	mixed.GroupsYAML = []byte(`
+groups:
+  - name: logs
+    type: vlogs
+    rules:
+      - alert: FromLogs
+        expr: '_time:1h app:sonarr | stats count() as n | filter n:>15'
+  - name: metrics
+    rules:
+      - alert: FromMetrics
+        expr: vector(1)
+`)
+	if err := checkRule(t, "", mixed); err == nil {
+		t.Fatal("mixed MetricsQL and LogsQL groups should be rejected")
+	}
+
+	withFixture := vlogs
+	withFixture.Fixture = "vlogs_test.yaml"
+	if err := checkRule(t, "", withFixture); err == nil {
+		t.Fatal("LogsQL rule with a promtool fixture should be rejected")
+	}
+}
+
 func mustPromtool(t *testing.T) string {
+
 	t.Helper()
 	bin := os.Getenv("PROMTOOL")
 	if bin == "" {

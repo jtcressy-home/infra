@@ -1,0 +1,50 @@
+---
+# yaml-language-server: $schema=https://crds.jank.ing/operator.victoriametrics.com/vmrule_v1beta1.json
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: nzbfinder-grab-rate
+  namespace: monitoring
+  labels:
+    # Selected by VMAlert/victoria-logs (VictoriaLogs datasource). Excluded from
+    # VMAlert/victoria, which evaluates MetricsQL against vmsingle-alerts.
+    alerting.jtcressy.net/datasource: victorialogs
+spec:
+  groups:
+    - name: nzbfinder-grab-rate
+      type: vlogs
+      interval: 1m
+      rules:
+        # severity stays warning. irm_notify routes these to grafana-irm (CASE wake), not a direct page to Joel.
+        # Validated against VictoriaLogs (America/Chicago):
+        # - >15 grabs in 1h fired on the Nov 23 burst (192 grabs in the 10:00 CT hour) and stayed quiet
+        #   during the Nov 25-26 duplicate loop, which ran at ~6 grabs/hour.
+        # - >=3 grabs of the same release in 2h fired during that loop (e.g. 3-4 grabs each for
+        #   All-devouring Whale E05/E06/E08 in a 2h window) and stayed quiet on Nov 24.
+        - alert: NZBFinderGrabRateHigh
+          expr: |-
+            _time:1h app:~"sonarr|radarr" "Report sent to SABnzbd. Indexer NZBFinder"
+            | stats count() as grabs
+            | filter grabs:>15
+          for: 2m
+          labels:
+            k8s_cluster: bastion
+            severity: warning
+            irm_notify: "true"
+          annotations:
+            summary: NZBFinder grab rate from Sonarr/Radarr exceeded 15 in an hour
+            description: Sonarr or Radarr sent more than 15 NZBFinder grabs to SABnzbd in the last hour ({{ $value }}). This catches a burst; a same-release loop at a lower hourly rate is covered by NZBFinderDuplicateGrab.
+        - alert: NZBFinderDuplicateGrab
+          expr: |-
+            _time:2h app:~"sonarr|radarr" "Report sent to SABnzbd. Indexer NZBFinder"
+            | extract_regexp "Indexer NZBFinder \(Prowlarr\)\. (?P<release>\S+)"
+            | stats by (release, app) count() as grabs
+            | filter grabs:>=3
+          for: 2m
+          labels:
+            k8s_cluster: bastion
+            severity: warning
+            irm_notify: "true"
+          annotations:
+            summary: 'NZBFinder release {{ $labels.release }} grabbed 3 or more times in 2 hours'
+            description: '{{ $labels.app }} grabbed the same NZBFinder release {{ $labels.release }} {{ $value }} times in 2 hours. This is the duplicate-download loop NZBFinder warns can lead to a ban.'

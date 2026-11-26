@@ -3,10 +3,12 @@ kind: Kustomization
 # VMRules live in rules/ and are not part of this kustomize build.
 # victoria-metrics-bastion deploys them from a directory source
 # (recurse + include *-rules.yaml). Add an alert by adding a file there.
+# LogsQL VMRules need the victoria-logs VMAlert (vmalert-logs.yaml), not the metrics one.
 resources:
 - persistence.yaml
 - vmsingle.yaml
 - vmalert.yaml
+- vmalert-logs.yaml
 - vmagent.yaml
 - ingress.yaml
 - vmalertmanager.yaml
