@@ -27,7 +27,7 @@ controllers:
       app: &appcontainer
         image:
           repository: ghcr.io/home-operations/sonarr
-          tag: rolling@sha256:57ddf9972fa347a025504135bf73f5c84e4b67d33285b43f170a501145d8c43b
+          tag: rolling@sha256:ec7797f30e65cc411fba6768ed575337a5787de7d06c382173df610f2d23a317
         env:
           SONARR__APP__INSTANCE: Sonarr
           SONARR__APP__THEME: dark

@@ -38,7 +38,7 @@ spec:
           - 568
       containers:
         - name: cleanuparr
-          image: ghcr.io/cleanuparr/cleanuparr:2.10.12@sha256:d0212e4c66bd0522e23c5e5da5d3006bd5ff0e0de1e3ecfcf892e039d55721e2
+          image: ghcr.io/cleanuparr/cleanuparr:2.11.2@sha256:4093c0eb48c1926ef375e672f05ea804aacbe7d0900d203cc8716880ccf5a1df
           ports:
             - containerPort: 11011
               name: http

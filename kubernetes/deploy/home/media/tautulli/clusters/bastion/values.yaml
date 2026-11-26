@@ -7,7 +7,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/home-operations/tautulli
-          tag: 2.18.1@sha256:2cc92abed174f89d4fa75ab98e39af0114f37829e9c675718b264cc80931c4f5
+          tag: 2.19.1@sha256:602dc59bbc24f3127e086c1b702860b02abb846e7669e2ed53157bc7572c5c9b
         env:
           TZ: America/Chicago
         probes:
