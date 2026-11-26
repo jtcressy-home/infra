@@ -71,6 +71,10 @@ sonarr:
               - WEBRip-480p
           - name: DVD
           - name: SDTV
+      - trash_id: 20e0fc959f1f1704bed501f23bdae76f # [Anime] Remux-1080p
+        name: "[Anime] Remux-1080p"
+        reset_unmatched_scores:
+          enabled: true
 
     # v8 replacement for the web-2160p / web-1080p custom-format includes.
     # Default groups for these profiles still sync; these entries are the template opt-ins.
@@ -97,6 +101,28 @@ sonarr:
             - name: WEB-2160p
             - name: WEB-1080p
             - name: Any
+        # This default group also includes [Anime] Remux-1080p. Pin it to the
+        # WEB profiles that already receive it so general services stay off anime.
+        - trash_id: abe720fab2d27682adc2a735136cec02 # [Streaming Services] General
+          assign_scores_to:
+            - name: WEB-2160p
+            - name: WEB-1080p
+        # Official anime CF groups, scored with the profile's anime-sonarr set.
+        # Language Profiles is not assigned here.
+        - trash_id: f206572b1147d0221bb1c96765b349e8 # [Release Groups] Anime
+          select_all: true
+          assign_scores_to:
+            - name: "[Anime] Remux-1080p"
+        - trash_id: 4b196eed652c65ea98d615212040ebe2 # [Required] Anime Versions
+          assign_scores_to:
+            - name: "[Anime] Remux-1080p"
+        - trash_id: 4d3dc16c3ab3adc640afb8d6e3dc2266 # [Optional] Anime Optional
+          select_all: true
+          assign_scores_to:
+            - name: "[Anime] Remux-1080p"
+        - trash_id: f54985e5e96747cef58731f1cf4c9181 # [Streaming Services] Anime
+          assign_scores_to:
+            - name: "[Anime] Remux-1080p"
 
     custom_formats:
       - trash_ids: ## This custom format list is the same as sonarr-v4-custom-formats-web-2160p but for the Any profile because it includes WEB-2160p releases
@@ -152,6 +178,7 @@ sonarr:
         assign_scores_to:
           - name: WEB-2160p
           - name: Any
+          - name: "[Anime] Remux-1080p"
       - trash_ids:
           - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
           - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
@@ -160,6 +187,40 @@ sonarr:
         assign_scores_to:
           - name: WEB-2160p
           - name: Any
+          - name: "[Anime] Remux-1080p"
+      # Not in an anime CF group. anime-sonarr scores differ from the series
+      # defaults used on Any, so they are listed here for this profile only.
+      - trash_ids:
+          - 9965a052eb87b0d10313b1cea89eb451 # Remux Tier 01
+        score: 975
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
+      - trash_ids:
+          - 8a1d0c3d7497e741736761a1da866a2e # Remux Tier 02
+        score: 950
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
+      - trash_ids:
+          - 15a05bc7c1a36e2b57fd628f8977e2fc # AV1
+          - 07a32f77690263bb9fda1842db7e273f # VOSTFR
+        score: -10000
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
+      - trash_ids:
+          - d660701077794679fd59e8bdf4ce3a29 # AMZN
+        score: 3
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
+      - trash_ids:
+          - 89358767a60cc28783cdc3d0be9388a4 # DSNP
+        score: 5
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
+      - trash_ids:
+          - d34870697c9db575f17700212167be23 # NF
+        score: 4
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
 
       # Optional
       - trash_ids:
