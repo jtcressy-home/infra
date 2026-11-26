@@ -73,6 +73,11 @@ spec:
               mountPath: /media/downloads/nzbs
               subPath: downloads/nzbs
               readOnly: false
+            # Directory mount, not subPath, so a ConfigMap update is visible
+            # without a restart. Cleanuparr reloads this file every 5 minutes.
+            - name: blocklist
+              mountPath: /blocklists
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -114,3 +119,8 @@ spec:
         - name: downloads
           persistentVolumeClaim:
             claimName: purplebox-nfs-media
+        # Name matches the configMapGenerator. Kustomize rewrites it to the
+        # hashed ConfigMap name.
+        - name: blocklist
+          configMap:
+            name: cleanuparr-blocklist

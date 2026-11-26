@@ -6,3 +6,8 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+
+configMapGenerator:
+  - name: cleanuparr-blocklist
+    files:
+      - usenet-malware.txt=./blocklist/usenet-malware.txt
