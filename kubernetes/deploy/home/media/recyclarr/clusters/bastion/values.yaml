@@ -16,7 +16,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/recyclarr/recyclarr
-          tag: 8.7.1@sha256:73303ba5ee647b6492fee917d3a781c6e59b6cab08f9dfce9482a950846f564f
+          tag: 9.0.0@sha256:4973d11b18b5ef09fb226f4161eecb16434ff7e6b43c56d50fceb52fb22c66c7
         args:
           - sync
           # - --preview # dry-run mode
